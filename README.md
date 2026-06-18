@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktuelle Version:** 0.4.0
+**Aktuelle Version:** 0.5.0
 
 **Dokumentationsstand:** 18. Juni 2026
 
@@ -46,7 +46,7 @@ Die vollständigen lokalen Unterrichtsmaterialien liegen unter:
 Diese Originalmaterialien dienen als fachliche Referenz und werden durch
 `.gitignore` nicht in ein öffentliches Repository übernommen.
 
-## Funktionsumfang in Version 0.4.0
+## Funktionsumfang in Version 0.5.0
 
 - 19 Lektionen in sechs Modulen entlang der BPE6-Kompetenzspur
 - 22 prüfbare Übungen mit XP
@@ -69,8 +69,8 @@ Diese Originalmaterialien dienen als fachliche Referenz und werden durch
   Synchronisierung, Skriptimport und Ergebniskontrolle
 - Befehlsbibliothek mit 17 SQL-Karten und Miniaufgaben
 - XP, Level, Erfolge und Aktivitätsserie
-- lokaler Lernstand im Browser
-- Export und Import des Lernstands als JSON-Datei
+- lokaler Lernstand mit anonymisiertem Schülerkürzel im Browser
+- nachvollziehbarer JSON-Export mit Profil- und Gerätecode
 - Light- und Dark-Mode
 - Nachschlagebereich mit Bildungsplan, Landesbildungsserver,
   Informatik-Stick und MySQL-Workbench-Hinweisen
@@ -144,10 +144,15 @@ veröffentlicht werden.
 
 ## Datenschutz und Leistungsbewertung
 
-WorkbenchLab speichert Lernstand, XP, gelöste Aufgaben und Entwürfe lokal im
-Browser unter `workbenchlab-v1`. Es gibt kein Backend und keine zentrale
-Schülerdatenbank. Der Lernstand kann als JSON-Datei gesichert und wieder
-geladen werden.
+WorkbenchLab speichert Schülerkürzel, Lernstand, XP, gelöste Aufgaben und
+Entwürfe lokal im Browser unter `workbenchlab-v1`. Das Kürzel folgt dem Schema
+`ABC.DEF`: drei Buchstaben des Vornamens, Punkt, drei Buchstaben des Nachnamens.
+Es gibt kein Backend und keine zentrale Schülerdatenbank.
+
+Beim JSON-Export werden zusätzlich eine portable Profil-ID und eine zufällige
+ID des aktuellen Browserprofils ausgegeben. Die Geräte-ID ist keine
+Hardware-Kennung und wird beim Import nicht übernommen. Details und Grenzen
+der Zuordnung stehen in [Lernstand und Identität](docs/LERNSTAND_UND_IDENTITAET.md).
 
 Der SQL-Coach sendet weder SQL-Code noch Profil- oder Leistungsdaten an einen
 KI-Dienst. Ein optionaler KI-Ausbau ist nur über ein geschütztes serverseitiges
@@ -162,6 +167,7 @@ Lehrkraft maßgeblich.
 
 - [Tasks und Projektstand](TASKS.md)
 - [Technik und Didaktik](docs/TECHNIK_UND_DIDAKTIK.md)
+- [Lernstand und Identität](docs/LERNSTAND_UND_IDENTITAET.md)
 - [BPE6-Abgleich](docs/BPE6_ABGLEICH_2026.md)
 - [BPE6-Quellenentscheidung](references/bpe6/README.md)
 - [Übergabe für weitere Arbeit](UEBERGABE_Codex.md)

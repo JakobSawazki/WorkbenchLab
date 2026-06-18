@@ -125,17 +125,23 @@
   <div class="mobile-backdrop" id="mobileBackdrop"></div>
 
   <dialog class="profile-dialog" id="profileDialog">
-    <form method="dialog" id="profileForm">
+    <form method="dialog" id="profileForm" novalidate>
       <div class="dialog-heading">
         <span class="dialog-icon"><i data-lucide="user-round"></i></span>
         <div>
-          <p class="eyebrow">Nur auf diesem Gerät</p>
+          <p class="eyebrow">Anonym und eindeutig</p>
           <h2>Dein Lernprofil</h2>
         </div>
       </div>
-      <p>Wähle einen Vornamen oder ein Kürzel. Dein Fortschritt bleibt lokal in diesem Browserprofil gespeichert.</p>
-      <label for="profileName">Name oder Kürzel</label>
-      <input id="profileName" name="profileName" maxlength="18" autocomplete="off" placeholder="z. B. Mia oder MIA">
+      <p>Verwende drei Buchstaben deines Vornamens, einen Punkt und drei Buchstaben deines Nachnamens. So kann deine Lehrkraft den exportierten Lernstand zuordnen, ohne deinen vollständigen Namen zu speichern.</p>
+      <div class="profile-example" aria-label="Beispiel für ein Schülerkürzel">
+        <code>MIA.MUE</code>
+        <span>z. B. Mia Müller</span>
+      </div>
+      <label for="profileName">Schülerkürzel</label>
+      <input id="profileName" name="profileName" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC.DEF" pattern="[A-Za-z]{3}\.[A-Za-z]{3}" aria-describedby="profileNameHint profileNameError">
+      <small class="field-hint" id="profileNameHint">Umlaute werden automatisch umgeschrieben: Ä → AE, Ö → OE, Ü → UE, ß → SS.</small>
+      <p class="field-error" id="profileNameError" aria-live="polite"></p>
       <div class="dialog-actions">
         <button class="button button-secondary" value="cancel" type="button" id="profileCancelButton">Abbrechen</button>
         <button class="button button-primary" value="save" type="submit">
@@ -155,7 +161,7 @@
           <h2>Lernstand sichern</h2>
         </div>
       </div>
-      <p>Speichere deinen vollständigen WorkbenchLab-Fortschritt als JSON-Datei und lade ihn beim nächsten Unterricht wieder.</p>
+      <p>Speichere deinen vollständigen WorkbenchLab-Fortschritt als JSON-Datei. Schülerkürzel, Profilcode und der Code dieses Browserprofils machen die Sicherung nachvollziehbar.</p>
       <div class="backup-summary" id="backupSummary"></div>
       <div class="backup-actions">
         <button class="backup-action" id="exportProgressButton" type="button">
@@ -170,7 +176,7 @@
       </div>
       <div class="callout is-warning backup-note">
         <i data-lucide="info"></i>
-        <p>Der Browser darf den Desktop nicht automatisch wählen. Nutze im Speicherdialog bewusst den gewünschten Ort.</p>
+        <p>Der Gerätecode ist keine Hardware-Kennung. Er wird zufällig nur für dieses Browserprofil erzeugt und beim Import nicht auf ein anderes Gerät übertragen.</p>
       </div>
       <div class="dialog-actions">
         <button class="button button-secondary" value="cancel" type="button" id="backupCloseButton">Schließen</button>

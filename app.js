@@ -4,8 +4,10 @@
   const content = window.WORKBENCH_CONTENT;
   const storageKey = "workbenchlab-v1";
   const themeStorageKey = "workbenchlab-theme-v1";
+  const deviceStorageKey = "workbenchlab-device-v1";
   const backupAppId = "WorkbenchLab";
-  const backupFormatVersion = 1;
+  const backupFormatVersion = 2;
+  const studentCodePattern = /^[A-Z]{3}\.[A-Z]{3}$/;
   const sqlAssetBase = "vendor/sql.js/";
 
   const main = document.querySelector("#mainContent");
@@ -14,6 +16,7 @@
   const profileDialog = document.querySelector("#profileDialog");
   const profileForm = document.querySelector("#profileForm");
   const profileName = document.querySelector("#profileName");
+  const profileNameError = document.querySelector("#profileNameError");
   const backupDialog = document.querySelector("#backupDialog");
   const progressFileInput = document.querySelector("#progressFileInput");
   const runtimeChip = document.querySelector("#runtimeChip");
@@ -23,6 +26,7 @@
 
   const defaultState = {
     name: "",
+    profileId: "",
     completedLessons: [],
     completedPractices: [],
     completedCommands: [],
@@ -42,6 +46,12 @@
   ];
 
   let state = loadState();
+  const deviceIdentity = loadDeviceIdentity();
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(state));
+  } catch {
+    // The app still works for the current tab when browser storage is unavailable.
+  }
   let practiceFilter = "all";
   let SQLRuntime = null;
   let sqlReadyPromise = null;
@@ -64,6 +74,64 @@
       return [];
     }
     return [...new Set(values.filter((value) => typeof value === "string" && allowedIds.has(value)))];
+  }
+
+  function normalizeStudentCode(value) {
+    const cleaned = String(value || "")
+      .trim()
+      .toLocaleUpperCase("de-DE")
+      .replaceAll("Ä", "AE")
+      .replaceAll("Ö", "OE")
+      .replaceAll("Ü", "UE")
+      .replaceAll("ẞ", "SS")
+      .replaceAll("ß", "SS")
+      .replace(/[^A-Z.]/g, "");
+    if (cleaned.includes(".")) {
+      const [firstName = "", lastName = ""] = cleaned.split(".");
+      return `${firstName.slice(0, 3)}.${lastName.slice(0, 3)}`;
+    }
+    return cleaned.length === 6 ? `${cleaned.slice(0, 3)}.${cleaned.slice(3)}` : cleaned.slice(0, 7);
+  }
+
+  function isValidStudentCode(value) {
+    return studentCodePattern.test(value);
+  }
+
+  function createOpaqueId(prefix) {
+    const token = globalThis.crypto?.randomUUID?.()
+      || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 14)}`;
+    return `${prefix}_${token}`;
+  }
+
+  function isOpaqueId(value, prefix) {
+    return typeof value === "string"
+      && new RegExp(`^${prefix}_[A-Za-z0-9-]{12,80}$`).test(value);
+  }
+
+  function shortIdentity(value) {
+    return String(value || "")
+      .replace(/^[^_]*_/, "")
+      .replace(/[^A-Za-z0-9]/g, "")
+      .slice(-8)
+      .toUpperCase() || "UNBEKANNT";
+  }
+
+  function loadDeviceIdentity() {
+    try {
+      const storedRaw = localStorage.getItem(deviceStorageKey);
+      const stored = storedRaw ? JSON.parse(storedRaw) : null;
+      if (isOpaqueId(stored?.id, "device")) {
+        return {
+          id: stored.id,
+          createdAt: typeof stored.createdAt === "string" ? stored.createdAt : ""
+        };
+      }
+      const created = { id: createOpaqueId("device"), createdAt: new Date().toISOString() };
+      localStorage.setItem(deviceStorageKey, JSON.stringify(created));
+      return created;
+    } catch {
+      return { id: createOpaqueId("device"), createdAt: new Date().toISOString() };
+    }
   }
 
   function lessonById(id) {
@@ -127,9 +195,14 @@
       });
     });
 
+    const name = normalizeStudentCode(candidate.name);
+    const validName = isValidStudentCode(name) ? name : "";
     return {
       ...defaultState,
-      name: typeof candidate.name === "string" ? candidate.name.trim().slice(0, 18) : "",
+      name: validName,
+      profileId: validName
+        ? (isOpaqueId(candidate.profileId, "profile") ? candidate.profileId : createOpaqueId("profile"))
+        : "",
       completedLessons,
       completedPractices,
       completedCommands,
@@ -1730,14 +1803,30 @@
   }
 
   function exportFileName() {
-    return `workbenchlab-${safeFilePart(state.name)}-${todayKey()}.json`;
+    return `workbenchlab-${safeFilePart(state.name)}-geraet-${shortIdentity(deviceIdentity.id)}-${todayKey()}.json`;
   }
 
   function backupPayload() {
+    const exportedAt = new Date().toISOString();
     return {
       app: backupAppId,
       formatVersion: backupFormatVersion,
-      exportedAt: new Date().toISOString(),
+      appVersion: content.version,
+      exportedAt,
+      exportId: createOpaqueId("export"),
+      identity: {
+        studentCode: state.name,
+        profileId: state.profileId,
+        profileCode: shortIdentity(state.profileId),
+        deviceId: deviceIdentity.id,
+        deviceCode: shortIdentity(deviceIdentity.id),
+        deviceCreatedAt: deviceIdentity.createdAt
+      },
+      summary: {
+        xp: stateXp(),
+        completedLessons: state.completedLessons.length,
+        completedTasks: state.completedPractices.length + state.completedCommands.length
+      },
       data: state
     };
   }
@@ -1748,12 +1837,18 @@
       return;
     }
     summary.innerHTML = `
+      <div><strong>${escapeHtml(state.name || "Noch offen")}</strong><small>Schülerkürzel</small></div>
+      <div><strong>${escapeHtml(shortIdentity(deviceIdentity.id))}</strong><small>Gerätecode</small></div>
       <div><strong>${stateXp()} XP</strong><small>Erfahrung</small></div>
-      <div><strong>${state.completedLessons.length}</strong><small>Lektionen</small></div>
       <div><strong>${state.completedPractices.length + state.completedCommands.length}</strong><small>Aufgaben</small></div>`;
   }
 
   async function exportProgress() {
+    if (!isValidStudentCode(state.name)) {
+      backupDialog.close();
+      openProfileDialog("Lege vor dem Export dein Schülerkürzel im Format ABC.DEF fest.");
+      return;
+    }
     const json = JSON.stringify(backupPayload(), null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const suggestedName = exportFileName();
@@ -1806,9 +1901,20 @@
         throw new Error("Die Datei stammt aus einer neueren Version");
       }
       const importedState = normalizeState(parsed.data);
-      const label = importedState.name || "Gast";
+      if (parsed.formatVersion >= 2) {
+        if (!isValidStudentCode(importedState.name)) {
+          throw new Error("Die Sicherung enthält kein gültiges Schülerkürzel");
+        }
+        if (parsed.identity?.studentCode !== importedState.name
+          || parsed.identity?.profileId !== importedState.profileId) {
+          throw new Error("Die Identitätsdaten der Sicherung sind widersprüchlich");
+        }
+      }
+      const profileCode = shortIdentity(importedState.profileId);
+      const sourceDeviceCode = parsed.identity?.deviceCode || "älteres Format";
+      const legacyLabel = importedState.name || String(parsed.data.name || "älterer Lernstand").slice(0, 30);
       const confirmed = window.confirm(
-        `Lernstand von ${label} mit ${stateXp(importedState)} XP laden? Der aktuelle Browserstand wird ersetzt.`
+        `Lernstand ${legacyLabel} · Profil ${profileCode} · Exportgerät ${sourceDeviceCode} mit ${stateXp(importedState)} XP laden? Der aktuelle Browserstand wird ersetzt.`
       );
       if (!confirmed) {
         return;
@@ -1818,6 +1924,9 @@
       backupDialog.close();
       renderRoute();
       toast("Lernstand erfolgreich geladen");
+      if (!importedState.name) {
+        openProfileDialog("Diese ältere Sicherung braucht einmalig ein Schülerkürzel im Format ABC.DEF.");
+      }
     } catch (error) {
       toast(error.message || "Die Datei konnte nicht geladen werden", "error");
     } finally {
@@ -2020,15 +2129,42 @@
   });
   backdrop.addEventListener("click", closeMobileNav);
 
-  document.querySelector("#editProfileButton").addEventListener("click", () => {
+  function openProfileDialog(message = "") {
     profileName.value = state.name;
-    profileDialog.showModal();
-    profileName.focus();
+    profileNameError.textContent = message;
+    profileName.toggleAttribute("aria-invalid", Boolean(message));
+    if (!profileDialog.open) {
+      profileDialog.showModal();
+    }
+    window.requestAnimationFrame(() => {
+      profileName.focus();
+      profileName.select();
+    });
+  }
+
+  document.querySelector("#editProfileButton").addEventListener("click", () => {
+    openProfileDialog();
   });
   document.querySelector("#profileCancelButton").addEventListener("click", () => profileDialog.close());
+  profileName.addEventListener("input", () => {
+    profileName.removeAttribute("aria-invalid");
+    profileNameError.textContent = "";
+  });
+  profileName.addEventListener("blur", () => {
+    profileName.value = normalizeStudentCode(profileName.value);
+  });
   profileForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    state.name = profileName.value.trim().slice(0, 18);
+    const studentCode = normalizeStudentCode(profileName.value);
+    profileName.value = studentCode;
+    if (!isValidStudentCode(studentCode)) {
+      profileName.setAttribute("aria-invalid", "true");
+      profileNameError.textContent = "Bitte genau drei Buchstaben, einen Punkt und drei Buchstaben eingeben, zum Beispiel MIA.MUE.";
+      profileName.focus();
+      return;
+    }
+    state.name = studentCode;
+    state.profileId = isOpaqueId(state.profileId, "profile") ? state.profileId : createOpaqueId("profile");
     saveState();
     profileDialog.close();
     renderRoute();
@@ -2052,6 +2188,6 @@
   const suppressProfilePrompt = new URLSearchParams(window.location.search).has("screenshot");
   if (!suppressProfilePrompt && !state.name && !sessionStorage.getItem("workbenchlab-profile-seen")) {
     sessionStorage.setItem("workbenchlab-profile-seen", "1");
-    window.setTimeout(() => profileDialog.showModal(), 350);
+    window.setTimeout(() => openProfileDialog(), 350);
   }
 })();

@@ -2,7 +2,7 @@
 
 Stand: 18. Juni 2026
 
-Version: 0.4.0
+Version: 0.5.0
 
 Live: `https://jakobsawazki.github.io/WorkbenchLab/`
 
@@ -34,7 +34,7 @@ Die erste lauffähige Version ist als statische App umgesetzt:
 Die App enthält Lernpfad, SQL-Labor, Modellierungsübungen, Befehle,
 Nachschlagen, Erfolge, lokale Lernstandsicherung und Theme-Schalter.
 
-Version 0.4.0 umfasst 19 Lektionen, 22 Übungen und 17 SQL-Befehlskarten. Das
+Version 0.5.0 umfasst 19 Lektionen, 22 Übungen und 17 SQL-Befehlskarten. Das
 eigene Modul `eERM modellieren` führt vom Sachtext über Kardinalitäten zur
 M:N-Auflösung. Zwei interaktive Diagrammaufgaben prüfen Kardinalitäten und
 Fremdschlüssel direkt im Modell. Eine dritte Übungsdatenbank verbindet die
@@ -44,6 +44,12 @@ Eine fotorealistische, eigens generierte Bildserie rahmt die Lernbereiche,
 während Fachdiagramme weiterhin präzise und interaktiv in HTML/CSS bleiben.
 Der lokale SQL-Coach übersetzt Fehler, prüft Aufgabenbestandteile und vergleicht
 Ergebnismengen, ohne Schülercode an einen externen Dienst zu senden.
+
+Das lokale Lernprofil verwendet nun ein anonymisiertes Schülerkürzel im Format
+`ABC.DEF`. JSON-Sicherungen enthalten zusätzlich eine portable Profil-ID und
+einen zufälligen Code des exportierenden Browserprofils. Beim Import wandert
+die Profil-ID mit, der lokale Gerätecode wird nicht überschrieben. Das
+Exportformat ist Version 2; Dateien der Version 1 werden weiterhin angenommen.
 
 ## Didaktische Struktur
 

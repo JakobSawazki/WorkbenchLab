@@ -2019,7 +2019,7 @@ main {
 
 .backup-summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.65rem;
   margin: 0.9rem 0;
 }
@@ -2121,6 +2121,49 @@ main {
   background: var(--panel);
   color: var(--text);
   padding: 0.7rem 0.8rem;
+}
+
+.profile-dialog input[aria-invalid="true"] {
+  border-color: var(--red);
+}
+
+.profile-example {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.85rem;
+  border-left: 3px solid var(--brand-2);
+  background: var(--panel-strong);
+  padding: 0.65rem 0.75rem;
+}
+
+.profile-example code {
+  color: var(--brand-2);
+  font-size: 1.05rem;
+  font-weight: 850;
+}
+
+.profile-example span,
+.field-hint {
+  color: var(--muted);
+}
+
+.field-hint {
+  display: block;
+  margin-top: 0.45rem;
+  line-height: 1.45;
+}
+
+.field-error {
+  min-height: 1.35rem;
+  margin: 0.3rem 0 0;
+  color: var(--red);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.profile-dialog .dialog-actions {
+  margin-top: 0.85rem;
 }
 
 .toast-region {
@@ -2294,6 +2337,10 @@ main {
   .detail-actions .button,
   .runner-actions .button {
     width: 100%;
+  }
+
+  .profile-dialog .dialog-actions .button {
+    flex: 1 1 140px;
   }
 
   .sql-coach-head {

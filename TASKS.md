@@ -2,7 +2,7 @@
 
 Stand: 18. Juni 2026
 
-Aktuelle Version: 0.4.0
+Aktuelle Version: 0.5.0
 
 ## Leitentscheidung
 
@@ -92,6 +92,18 @@ und als interaktive Lernmodule umgesetzt.
   deterministische XP-Prüfung.
 - 2026-06-18: Neue Bildbereiche und SQL-Coach bei 1440 und 390 Pixeln geprüft;
   alle Bilder geladen, kein horizontaler Überlauf, keine Konsolenfehler.
+- 2026-06-18: Version 0.5.0 mit verbindlichem anonymisiertem Schülerkürzel im
+  Format `ABC.DEF`, verständlicher Eingabehilfe und klarer Fehlermeldung
+  umgesetzt.
+- 2026-06-18: Überlappung zwischen Fokusrahmen des Profilfelds und den
+  Dialogbuttons beseitigt; Dialog für Desktop und Mobilansicht überarbeitet.
+- 2026-06-18: JSON-Sicherung auf Format 2 erweitert: Schülerkürzel, portable
+  Profil-ID, lokaler Browser-/Gerätecode, Export-ID, App-Version, Zeitstempel
+  und kompakte Fortschrittszusammenfassung.
+- 2026-06-18: Import übernimmt die Profil-ID, aber niemals die Geräte-ID des
+  Quellgeräts; Sicherungen im bisherigen Format 1 bleiben importierbar.
+- 2026-06-18: Datenschutzgrenzen der lokalen Identitäten und Einsatzhinweise
+  für die Leistungsbewertung dokumentiert.
 
 ## Offen Priorisiert
 
@@ -104,8 +116,8 @@ und als interaktive Lernmodule umgesetzt.
    Plausibilitätsrückmeldung für mehrere richtige Modellvarianten erweitern.
 5. Normalisierung mit mehrstufigen Zerlege-Aufgaben erweitern.
 6. Abitur-Training mit gemischten Modellierungs- und SQL-Aufgaben ergänzen.
-7. Lehrkraftansicht planen: Export mehrerer Lernstände, Rubrik und Hinweise für
-   mündliche/KE-Leistung.
+7. Lehrkraftansicht planen: mehrere JSON-Lernstände anhand Schüler-, Profil-
+   und Gerätecode zusammenführen, Rubrik und Hinweise für mündliche/KE-Leistung.
 8. Versions- und Release-Prozess für künftige Unterrichtsstände festlegen.
 
 ## Ideen

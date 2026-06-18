@@ -57,7 +57,8 @@ Originalarbeitsblättern oder Lösungen gedacht.
 
 Der Lernstand liegt im `localStorage` unter `workbenchlab-v1` und enthält:
 
-- Name oder Kürzel
+- anonymisiertes Schülerkürzel im Format `ABC.DEF`
+- portable Profil-ID
 - abgeschlossene Lektionen
 - gelöste Übungen
 - gelöste Befehls-Miniaufgaben
@@ -67,7 +68,15 @@ Der Lernstand liegt im `localStorage` unter `workbenchlab-v1` und enthält:
 - zuletzt geöffnete Lektion
 
 Export und Import verwenden ein JSON-Format mit `app: "WorkbenchLab"` und
-`formatVersion: 1`.
+`formatVersion: 2`. Der Export ergänzt eine zufällige Export-ID, die App-Version,
+einen Zeitstempel und eine lokale Browser-/Geräte-ID. Die Profil-ID wird beim
+Import übernommen; die Geräte-ID des Zielbrowsers bleibt unverändert. Dateien
+mit `formatVersion: 1` können weiterhin geladen werden und verlangen danach
+einmalig ein gültiges Schülerkürzel.
+
+Die IDs erleichtern die organisatorische Zuordnung, sind aber weder
+Hardware-Fingerprinting noch ein manipulationssicherer Leistungsnachweis.
+Details stehen in `docs/LERNSTAND_UND_IDENTITAET.md`.
 
 ## Leistungsbewertung
 

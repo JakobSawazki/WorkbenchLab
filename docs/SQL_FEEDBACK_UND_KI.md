@@ -4,7 +4,7 @@ Stand: 18. Juni 2026
 
 ## Umgesetzter Stand
 
-Version 0.4.0 verwendet bewusst einen lokalen SQL-Coach. SQL-Code, Profil und
+Version 0.5.0 verwendet bewusst einen lokalen SQL-Coach. SQL-Code, Profil und
 Lernstand verlassen den Browser nicht. Die Rückmeldung basiert auf der echten
 Ausführung in `sql.js`, den geforderten Aufgabenbestandteilen und einem
 Vergleich mit der erwarteten Ergebnismenge.
