@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktuelle Version:** 0.2.0
+**Aktuelle Version:** 0.3.0
 
 **Dokumentationsstand:** 18. Juni 2026
 
@@ -46,20 +46,24 @@ Die vollständigen lokalen Unterrichtsmaterialien liegen unter:
 Diese Originalmaterialien dienen als fachliche Referenz und werden durch
 `.gitignore` nicht in ein öffentliches Repository übernommen.
 
-## Funktionsumfang in Version 0.2.0
+## Funktionsumfang in Version 0.3.0
 
-- 16 Lektionen entlang der BPE6-Kompetenzspur
-- 17 prüfbare Übungen mit XP
+- 19 Lektionen in sechs Modulen entlang der BPE6-Kompetenzspur
+- 22 prüfbare Übungen mit XP
 - browserbasiertes SQL-Labor über `sql.js`
-- zwei Übungsdatenbanken: eine einfache Fahrschüler-Tabelle und ein
-  normalisiertes Fahrschul-Schema mit mehreren Tabellen
+- drei Übungsdatenbanken: eine einfache Fahrschüler-Tabelle, ein
+  normalisiertes Fahrschul-Schema und eine Fahrradvermietung mit
+  Beziehungsentität
 - Prüfungen für Projektion, Selektion, Sortierung, `DISTINCT`, `LIKE`,
   Datumsfunktionen, Gruppierung, `HAVING`, `INSERT` und `JOIN`
-- Modellierungsübungen zu Kardinalitäten, Fremdschlüsseln, Normalformen und
-  Big Data
+- eigene eERM-Werkstatt: Sachtextanalyse, Rollen und Ereignisse,
+  Kardinalitäten, Optionalität und M:N-Auflösung
+- zwei interaktive eERM-Diagramme mit auswählbaren Kardinalitäten und
+  Fremdschlüsseln
+- Modellierungsübungen zu Fremdschlüsseln, Normalformen und Big Data
 - Workbench-Lerneinheit zu Dienststart, Verbindung, Forward Engineering,
   Synchronisierung, Skriptimport und Ergebniskontrolle
-- Befehlsbibliothek mit 15 SQL-Karten und Miniaufgaben
+- Befehlsbibliothek mit 17 SQL-Karten und Miniaufgaben
 - XP, Level, Erfolge und Aktivitätsserie
 - lokaler Lernstand im Browser
 - Export und Import des Lernstands als JSON-Datei
@@ -70,6 +74,8 @@ Diese Originalmaterialien dienen als fachliche Referenz und werden durch
   MySQL-Dienst und eERM in Workbench statt eingebetteter Screenshots
 
 ![Neu gestalteter Nachschlagebereich](docs/screenshots/nachschlagen-desktop.png)
+
+![Interaktive eERM-Aufgabe](docs/screenshots/eerm-diagram-desktop.png)
 
 ## SQL-Labor und MySQL Workbench
 

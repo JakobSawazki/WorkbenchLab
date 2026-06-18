@@ -2,7 +2,7 @@
 
 Stand: 18. Juni 2026
 
-Aktuelle Version: 0.2.0
+Aktuelle Version: 0.3.0
 
 ## Leitentscheidung
 
@@ -62,6 +62,22 @@ und als interaktive Lernmodule umgesetzt.
   17 Übungen und 15 Befehls-Miniaufgaben erfolgreich; keine Konsolenfehler.
 - 2026-06-18: Neue Nachschlagen-Seite bei 1440 und 390 Pixeln geprüft und
   dokumentiert; kein horizontaler Überlauf, keine abgeschnittenen Grafiken.
+- 2026-06-18: Version 0.3.0 um ein eigenes Modul `eERM modellieren` mit drei
+  vertiefenden Lektionen und dem bestehenden Workbench-Ablauf erweitert.
+- 2026-06-18: Sachtextanalyse, Rollen/Ereignisse, Zwei-Satz-Methode,
+  Optionalität und M:N-Auflösung didaktisch neu aufbereitet.
+- 2026-06-18: Neuer interaktiver Diagramm-Aufgabentyp mit Entity-Kästen,
+  Beziehungslinien, Kardinalitäts- und Fremdschlüsselauswahl implementiert.
+- 2026-06-18: Zwei konkrete eERM-Diagrammaufgaben zu Fahrradvermietung und
+  schulischen Bildungsangeboten ergänzt.
+- 2026-06-18: Normalisiertes Fahrradvermietungs-Schema und Drei-Tabellen-
+  SQL-Aufgabe mit `JOIN` und `DATEDIFF` ergänzt.
+- 2026-06-18: Schlüsselbibliothek um `PRIMARY KEY`/`AUTO_INCREMENT` und
+  `FOREIGN KEY`/`REFERENCES` erweitert.
+- 2026-06-18: Vollständiger Browser-Regressionstest für 19 Lektionsquizze,
+  22 Übungen und 17 Befehls-Miniaufgaben erfolgreich; keine Konsolenfehler.
+- 2026-06-18: eERM-Diagramme bei 1440 und 390 Pixeln geprüft; mobile
+  Beziehungskette ohne horizontalen Überlauf oder abgeschnittene Felder.
 
 ## Offen Priorisiert
 
@@ -70,8 +86,8 @@ und als interaktive Lernmodule umgesetzt.
    Originalaufgaben oder Lösungen ungeprüft zu veröffentlichen.
 3. Workbench-Pfad um Reverse Engineering, Modellversionen und typische
    Fehlermeldungen beim Verbindungsaufbau erweitern.
-4. eERM-Übungsmodus ausbauen: Tabellenkarten, Beziehungslinien,
-   Kardinalitätsauswahl und automatische Plausibilitätsprüfung.
+4. eERM-Werkstatt um freie Drag-and-Drop-Modelle und eine differenzierte
+   Plausibilitätsrückmeldung für mehrere richtige Modellvarianten erweitern.
 5. Normalisierung mit mehrstufigen Zerlege-Aufgaben erweitern.
 6. Abitur-Training mit gemischten Modellierungs- und SQL-Aufgaben ergänzen.
 7. Lehrkraftansicht planen: Export mehrerer Lernstände, Rubrik und Hinweise für

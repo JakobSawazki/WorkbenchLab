@@ -86,6 +86,9 @@
     if (practice.type === "sql") {
       return "SQL";
     }
+    if (practice.type === "diagram") {
+      return "eERM";
+    }
     if (practice.type === "slots") {
       return "Modell";
     }
@@ -425,6 +428,37 @@
           <div class="entity-box"><strong>Fahrschüler</strong><span>schuelernr PK</span><span>nachname</span><span>vorname</span></div>
           <div class="relationship">wohnt in · 1:N</div>
           <div class="entity-box"><strong>Ort</strong><span>ortnr PK</span><span>plz</span><span>ort</span></div>
+        </div>`,
+      "erm-analysis": `
+        <div class="diagram-wrap erm-analysis-board" aria-label="Vom Sachtext zum Entity-Relationship-Modell">
+          <div class="analysis-source"><span>Ein</span><strong>Kunde</strong><span>mietet</span><strong>ein Fahrrad</strong><span>von</span><em>Montag bis Mittwoch</em></div>
+          <i data-lucide="arrow-down"></i>
+          <div class="analysis-result">
+            <div><small>Entitätstyp</small><strong>kunden</strong></div>
+            <div><small>Beziehungsentität</small><strong>mietvertraege</strong></div>
+            <div><small>Entitätstyp</small><strong>fahrraeder</strong></div>
+          </div>
+        </div>`,
+      "cardinality-atlas": `
+        <div class="diagram-wrap cardinality-atlas" aria-label="Übersicht typischer Kardinalitäten">
+          <div><strong>1 : 1</strong><span>Person — Ausweis</span><small>höchstens ein Gegenstück</small></div>
+          <div><strong>1 : N</strong><span>Team — Fahrer</span><small>Fremdschlüssel auf der N-Seite</small></div>
+          <div><strong>M : N</strong><span>Team — Rennen</span><small>Beziehungsentität nötig</small></div>
+          <div><strong>0 .. N</strong><span>optional beteiligt</span><small>kein oder viele Exemplare</small></div>
+        </div>`,
+      "mn-associative": `
+        <div class="diagram-wrap mn-comparison" aria-label="Auflösung einer M-zu-N-Beziehung">
+          <div class="mn-state is-problem">
+            <span class="diagram-label">vorher</span>
+            <div class="mn-row"><strong>kunden</strong><b>M : N</b><strong>fahrraeder</strong></div>
+            <small>Wo liegen Zeitraum und Fremdschlüssel?</small>
+          </div>
+          <i data-lucide="arrow-down"></i>
+          <div class="mn-state is-solved">
+            <span class="diagram-label">aufgelöst</span>
+            <div class="mn-row"><strong>kunden</strong><b>1 : N</b><strong>mietvertraege</strong><b>N : 1</b><strong>fahrraeder</strong></div>
+            <small>Der Mietvertrag trägt beide Fremdschlüssel und den Zeitraum.</small>
+          </div>
         </div>`,
       "workbench-flow": `
         <div class="diagram-wrap workflow-diagram" aria-label="Ablauf von MySQL bis zur Ergebniskontrolle">
@@ -778,6 +812,9 @@
     setHeading("eERM, Schlüssel und Normalisierung", "Modellieren");
     activateNav("modeling");
     const practices = content.practices.filter((practice) => practice.type !== "sql");
+    const ermLessons = (moduleById("erm-werkstatt")?.lessonIds || [])
+      .map(lessonById)
+      .filter(Boolean);
     main.innerHTML = `
       <section class="hero-band">
         <div class="hero-content">
@@ -793,6 +830,16 @@
         </div>
         <div class="hero-visual">${renderVisual("er-simple")}</div>
       </section>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Geführter Schwerpunkt</p>
+          <h2>eERM-Werkstatt</h2>
+          <p>Vom Sachtext über Kardinalitäten und Beziehungsentitäten bis zum ausführbaren Workbench-Modell.</p>
+        </div>
+      </div>
+      <div class="card-grid two">
+        ${ermLessons.map(lessonCard).join("")}
+      </div>
       <div class="section-heading">
         <div>
           <p class="eyebrow">Prüfbare Aufgaben</p>
@@ -837,6 +884,8 @@
     activateNav(practice.type === "sql" ? "sql" : "modeling");
     if (practice.type === "sql") {
       renderSqlPractice(practice, lesson);
+    } else if (practice.type === "diagram") {
+      renderDiagramPractice(practice, lesson);
     } else if (practice.type === "slots") {
       renderSlotPractice(practice, lesson);
     } else {
@@ -973,6 +1022,67 @@
               <button class="button button-primary" type="submit">
                 <i data-lucide="check"></i>
                 Prüfen
+              </button>
+            </form>
+            <div class="result-banner ${completed ? "is-visible is-success" : ""}" id="practiceResult">
+              ${completed ? `<i data-lucide="circle-check"></i><div><strong>Bereits gelöst</strong><p>${escapeHtml(practice.explanation)}</p></div>` : ""}
+            </div>
+          </section>
+        </div>
+      </article>`;
+  }
+
+  function diagramSlotSelect(practice, slotId, answers) {
+    const slot = practice.slots.find((item) => item.id === slotId);
+    if (!slot) {
+      return "";
+    }
+    return `
+      <label class="diagram-select-wrap">
+        <span>${escapeHtml(slot.label)}</span>
+        <select data-slot-id="${escapeHtml(slot.id)}" name="${escapeHtml(slot.id)}" aria-label="${escapeHtml(slot.label)}">
+          <option value="">Bitte wählen ...</option>
+          ${slot.options.map((option) => `<option value="${escapeHtml(option)}" ${answers[slot.id] === option ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}
+        </select>
+      </label>`;
+  }
+
+  function renderDiagramPractice(practice, lesson) {
+    const answers = state.slotDrafts[practice.id] || {};
+    const completed = state.completedPractices.includes(practice.id);
+    main.innerHTML = `
+      <article class="lesson-detail">
+        ${renderPracticeHeader(practice, lesson)}
+        <div class="lesson-body">
+          <section class="practice-panel diagram-practice-panel">
+            <p>${escapeHtml(practice.prompt)}</p>
+            <form id="diagramPracticeForm" data-practice-id="${practice.id}">
+              <figure class="diagram-practice-canvas">
+                <figcaption>${escapeHtml(practice.diagram.caption)}</figcaption>
+                <div class="diagram-chain">
+                  ${practice.diagram.chain.map((item) => {
+                    if (item.type === "relation") {
+                      return `
+                        <div class="diagram-relation-control">
+                          <span>${escapeHtml(item.label)}</span>
+                          ${diagramSlotSelect(practice, item.slotId, answers)}
+                        </div>`;
+                    }
+                    return `
+                      <div class="diagram-entity-box">
+                        <header><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.role || "Entitätstyp")}</small></header>
+                        <div>
+                          ${item.attributes.map((attribute) => typeof attribute === "string"
+                            ? `<span>${escapeHtml(attribute)}</span>`
+                            : diagramSlotSelect(practice, attribute.slotId, answers)).join("")}
+                        </div>
+                      </div>`;
+                  }).join("")}
+                </div>
+              </figure>
+              <button class="button button-primary" type="submit">
+                <i data-lucide="check"></i>
+                Diagramm prüfen
               </button>
             </form>
             <div class="result-banner ${completed ? "is-visible is-success" : ""}" id="practiceResult">
@@ -1713,6 +1823,10 @@
       checkChoicePractice(event.target);
     }
     if (event.target.id === "slotPracticeForm") {
+      event.preventDefault();
+      checkSlotPractice(event.target);
+    }
+    if (event.target.id === "diagramPracticeForm") {
       event.preventDefault();
       checkSlotPractice(event.target);
     }

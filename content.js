@@ -1,5 +1,5 @@
 window.WORKBENCH_CONTENT = {
-  version: "0.2.0",
+  version: "0.3.0",
   updated: "2026-06-18",
 
   modules: [
@@ -8,32 +8,39 @@ window.WORKBENCH_CONTENT = {
       number: "01",
       title: "Daten verstehen",
       description: "Warum Datenbanken nötig sind und wie aus einer Situation Tabellen, Schlüssel und erste ER-Modelle entstehen.",
-      lessonIds: ["warum-datenbanken", "relation-und-schluessel", "eerm-grundlagen", "workbench-workflow"]
+      lessonIds: ["warum-datenbanken", "relation-und-schluessel", "eerm-grundlagen"]
+    },
+    {
+      id: "erm-werkstatt",
+      number: "02",
+      title: "eERM modellieren",
+      description: "Sachtexte analysieren, Kardinalitäten begründen und M:N-Beziehungen über Beziehungsentitäten auflösen.",
+      lessonIds: ["erm-sachtext-analyse", "erm-kardinalitaeten", "erm-beziehungsentitaet", "workbench-workflow"]
     },
     {
       id: "sql-einstieg",
-      number: "02",
+      number: "03",
       title: "SQL lesen und schreiben",
       description: "SELECT, Projektion, Filtermuster, Datumsfunktionen, Gruppierung und Datenpflege.",
       lessonIds: ["select-projektion", "where-sortierung", "sql-muster", "funktionen-gruppierung", "datum-berechnungen", "daten-verwalten"]
     },
     {
       id: "mehrere-tabellen",
-      number: "03",
+      number: "04",
       title: "Mehrere Tabellen sicher verbinden",
       description: "Fremdschlüssel, referentielle Integrität, Joins und M:N-Beziehungen.",
       lessonIds: ["fremdschluessel-integritaet", "joins", "mn-beziehungen"]
     },
     {
       id: "qualitaet",
-      number: "04",
+      number: "05",
       title: "Datenmodelle verbessern",
       description: "Redundanz erkennen, 3NF prüfen und Normalisierung als Werkzeug nutzen.",
       lessonIds: ["redundanz-3nf", "normalisierung"]
     },
     {
       id: "gesellschaft",
-      number: "05",
+      number: "06",
       title: "Daten bewerten",
       description: "Big Data, digitale Spuren, Chancen und Risiken begründet diskutieren.",
       lessonIds: ["big-data"]
@@ -170,6 +177,63 @@ INSERT INTO fahrstunden VALUES
 (10, '2026-04-08', 2, 7, 3, 3),
 (11, '2026-04-12', 1, 1, 2, 2),
 (12, '2026-04-19', 2, 6, 1, 1);
+`
+    },
+    fahrradvermietung: {
+      title: "Fahrradvermietung: M:N über Mietverträge",
+      description: "Ein aus dem eERM abgeleitetes Schema: Kunden und Fahrräder werden über Mietverträge mit Zeitraum verbunden.",
+      tables: [
+        { name: "kunden", fields: ["kundennr PK", "nachname", "vorname", "ort"] },
+        { name: "fahrraeder", fields: ["fahrradnr PK", "modell", "typ", "tagessatz"] },
+        { name: "mietvertraege", fields: ["vertragnr PK", "von_datum", "bis_datum", "kundennr FK", "fahrradnr FK"] }
+      ],
+      seed: `
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE kunden (
+  kundennr INTEGER PRIMARY KEY,
+  nachname TEXT NOT NULL,
+  vorname TEXT NOT NULL,
+  ort TEXT NOT NULL
+);
+
+CREATE TABLE fahrraeder (
+  fahrradnr INTEGER PRIMARY KEY,
+  modell TEXT NOT NULL,
+  typ TEXT NOT NULL,
+  tagessatz REAL NOT NULL
+);
+
+CREATE TABLE mietvertraege (
+  vertragnr INTEGER PRIMARY KEY,
+  von_datum TEXT NOT NULL,
+  bis_datum TEXT NOT NULL,
+  kundennr INTEGER NOT NULL,
+  fahrradnr INTEGER NOT NULL,
+  FOREIGN KEY (kundennr) REFERENCES kunden(kundennr),
+  FOREIGN KEY (fahrradnr) REFERENCES fahrraeder(fahrradnr)
+);
+
+INSERT INTO kunden VALUES
+(1, 'Kaya', 'Elif', 'Konstanz'),
+(2, 'Lorenz', 'Finn', 'Meersburg'),
+(3, 'Okafor', 'Amara', 'Friedrichshafen'),
+(4, 'Scholz', 'Timo', 'Konstanz'),
+(5, 'Varga', 'Lina', 'Überlingen');
+
+INSERT INTO fahrraeder VALUES
+(1, 'CityFlow 7', 'Citybike', 18.00),
+(2, 'LakeRunner', 'Trekkingrad', 24.00),
+(3, 'Alpine E2', 'E-Bike', 39.00),
+(4, 'TrailFox', 'Mountainbike', 29.00);
+
+INSERT INTO mietvertraege VALUES
+(1, '2026-05-03', '2026-05-05', 1, 3),
+(2, '2026-05-08', '2026-05-08', 2, 1),
+(3, '2026-05-12', '2026-05-15', 1, 2),
+(4, '2026-05-18', '2026-05-20', 3, 4),
+(5, '2026-06-02', '2026-06-04', 4, 3),
+(6, '2026-06-10', '2026-06-11', 5, 1);
 `
     }
   },
@@ -308,9 +372,140 @@ INSERT INTO fahrstunden VALUES
       }
     },
     {
-      id: "workbench-workflow",
-      module: "fundament",
+      id: "erm-sachtext-analyse",
+      module: "erm-werkstatt",
       index: "04",
+      title: "Vom Sachtext zum ER-Modell",
+      subtitle: "Ein gutes Datenmodell beginnt mit fachlichen Objekten, Ereignissen und Regeln, nicht mit Tabellenkästchen.",
+      duration: 30,
+      xp: 45,
+      difficulty: "medium",
+      practiceId: "erm-entity-analysis",
+      objectives: [
+        "Entitäten, Entitätstypen, Attribute und Beziehungstypen aus einem Sachtext ableiten",
+        "Rollen und Ereignisse als mögliche Entitätstypen erkennen",
+        "ungeeignete Entitätstypen und mehrwertige Attribute begründet vermeiden"
+      ],
+      sections: [
+        {
+          title: "Substantive sind Kandidaten, keine fertige Lösung",
+          body: [
+            "Markiere zunächst fachlich wichtige Substantive und Verben. Substantive können Entitätstypen oder Attribute werden; Verben weisen oft auf Beziehungstypen hin.",
+            "Ein eigener Entitätstyp lohnt sich, wenn viele unterscheidbare Exemplare vorkommen, eigene Attribute benötigt werden und die Objekte unabhängig identifiziert werden müssen."
+          ],
+          visual: "erm-analysis"
+        },
+        {
+          title: "Auch Rollen und Ereignisse sind modellierbar",
+          body: [
+            "Nicht nur Gegenstände sind Entitäten. Kunde, Fahrlehrer oder Teamleiter sind Rollen; Bestellung, Wartung und Mietvertrag sind Ereignisse oder Vorgänge.",
+            "Ein Vorgang wird besonders dann zum eigenen Entitätstyp, wenn er eigene Informationen wie Datum, Dauer, Preis, Note oder Status besitzt."
+          ],
+          code: `Sachtext: "Ein Kunde mietet ein Fahrrad von Montag bis Mittwoch."\nEntitätstypen: kunden, fahrraeder, mietvertraege\nVorgangsattribute: von_datum, bis_datum`,
+          tip: "Frage bei jedem Kandidaten: Gibt es mehrere Exemplare? Brauche ich eine eindeutige Nummer? Hat er eigene Attribute?"
+        }
+      ],
+      quiz: {
+        question: "Warum sollte ein Mietvertrag als eigener Entitätstyp modelliert werden?",
+        options: [
+          "Weil der Vorgang eigene Attribute wie Mietbeginn und Mietende besitzt.",
+          "Weil jedes Verb automatisch eine Datenbanktabelle werden muss.",
+          "Weil Kunden und Fahrräder dann keine Primärschlüssel benötigen."
+        ],
+        correct: 0,
+        explanation: "Eigene Vorgangsattribute sind ein starkes Signal für eine Beziehungs- oder Ereignisentität."
+      }
+    },
+    {
+      id: "erm-kardinalitaeten",
+      module: "erm-werkstatt",
+      index: "05",
+      title: "Kardinalitäten sicher begründen",
+      subtitle: "1:1, 1:N und M:N entstehen aus Geschäftsregeln und werden immer in beide Richtungen gelesen.",
+      duration: 32,
+      xp: 50,
+      difficulty: "medium",
+      practiceId: "erm-cardinality-cases",
+      objectives: [
+        "Kardinalitäten mit der Zwei-Satz-Methode bestimmen",
+        "1:1-, 1:N- und M:N-Beziehungen an Sachverhalten unterscheiden",
+        "optionale Beteiligung mit 0..1 oder 0..N von verpflichtender Beteiligung abgrenzen"
+      ],
+      sections: [
+        {
+          title: "Die Zwei-Satz-Methode",
+          body: [
+            "Formuliere jede Beziehung zweimal: Ein A gehört zu wie vielen B? Ein B gehört zu wie vielen A? Erst beide Antworten ergeben die Kardinalität.",
+            "Beispiel: Ein Fahrer gehört genau zu einem Team. Ein Team hat mehrere Fahrer. Daraus folgt Team 1:N Fahrer."
+          ],
+          visual: "cardinality-atlas"
+        },
+        {
+          title: "Minimum und Maximum getrennt denken",
+          body: [
+            "Die maximale Kardinalität beantwortet eins oder viele. Das Minimum beschreibt, ob eine Beteiligung verpflichtend ist: 0 bedeutet optional, 1 verpflichtend.",
+            "In Crow's-Foot-Notation steht ein Kreis für 0, ein Strich für 1 und der Krähenfuß für viele. Formuliere zuerst die fachliche Regel und zeichne danach das Symbol."
+          ],
+          code: `0..1  optional, höchstens eins\n1..1  verpflichtend, genau eins\n0..N  optional, beliebig viele\n1..N  mindestens eins, beliebig viele`,
+          warning: "Kardinalitäten dürfen nicht aus vorhandenen Beispieldaten geraten werden. Entscheidend ist, was fachlich möglich und erlaubt sein soll."
+        }
+      ],
+      quiz: {
+        question: "Eine Schule bietet viele Bildungsgänge an; derselbe Bildungsgang kann an vielen Schulen angeboten werden. Welche Kardinalität liegt vor?",
+        options: ["M:N", "1:N", "1:1"],
+        correct: 0,
+        explanation: "Beide Richtungen erlauben viele Zuordnungen. Die M:N-Beziehung muss später aufgelöst werden."
+      }
+    },
+    {
+      id: "erm-beziehungsentitaet",
+      module: "erm-werkstatt",
+      index: "06",
+      title: "M:N mit einer Beziehungsentität auflösen",
+      subtitle: "Eine Zwischentabelle macht aus einer M:N-Beziehung zwei 1:N-Beziehungen und kann den Vorgang selbst beschreiben.",
+      duration: 34,
+      xp: 55,
+      difficulty: "plus",
+      practiceId: "erm-rental-diagram",
+      objectives: [
+        "begründen, warum wiederholte Fremdschlüsselspalten keine tragfähige Lösung sind",
+        "eine M:N-Beziehung mit einer Beziehungsentität in zwei 1:N-Beziehungen zerlegen",
+        "Fremdschlüssel und eigene Vorgangsattribute korrekt platzieren"
+      ],
+      sections: [
+        {
+          title: "Warum M:N nicht direkt gespeichert wird",
+          body: [
+            "Spalten wie kursnr_1, kursnr_2 und kursnr_3 begrenzen die Anzahl der Zuordnungen künstlich und erzeugen viele leere Felder. Eine Liste in einer Zelle verletzt außerdem die 1NF.",
+            "Die stabile Lösung ist eine zusätzliche Relation. Sie enthält Fremdschlüssel auf beide ursprünglichen Relationen."
+          ],
+          visual: "mn-associative"
+        },
+        {
+          title: "Die Beziehung wird zum fachlichen Vorgang",
+          body: [
+            "Bei Kunden und Fahrrädern heißt die Beziehungsentität zum Beispiel mietvertraege. Sie speichert kundennr und fahrradnr als Fremdschlüssel sowie von_datum und bis_datum als eigene Attribute.",
+            "Ein künstlicher Primärschlüssel wie vertragnr ist praktisch, wenn derselbe Kunde dasselbe Fahrrad zu verschiedenen Zeitpunkten erneut mietet."
+          ],
+          code: `kunden 1 --- N mietvertraege N --- 1 fahrraeder\n\nmietvertraege(vertragnr PK, von_datum, bis_datum,\n               kundennr FK, fahrradnr FK)`,
+          tip: "Benenne die Zwischentabelle nach dem fachlichen Vorgang: belegungen, teilnahmen, wartungseinsaetze oder mietvertraege."
+        }
+      ],
+      quiz: {
+        question: "Wo gehören Mietbeginn und Mietende im aufgelösten Modell hin?",
+        options: [
+          "In die Beziehungsentität mietvertraege.",
+          "Dauerhaft in die Tabelle kunden.",
+          "Als wiederholte Spalten in die Tabelle fahrraeder."
+        ],
+        correct: 0,
+        explanation: "Der Zeitraum beschreibt die konkrete Verbindung zwischen einem Kunden und einem Fahrrad."
+      }
+    },
+    {
+      id: "workbench-workflow",
+      module: "erm-werkstatt",
+      index: "07",
       title: "Vom Modell zur Datenbank",
       subtitle: "In MySQL Workbench wird aus dem eERM eine echte Datenbank, die du mit Skripten füllst und mit SQL überprüfst.",
       duration: 28,
@@ -363,7 +558,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "select-projektion",
       module: "sql-einstieg",
-      index: "05",
+      index: "08",
       title: "SELECT und Projektion",
       subtitle: "Mit SELECT wählst du aus, welche Attribute in der Ergebnismenge erscheinen.",
       duration: 22,
@@ -407,7 +602,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "where-sortierung",
       module: "sql-einstieg",
-      index: "06",
+      index: "09",
       title: "Selektion, Bedingungen und Sortierung",
       subtitle: "WHERE filtert Datensätze, ORDER BY bringt das Ergebnis in eine nachvollziehbare Reihenfolge.",
       duration: 26,
@@ -447,7 +642,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "sql-muster",
       module: "sql-einstieg",
-      index: "07",
+      index: "10",
       title: "DISTINCT und flexible Filter",
       subtitle: "Mit DISTINCT, LIKE, IN und BETWEEN formulierst du präzise Abfragen für typische Suchsituationen.",
       duration: 28,
@@ -492,7 +687,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "funktionen-gruppierung",
       module: "sql-einstieg",
-      index: "08",
+      index: "11",
       title: "Funktionen, Gruppierung und HAVING",
       subtitle: "Aggregatfunktionen verdichten viele Datensätze zu aussagekräftigen Kennzahlen.",
       duration: 30,
@@ -536,7 +731,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "datum-berechnungen",
       module: "sql-einstieg",
-      index: "09",
+      index: "12",
       title: "Datum und Berechnungen",
       subtitle: "Datumsfunktionen und berechnete Spalten machen aus gespeicherten Werten neue Informationen.",
       duration: 26,
@@ -581,7 +776,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "daten-verwalten",
       module: "sql-einstieg",
-      index: "10",
+      index: "13",
       title: "CREATE, INSERT, UPDATE, DELETE",
       subtitle: "Datenbanken werden nicht nur gelesen, sondern auch aufgebaut und gepflegt.",
       duration: 28,
@@ -626,7 +821,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "fremdschluessel-integritaet",
       module: "mehrere-tabellen",
-      index: "11",
+      index: "14",
       title: "Fremdschlüssel und referentielle Integrität",
       subtitle: "Fremdschlüssel verbinden Tabellen und verhindern verwaiste Datensätze.",
       duration: 24,
@@ -670,7 +865,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "joins",
       module: "mehrere-tabellen",
-      index: "12",
+      index: "15",
       title: "Joins über mehrere Tabellen",
       subtitle: "Mit JOIN setzt du fachlich zusammengehörige Informationen aus mehreren Relationen wieder zusammen.",
       duration: 32,
@@ -714,7 +909,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "mn-beziehungen",
       module: "mehrere-tabellen",
-      index: "13",
+      index: "16",
       title: "M:N-Beziehungen auflösen",
       subtitle: "Viele-zu-viele-Beziehungen brauchen in relationalen Datenbanken eine eigene Zwischentabelle.",
       duration: 26,
@@ -758,7 +953,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "redundanz-3nf",
       module: "qualitaet",
-      index: "14",
+      index: "17",
       title: "Redundanz und Dritte Normalform",
       subtitle: "Gute Datenmodelle speichern Fakten möglichst einmal und vermeiden Änderungsanomalien.",
       duration: 30,
@@ -802,7 +997,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "normalisierung",
       module: "qualitaet",
-      index: "15",
+      index: "18",
       title: "Normalisierung 1NF bis 3NF",
       subtitle: "Normalisierung ist ein Prüfverfahren, mit dem du Tabellen schrittweise in robuste Relationen zerlegst.",
       duration: 28,
@@ -846,7 +1041,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "big-data",
       module: "gesellschaft",
-      index: "16",
+      index: "19",
       title: "Big Data: Chancen und Risiken",
       subtitle: "Massendaten können Zusammenhänge sichtbar machen, aber auch Menschen transparent und beeinflussbar machen.",
       duration: 24,
@@ -958,6 +1153,138 @@ INSERT INTO fahrstunden VALUES
         }
       ],
       explanation: "Ein Fahrschüler verweist auf einen Ort. Ein Ort kann bei vielen Fahrschülern vorkommen."
+    },
+    {
+      id: "erm-entity-analysis",
+      lessonId: "erm-sachtext-analyse",
+      type: "slots",
+      title: "Sachtext fachlich zerlegen",
+      description: "Ordne die Bestandteile einer Fahrradvermietung den passenden Elementen des ER-Modells zu.",
+      difficulty: "medium",
+      xp: 45,
+      prompt: "Eine Vermietung speichert Kunden, Fahrräder und jeden Mietvorgang mit Beginn und Ende. Ein Kunde kann im Laufe der Zeit verschiedene Fahrräder mieten.",
+      slots: [
+        {
+          id: "people",
+          label: "Personen mit Name und Anschrift",
+          options: ["Entitätstyp kunden", "Attribut kunden", "Beziehungstyp mietet"],
+          answer: "Entitätstyp kunden"
+        },
+        {
+          id: "objects",
+          label: "Einzelne vermietbare Räder",
+          options: ["Entitätstyp fahrraeder", "Attribut tagessatz", "Beziehungstyp besitzt"],
+          answer: "Entitätstyp fahrraeder"
+        },
+        {
+          id: "event",
+          label: "Vorgang mit Beginn und Ende",
+          options: ["Entitätstyp mietvertraege", "Attribut kunden", "Primärschlüssel fahrraeder"],
+          answer: "Entitätstyp mietvertraege"
+        },
+        {
+          id: "eventAttributes",
+          label: "Eigenschaften des Mietvorgangs",
+          options: ["von_datum und bis_datum", "nachname und vorname", "modell und typ"],
+          answer: "von_datum und bis_datum"
+        },
+        {
+          id: "relationship",
+          label: "Fachlicher Zusammenhang",
+          options: ["Kunde mietet Fahrrad", "Kunde ist Fahrrad", "Mietvertrag ist Datum"],
+          answer: "Kunde mietet Fahrrad"
+        }
+      ],
+      explanation: "Kunden und Fahrräder sind fachliche Objekte. Der Mietvertrag ist ein Vorgang mit eigenen Attributen und wird deshalb selbst modelliert."
+    },
+    {
+      id: "erm-cardinality-cases",
+      lessonId: "erm-kardinalitaeten",
+      type: "choice",
+      title: "Kardinalitäten aus Regeln ableiten",
+      description: "Bestimme für vier fachliche Situationen die passende maximale Kardinalität.",
+      difficulty: "medium",
+      xp: 50,
+      questions: [
+        {
+          question: "Ein Team beschäftigt viele Fahrer; jeder Fahrer gehört genau zu einem Team.",
+          options: ["Team 1:N Fahrer", "Team M:N Fahrer", "Team 1:1 Fahrer"],
+          correct: 0,
+          feedback: "Ein Team steht mit vielen Fahrern in Beziehung, jeder Fahrer aber nur mit einem Team."
+        },
+        {
+          question: "Viele Teams nehmen an vielen Rennveranstaltungen teil.",
+          options: ["Team M:N Veranstaltung", "Team 1:N Veranstaltung", "Team 1:1 Veranstaltung"],
+          correct: 0,
+          feedback: "Beide Richtungen erlauben mehrere Zuordnungen."
+        },
+        {
+          question: "Jedes Haus gehört genau einer Kategorie; eine Kategorie beschreibt viele Häuser.",
+          options: ["Kategorie 1:N Haus", "Kategorie M:N Haus", "Kategorie 1:1 Haus"],
+          correct: 0,
+          feedback: "Die Kategorie ist die 1-Seite, die Häuser bilden die N-Seite."
+        },
+        {
+          question: "Eine Person besitzt höchstens einen aktuell gültigen Bibliotheksausweis; jeder Ausweis gehört genau einer Person.",
+          options: ["Person 1:1 Ausweis", "Person 1:N Ausweis", "Person M:N Ausweis"],
+          correct: 0,
+          feedback: "Unter dieser fachlichen Regel ist auf beiden Seiten höchstens ein Exemplar beteiligt."
+        }
+      ]
+    },
+    {
+      id: "erm-rental-diagram",
+      lessonId: "erm-beziehungsentitaet",
+      type: "diagram",
+      title: "eERM Fahrradvermietung vervollständigen",
+      description: "Setze Kardinalitäten und Fremdschlüssel direkt im Modell aus Kunden, Mietverträgen und Fahrrädern.",
+      difficulty: "plus",
+      xp: 55,
+      prompt: "Ein Kunde kann viele Mietverträge abschließen. Jeder Mietvertrag gehört genau zu einem Kunden und betrifft genau ein Fahrrad. Ein Fahrrad kann im Laufe der Zeit in vielen Mietverträgen vorkommen.",
+      diagram: {
+        caption: "Aufgelöste M:N-Beziehung Kunden ↔ Fahrräder",
+        chain: [
+          { type: "entity", title: "kunden", role: "Parent", attributes: ["kundennr PK", "nachname", "vorname", "ort"] },
+          { type: "relation", label: "schließt ab", slotId: "customerCardinality" },
+          { type: "entity", title: "mietvertraege", role: "Beziehungsentität", attributes: ["vertragnr PK", "von_datum", "bis_datum", { slotId: "customerForeignKey" }, { slotId: "bikeForeignKey" }] },
+          { type: "relation", label: "betrifft", slotId: "bikeCardinality" },
+          { type: "entity", title: "fahrraeder", role: "Parent", attributes: ["fahrradnr PK", "modell", "typ", "tagessatz"] }
+        ]
+      },
+      slots: [
+        { id: "customerCardinality", label: "kunden zu mietvertraege", options: ["1:N", "M:N", "1:1"], answer: "1:N" },
+        { id: "bikeCardinality", label: "mietvertraege zu fahrraeder", options: ["N:1", "M:N", "1:1"], answer: "N:1" },
+        { id: "customerForeignKey", label: "Kunden-Fremdschlüssel", options: ["kundennr FK", "vertragnr FK", "nachname FK"], answer: "kundennr FK" },
+        { id: "bikeForeignKey", label: "Fahrrad-Fremdschlüssel", options: ["fahrradnr FK", "modell FK", "tagessatz FK"], answer: "fahrradnr FK" }
+      ],
+      explanation: "mietvertraege ist die Child-Tabelle zu beiden Parent-Tabellen. Sie enthält beide Fremdschlüssel und die Attribute des Mietvorgangs."
+    },
+    {
+      id: "erm-school-diagram",
+      lessonId: "erm-beziehungsentitaet",
+      type: "diagram",
+      title: "eERM Bildungsangebote modellieren",
+      description: "Löse die M:N-Beziehung zwischen Schulen und Bildungsgängen über eine Zuordnungsrelation auf.",
+      difficulty: "plus",
+      xp: 50,
+      prompt: "Eine Schule bietet mehrere Bildungsgänge an. Ein Bildungsgang kann an mehreren Schulen angeboten werden. Für jedes Angebot soll gespeichert werden, seit welchem Schuljahr es besteht.",
+      diagram: {
+        caption: "M:N-Auflösung für schulische Bildungsangebote",
+        chain: [
+          { type: "entity", title: "schulen", role: "Parent", attributes: ["schulnr PK", "name", "plz", "ort"] },
+          { type: "relation", label: "führt", slotId: "schoolCardinality" },
+          { type: "entity", title: "angebote", role: "Beziehungsentität", attributes: ["angebotnr PK", "seit_schuljahr", { slotId: "schoolForeignKey" }, { slotId: "programForeignKey" }] },
+          { type: "relation", label: "gilt für", slotId: "programCardinality" },
+          { type: "entity", title: "bildungsgaenge", role: "Parent", attributes: ["bildungsgangnr PK", "bezeichnung", "dauer"] }
+        ]
+      },
+      slots: [
+        { id: "schoolCardinality", label: "schulen zu angebote", options: ["1:N", "M:N", "1:1"], answer: "1:N" },
+        { id: "programCardinality", label: "angebote zu bildungsgaenge", options: ["N:1", "M:N", "1:1"], answer: "N:1" },
+        { id: "schoolForeignKey", label: "Schul-Fremdschlüssel", options: ["schulnr FK", "angebotnr FK", "name FK"], answer: "schulnr FK" },
+        { id: "programForeignKey", label: "Bildungsgang-Fremdschlüssel", options: ["bildungsgangnr FK", "dauer FK", "angebotnr FK"], answer: "bildungsgangnr FK" }
+      ],
+      explanation: "angebote löst die M:N-Beziehung in zwei 1:N-Beziehungen auf und trägt mit seit_schuljahr ein eigenes Beziehungsattribut."
     },
     {
       id: "workbench-flow-slots",
@@ -1232,6 +1559,29 @@ INSERT INTO fahrstunden VALUES
       }
     },
     {
+      id: "sql-rental-history",
+      lessonId: "erm-beziehungsentitaet",
+      type: "sql",
+      schema: "fahrradvermietung",
+      title: "Mietverträge über drei Tabellen auswerten",
+      description: "Zeige Nachname, Vorname, Fahrradmodell, Mietbeginn, Mietende und die Anzahl der Miettage. Sortiere nach Mietbeginn.",
+      difficulty: "plus",
+      xp: 60,
+      starter: "SELECT k.nachname, k.vorname, f.modell,\n       m.von_datum, m.bis_datum,\n       AS miettage\nFROM mietvertraege AS m\nJOIN kunden AS k ON \nJOIN fahrraeder AS f ON \nORDER BY m.von_datum;",
+      solution: "SELECT k.nachname, k.vorname, f.modell,\n       m.von_datum, m.bis_datum,\n       DATEDIFF(m.bis_datum, m.von_datum) + 1 AS miettage\nFROM mietvertraege AS m\nJOIN kunden AS k ON m.kundennr = k.kundennr\nJOIN fahrraeder AS f ON m.fahrradnr = f.fahrradnr\nORDER BY m.von_datum;",
+      hints: [
+        "mietvertraege enthält die beiden Fremdschlüssel kundennr und fahrradnr.",
+        "Verbinde zuerst kunden und danach fahrraeder mit der Beziehungsentität.",
+        "DATEDIFF liefert die Differenz zwischen Ende und Beginn; + 1 zählt den ersten Miettag mit."
+      ],
+      check: {
+        type: "query",
+        expectedSql: "SELECT k.nachname, k.vorname, f.modell, m.von_datum, m.bis_datum, DATEDIFF(m.bis_datum, m.von_datum) + 1 AS miettage FROM mietvertraege AS m JOIN kunden AS k ON m.kundennr = k.kundennr JOIN fahrraeder AS f ON m.fahrradnr = f.fahrradnr ORDER BY m.von_datum;",
+        orderSensitive: true,
+        required: ["join\\s+kunden", "join\\s+fahrraeder", "datediff\\s*\\(", "order\\s+by"]
+      }
+    },
+    {
       id: "normalform-choice",
       lessonId: "redundanz-3nf",
       type: "choice",
@@ -1488,6 +1838,46 @@ INSERT INTO fahrstunden VALUES
       }
     },
     {
+      id: "cmd-primary-key",
+      title: "PRIMARY KEY und AUTO_INCREMENT",
+      category: "Schlüssel",
+      syntax: "id INT AUTO_INCREMENT PRIMARY KEY",
+      short: "Identifiziert jeden Datensatz eindeutig und kann Nummern automatisch vergeben.",
+      details: [
+        "Ein Primärschlüsselwert muss eindeutig und darf nicht NULL sein.",
+        "AUTO_INCREMENT eignet sich für künstliche numerische Schlüssel.",
+        "Fachliche Werte wie Namen sind meist weniger stabil als technische IDs."
+      ],
+      example: "vertragnr INT AUTO_INCREMENT PRIMARY KEY",
+      xp: 14,
+      exercise: {
+        question: "Welche Eigenschaft ist für jeden Primärschlüssel zwingend?",
+        options: ["Jeder Wert ist eindeutig.", "Der Schlüssel enthält immer einen Namen.", "Der Schlüssel darf sich in jeder Zeile wiederholen."],
+        correct: 0,
+        feedback: "Der Primärschlüssel identifiziert genau einen Datensatz."
+      }
+    },
+    {
+      id: "cmd-foreign-key",
+      title: "FOREIGN KEY und REFERENCES",
+      category: "Schlüssel",
+      syntax: "FOREIGN KEY (fk) REFERENCES parent(pk)",
+      short: "Realisiert eine Beziehung und schützt gültige Verweise zwischen Tabellen.",
+      details: [
+        "Der Fremdschlüssel liegt bei einer 1:N-Beziehung auf der N-Seite.",
+        "REFERENCES nennt die Parent-Tabelle und deren Primärschlüssel.",
+        "Datentypen von Fremd- und referenziertem Primärschlüssel müssen zusammenpassen."
+      ],
+      example: "FOREIGN KEY (kundennr) REFERENCES kunden(kundennr)",
+      xp: 16,
+      exercise: {
+        question: "In welcher Tabelle liegt bei kunden 1:N mietvertraege der Fremdschlüssel kundennr?",
+        options: ["In mietvertraege", "Nur in kunden", "In keiner Tabelle"],
+        correct: 0,
+        feedback: "Die N-Seite mietvertraege verweist auf die 1-Seite kunden."
+      }
+    },
+    {
       id: "cmd-create",
       title: "CREATE TABLE",
       category: "Datenbankstruktur",
@@ -1615,8 +2005,10 @@ INSERT INTO fahrstunden VALUES
     { id: "sql-starter", title: "SELECT sicher", description: "Löse drei SQL-Übungen.", icon: "square-terminal", condition: { type: "sqlPractices", value: 3 } },
     { id: "workbench-pilot", title: "Workbench-Pilot", description: "Beherrsche den vollständigen Workbench-Ablauf.", icon: "panels-top-left", condition: { type: "practiceSet", value: ["workbench-flow-slots"] } },
     { id: "query-toolbox", title: "SQL-Werkzeugkiste", description: "Löse die Übungen zu DISTINCT, Filtermustern und Datumsfunktionen.", icon: "wrench", condition: { type: "practiceSet", value: ["sql-distinct", "sql-filter-patterns", "sql-date-functions"] } },
-    { id: "modeler", title: "Modellierer", description: "Löse alle Modellierungs- und Normalisierungsübungen.", icon: "network", condition: { type: "practiceSet", value: ["eerm-cardinality", "fk-integrity-choice", "normalform-choice", "normalform-slots"] } },
-    { id: "joiner", title: "Tabellenverbinder", description: "Löse beide Join-Übungen.", icon: "git-merge", condition: { type: "practiceSet", value: ["sql-join-places", "sql-join-hours"] } },
+    { id: "erm-scout", title: "Modell-Analyst", description: "Leite Entitätstypen und Kardinalitäten aus Sachtexten ab.", icon: "scan-search", condition: { type: "practiceSet", value: ["erm-entity-analysis", "erm-cardinality-cases"] } },
+    { id: "diagram-builder", title: "eERM-Konstrukteur", description: "Vervollständige beide interaktiven Beziehungsdiagramme.", icon: "boxes", condition: { type: "practiceSet", value: ["erm-rental-diagram", "erm-school-diagram"] } },
+    { id: "modeler", title: "Modellierer", description: "Löse die zentralen Modellierungs- und Normalisierungsübungen.", icon: "network", condition: { type: "practiceSet", value: ["eerm-cardinality", "erm-rental-diagram", "fk-integrity-choice", "normalform-choice", "normalform-slots"] } },
+    { id: "joiner", title: "Tabellenverbinder", description: "Löse drei mehrstufige Join-Übungen.", icon: "git-merge", condition: { type: "practiceSet", value: ["sql-join-places", "sql-join-hours", "sql-rental-history"] } },
     { id: "command-reader", title: "Befehlskenner", description: "Löse fünf Befehls-Miniaufgaben.", icon: "library", condition: { type: "commands", value: 5 } },
     { id: "bpe6-core", title: "BPE6-Kern geschafft", description: "Schließe die ersten zehn Lektionen ab.", icon: "badge-check", condition: { type: "lessons", value: 10 } },
     { id: "sql-master", title: "SQL-Werkbank", description: "Löse alle SQL-Übungen.", icon: "hammer", condition: { type: "allSqlPractices" } },
@@ -1672,6 +2064,10 @@ INSERT INTO fahrstunden VALUES
   ],
 
   reference: [
+    { title: "Entitätstyp", description: "Klasse gleichartiger, eindeutig unterscheidbarer Objekte, Rollen oder Ereignisse.", code: "kunden, fahrraeder, mietvertraege" },
+    { title: "Beziehungstyp", description: "Fachlicher Zusammenhang zwischen Entitätstypen, meist als Verb formuliert.", code: "Kunde schliesst Mietvertrag ab" },
+    { title: "Kardinalität", description: "Legt in beide Richtungen fest, wie viele Entitäten an einer Beziehung beteiligt sein dürfen.", code: "1:1 | 1:N | M:N | optional 0..N" },
+    { title: "Beziehungsentität", description: "Löst eine M:N-Beziehung auf und speichert Fremdschlüssel sowie eigene Beziehungsattribute.", code: "mietvertraege(vertragnr PK, kundennr FK, fahrradnr FK, von_datum, bis_datum)" },
     { title: "Relation", description: "Fachlich gedachte Tabelle mit eindeutigen Datensätzen und Attributen.", code: "fahrschueler(schuelernr, nachname, vorname, ortnr)" },
     { title: "Primärschlüssel", description: "Attribut oder Attributkombination, die jeden Datensatz eindeutig identifiziert.", code: "PRIMARY KEY (schuelernr)" },
     { title: "Fremdschlüssel", description: "Attribut, das auf den Primärschlüssel einer anderen Tabelle verweist.", code: "FOREIGN KEY (ortnr) REFERENCES orte(ortnr)" },

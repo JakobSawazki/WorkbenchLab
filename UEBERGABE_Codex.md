@@ -2,7 +2,7 @@
 
 Stand: 18. Juni 2026
 
-Version: 0.2.0
+Version: 0.3.0
 
 Live: `https://jakobsawazki.github.io/WorkbenchLab/`
 
@@ -34,17 +34,19 @@ Die erste lauffähige Version ist als statische App umgesetzt:
 Die App enthält Lernpfad, SQL-Labor, Modellierungsübungen, Befehle,
 Nachschlagen, Erfolge, lokale Lernstandsicherung und Theme-Schalter.
 
-Version 0.2.0 umfasst 16 Lektionen, 17 Übungen und 15 SQL-Befehlskarten. Neu
-sind ein vollständiger Workbench-Grundablauf, `DISTINCT`, flexible Filter und
-Datumsfunktionen. Im Nachschlagebereich ersetzen responsive HTML/CSS-
-Illustrationen die früheren Screenshots.
+Version 0.3.0 umfasst 19 Lektionen, 22 Übungen und 17 SQL-Befehlskarten. Das
+eigene Modul `eERM modellieren` führt vom Sachtext über Kardinalitäten zur
+M:N-Auflösung. Zwei interaktive Diagrammaufgaben prüfen Kardinalitäten und
+Fremdschlüssel direkt im Modell. Eine dritte Übungsdatenbank verbindet die
+Fahrradvermietungs-Modellierung mit einer Drei-Tabellen-SQL-Abfrage.
 
 ## Didaktische Struktur
 
 Die Struktur folgt den lokalen Ich-kann-Listen:
 
 1. Datenbanknotwendigkeit, eine Tabelle, Primärschlüssel
-2. eERM und Relationenmodell
+2. eERM und Relationenmodell einschließlich Sachtextanalyse, Optionalität,
+   Parent/Child und Beziehungsentitäten
 3. SQL über eine Tabelle einschließlich `DISTINCT`, `LIKE`, `IN`, `BETWEEN`
    und Datumsfunktionen
 4. Datenpflege mit INSERT/UPDATE/DELETE-Grundlogik
@@ -65,6 +67,6 @@ Die Struktur folgt den lokalen Ich-kann-Listen:
 
 1. Schülerfeedback aus dem ersten Unterrichtseinsatz dokumentieren.
 2. Weitere Aufgaben aus den lokalen Lernfortschritten didaktisch übertragen.
-3. eERM-Interaktion und mehrstufige Normalisierungsaufgaben ausbauen.
+3. eERM-Interaktion zu freien Drag-and-Drop-Modellen erweitern.
 4. Workbench-Pfad um Reverse Engineering und typische Fehlerdiagnosen erweitern.
 5. Abiturähnliche kombinierte Modellierungs-/SQL-Aufgaben entwickeln.

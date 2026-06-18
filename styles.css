@@ -976,6 +976,292 @@ main {
   padding: 0.85rem;
 }
 
+.erm-analysis-board {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+}
+
+.analysis-source {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+  line-height: 1.9;
+}
+
+.analysis-source strong,
+.analysis-source em {
+  border-bottom: 3px solid var(--brand-2);
+  font-style: normal;
+}
+
+.analysis-source em {
+  border-color: var(--amber);
+}
+
+.erm-analysis-board > svg {
+  color: var(--brand-2);
+}
+
+.analysis-result {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+}
+
+.analysis-result > div {
+  min-width: 0;
+  border-left: 1px solid var(--line);
+  padding: 0.65rem;
+  text-align: center;
+}
+
+.analysis-result > div:first-child {
+  border-left: 0;
+}
+
+.analysis-result small,
+.analysis-result strong {
+  display: block;
+}
+
+.analysis-result small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.analysis-result strong {
+  overflow-wrap: anywhere;
+  font-family: var(--mono);
+}
+
+.cardinality-atlas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.cardinality-atlas > div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.1rem 0.65rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem;
+}
+
+.cardinality-atlas > div:nth-child(even) {
+  border-right: 0;
+}
+
+.cardinality-atlas > div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.cardinality-atlas strong {
+  grid-row: 1 / 3;
+  align-self: center;
+  min-width: 58px;
+  color: var(--brand-2);
+  font-family: var(--mono);
+  font-size: 1.05rem;
+}
+
+.cardinality-atlas span,
+.cardinality-atlas small {
+  min-width: 0;
+}
+
+.cardinality-atlas span {
+  font-weight: 800;
+}
+
+.cardinality-atlas small {
+  color: var(--muted);
+}
+
+.mn-comparison {
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+}
+
+.mn-comparison > svg {
+  color: var(--brand-2);
+}
+
+.mn-state {
+  width: 100%;
+  border-left: 4px solid var(--amber);
+  background: var(--panel-strong);
+  padding: 0.7rem;
+}
+
+.mn-state.is-solved {
+  border-left-color: var(--green);
+}
+
+.diagram-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.mn-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.mn-row strong {
+  border: 1px solid var(--brand-2);
+  background: var(--panel);
+  padding: 0.35rem 0.55rem;
+  font-family: var(--mono);
+}
+
+.mn-row b {
+  color: var(--brand-2);
+  font-family: var(--mono);
+}
+
+.mn-state small {
+  display: block;
+  color: var(--muted);
+  text-align: center;
+}
+
+.diagram-practice-panel {
+  background: var(--panel);
+}
+
+.diagram-practice-canvas {
+  margin: 1rem 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
+  padding: 0.85rem;
+}
+
+.diagram-practice-canvas figcaption {
+  margin-bottom: 0.8rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.diagram-chain {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(130px, 0.7fr) minmax(180px, 1.1fr) minmax(130px, 0.7fr) minmax(150px, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.diagram-entity-box {
+  min-width: 0;
+  overflow: hidden;
+  border: 2px solid var(--brand-2);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.diagram-entity-box header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.45rem;
+  background: color-mix(in srgb, var(--brand-2), transparent 82%);
+  padding: 0.55rem;
+}
+
+.diagram-entity-box header strong {
+  overflow-wrap: anywhere;
+  font-family: var(--mono);
+}
+
+.diagram-entity-box header small {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.62rem;
+  text-align: right;
+}
+
+.diagram-entity-box > div > span,
+.diagram-entity-box .diagram-select-wrap {
+  display: block;
+  border-top: 1px solid var(--line);
+  padding: 0.38rem 0.55rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+}
+
+.diagram-select-wrap > span {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.diagram-select-wrap select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+}
+
+.diagram-relation-control {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  text-align: center;
+}
+
+.diagram-relation-control::before {
+  content: "";
+  position: absolute;
+  top: 0.65rem;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--brand-2);
+}
+
+.diagram-relation-control > span {
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+  justify-self: center;
+  background: var(--panel-strong);
+  padding: 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.diagram-relation-control .diagram-select-wrap {
+  position: relative;
+  background: var(--panel-strong);
+}
+
 .er-diagram {
   display: grid;
   gap: 0.8rem;
@@ -1762,6 +2048,31 @@ main {
   .start-sequence-head {
     border-bottom: 1px solid #35666a;
   }
+
+  .diagram-chain {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .diagram-relation-control {
+    min-height: 92px;
+    align-content: center;
+    justify-items: center;
+  }
+
+  .diagram-relation-control::before {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+
+  .diagram-relation-control > span,
+  .diagram-relation-control .diagram-select-wrap {
+    width: min(240px, 100%);
+  }
 }
 
 @media (max-width: 640px) {
@@ -1825,6 +2136,31 @@ main {
   .query-patterns > div {
     grid-template-columns: 1fr;
     gap: 0.2rem;
+  }
+
+  .analysis-result,
+  .cardinality-atlas {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-result > div {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .analysis-result > div:first-child {
+    border-top: 0;
+  }
+
+  .cardinality-atlas > div,
+  .cardinality-atlas > div:nth-child(even),
+  .cardinality-atlas > div:nth-last-child(-n + 2) {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cardinality-atlas > div:last-child {
+    border-bottom: 0;
   }
 
   .start-sequence ol {
