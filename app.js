@@ -426,6 +426,30 @@
           <div class="relationship">wohnt in · 1:N</div>
           <div class="entity-box"><strong>Ort</strong><span>ortnr PK</span><span>plz</span><span>ort</span></div>
         </div>`,
+      "workbench-flow": `
+        <div class="diagram-wrap workflow-diagram" aria-label="Ablauf von MySQL bis zur Ergebniskontrolle">
+          <div class="workflow-node"><i data-lucide="power"></i><strong>MySQL</strong><span>Dienst läuft</span></div>
+          <i class="workflow-arrow" data-lucide="arrow-right"></i>
+          <div class="workflow-node"><i data-lucide="panels-top-left"></i><strong>Workbench</strong><span>Verbindung offen</span></div>
+          <i class="workflow-arrow" data-lucide="arrow-right"></i>
+          <div class="workflow-node"><i data-lucide="network"></i><strong>Modell</strong><span>Forward Engineer</span></div>
+          <i class="workflow-arrow" data-lucide="arrow-right"></i>
+          <div class="workflow-node"><i data-lucide="badge-check"></i><strong>Prüfen</strong><span>SELECT ausführen</span></div>
+        </div>`,
+      "query-patterns": `
+        <div class="diagram-wrap query-patterns" aria-label="SQL-Filtermuster">
+          <div><code>LIKE 'K%'</code><span>Keller · Klein</span></div>
+          <div><code>IN (...)</code><span>Stuttgart · Esslingen</span></div>
+          <div><code>BETWEEN 5 AND 15</code><span>Grenzen eingeschlossen</span></div>
+        </div>`,
+      "date-functions": `
+        <div class="diagram-wrap date-function-visual" aria-label="Datumsfunktionen">
+          <div class="date-value"><span>2008</span><small>YEAR</small></div>
+          <div class="date-separator">-</div>
+          <div class="date-value"><span>03</span><small>MONTH</small></div>
+          <div class="date-separator">-</div>
+          <div class="date-value"><span>12</span><small>DAY</small></div>
+        </div>`,
       "foreign-key": `
         <div class="diagram-wrap er-diagram">
           <div class="entity-box"><strong>fahrschueler</strong><span>schuelernr PK</span><span>ortnr FK</span></div>
@@ -458,6 +482,46 @@
           <div class="card-grid two">
             <div class="definition-card"><h3>Chancen</h3><p>Planung, Medizin, Energie, Sicherheit, Forschung.</p></div>
             <div class="definition-card"><h3>Risiken</h3><p>Profile, Manipulation, Diskriminierung, Kontrollverlust.</p></div>
+          </div>
+        </div>`
+    };
+    return visuals[kind] || "";
+  }
+
+  function renderToolVisual(kind) {
+    const visuals = {
+      stick: `
+        <div class="tool-illustration stick-art" role="img" aria-label="Illustration des Informatik-Stick-Startfensters">
+          <div class="stick-device">
+            <i data-lucide="usb"></i>
+            <div><strong>Informatik-Stick</strong><span>Schultasche BW · 2025</span></div>
+          </div>
+          <div class="stick-launcher">
+            <div class="play-disc"><i data-lucide="play"></i></div>
+            <strong>Start</strong>
+            <span>Programme öffnen</span>
+          </div>
+        </div>`,
+      "mysql-service": `
+        <div class="tool-illustration launcher-art" role="img" aria-label="Illustration des laufenden MySQL-Dienstes im Informatik-Stick">
+          <div class="mock-window-bar"><span></span><span></span><span></span><strong>Informatik-Stick</strong></div>
+          <div class="launcher-body">
+            <div class="launcher-category"><i data-lucide="folder"></i><span>Datenbank</span><small>MariaDB</small></div>
+            <div class="launcher-list">
+              <div class="launcher-row is-active"><i data-lucide="power"></i><strong>MySQL starten</strong><span>Dienst aktiv</span></div>
+              <div class="launcher-row"><i data-lucide="database"></i><strong>MySQL Workbench 8.0.21</strong><span>danach öffnen</span></div>
+              <div class="service-status"><i data-lucide="check-circle-2"></i><span>Server bereit für Verbindungen</span></div>
+            </div>
+          </div>
+        </div>`,
+      workbench: `
+        <div class="tool-illustration workbench-art" role="img" aria-label="Illustration eines eERM-Modells in MySQL Workbench">
+          <div class="mock-window-bar"><span></span><span></span><span></span><strong>MySQL Workbench · EER Diagram</strong></div>
+          <div class="workbench-toolbar"><i data-lucide="mouse-pointer-2"></i><i data-lucide="table-2"></i><i data-lucide="git-branch"></i><i data-lucide="play"></i><span>Forward Engineer</span></div>
+          <div class="workbench-canvas">
+            <div class="model-table table-parent"><strong><i data-lucide="table-2"></i> orte</strong><span><b>PK</b> ortnr</span><span>plz</span><span>ort</span></div>
+            <div class="model-relation"><span>1</span><i data-lucide="move-right"></i><span>N</span></div>
+            <div class="model-table table-child"><strong><i data-lucide="table-2"></i> fahrschueler</strong><span><b>PK</b> schuelernr</span><span>nachname</span><span><b>FK</b> ortnr</span></div>
           </div>
         </div>`
     };
@@ -1048,6 +1112,18 @@
           <p>Für echte Unterrichtsskripte: Informatik-Stick starten, MySQL starten und geöffnet lassen, danach MySQL Workbench öffnen.</p>
         </div>
       </div>
+      <section class="start-sequence" aria-label="Startreihenfolge für den Unterricht">
+        <div class="start-sequence-head">
+          <i data-lucide="route"></i>
+          <div><span>Sicherer Start</span><strong>Vom Stick zur ersten Abfrage</strong></div>
+        </div>
+        <ol>
+          <li><span>01</span><i data-lucide="usb"></i><div><strong>Stick starten</strong><small>Startfenster offen lassen</small></div></li>
+          <li><span>02</span><i data-lucide="power"></i><div><strong>MySQL starten</strong><small>Dienst muss laufen</small></div></li>
+          <li><span>03</span><i data-lucide="panels-top-left"></i><div><strong>Workbench öffnen</strong><small>Verbindung herstellen</small></div></li>
+          <li><span>04</span><i data-lucide="square-terminal"></i><div><strong>Modell oder SQL</strong><small>Ausführen und prüfen</small></div></li>
+        </ol>
+      </section>
       <div class="card-grid">
         ${content.tools.map((tool) => `
           <article class="tool-card">
@@ -1057,7 +1133,7 @@
               <p>${escapeHtml(tool.description)}</p>
               <p class="tiny-note">${escapeHtml(tool.note || "")}</p>
               ${tool.url ? `<a class="button button-secondary" href="${escapeHtml(tool.url)}" target="_blank" rel="noopener">${escapeHtml(tool.linkLabel || "Öffnen")}</a>` : ""}
-              ${tool.image ? `<img src="${escapeHtml(tool.image)}" alt="${escapeHtml(tool.title)}">` : ""}
+              ${renderToolVisual(tool.visual)}
             </div>
           </article>`).join("")}
       </div>
@@ -1134,6 +1210,7 @@
     }
     db.create_function("YEAR", (value) => parseDateParts(value)?.year ?? null);
     db.create_function("MONTH", (value) => parseDateParts(value)?.month ?? null);
+    db.create_function("NOW", () => new Date().toISOString().replace("T", " ").slice(0, 19));
     db.create_function("DATEDIFF", (a, b) => {
       const left = Date.parse(String(a));
       const right = Date.parse(String(b));

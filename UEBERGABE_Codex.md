@@ -2,7 +2,7 @@
 
 Stand: 18. Juni 2026
 
-Version: 0.1.0
+Version: 0.2.0
 
 Live: `https://jakobsawazki.github.io/WorkbenchLab/`
 
@@ -34,13 +34,19 @@ Die erste lauffähige Version ist als statische App umgesetzt:
 Die App enthält Lernpfad, SQL-Labor, Modellierungsübungen, Befehle,
 Nachschlagen, Erfolge, lokale Lernstandsicherung und Theme-Schalter.
 
+Version 0.2.0 umfasst 16 Lektionen, 17 Übungen und 15 SQL-Befehlskarten. Neu
+sind ein vollständiger Workbench-Grundablauf, `DISTINCT`, flexible Filter und
+Datumsfunktionen. Im Nachschlagebereich ersetzen responsive HTML/CSS-
+Illustrationen die früheren Screenshots.
+
 ## Didaktische Struktur
 
 Die Struktur folgt den lokalen Ich-kann-Listen:
 
 1. Datenbanknotwendigkeit, eine Tabelle, Primärschlüssel
 2. eERM und Relationenmodell
-3. SQL über eine Tabelle
+3. SQL über eine Tabelle einschließlich `DISTINCT`, `LIKE`, `IN`, `BETWEEN`
+   und Datumsfunktionen
 4. Datenpflege mit INSERT/UPDATE/DELETE-Grundlogik
 5. mehrere Tabellen, Fremdschlüssel, referentielle Integrität
 6. JOIN und M:N-Auflösung
@@ -49,9 +55,9 @@ Die Struktur folgt den lokalen Ich-kann-Listen:
 
 ## Technische Hinweise
 
-- Browser-SQL nutzt `sql.js` von CDNJS.
+- Browser-SQL nutzt die lokal unter `vendor/` eingebundene `sql.js`-Version.
 - Die SQL-Schemata stehen in `content.js`.
-- MySQL-Funktionen `YEAR`, `MONTH` und `DATEDIFF` werden im Browser nachgebildet.
+- MySQL-Funktionen `YEAR`, `MONTH`, `NOW` und `DATEDIFF` werden im Browser nachgebildet.
 - Für Unterrichtsskripte bleibt MySQL Workbench verbindlich.
 - `resources/` ist per `.gitignore` ausgeschlossen.
 
@@ -60,5 +66,5 @@ Die Struktur folgt den lokalen Ich-kann-Listen:
 1. Schülerfeedback aus dem ersten Unterrichtseinsatz dokumentieren.
 2. Weitere Aufgaben aus den lokalen Lernfortschritten didaktisch übertragen.
 3. eERM-Interaktion und mehrstufige Normalisierungsaufgaben ausbauen.
-4. Workbench-spezifische Schritt-für-Schritt-Seiten ergänzen.
+4. Workbench-Pfad um Reverse Engineering und typische Fehlerdiagnosen erweitern.
 5. Abiturähnliche kombinierte Modellierungs-/SQL-Aufgaben entwickeln.

@@ -1,5 +1,5 @@
 window.WORKBENCH_CONTENT = {
-  version: "0.1.0",
+  version: "0.2.0",
   updated: "2026-06-18",
 
   modules: [
@@ -8,14 +8,14 @@ window.WORKBENCH_CONTENT = {
       number: "01",
       title: "Daten verstehen",
       description: "Warum Datenbanken nötig sind und wie aus einer Situation Tabellen, Schlüssel und erste ER-Modelle entstehen.",
-      lessonIds: ["warum-datenbanken", "relation-und-schluessel", "eerm-grundlagen"]
+      lessonIds: ["warum-datenbanken", "relation-und-schluessel", "eerm-grundlagen", "workbench-workflow"]
     },
     {
       id: "sql-einstieg",
       number: "02",
       title: "SQL lesen und schreiben",
-      description: "SELECT, Projektion, Selektion, Sortierung, Funktionen, Gruppierung und Datenpflege.",
-      lessonIds: ["select-projektion", "where-sortierung", "funktionen-gruppierung", "daten-verwalten"]
+      description: "SELECT, Projektion, Filtermuster, Datumsfunktionen, Gruppierung und Datenpflege.",
+      lessonIds: ["select-projektion", "where-sortierung", "sql-muster", "funktionen-gruppierung", "datum-berechnungen", "daten-verwalten"]
     },
     {
       id: "mehrere-tabellen",
@@ -308,9 +308,62 @@ INSERT INTO fahrstunden VALUES
       }
     },
     {
+      id: "workbench-workflow",
+      module: "fundament",
+      index: "04",
+      title: "Vom Modell zur Datenbank",
+      subtitle: "In MySQL Workbench wird aus dem eERM eine echte Datenbank, die du mit Skripten füllst und mit SQL überprüfst.",
+      duration: 28,
+      xp: 40,
+      difficulty: "medium",
+      practiceId: "workbench-flow-slots",
+      objectives: [
+        "MySQL-Dienst, Workbench und Verbindung in der richtigen Reihenfolge starten",
+        "ein Modell per Forward Engineering oder Synchronize Model übertragen",
+        "SQL-Skripte ausführen und das Ergebnis im Schema prüfen"
+      ],
+      sections: [
+        {
+          title: "Sicher starten",
+          body: [
+            "Starte zuerst den Informatik-Stick und darin den MySQL-Dienst. Lass das Startfenster geöffnet. Erst danach öffnest du MySQL Workbench und stellst die vorbereitete Verbindung her.",
+            "Wenn keine Verbindung möglich ist, prüfe zuerst den laufenden Dienst. Das spart mehr Zeit als Änderungen am Modell oder SQL-Skript."
+          ],
+          visual: "workbench-flow"
+        },
+        {
+          title: "Modell übertragen",
+          body: [
+            "Öffne das Workbench-Modell und kontrolliere Tabellen, Datentypen, Primärschlüssel und Beziehungen. Über Database > Forward Engineer erzeugst du eine neue Datenbank; Synchronize Model gleicht ein bestehendes Schema mit dem Modell ab.",
+            "Lies das erzeugte SQL vor dem Ausführen: CREATE DATABASE, CREATE TABLE und FOREIGN KEY machen sichtbar, wie Workbench dein Modell umsetzt. Aktualisiere anschließend die Schema-Ansicht mit Refresh All."
+          ],
+          code: `Modell (.mwb) -> Forward Engineer -> SQL prüfen -> ausführen -> Refresh All`
+        },
+        {
+          title: "Daten importieren und prüfen",
+          body: [
+            "Öffne ein bereitgestelltes Skript über File > Open SQL Script und führe es mit dem Blitzsymbol aus. Wähle das richtige Schema als Standard und kontrolliere die Daten anschließend mit SELECT.",
+            "Optionen wie DROP Objects löschen vorhandene Strukturen. Nutze sie nur, wenn die Aufgabe ausdrücklich einen vollständigen Neuaufbau verlangt."
+          ],
+          code: `USE fahrschule;\nSELECT * FROM fahrschueler;`,
+          warning: "Prüfe vor jedem Ausführen, mit welchem Schema die Workbench verbunden ist und ob das Skript DROP-Anweisungen enthält."
+        }
+      ],
+      quiz: {
+        question: "Welche Reihenfolge ist für die Unterrichtsumgebung richtig?",
+        options: [
+          "MySQL-Dienst starten, Workbench öffnen, Verbindung herstellen, Modell oder Skript ausführen.",
+          "Workbench öffnen, Tabellen löschen, danach den Informatik-Stick starten.",
+          "Zuerst SELECT ausführen und anschließend den Datenbankdienst starten."
+        ],
+        correct: 0,
+        explanation: "Workbench kann erst auf die Datenbank zugreifen, wenn der MySQL-Dienst läuft und die Verbindung geöffnet ist."
+      }
+    },
+    {
       id: "select-projektion",
       module: "sql-einstieg",
-      index: "04",
+      index: "05",
       title: "SELECT und Projektion",
       subtitle: "Mit SELECT wählst du aus, welche Attribute in der Ergebnismenge erscheinen.",
       duration: 22,
@@ -354,7 +407,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "where-sortierung",
       module: "sql-einstieg",
-      index: "05",
+      index: "06",
       title: "Selektion, Bedingungen und Sortierung",
       subtitle: "WHERE filtert Datensätze, ORDER BY bringt das Ergebnis in eine nachvollziehbare Reihenfolge.",
       duration: 26,
@@ -392,9 +445,54 @@ INSERT INTO fahrstunden VALUES
       }
     },
     {
+      id: "sql-muster",
+      module: "sql-einstieg",
+      index: "07",
+      title: "DISTINCT und flexible Filter",
+      subtitle: "Mit DISTINCT, LIKE, IN und BETWEEN formulierst du präzise Abfragen für typische Suchsituationen.",
+      duration: 28,
+      xp: 40,
+      difficulty: "medium",
+      practiceId: "sql-distinct",
+      objectives: [
+        "doppelte Ergebniszeilen mit DISTINCT entfernen",
+        "Textmuster mit LIKE, Prozentzeichen und Unterstrich beschreiben",
+        "Wertelisten mit IN und Bereiche mit BETWEEN filtern"
+      ],
+      sections: [
+        {
+          title: "Einmalige Ergebnisse",
+          body: [
+            "DISTINCT steht direkt nach SELECT und entfernt doppelte Zeilen aus der Ergebnismenge. Es verändert die gespeicherten Daten nicht.",
+            "Bei mehreren ausgewählten Spalten zählt die gesamte Kombination. DISTINCT ort, plz liefert jede vorkommende Kombination aus Ort und Postleitzahl einmal."
+          ],
+          code: `SELECT DISTINCT ort, plz\nFROM fahrschueler\nORDER BY ort;`
+        },
+        {
+          title: "Muster, Listen und Bereiche",
+          body: [
+            "LIKE vergleicht Textmuster: % steht für beliebig viele Zeichen, _ für genau ein Zeichen. IN prüft, ob ein Wert in einer Liste vorkommt.",
+            "BETWEEN beschreibt einen geschlossenen Bereich. Die beiden Grenzwerte gehören also zum Ergebnis."
+          ],
+          code: `WHERE nachname LIKE 'K%'\nWHERE ort IN ('Stuttgart', 'Esslingen')\nWHERE fahrstunden BETWEEN 5 AND 15`,
+          visual: "query-patterns"
+        }
+      ],
+      quiz: {
+        question: "Wo steht DISTINCT in einer SELECT-Abfrage?",
+        options: [
+          "Direkt nach SELECT.",
+          "Zwischen FROM und WHERE.",
+          "Erst nach ORDER BY."
+        ],
+        correct: 0,
+        explanation: "Die korrekte Form lautet SELECT DISTINCT spalte FROM tabelle."
+      }
+    },
+    {
       id: "funktionen-gruppierung",
       module: "sql-einstieg",
-      index: "06",
+      index: "08",
       title: "Funktionen, Gruppierung und HAVING",
       subtitle: "Aggregatfunktionen verdichten viele Datensätze zu aussagekräftigen Kennzahlen.",
       duration: 30,
@@ -436,9 +534,54 @@ INSERT INTO fahrstunden VALUES
       }
     },
     {
+      id: "datum-berechnungen",
+      module: "sql-einstieg",
+      index: "09",
+      title: "Datum und Berechnungen",
+      subtitle: "Datumsfunktionen und berechnete Spalten machen aus gespeicherten Werten neue Informationen.",
+      duration: 26,
+      xp: 40,
+      difficulty: "medium",
+      practiceId: "sql-date-functions",
+      objectives: [
+        "Datumswerte im Format JJJJ-MM-TT sicher verwenden",
+        "Jahr und Monat mit YEAR und MONTH auswerten",
+        "berechnete Ergebnisspalten mit aussagekräftigen Aliasnamen ausgeben"
+      ],
+      sections: [
+        {
+          title: "Ein Datum gezielt auswerten",
+          body: [
+            "DATE-Werte werden in SQL üblicherweise als 'JJJJ-MM-TT' geschrieben. YEAR(datum) liefert das Jahr, MONTH(datum) den Monat und NOW() den aktuellen Zeitpunkt.",
+            "Funktionen können im SELECT-Teil angezeigt oder in einer WHERE-Bedingung zum Filtern genutzt werden."
+          ],
+          code: `SELECT nachname, MONTH(geburtsdatum) AS geburtsmonat\nFROM fahrschueler\nWHERE YEAR(geburtsdatum) = 2008;`,
+          visual: "date-functions"
+        },
+        {
+          title: "Werte berechnen",
+          body: [
+            "SQL kann Zahlen direkt in der Ergebnismenge berechnen. Ein Alias beschreibt, was der berechnete Wert bedeutet.",
+            "DATEDIFF(datum1, datum2) liefert in MySQL die Anzahl der Tage zwischen zwei Datumswerten."
+          ],
+          code: `SELECT nachname, fahrstunden * 45 AS minuten\nFROM fahrschueler;`
+        }
+      ],
+      quiz: {
+        question: "Welche Bedingung findet Datensätze aus dem Jahr 2008?",
+        options: [
+          "WHERE YEAR(geburtsdatum) = 2008",
+          "WHERE MONTH(geburtsdatum) = 2008",
+          "WHERE geburtsdatum = YEAR"
+        ],
+        correct: 0,
+        explanation: "YEAR extrahiert den Jahresanteil eines Datums und kann anschließend verglichen werden."
+      }
+    },
+    {
       id: "daten-verwalten",
       module: "sql-einstieg",
-      index: "07",
+      index: "10",
       title: "CREATE, INSERT, UPDATE, DELETE",
       subtitle: "Datenbanken werden nicht nur gelesen, sondern auch aufgebaut und gepflegt.",
       duration: 28,
@@ -483,7 +626,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "fremdschluessel-integritaet",
       module: "mehrere-tabellen",
-      index: "08",
+      index: "11",
       title: "Fremdschlüssel und referentielle Integrität",
       subtitle: "Fremdschlüssel verbinden Tabellen und verhindern verwaiste Datensätze.",
       duration: 24,
@@ -527,7 +670,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "joins",
       module: "mehrere-tabellen",
-      index: "09",
+      index: "12",
       title: "Joins über mehrere Tabellen",
       subtitle: "Mit JOIN setzt du fachlich zusammengehörige Informationen aus mehreren Relationen wieder zusammen.",
       duration: 32,
@@ -571,7 +714,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "mn-beziehungen",
       module: "mehrere-tabellen",
-      index: "10",
+      index: "13",
       title: "M:N-Beziehungen auflösen",
       subtitle: "Viele-zu-viele-Beziehungen brauchen in relationalen Datenbanken eine eigene Zwischentabelle.",
       duration: 26,
@@ -615,7 +758,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "redundanz-3nf",
       module: "qualitaet",
-      index: "11",
+      index: "14",
       title: "Redundanz und Dritte Normalform",
       subtitle: "Gute Datenmodelle speichern Fakten möglichst einmal und vermeiden Änderungsanomalien.",
       duration: 30,
@@ -659,7 +802,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "normalisierung",
       module: "qualitaet",
-      index: "12",
+      index: "15",
       title: "Normalisierung 1NF bis 3NF",
       subtitle: "Normalisierung ist ein Prüfverfahren, mit dem du Tabellen schrittweise in robuste Relationen zerlegst.",
       duration: 28,
@@ -703,7 +846,7 @@ INSERT INTO fahrstunden VALUES
     {
       id: "big-data",
       module: "gesellschaft",
-      index: "13",
+      index: "16",
       title: "Big Data: Chancen und Risiken",
       subtitle: "Massendaten können Zusammenhänge sichtbar machen, aber auch Menschen transparent und beeinflussbar machen.",
       duration: 24,
@@ -817,6 +960,49 @@ INSERT INTO fahrstunden VALUES
       explanation: "Ein Fahrschüler verweist auf einen Ort. Ein Ort kann bei vielen Fahrschülern vorkommen."
     },
     {
+      id: "workbench-flow-slots",
+      lessonId: "workbench-workflow",
+      type: "slots",
+      title: "Workbench-Ablauf ordnen",
+      description: "Bringe den Weg vom Start des Datenbankdienstes bis zur geprüften Datenbank in die richtige Reihenfolge.",
+      difficulty: "medium",
+      xp: 40,
+      prompt: "Du erhältst ein Workbench-Modell und ein SQL-Skript mit Beispieldaten. Ordne die fünf Arbeitsschritte.",
+      slots: [
+        {
+          id: "step1",
+          label: "Schritt 1",
+          options: ["MySQL-Dienst starten", "Modell öffnen oder erstellen", "SQL-Skript ausführen"],
+          answer: "MySQL-Dienst starten"
+        },
+        {
+          id: "step2",
+          label: "Schritt 2",
+          options: ["Verbindung in MySQL Workbench öffnen", "Refresh All ausführen", "Forward Engineer starten"],
+          answer: "Verbindung in MySQL Workbench öffnen"
+        },
+        {
+          id: "step3",
+          label: "Schritt 3",
+          options: ["Modell öffnen oder erstellen", "MySQL-Dienst stoppen", "Ergebnistabelle exportieren"],
+          answer: "Modell öffnen oder erstellen"
+        },
+        {
+          id: "step4",
+          label: "Schritt 4",
+          options: ["Forward Engineer oder Synchronize Model ausführen", "Workbench schließen", "Nur einen Screenshot erstellen"],
+          answer: "Forward Engineer oder Synchronize Model ausführen"
+        },
+        {
+          id: "step5",
+          label: "Schritt 5",
+          options: ["SQL-Skript ausführen und Ergebnis mit SELECT prüfen", "Den Dienst vor der Prüfung stoppen", "Alle Fremdschlüssel entfernen"],
+          answer: "SQL-Skript ausführen und Ergebnis mit SELECT prüfen"
+        }
+      ],
+      explanation: "Dienst und Verbindung bilden die technische Grundlage. Danach folgen Modellübertragung, Datenimport und eine sichtbare Ergebniskontrolle."
+    },
+    {
       id: "sql-projection",
       lessonId: "select-projektion",
       type: "sql",
@@ -864,6 +1050,52 @@ INSERT INTO fahrstunden VALUES
       }
     },
     {
+      id: "sql-distinct",
+      lessonId: "sql-muster",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Wohnorte ohne Wiederholungen",
+      description: "Gib jede Kombination aus Ort und Postleitzahl genau einmal aus und sortiere nach Ort.",
+      difficulty: "medium",
+      xp: 40,
+      starter: "SELECT \nFROM fahrschueler\nORDER BY ort;",
+      solution: "SELECT DISTINCT ort, plz\nFROM fahrschueler\nORDER BY ort;",
+      hints: [
+        "DISTINCT steht direkt hinter SELECT.",
+        "Wähle ort und plz aus.",
+        "ORDER BY ort steht am Ende."
+      ],
+      check: {
+        type: "query",
+        expectedSql: "SELECT DISTINCT ort, plz FROM fahrschueler ORDER BY ort;",
+        orderSensitive: true,
+        required: ["select\\s+distinct", "order\\s+by"]
+      }
+    },
+    {
+      id: "sql-filter-patterns",
+      lessonId: "sql-muster",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Namensmuster kombinieren",
+      description: "Zeige Nachname und Vorname aller Personen, deren Nachname mit K oder W beginnt. Sortiere nach Nachname.",
+      difficulty: "medium",
+      xp: 40,
+      starter: "SELECT nachname, vorname\nFROM fahrschueler\nWHERE \nORDER BY nachname;",
+      solution: "SELECT nachname, vorname\nFROM fahrschueler\nWHERE nachname LIKE 'K%' OR nachname LIKE 'W%'\nORDER BY nachname;",
+      hints: [
+        "LIKE 'K%' findet Texte, die mit K beginnen.",
+        "Verbinde die beiden Muster mit OR.",
+        "Sortiere erst nach der WHERE-Bedingung."
+      ],
+      check: {
+        type: "query",
+        expectedSql: "SELECT nachname, vorname FROM fahrschueler WHERE nachname LIKE 'K%' OR nachname LIKE 'W%' ORDER BY nachname;",
+        orderSensitive: true,
+        required: ["like", "or", "order\\s+by"]
+      }
+    },
+    {
       id: "sql-group-having",
       lessonId: "funktionen-gruppierung",
       type: "sql",
@@ -884,6 +1116,29 @@ INSERT INTO fahrstunden VALUES
         expectedSql: "SELECT ort, COUNT(*) AS anzahl FROM fahrschueler GROUP BY ort HAVING COUNT(*) >= 2;",
         orderSensitive: false,
         required: ["count\\s*\\(", "group\\s+by", "having"]
+      }
+    },
+    {
+      id: "sql-date-functions",
+      lessonId: "datum-berechnungen",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Geburtsmonate im Jahr 2008",
+      description: "Gib Nachname und Geburtsmonat aller im Jahr 2008 geborenen Fahrschüler aus. Nenne die Monatsspalte monat und sortiere nach Nachname.",
+      difficulty: "medium",
+      xp: 40,
+      starter: "SELECT nachname,  AS monat\nFROM fahrschueler\nWHERE \nORDER BY nachname;",
+      solution: "SELECT nachname, MONTH(geburtsdatum) AS monat\nFROM fahrschueler\nWHERE YEAR(geburtsdatum) = 2008\nORDER BY nachname;",
+      hints: [
+        "MONTH(geburtsdatum) liefert die Monatszahl.",
+        "YEAR(geburtsdatum) kann in WHERE mit 2008 verglichen werden.",
+        "AS monat benennt die berechnete Spalte."
+      ],
+      check: {
+        type: "query",
+        expectedSql: "SELECT nachname, MONTH(geburtsdatum) AS monat FROM fahrschueler WHERE YEAR(geburtsdatum) = 2008 ORDER BY nachname;",
+        orderSensitive: true,
+        required: ["month\\s*\\(", "year\\s*\\(", "where", "order\\s+by"]
       }
     },
     {
@@ -1073,6 +1328,26 @@ INSERT INTO fahrstunden VALUES
       }
     },
     {
+      id: "cmd-distinct",
+      title: "SELECT DISTINCT",
+      category: "Abfragen",
+      syntax: "SELECT DISTINCT spalte1, spalte2 FROM tabelle;",
+      short: "Entfernt doppelte Zeilen aus der Ergebnismenge.",
+      details: [
+        "DISTINCT steht direkt nach SELECT.",
+        "Bei mehreren Spalten zählt die gesamte Wertekombination.",
+        "Die gespeicherten Datensätze werden nicht verändert."
+      ],
+      example: "SELECT DISTINCT ort, plz FROM fahrschueler ORDER BY ort;",
+      xp: 12,
+      exercise: {
+        question: "Was entfernt DISTINCT?",
+        options: ["Doppelte Ergebniszeilen", "Datenbanktabellen", "Fremdschlüssel"],
+        correct: 0,
+        feedback: "DISTINCT wirkt nur auf die Ausgabe einer SELECT-Abfrage."
+      }
+    },
+    {
       id: "cmd-where",
       title: "WHERE",
       category: "Abfragen",
@@ -1110,6 +1385,26 @@ INSERT INTO fahrstunden VALUES
         options: ["absteigend", "aufsteigend", "zufällig"],
         correct: 0,
         feedback: "DESC steht für descending, also absteigend."
+      }
+    },
+    {
+      id: "cmd-filter-patterns",
+      title: "LIKE, IN, BETWEEN",
+      category: "Abfragen",
+      syntax: "WHERE text LIKE 'A%' | wert IN (...) | zahl BETWEEN a AND b",
+      short: "Filtert mit Textmustern, Wertelisten und Bereichen.",
+      details: [
+        "% steht bei LIKE für beliebig viele Zeichen, _ für genau ein Zeichen.",
+        "IN ersetzt mehrere Gleichheitsvergleiche mit OR.",
+        "BETWEEN schließt beide Grenzwerte ein."
+      ],
+      example: "SELECT * FROM fahrschueler WHERE ort IN ('Stuttgart', 'Esslingen');",
+      xp: 14,
+      exercise: {
+        question: "Welches Muster findet alle Nachnamen, die mit K beginnen?",
+        options: ["LIKE 'K%'", "LIKE '%K'", "BETWEEN 'K'"],
+        correct: 0,
+        feedback: "K steht fest am Anfang, % erlaubt danach beliebig viele Zeichen."
       }
     },
     {
@@ -1170,6 +1465,26 @@ INSERT INTO fahrstunden VALUES
         options: ["ON", "DESC", "VALUES"],
         correct: 0,
         feedback: "ON sagt, welche Werte aus beiden Tabellen zusammenpassen."
+      }
+    },
+    {
+      id: "cmd-database",
+      title: "CREATE DATABASE und USE",
+      category: "Datenbankstruktur",
+      syntax: "CREATE DATABASE name; USE name;",
+      short: "Erzeugt eine Datenbank und wählt sie als aktuelles Schema.",
+      details: [
+        "CREATE DATABASE erzeugt den Schema-Container für Tabellen.",
+        "USE legt fest, auf welche Datenbank nachfolgende Befehle wirken.",
+        "MySQL Workbench kann beide Befehle beim Forward Engineering erzeugen."
+      ],
+      example: "CREATE DATABASE fahrschule; USE fahrschule;",
+      xp: 14,
+      exercise: {
+        question: "Welcher Befehl wählt eine vorhandene Datenbank als aktuelles Schema?",
+        options: ["USE", "ORDER BY", "HAVING"],
+        correct: 0,
+        feedback: "USE name legt die Datenbank für nachfolgende Anweisungen fest."
       }
     },
     {
@@ -1298,6 +1613,8 @@ INSERT INTO fahrstunden VALUES
     { id: "first-lesson", title: "Erster Datensatz", description: "Schließe deine erste Lektion ab.", icon: "database", condition: { type: "lessons", value: 1 } },
     { id: "first-practice", title: "Abfrage läuft", description: "Löse deine erste Übung.", icon: "play", condition: { type: "practices", value: 1 } },
     { id: "sql-starter", title: "SELECT sicher", description: "Löse drei SQL-Übungen.", icon: "square-terminal", condition: { type: "sqlPractices", value: 3 } },
+    { id: "workbench-pilot", title: "Workbench-Pilot", description: "Beherrsche den vollständigen Workbench-Ablauf.", icon: "panels-top-left", condition: { type: "practiceSet", value: ["workbench-flow-slots"] } },
+    { id: "query-toolbox", title: "SQL-Werkzeugkiste", description: "Löse die Übungen zu DISTINCT, Filtermustern und Datumsfunktionen.", icon: "wrench", condition: { type: "practiceSet", value: ["sql-distinct", "sql-filter-patterns", "sql-date-functions"] } },
     { id: "modeler", title: "Modellierer", description: "Löse alle Modellierungs- und Normalisierungsübungen.", icon: "network", condition: { type: "practiceSet", value: ["eerm-cardinality", "fk-integrity-choice", "normalform-choice", "normalform-slots"] } },
     { id: "joiner", title: "Tabellenverbinder", description: "Löse beide Join-Übungen.", icon: "git-merge", condition: { type: "practiceSet", value: ["sql-join-places", "sql-join-hours"] } },
     { id: "command-reader", title: "Befehlskenner", description: "Löse fünf Befehls-Miniaufgaben.", icon: "library", condition: { type: "commands", value: 5 } },
@@ -1314,7 +1631,7 @@ INSERT INTO fahrstunden VALUES
       note: "Der Link führt zur offiziellen Download- und Informationsseite.",
       icon: "usb",
       url: "https://schultasche-bw.de/",
-      image: "assets/informatik-stick-start.png",
+      visual: "stick",
       linkLabel: "Schultasche-BW öffnen"
     },
     {
@@ -1322,13 +1639,14 @@ INSERT INTO fahrstunden VALUES
       description: "Vor der MySQL Workbench muss auf dem Informatik-Stick der Datenbankdienst gestartet und geöffnet gelassen werden.",
       note: "Erst danach die passende MySQL-Workbench-Version öffnen, im Unterricht z. B. 8.0.21.",
       icon: "power",
-      image: "assets/informatik-stick-mysql-starten.png"
+      visual: "mysql-service"
     },
     {
       title: "MySQL Workbench",
       description: "Unterrichtswerkzeug für eERM-Modellierung, Forward Engineering, SQL-Skripte und Abfragen gegen die lokale MySQL/MariaDB-Umgebung.",
       note: "Das Browser-SQL-Labor dient zum schnellen Üben. Verbindliche Arbeit mit den Unterrichtsskripten erfolgt in MySQL Workbench.",
-      icon: "database"
+      icon: "database",
+      visual: "workbench"
     }
   ],
 
@@ -1359,7 +1677,11 @@ INSERT INTO fahrstunden VALUES
     { title: "Fremdschlüssel", description: "Attribut, das auf den Primärschlüssel einer anderen Tabelle verweist.", code: "FOREIGN KEY (ortnr) REFERENCES orte(ortnr)" },
     { title: "Projektion", description: "Auswahl der Spalten im SELECT-Teil.", code: "SELECT nachname, vorname FROM fahrschueler;" },
     { title: "Selektion", description: "Auswahl der Zeilen über Bedingungen.", code: "WHERE ort = 'Stuttgart' AND fahrstunden >= 10" },
+    { title: "DISTINCT", description: "Entfernt doppelte Zeilen aus einer Ergebnismenge.", code: "SELECT DISTINCT ort, plz FROM fahrschueler;" },
+    { title: "LIKE, IN, BETWEEN", description: "Filtermuster für Texte, Wertelisten und geschlossene Bereiche.", code: "WHERE nachname LIKE 'K%' OR ort IN ('Stuttgart', 'Esslingen')" },
     { title: "Join", description: "Verknüpfung passender Datensätze aus mehreren Tabellen.", code: "JOIN orte ON fahrschueler.ortnr = orte.ortnr" },
+    { title: "Parent und Child", description: "Die Parent-Tabelle liefert den Primärschlüssel, die Child-Tabelle speichert ihn als Fremdschlüssel.", code: "orte (Parent) 1 -> N fahrschueler (Child)" },
+    { title: "Auto Increment", description: "Lässt MySQL fortlaufende numerische Primärschlüssel automatisch vergeben.", code: "id INT AUTO_INCREMENT PRIMARY KEY" },
     { title: "3NF", description: "Nicht-Schlüsselattribute hängen nur vom Schlüssel ab, nicht voneinander.", code: "ortnr -> plz, ort gehoert in orte" },
     { title: "HAVING", description: "Bedingung auf Gruppen nach GROUP BY.", code: "GROUP BY ort HAVING COUNT(*) >= 2" },
     { title: "Big Data", description: "Massendaten werden gesammelt, verknüpft und automatisiert ausgewertet.", code: "Spuren -> Profile -> Entscheidungen" }

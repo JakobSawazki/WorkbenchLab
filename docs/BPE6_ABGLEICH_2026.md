@@ -16,10 +16,10 @@ verändern.
 
 | Bildungsplanbereich | Umsetzung in WorkbenchLab |
 | --- | --- |
-| BPE6.1 Entity-Relationship-Modell | Lektionen zu eERM, Entitäten, Attributen, Beziehungen, Kardinalitäten; Slot-Übung zu Kardinalitäten |
+| BPE6.1 Entity-Relationship-Modell | Lektionen zu eERM, Entitäten, Attributen, Beziehungen und Kardinalitäten; Workbench-Ablauf mit Forward Engineering und Synchronize Model; Slot-Übungen |
 | BPE6.2 Relationenmodell | Relation, Datensatz, Attribut, Primärschlüssel, Fremdschlüssel, Redundanz, 3NF |
-| BPE6.3 relationale Datenbank und SQL-Datenpflege | CREATE/INSERT/UPDATE/DELETE-Karten, INSERT-Übung, MySQL-Workbench-Hinweise |
-| BPE6.4 SQL-Auswertung über mehrere Tabellen | SELECT, WHERE, ORDER BY, Funktionen, GROUP BY, HAVING, JOIN-Übungen |
+| BPE6.3 relationale Datenbank und SQL-Datenpflege | CREATE DATABASE/USE, CREATE/INSERT/UPDATE/DELETE-Karten, INSERT-Übung, Skriptimport und Ergebniskontrolle in MySQL Workbench |
+| BPE6.4 SQL-Auswertung über mehrere Tabellen | SELECT, DISTINCT, WHERE, LIKE, IN, BETWEEN, ORDER BY, Datums- und Aggregatfunktionen, GROUP BY, HAVING und JOIN-Übungen |
 | BPE6.5 Massendaten | Big-Data-Lektion und Bewertungsübung |
 
 ## Lokale Materialstruktur
@@ -40,13 +40,13 @@ Die lokalen Materialien enthalten:
 
 ## Aktueller Umsetzungsgrad
 
-Die Version 0.1.0 deckt die gesamte Breite von BPE6 ab, aber noch nicht die
+Die Version 0.2.0 deckt die gesamte Breite von BPE6 ab, aber noch nicht die
 Tiefe aller Originalaufgaben. Besonders SQL-Training, eERM-Interaktion und
 Normalisierung können weiter ausgebaut werden.
 
 Priorisierte Lücken:
 
-1. mehr Workbench-spezifische Modellierungsabläufe
+1. Reverse Engineering und Workbench-Fehlerdiagnose
 2. mehr SQL-Aufgaben über 5 bis 7 Tabellen
 3. anspruchsvollere 3NF-Zerlegeaufgaben
 4. Abiturähnliche kombinierte Aufgaben

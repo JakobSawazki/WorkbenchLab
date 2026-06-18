@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktuelle Version:** 0.1.0
+**Aktuelle Version:** 0.2.0
 
 **Dokumentationsstand:** 18. Juni 2026
 
@@ -46,24 +46,30 @@ Die vollständigen lokalen Unterrichtsmaterialien liegen unter:
 Diese Originalmaterialien dienen als fachliche Referenz und werden durch
 `.gitignore` nicht in ein öffentliches Repository übernommen.
 
-## Funktionsumfang in Version 0.1.0
+## Funktionsumfang in Version 0.2.0
 
-- 13 Lektionen entlang der BPE6-Kompetenzspur
-- 13 prüfbare Übungen mit XP
+- 16 Lektionen entlang der BPE6-Kompetenzspur
+- 17 prüfbare Übungen mit XP
 - browserbasiertes SQL-Labor über `sql.js`
 - zwei Übungsdatenbanken: eine einfache Fahrschüler-Tabelle und ein
   normalisiertes Fahrschul-Schema mit mehreren Tabellen
-- Prüfungen für Projektion, Selektion, Sortierung, Gruppierung, HAVING, INSERT
-  und JOIN
+- Prüfungen für Projektion, Selektion, Sortierung, `DISTINCT`, `LIKE`,
+  Datumsfunktionen, Gruppierung, `HAVING`, `INSERT` und `JOIN`
 - Modellierungsübungen zu Kardinalitäten, Fremdschlüsseln, Normalformen und
   Big Data
-- Befehlsbibliothek mit 12 SQL-Karten und Miniaufgaben
+- Workbench-Lerneinheit zu Dienststart, Verbindung, Forward Engineering,
+  Synchronisierung, Skriptimport und Ergebniskontrolle
+- Befehlsbibliothek mit 15 SQL-Karten und Miniaufgaben
 - XP, Level, Erfolge und Aktivitätsserie
 - lokaler Lernstand im Browser
 - Export und Import des Lernstands als JSON-Datei
 - Light- und Dark-Mode
 - Nachschlagebereich mit Bildungsplan, Landesbildungsserver,
   Informatik-Stick und MySQL-Workbench-Hinweisen
+- eigenständige responsive Illustrationen für Informatik-Stick,
+  MySQL-Dienst und eERM in Workbench statt eingebetteter Screenshots
+
+![Neu gestalteter Nachschlagebereich](docs/screenshots/nachschlagen-desktop.png)
 
 ## SQL-Labor und MySQL Workbench
 
@@ -75,8 +81,8 @@ Es ist für schnelles Üben gedacht. Die Unterrichtsumgebung bleibt:
 3. MySQL Workbench öffnen, z. B. Version 8.0.21.
 4. Unterrichtsskripte aus den BPE6-Materialien in MySQL Workbench verwenden.
 
-Im Browser-Labor sind ausgewählte MySQL-Funktionen wie `YEAR`, `MONTH` und
-`DATEDIFF` als Übungshilfe nachgebildet. Für verbindliche Arbeit mit den
+Im Browser-Labor sind ausgewählte MySQL-Funktionen wie `YEAR`, `MONTH`, `NOW`
+und `DATEDIFF` als Übungshilfe nachgebildet. Für verbindliche Arbeit mit den
 Originalskripten ist MySQL Workbench maßgeblich.
 
 ## Technische Architektur
@@ -91,7 +97,7 @@ damit das Portal nicht von externen CDNs abhängt.
 | `styles.css` | Layout, Responsive Design, SQL-Runner, Diagramme |
 | `content.js` | Lektionen, Übungen, SQL-Schemata, Befehle, Quellen |
 | `app.js` | Routing, Rendering, XP, SQL-Prüfung, Export/Import |
-| `assets/` | kleine visuelle Hilfen zum Informatik-Stick |
+| `assets/` | projektbezogene Bilddateien; die Werkzeugillustrationen entstehen responsiv aus HTML und CSS |
 | `vendor/` | lokal eingebundene Laufzeitdateien für Lucide und `sql.js` |
 | `docs/` | didaktische und technische Dokumentation |
 | `references/bpe6/` | Quellenentscheidung und lokaler Materialüberblick |

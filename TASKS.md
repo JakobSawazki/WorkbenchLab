@@ -2,7 +2,7 @@
 
 Stand: 18. Juni 2026
 
-Aktuelle Version: 0.1.0
+Aktuelle Version: 0.2.0
 
 ## Leitentscheidung
 
@@ -46,14 +46,30 @@ und als interaktive Lernmodule umgesetzt.
 - 2026-06-18: Desktop- und Mobilansicht geprüft; kein horizontales Überlaufen
   bei 390 Pixeln und keine Browser-Konsolenfehler.
 - 2026-06-18: Live-SQL-Aufgabe direkt auf GitHub Pages erfolgreich ausgeführt.
+- 2026-06-18: Version 0.2.0 mit drei neuen Lektionen zu Workbench-Ablauf,
+  flexiblen SQL-Filtern und Datumsfunktionen ausgebaut.
+- 2026-06-18: Vier neue Übungen für Workbench-Reihenfolge, `DISTINCT`,
+  `LIKE`-Muster und `YEAR`/`MONTH` ergänzt und im Browser erfolgreich geprüft.
+- 2026-06-18: Befehlsbibliothek auf 15 Karten erweitert: `SELECT DISTINCT`,
+  `LIKE`/`IN`/`BETWEEN` sowie `CREATE DATABASE`/`USE`.
+- 2026-06-18: Screenshots im Nachschlagebereich durch drei eigenständige,
+  responsive Illustrationen und eine Vier-Schritt-Startstrecke ersetzt.
+- 2026-06-18: Kurzreferenz um Parent/Child, Auto Increment, `DISTINCT` und
+  flexible Filtermuster ergänzt.
+- 2026-06-18: Inhaltsbeziehungen für 16 Lektionen, 17 Übungen, 15 Befehle und
+  12 Erfolge maschinell auf Vollständigkeit geprüft.
+- 2026-06-18: Vollständiger Browser-Regressionstest für 16 Lektionsquizze,
+  17 Übungen und 15 Befehls-Miniaufgaben erfolgreich; keine Konsolenfehler.
+- 2026-06-18: Neue Nachschlagen-Seite bei 1440 und 390 Pixeln geprüft und
+  dokumentiert; kein horizontaler Überlauf, keine abgeschnittenen Grafiken.
 
 ## Offen Priorisiert
 
 1. Browserprüfung mit echten Schüler-Workflows im Unterricht durchführen.
 2. Weitere SQL-Aufgaben aus den lokalen Lernfortschritten übertragen, ohne
    Originalaufgaben oder Lösungen ungeprüft zu veröffentlichen.
-3. Workbench-spezifische Schritt-für-Schritt-Seiten ergänzen:
-   Reverse/Forward Engineering, Modell speichern, SQL-Skript ausführen.
+3. Workbench-Pfad um Reverse Engineering, Modellversionen und typische
+   Fehlermeldungen beim Verbindungsaufbau erweitern.
 4. eERM-Übungsmodus ausbauen: Tabellenkarten, Beziehungslinien,
    Kardinalitätsauswahl und automatische Plausibilitätsprüfung.
 5. Normalisierung mit mehrstufigen Zerlege-Aufgaben erweitern.
