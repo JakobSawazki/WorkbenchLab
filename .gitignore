@@ -1,0 +1,15 @@
+# Local source materials and large/private teaching files
+resources/
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local dev artifacts
+node_modules/
+coverage/
+dist/
+tmp/
+*.log
+
