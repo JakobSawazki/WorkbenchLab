@@ -14,4 +14,3 @@ Nicht öffentlich zu veröffentlichender lokaler Referenzbestand:
 
 Öffentlich nutzbar sind nur eigenständig formulierte Ableitungen in
 `content.js`, Dokumentation und App-Texten.
-

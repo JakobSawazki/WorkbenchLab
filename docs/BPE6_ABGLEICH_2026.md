@@ -51,4 +51,3 @@ Priorisierte Lücken:
 3. anspruchsvollere 3NF-Zerlegeaufgaben
 4. Abiturähnliche kombinierte Aufgaben
 5. Lehrkraftansicht oder Portfolioexport
-

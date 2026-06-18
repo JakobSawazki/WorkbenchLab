@@ -1,6 +1,7 @@
 # WorkbenchLab Tasks und Projektstand
 
-Stand: 18. Juni 2026  
+Stand: 18. Juni 2026
+
 Aktuelle Version: 0.1.0
 
 ## Leitentscheidung

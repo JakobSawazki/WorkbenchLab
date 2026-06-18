@@ -28,4 +28,3 @@ sie als didaktische und fachliche Referenz. Öffentliche Inhalte werden:
 - transparent auf Bildungsplan und Landesbildungsserver verlinkt
 
 Musterlösungen und originale Arbeitsblätter bleiben lokal.
-

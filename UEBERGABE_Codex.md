@@ -1,6 +1,7 @@
 # Übergabe WorkbenchLab
 
-Stand: 18. Juni 2026  
+Stand: 18. Juni 2026
+
 Version: 0.1.0
 
 ## Projektziel
@@ -59,4 +60,3 @@ Die Struktur folgt den lokalen Ich-kann-Listen:
 5. GitHub Pages über Actions aktivieren.
 6. Live-Link in README eintragen.
 7. Weitere Aufgaben aus den lokalen Lernfortschritten didaktisch übertragen.
-
