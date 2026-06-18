@@ -40,7 +40,7 @@ Die lokalen Materialien enthalten:
 
 ## Aktueller Umsetzungsgrad
 
-Die Version 0.3.0 deckt die gesamte Breite von BPE6 ab, aber noch nicht die
+Die Version 0.4.0 deckt die gesamte Breite von BPE6 ab, aber noch nicht die
 Tiefe aller Originalaufgaben. Besonders komplexe SQL-Auswertungen, freie
 eERM-Konstruktion und mehrstufige Normalisierung können weiter ausgebaut werden.
 

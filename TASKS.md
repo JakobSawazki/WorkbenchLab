@@ -2,7 +2,7 @@
 
 Stand: 18. Juni 2026
 
-Aktuelle Version: 0.3.0
+Aktuelle Version: 0.4.0
 
 ## Leitentscheidung
 
@@ -78,6 +78,20 @@ und als interaktive Lernmodule umgesetzt.
   22 Übungen und 17 Befehls-Miniaufgaben erfolgreich; keine Konsolenfehler.
 - 2026-06-18: eERM-Diagramme bei 1440 und 390 Pixeln geprüft; mobile
   Beziehungskette ohne horizontalen Überlauf oder abgeschnittene Felder.
+- 2026-06-18: Version 0.4.0 mit drei eigens generierten, fotorealistischen
+  Unterrichtsmotiven für Übersicht, eERM-Werkstatt und SQL-Labor gestaltet.
+- 2026-06-18: Fachdiagramme bewusst als zugängliche HTML/CSS-Modelle
+  beibehalten; Fotos dienen dem Kontext und ersetzen keine prüfbare Notation.
+- 2026-06-18: Lokalen SQL-Coach mit Coach-Tipp, Kriteriencheck,
+  Ergebnisvergleich, Sortierungsdiagnose und didaktisch übersetzten
+  Fehlermeldungen implementiert.
+- 2026-06-18: Kostenlose KI-API-Optionen geprüft und eine serverseitige,
+  datensparsame Zielarchitektur dokumentiert; keine Schlüssel im Browser.
+- 2026-06-18: SQL-Coach mit korrekter Lösung, falscher Sortierung und
+  Syntaxfehler geprüft; alle zehn SQL-Aufgaben bestehen weiterhin ihre
+  deterministische XP-Prüfung.
+- 2026-06-18: Neue Bildbereiche und SQL-Coach bei 1440 und 390 Pixeln geprüft;
+  alle Bilder geladen, kein horizontaler Überlauf, keine Konsolenfehler.
 
 ## Offen Priorisiert
 
@@ -100,7 +114,8 @@ und als interaktive Lernmodule umgesetzt.
 - Freies SQL-Labor mit auswählbarem Schema und Aufgaben-Historie ergänzen.
 - JSON-Portfolio für Schülerinnen und Schüler mit Reflexionsfeldern.
 - Kleine Diagnosetests vor jeder Unterrichtsstunde.
-- SQL-Fehlermeldungen didaktisch übersetzen.
+- SQL-Coach anhand anonymisierter Fehlversuche aus dem Unterricht weiter
+  verfeinern.
 - MySQL-spezifische Unterschiede zu SQLite als Warnkarten anzeigen.
 - Druckbares Kompetenzraster aus dem aktuellen Lernstand erzeugen.
 - Optionales Backend nur datenschutzkonform und nicht mit offenem API-Key im

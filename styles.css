@@ -429,6 +429,49 @@ main {
   padding: 1rem;
 }
 
+.learning-photo {
+  position: relative;
+  min-height: 320px;
+  margin: 0;
+  overflow: hidden;
+  background: #dfe7e4;
+  padding: 0;
+}
+
+.learning-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  object-fit: cover;
+}
+
+.learning-photo figcaption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  background: rgba(13, 30, 31, 0.88);
+  color: #f4fbf9;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.learning-photo figcaption svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: #8ed8ca;
+}
+
+.modeling-photo img {
+  object-position: center;
+}
+
 .db-board {
   display: grid;
   height: 100%;
@@ -590,6 +633,7 @@ main {
   position: relative;
   display: flex;
   flex-direction: column;
+  min-width: 0;
   min-height: 210px;
   transition: border-color 140ms ease, transform 140ms ease;
 }
@@ -863,6 +907,29 @@ main {
   overflow: hidden;
 }
 
+.sql-intro-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.sql-intro-copy {
+  display: grid;
+  align-content: center;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.6rem);
+}
+
+.sql-intro-copy p:last-child {
+  margin-bottom: 0;
+}
+
+.sql-learning-photo {
+  min-height: 310px;
+  border-left: 1px solid var(--line);
+}
+
 .runner-main,
 .runner-side {
   padding: clamp(1rem, 3vw, 1.35rem);
@@ -890,6 +957,8 @@ main {
   display: flex;
   gap: 0.4rem;
   margin: 1rem 0 0.65rem;
+  overflow-x: auto;
+  padding-bottom: 0.1rem;
 }
 
 .runner-tab {
@@ -913,6 +982,123 @@ main {
 
 .runner-panel.is-active {
   display: block;
+}
+
+.sql-coach {
+  border-left: 4px solid var(--brand-2);
+  background: var(--panel-strong);
+  padding: 0.9rem 1rem;
+}
+
+.sql-coach.is-idle {
+  border-left-color: var(--line);
+}
+
+.sql-coach > p {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+}
+
+.sql-coach-head,
+.sql-coach-head > div,
+.local-badge {
+  display: flex;
+  align-items: center;
+}
+
+.sql-coach-head {
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sql-coach-head > div {
+  gap: 0.55rem;
+}
+
+.sql-coach-head > div > svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--brand-2);
+}
+
+.sql-coach-head span span,
+.sql-coach-head small,
+.sql-coach-head strong {
+  display: block;
+}
+
+.sql-coach-head small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.local-badge {
+  flex: 0 0 auto;
+  gap: 0.35rem;
+  min-height: 30px;
+  border: 1px solid color-mix(in srgb, var(--green), var(--line) 60%);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--green), transparent 90%);
+  color: var(--green);
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.local-badge svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.coach-checklist {
+  list-style: none;
+  margin: 0.85rem 0 0;
+  padding: 0;
+}
+
+.coach-checklist li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 0.6rem;
+  border-top: 1px solid var(--line);
+  padding: 0.75rem 0;
+}
+
+.coach-checklist li:last-child {
+  padding-bottom: 0;
+}
+
+.coach-checklist li > svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.15rem;
+}
+
+.coach-checklist li.is-success > svg {
+  color: var(--green);
+}
+
+.coach-checklist li.is-warning > svg {
+  color: var(--amber);
+}
+
+.coach-checklist li.is-info > svg {
+  color: var(--blue);
+}
+
+.coach-checklist strong,
+.coach-checklist span {
+  display: block;
+}
+
+.coach-checklist span {
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .data-table-wrap {
@@ -2020,12 +2206,14 @@ main {
 @media (max-width: 900px) {
   .hero-band,
   .content-section,
-  .sql-runner {
+  .sql-runner,
+  .sql-intro-band {
     grid-template-columns: 1fr;
   }
 
   .hero-visual,
-  .runner-side {
+  .runner-side,
+  .sql-learning-photo {
     border-left: 0;
     border-top: 1px solid var(--line);
   }
@@ -2106,6 +2294,15 @@ main {
   .detail-actions .button,
   .runner-actions .button {
     width: 100%;
+  }
+
+  .sql-coach-head {
+    align-items: flex-start;
+  }
+
+  .exercise-meta .meta-pill {
+    max-width: 100%;
+    white-space: normal;
   }
 
   .lesson-head {

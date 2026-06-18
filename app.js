@@ -590,23 +590,10 @@
             </button>
           </div>
         </div>
-        <div class="hero-visual" aria-label="Datenbankmodell">
-          <div class="db-board">
-            <div class="db-table-mini">
-              <strong><i data-lucide="table"></i> fahrschueler</strong>
-              <span>schuelernr PK</span>
-              <span>nachname</span>
-              <span>ortnr FK</span>
-            </div>
-            <div class="relation-line">1 : N</div>
-            <div class="db-table-mini">
-              <strong><i data-lucide="table"></i> orte</strong>
-              <span>ortnr PK</span>
-              <span>plz</span>
-              <span>ort</span>
-            </div>
-          </div>
-        </div>
+        <figure class="hero-visual learning-photo">
+          <img src="assets/images/learning-database-classroom.jpg" alt="Zwei Schüler vergleichen ein Datenbankmodell mit ihrer Arbeit am Laptop">
+          <figcaption><i data-lucide="network"></i> Reale Situation → eERM → SQL</figcaption>
+        </figure>
       </section>
 
       <section class="stat-strip" aria-label="Lernstand">
@@ -781,8 +768,8 @@
     ];
     const practices = sqlPractices().filter((practice) => practiceFilter === "all" || practice.difficulty === practiceFilter);
     main.innerHTML = `
-      <section class="section-band lesson-body">
-        <div class="content-section">
+      <section class="section-band sql-intro-band">
+        <div class="sql-intro-copy">
           <div>
             <p class="eyebrow">SQL im Browser</p>
             <h2>Sofort testen, danach in MySQL Workbench übertragen</h2>
@@ -793,6 +780,10 @@
             <p>Die Datenbank wird für jeden Lauf neu aufgebaut. Du kannst also gefahrlos INSERT, UPDATE oder DELETE ausprobieren.</p>
           </div>
         </div>
+        <figure class="learning-photo sql-learning-photo">
+          <img src="assets/images/sql-lab.jpg" alt="Ein Schüler testet eine Abfrage und kontrolliert die Ergebnistabelle am Laptop">
+          <figcaption><i data-lucide="scan-search"></i> Code und Ergebnis gemeinsam prüfen</figcaption>
+        </figure>
       </section>
       <div class="section-heading">
         <div>
@@ -828,7 +819,10 @@
             </button>
           </div>
         </div>
-        <div class="hero-visual">${renderVisual("er-simple")}</div>
+        <figure class="hero-visual learning-photo modeling-photo">
+          <img src="assets/images/eerm-workshop.jpg" alt="Eine Lerngruppe ordnet Entitäten und Beziehungen für eine Fahrradvermietung">
+          <figcaption><i data-lucide="boxes"></i> Gemeinsam vom Sachtext zum Modell</figcaption>
+        </figure>
       </section>
       <div class="section-heading">
         <div>
@@ -931,6 +925,10 @@
                 <i data-lucide="play"></i>
                 Ausführen
               </button>
+              <button class="button button-secondary coach-button" type="button" id="coachSqlButton">
+                <i data-lucide="message-circle-question"></i>
+                Coach-Tipp
+              </button>
               <button class="button button-primary" type="button" id="checkSqlButton">
                 <i data-lucide="check"></i>
                 Lösung prüfen
@@ -942,12 +940,22 @@
             </div>
             <div class="runner-tabs">
               <button class="runner-tab is-active" type="button" data-runner-tab="result">Ergebnis</button>
+              <button class="runner-tab" type="button" data-runner-tab="coach">SQL-Coach</button>
               <button class="runner-tab" type="button" data-runner-tab="hint">Hinweise</button>
               <button class="runner-tab" type="button" data-runner-tab="solution">Muster</button>
             </div>
             <div class="runner-panel is-active" data-runner-panel="result">
               <div id="sqlOutput" class="console-output">Noch keine Abfrage ausgeführt.</div>
               <div class="result-banner" id="practiceResult"></div>
+            </div>
+            <div class="runner-panel" data-runner-panel="coach">
+              <div class="sql-coach is-idle" id="sqlCoach">
+                <div class="sql-coach-head">
+                  <div><i data-lucide="scan-search"></i><span><small>Lokale Analyse</small><strong>SQL-Coach</strong></span></div>
+                  <span class="local-badge"><i data-lucide="shield-check"></i>ohne Cloud</span>
+                </div>
+                <p>Führe deinen Entwurf aus oder fordere einen Coach-Tipp an. Dein SQL-Code bleibt auf diesem Gerät.</p>
+              </div>
             </div>
             <div class="runner-panel" data-runner-panel="hint">
               <ul class="plain-list">
@@ -1377,19 +1385,159 @@
       JSON.stringify(normalizedRows(expected, orderSensitive));
   }
 
+  const sqlCoachPatterns = {
+    select: ["SELECT verwenden", "Beginne die Abfrage mit SELECT und nenne danach die gewünschten Ausgabespalten."],
+    from: ["Datenquelle nennen", "Mit FROM legst du fest, aus welcher Tabelle gelesen wird."],
+    nachname: ["Spalte nachname", "Nimm die Spalte nachname in die Abfrage auf."],
+    vorname: ["Spalte vorname", "Nimm die Spalte vorname in die Abfrage auf."],
+    where: ["Datensätze filtern", "Formuliere die Auswahlbedingung nach WHERE."],
+    "order\\s+by": ["Ergebnis sortieren", "Ergänze ORDER BY am Ende der Abfrage."],
+    desc: ["Absteigend sortieren", "DESC steht direkt hinter der Sortierspalte."],
+    "select\\s+distinct": ["Doppelte Ausgaben vermeiden", "DISTINCT steht direkt hinter SELECT."],
+    like: ["Textmuster prüfen", "Nutze LIKE zusammen mit einem Muster in einfachen Anführungszeichen."],
+    or: ["Alternativen verbinden", "Verbinde die beiden möglichen Namensanfänge mit OR."],
+    "count\\s*\\(": ["Datensätze zählen", "COUNT(...) zählt die Datensätze jeder Gruppe."],
+    "group\\s+by": ["Gruppen bilden", "GROUP BY steht nach WHERE und vor HAVING."],
+    having: ["Gruppen filtern", "Eine Bedingung auf ein Aggregatergebnis gehört in HAVING."],
+    "month\\s*\\(": ["Monat berechnen", "MONTH(geburtsdatum) liefert die Monatszahl."],
+    "year\\s*\\(": ["Jahr prüfen", "YEAR(geburtsdatum) kann in der WHERE-Bedingung verglichen werden."],
+    "insert\\s+into": ["Datensatz einfügen", "INSERT INTO nennt zuerst die Zieltabelle und ihre Spalten."],
+    values: ["Werte angeben", "VALUES enthält die Werte in derselben Reihenfolge wie die Spaltenliste."],
+    join: ["Tabellen verbinden", "JOIN ergänzt die zweite Tabelle; danach folgt die ON-Bedingung."],
+    on: ["Schlüssel zuordnen", "ON verbindet passende Primär- und Fremdschlüssel."],
+    "sum\\s*\\(": ["Werte summieren", "SUM(stundenzahl) berechnet die Summe innerhalb jeder Gruppe."],
+    "join\\s+kunden": ["Kunden verbinden", "Verbinde mietvertraege über kundennr mit kunden."],
+    "join\\s+fahrraeder": ["Fahrräder verbinden", "Verbinde mietvertraege über fahrradnr mit fahrraeder."],
+    "datediff\\s*\\(": ["Mietdauer berechnen", "DATEDIFF erhält zuerst das Enddatum und danach das Startdatum."],
+    "select\\s+\\*": ["Gezielte Spaltenauswahl", "Ersetze SELECT * durch die ausdrücklich geforderten Spalten."]
+  };
+
+  function sqlPatternInfo(pattern, forbidden = false) {
+    const known = sqlCoachPatterns[pattern];
+    if (known) {
+      return { label: known[0], hint: known[1] };
+    }
+    return {
+      label: forbidden ? "Unzulässigen Bestandteil entfernen" : "Aufgabenbestandteil ergänzen",
+      hint: forbidden
+        ? "Entferne einen Bestandteil, den die Aufgabe ausdrücklich ausschließt."
+        : "Vergleiche deinen Aufbau mit der Aufgabenstellung und den Hinweisen."
+    };
+  }
+
   function checkSqlPatterns(sql, check) {
     const problems = [];
     (check.required || []).forEach((pattern) => {
       if (!new RegExp(pattern, "i").test(sql)) {
-        problems.push(`Erwartet wird ein Bestandteil passend zu /${pattern}/.`);
+        problems.push({ pattern, ...sqlPatternInfo(pattern) });
       }
     });
     (check.forbidden || []).forEach((pattern) => {
       if (new RegExp(pattern, "i").test(sql)) {
-        problems.push(`Dieser Bestandteil ist hier nicht erlaubt: /${pattern}/.`);
+        problems.push({ pattern, forbidden: true, ...sqlPatternInfo(pattern, true) });
       }
     });
     return problems;
+  }
+
+  function translateSqlError(error) {
+    const message = String(error?.message || error || "");
+    let match = message.match(/no such table:\s*([^\s]+)/i);
+    if (match) {
+      return `Die Tabelle ${match[1]} gehört nicht zum Übungsschema. Prüfe FROM und JOIN rechts neben dem Editor.`;
+    }
+    match = message.match(/no such column:\s*([^\s]+)/i);
+    if (match) {
+      return `Die Spalte ${match[1]} wurde nicht gefunden. Prüfe Schreibweise, Tabellenalias und Schema.`;
+    }
+    match = message.match(/ambiguous column name:\s*([^\s]+)/i);
+    if (match) {
+      return `Die Spalte ${match[1]} kommt in mehreren Tabellen vor. Setze den passenden Alias davor, zum Beispiel f.${match[1]}.`;
+    }
+    match = message.match(/near\s+"([^"]+)":\s*syntax error/i);
+    if (match) {
+      return `In der Nähe von „${match[1]}“ stimmt der Satzbau noch nicht. Prüfe die Klausel direkt davor und fehlende Kommas oder Ausdrücke.`;
+    }
+    if (/incomplete input/i.test(message)) {
+      return "Die Anweisung ist noch unvollständig. Prüfe offene Klammern und Klauseln wie WHERE, ON oder HAVING ohne Bedingung.";
+    }
+    if (/unique constraint failed/i.test(message)) {
+      return "Ein Primär- oder eindeutiger Schlüssel ist bereits vergeben. Verwende einen noch nicht vorhandenen Wert.";
+    }
+    if (/foreign key constraint failed/i.test(message)) {
+      return "Ein Fremdschlüssel verweist auf keinen vorhandenen Datensatz der Parent-Tabelle.";
+    }
+    return message || "Die SQL-Anweisung konnte nicht ausgeführt werden. Prüfe Syntax, Tabellen und Spalten.";
+  }
+
+  function coachItem(status, title, detail) {
+    return { status, title, detail };
+  }
+
+  function buildSqlCoachItems(practice, sql, actual, expected, patternProblems) {
+    const items = [coachItem("success", "SQL ist ausführbar", `Die Datenbank hat die Anweisung verarbeitet und ${actual.values.length} Ergebniszeile${actual.values.length === 1 ? "" : "n"} geliefert.`)];
+    if (patternProblems.length) {
+      items.push(coachItem("warning", patternProblems[0].label, patternProblems[0].hint));
+    } else {
+      items.push(coachItem("success", "Aufbau passt zur Aufgabe", "Alle geforderten SQL-Bestandteile sind erkennbar und ausgeschlossene Abkürzungen wurden vermieden."));
+    }
+
+    const exactRows = sameTable(actual, expected, practice.check.orderSensitive);
+    const sameRowsWithoutOrder = sameTable(actual, expected, false);
+    if (exactRows) {
+      items.push(coachItem("success", "Ergebnismenge stimmt", "Zeilen, Werte und die geforderte Reihenfolge passen zur Aufgabenprüfung."));
+    } else if (practice.check.orderSensitive && sameRowsWithoutOrder) {
+      items.push(coachItem("warning", "Werte stimmen, Reihenfolge noch nicht", "Prüfe ORDER BY, die Sortierspalte und gegebenenfalls ASC oder DESC."));
+    } else if (actual.columns.length !== expected.columns.length) {
+      items.push(coachItem("warning", "Anzahl der Spalten weicht ab", `Dein Ergebnis hat ${actual.columns.length}, erwartet werden ${expected.columns.length} Ausgabespalten.`));
+    } else if (actual.values.length > expected.values.length) {
+      items.push(coachItem("warning", "Zu viele Ergebniszeilen", "Schärfe die WHERE-, HAVING- oder JOIN-Bedingung. Prüfe bei JOIN besonders die Schlüsselzuordnung in ON."));
+    } else if (actual.values.length < expected.values.length) {
+      items.push(coachItem("warning", "Zu wenige Ergebniszeilen", "Eine Bedingung filtert zu stark oder eine JOIN-Bedingung verliert passende Datensätze."));
+    } else {
+      items.push(coachItem("warning", "Werte noch vergleichen", "Die Zeilenanzahl passt, aber mindestens ein Wert weicht ab. Prüfe ausgewählte Spalten, Berechnungen und Bedingungen."));
+    }
+
+    const actualColumns = actual.columns.map((column) => String(column).toLowerCase());
+    const expectedColumns = expected.columns.map((column) => String(column).toLowerCase());
+    if (JSON.stringify(actualColumns) !== JSON.stringify(expectedColumns)) {
+      items.push(coachItem("info", "Spaltenüberschriften prüfen", "Die Daten können stimmen, aber Reihenfolge oder Aliasnamen der Ausgabespalten unterscheiden sich noch."));
+    }
+    return items;
+  }
+
+  function activateRunnerPanel(name) {
+    document.querySelectorAll("[data-runner-tab]").forEach((tab) => {
+      tab.classList.toggle("is-active", tab.dataset.runnerTab === name);
+    });
+    document.querySelectorAll("[data-runner-panel]").forEach((panel) => {
+      panel.classList.toggle("is-active", panel.dataset.runnerPanel === name);
+    });
+  }
+
+  function setSqlCoach(items, summary, activate = false) {
+    const coach = document.querySelector("#sqlCoach");
+    if (!coach) {
+      return;
+    }
+    coach.className = "sql-coach";
+    coach.innerHTML = `
+      <div class="sql-coach-head">
+        <div><i data-lucide="scan-search"></i><span><small>Lokale Analyse</small><strong>SQL-Coach</strong></span></div>
+        <span class="local-badge"><i data-lucide="shield-check"></i>ohne Cloud</span>
+      </div>
+      <p>${escapeHtml(summary)}</p>
+      <ul class="coach-checklist">
+        ${items.map((item) => `
+          <li class="is-${item.status}">
+            <i data-lucide="${item.status === "success" ? "circle-check" : item.status === "info" ? "info" : "lightbulb"}"></i>
+            <div><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.detail)}</span></div>
+          </li>`).join("")}
+      </ul>`;
+    if (activate) {
+      activateRunnerPanel("coach");
+    }
+    renderIcons();
   }
 
   function renderDataTable(table) {
@@ -1413,32 +1561,33 @@
       output.className = "";
       output.innerHTML = html;
     }
-    document.querySelectorAll("[data-runner-tab]").forEach((tab) => {
-      tab.classList.toggle("is-active", tab.dataset.runnerTab === "result");
-    });
-    document.querySelectorAll("[data-runner-panel]").forEach((panel) => {
-      panel.classList.toggle("is-active", panel.dataset.runnerPanel === "result");
-    });
+    activateRunnerPanel("result");
   }
 
-  async function runSqlPractice(checkSolution) {
+  async function runSqlPractice(mode = "run") {
     const practice = practiceById(parseRoute().id);
     const editor = document.querySelector("#sqlEditor");
     const runButton = document.querySelector("#runSqlButton");
+    const coachButton = document.querySelector("#coachSqlButton");
     const checkButton = document.querySelector("#checkSqlButton");
     if (!practice || !editor) {
       return;
     }
+    const checkSolution = mode === "check";
+    const useCoach = mode === "coach" || checkSolution;
     runButton.disabled = true;
+    coachButton.disabled = true;
     checkButton.disabled = true;
     setSqlOutput(`<div class="console-output">SQL arbeitet ...</div>`);
+    let db;
+    let expectedDb;
     try {
       const sql = editor.value.trim();
       if (!sql) {
         throw new Error("Schreibe zuerst eine SQL-Anweisung.");
       }
-      const patternProblems = checkSolution ? checkSqlPatterns(sql, practice.check) : [];
-      let db = await createDatabase(practice.schema);
+      const patternProblems = useCoach ? checkSqlPatterns(sql, practice.check) : [];
+      db = await createDatabase(practice.schema);
       let table;
       if (practice.check.type === "mutation") {
         db.run(sql);
@@ -1448,38 +1597,64 @@
       }
       setSqlOutput(renderDataTable(table));
 
-      if (!checkSolution) {
-        db.close();
+      if (!useCoach) {
+        setSqlCoach(
+          [coachItem("success", "SQL ist ausführbar", `Die Anweisung liefert ${table.values.length} Ergebniszeile${table.values.length === 1 ? "" : "n"}.`) ],
+          "Die Ausführung war technisch erfolgreich. Fordere einen Coach-Tipp an, um Aufbau und Ergebnismenge mit der Aufgabe abzugleichen."
+        );
         return;
       }
 
       let passed = patternProblems.length === 0;
+      let expected;
       if (practice.check.type === "query") {
-        const expectedDb = await createDatabase(practice.schema);
-        const expected = tableFromResult(expectedDb.exec(practice.check.expectedSql));
+        expectedDb = await createDatabase(practice.schema);
+        expected = tableFromResult(expectedDb.exec(practice.check.expectedSql));
         passed = passed && sameTable(table, expected, practice.check.orderSensitive);
-        expectedDb.close();
       } else {
-        const expected = practice.check.expected;
+        expected = practice.check.expected;
         passed = passed && sameTable(table, expected, true);
       }
-      db.close();
+
+      const coachItems = buildSqlCoachItems(practice, sql, table, expected, patternProblems);
+      setSqlCoach(
+        coachItems,
+        passed
+          ? "Dein Entwurf erfüllt die fachlichen und technischen Kriterien dieser Aufgabe."
+          : "Der Coach zeigt dir den nächsten sinnvollen Prüfschritt, ohne die Musterlösung einzusetzen.",
+        true
+      );
 
       if (passed) {
-        const firstCompletion = award("practice", practice.id, practice.xp);
-        showBanner("#practiceResult", true, "Aufgabe gelöst", firstCompletion
-          ? `${practice.xp} XP wurden gutgeschrieben.`
-          : "Deine Lösung besteht die Prüfung weiterhin.");
-      } else {
-        showBanner("#practiceResult", false, "Noch nicht ganz", patternProblems[0] || "Das Ergebnis passt noch nicht zur erwarteten Ergebnismenge. Prüfe Spalten, Bedingungen, Gruppierung und Sortierung.");
+        if (checkSolution) {
+          const firstCompletion = award("practice", practice.id, practice.xp);
+          showBanner("#practiceResult", true, "Aufgabe gelöst", firstCompletion
+            ? `${practice.xp} XP wurden gutgeschrieben.`
+            : "Deine Lösung besteht die Prüfung weiterhin.");
+        }
+      } else if (checkSolution) {
+        showBanner("#practiceResult", false, "Noch nicht ganz", patternProblems[0]?.hint || "Öffne den SQL-Coach für den nächsten gezielten Prüfschritt.");
       }
     } catch (error) {
-      setSqlOutput(`<div class="console-output">${escapeHtml(error.message || "Die SQL-Anweisung konnte nicht ausgeführt werden.")}</div>`);
+      const translated = translateSqlError(error);
+      setSqlOutput(`<div class="console-output"><strong>SQL-Meldung</strong><br>${escapeHtml(error.message || "Die SQL-Anweisung konnte nicht ausgeführt werden.")}</div>`);
+      if (useCoach) {
+        const sql = editor.value.trim();
+        const patternProblems = sql ? checkSqlPatterns(sql, practice.check) : [];
+        const items = [coachItem("warning", "Noch nicht ausführbar", translated)];
+        if (patternProblems.length) {
+          items.push(coachItem("info", patternProblems[0].label, patternProblems[0].hint));
+        }
+        setSqlCoach(items, "Der Fehler wurde lokal in einen konkreten nächsten Prüfschritt übersetzt.", true);
+      }
       if (checkSolution) {
-        showBanner("#practiceResult", false, "SQL-Fehler", error.message || "Prüfe Syntax und Tabellennamen.");
+        showBanner("#practiceResult", false, "SQL-Fehler", translated);
       }
     } finally {
+      expectedDb?.close();
+      db?.close();
       runButton.disabled = false;
+      coachButton.disabled = false;
       checkButton.disabled = false;
     }
   }
@@ -1734,10 +1909,13 @@
       });
     }
     if (event.target.closest("#runSqlButton")) {
-      runSqlPractice(false);
+      runSqlPractice("run");
+    }
+    if (event.target.closest("#coachSqlButton")) {
+      runSqlPractice("coach");
     }
     if (event.target.closest("#checkSqlButton")) {
-      runSqlPractice(true);
+      runSqlPractice("check");
     }
     if (event.target.closest("#resetSqlButton")) {
       const practice = practiceById(parseRoute().id);

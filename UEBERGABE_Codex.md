@@ -2,7 +2,7 @@
 
 Stand: 18. Juni 2026
 
-Version: 0.3.0
+Version: 0.4.0
 
 Live: `https://jakobsawazki.github.io/WorkbenchLab/`
 
@@ -34,11 +34,16 @@ Die erste lauffähige Version ist als statische App umgesetzt:
 Die App enthält Lernpfad, SQL-Labor, Modellierungsübungen, Befehle,
 Nachschlagen, Erfolge, lokale Lernstandsicherung und Theme-Schalter.
 
-Version 0.3.0 umfasst 19 Lektionen, 22 Übungen und 17 SQL-Befehlskarten. Das
+Version 0.4.0 umfasst 19 Lektionen, 22 Übungen und 17 SQL-Befehlskarten. Das
 eigene Modul `eERM modellieren` führt vom Sachtext über Kardinalitäten zur
 M:N-Auflösung. Zwei interaktive Diagrammaufgaben prüfen Kardinalitäten und
 Fremdschlüssel direkt im Modell. Eine dritte Übungsdatenbank verbindet die
 Fahrradvermietungs-Modellierung mit einer Drei-Tabellen-SQL-Abfrage.
+
+Eine fotorealistische, eigens generierte Bildserie rahmt die Lernbereiche,
+während Fachdiagramme weiterhin präzise und interaktiv in HTML/CSS bleiben.
+Der lokale SQL-Coach übersetzt Fehler, prüft Aufgabenbestandteile und vergleicht
+Ergebnismengen, ohne Schülercode an einen externen Dienst zu senden.
 
 ## Didaktische Struktur
 
@@ -61,6 +66,9 @@ Die Struktur folgt den lokalen Ich-kann-Listen:
 - Die SQL-Schemata stehen in `content.js`.
 - MySQL-Funktionen `YEAR`, `MONTH`, `NOW` und `DATEDIFF` werden im Browser nachgebildet.
 - Für Unterrichtsskripte bleibt MySQL Workbench verbindlich.
+- Der SQL-Coach arbeitet vollständig im Browser; eine KI-API ist nicht aktiv.
+- Ein späteres KI-Gateway darf keine Schlüssel im Frontend enthalten und nicht
+  allein über XP oder Leistungsbewertung entscheiden.
 - `resources/` ist per `.gitignore` ausgeschlossen.
 
 ## Nächste sinnvolle Schritte

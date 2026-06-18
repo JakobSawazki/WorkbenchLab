@@ -28,6 +28,18 @@ Vorteile:
 - unmittelbares Feedback
 - einfache Lernstandsprüfung
 
+Der SQL-Coach ergänzt die reine Ergebnisprüfung um eine erklärbare Diagnose:
+
+1. Ist die Anweisung ausführbar?
+2. Sind die geforderten SQL-Bestandteile enthalten?
+3. Stimmen Spaltenzahl, Zeilenzahl und Werte?
+4. Ist eine geforderte Sortierung korrekt?
+
+Typische SQLite-Meldungen wie unbekannte Tabelle, unbekannte oder mehrdeutige
+Spalte und unvollständige Eingabe werden in konkrete deutsche Prüfschritte
+übersetzt. Die Analyse arbeitet vollständig lokal und beeinflusst XP nur dann,
+wenn die bestehende deterministische Aufgabenprüfung bestanden wird.
+
 Grenzen:
 
 - MySQL Workbench wird nicht ersetzt.
@@ -35,6 +47,7 @@ Grenzen:
 - Die Originalskripte aus den Unterrichtsmaterialien müssen in MySQL Workbench
   genutzt werden.
 - Der Browser-Lernstand ist nicht manipulationssicher.
+- Der Coach ist eine didaktische Heuristik und keine allgemeine SQL-KI.
 
 Für BPE6-Übungen werden eigene kleine Fahrschul-Datensätze verwendet. Sie sind
 fachlich an den Unterricht angelehnt, aber nicht als direkte Kopie von
@@ -76,6 +89,14 @@ Notengrundlage. Sinnvoll ist eine Kombination aus:
 - responsive Layouts
 - Export/Import für Gerätewechsel
 - Light- und Dark-Mode
+
+## Bildsprache
+
+Fotorealistische Unterrichtsmotive schaffen Kontext auf Übersicht, eERM- und
+SQL-Einstieg. Die eigentlichen ERM/eERM-Modelle bleiben HTML/CSS-basiert, weil
+Kardinalitäten, Schlüssel und Attribute dort scharf, responsiv, zugänglich und
+automatisch prüfbar sind. Herkunft und Prompts sind unter
+`docs/BILDSPRACHE_UND_ASSETS.md` dokumentiert.
 
 ## Veröffentlichungsentscheidung
 

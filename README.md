@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktuelle Version:** 0.3.0
+**Aktuelle Version:** 0.4.0
 
 **Dokumentationsstand:** 18. Juni 2026
 
@@ -17,7 +17,7 @@ Die Oberfläche orientiert sich bewusst an PythonLab: Lernpfad, Übungen, XP,
 Erfolge, Nachschlagebereich, lokale Lernstandsicherung und GitHub-Pages-fähige
 statische Architektur.
 
-![WorkbenchLab Übersicht](docs/screenshots/startseite-desktop.png)
+![WorkbenchLab Übersicht mit neuer Bildsprache](docs/screenshots/workbenchlab-visuals-desktop.png)
 
 ## Ziel
 
@@ -46,11 +46,13 @@ Die vollständigen lokalen Unterrichtsmaterialien liegen unter:
 Diese Originalmaterialien dienen als fachliche Referenz und werden durch
 `.gitignore` nicht in ein öffentliches Repository übernommen.
 
-## Funktionsumfang in Version 0.3.0
+## Funktionsumfang in Version 0.4.0
 
 - 19 Lektionen in sechs Modulen entlang der BPE6-Kompetenzspur
 - 22 prüfbare Übungen mit XP
 - browserbasiertes SQL-Labor über `sql.js`
+- lokaler SQL-Coach mit verständlicher Syntaxübersetzung, Kriteriencheck und
+  Ergebnisdiagnose ohne Cloud-Übertragung
 - drei Übungsdatenbanken: eine einfache Fahrschüler-Tabelle, ein
   normalisiertes Fahrschul-Schema und eine Fahrradvermietung mit
   Beziehungsentität
@@ -60,6 +62,8 @@ Diese Originalmaterialien dienen als fachliche Referenz und werden durch
   Kardinalitäten, Optionalität und M:N-Auflösung
 - zwei interaktive eERM-Diagramme mit auswählbaren Kardinalitäten und
   Fremdschlüsseln
+- drei eigens generierte, fotorealistische Unterrichtsmotive für Übersicht,
+  eERM-Werkstatt und SQL-Labor
 - Modellierungsübungen zu Fremdschlüsseln, Normalformen und Big Data
 - Workbench-Lerneinheit zu Dienststart, Verbindung, Forward Engineering,
   Synchronisierung, Skriptimport und Ergebniskontrolle
@@ -91,6 +95,13 @@ Im Browser-Labor sind ausgewählte MySQL-Funktionen wie `YEAR`, `MONTH`, `NOW`
 und `DATEDIFF` als Übungshilfe nachgebildet. Für verbindliche Arbeit mit den
 Originalskripten ist MySQL Workbench maßgeblich.
 
+Der SQL-Coach analysiert die Eingabe lokal in vier Schritten: Ausführbarkeit,
+geforderter SQL-Aufbau, Ergebnismenge und Sortierung. Er übersetzt typische
+SQLite-Fehler in fachliche Hinweise und zeigt den nächsten Prüfschritt, ohne
+eine externe API oder einen offenen Schlüssel zu verwenden.
+
+![Lokaler SQL-Coach mit differenzierter Rückmeldung](docs/screenshots/sql-coach-desktop.png)
+
 ## Technische Architektur
 
 WorkbenchLab ist eine statische Single-Page-App ohne Build-Schritt. Die für
@@ -103,7 +114,7 @@ damit das Portal nicht von externen CDNs abhängt.
 | `styles.css` | Layout, Responsive Design, SQL-Runner, Diagramme |
 | `content.js` | Lektionen, Übungen, SQL-Schemata, Befehle, Quellen |
 | `app.js` | Routing, Rendering, XP, SQL-Prüfung, Export/Import |
-| `assets/` | projektbezogene Bilddateien; die Werkzeugillustrationen entstehen responsiv aus HTML und CSS |
+| `assets/` | optimierte Bildserie für Unterrichtskontext; Fachdiagramme bleiben responsiv in HTML und CSS |
 | `vendor/` | lokal eingebundene Laufzeitdateien für Lucide und `sql.js` |
 | `docs/` | didaktische und technische Dokumentation |
 | `references/bpe6/` | Quellenentscheidung und lokaler Materialüberblick |
@@ -137,6 +148,10 @@ WorkbenchLab speichert Lernstand, XP, gelöste Aufgaben und Entwürfe lokal im
 Browser unter `workbenchlab-v1`. Es gibt kein Backend und keine zentrale
 Schülerdatenbank. Der Lernstand kann als JSON-Datei gesichert und wieder
 geladen werden.
+
+Der SQL-Coach sendet weder SQL-Code noch Profil- oder Leistungsdaten an einen
+KI-Dienst. Ein optionaler KI-Ausbau ist nur über ein geschütztes serverseitiges
+Gateway vorgesehen; Details stehen in `docs/SQL_FEEDBACK_UND_KI.md`.
 
 Die XP sind motivierend und transparent, aber technisch kein
 manipulationssicheres Prüfungssystem. Für die mündliche Note bzw.
