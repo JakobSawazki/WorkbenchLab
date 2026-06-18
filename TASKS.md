@@ -37,24 +37,30 @@ und als interaktive Lernmodule umgesetzt.
 - 2026-06-18: GitHub-Pages-Workflow vorbereitet.
 - 2026-06-18: Lucide und `sql.js` lokal unter `vendor/` eingebunden, damit die
   App ohne externe CDN-Laufzeitabhängigkeit startet.
+- 2026-06-18: Öffentliches Repository
+  `https://github.com/JakobSawazki/WorkbenchLab` erstellt und `main` gepusht.
+- 2026-06-18: GitHub Pages über Actions aktiviert und erfolgreich unter
+  `https://jakobsawazki.github.io/WorkbenchLab/` veröffentlicht.
+- 2026-06-18: Alle 13 Übungen, 13 Lektionsquizze und 12 Befehls-Miniaufgaben
+  automatisiert im Browser erfolgreich geprüft.
+- 2026-06-18: Desktop- und Mobilansicht geprüft; kein horizontales Überlaufen
+  bei 390 Pixeln und keine Browser-Konsolenfehler.
+- 2026-06-18: Live-SQL-Aufgabe direkt auf GitHub Pages erfolgreich ausgeführt.
 
 ## Offen Priorisiert
 
-1. Live-Repository auf GitHub anlegen, Remote eintragen, pushen und Pages
-   aktivieren.
-2. Browserprüfung mit echten Schüler-Workflows im Unterricht durchführen.
-3. Weitere SQL-Aufgaben aus den lokalen Lernfortschritten übertragen, ohne
+1. Browserprüfung mit echten Schüler-Workflows im Unterricht durchführen.
+2. Weitere SQL-Aufgaben aus den lokalen Lernfortschritten übertragen, ohne
    Originalaufgaben oder Lösungen ungeprüft zu veröffentlichen.
-4. Workbench-spezifische Schritt-für-Schritt-Seiten ergänzen:
+3. Workbench-spezifische Schritt-für-Schritt-Seiten ergänzen:
    Reverse/Forward Engineering, Modell speichern, SQL-Skript ausführen.
-5. eERM-Übungsmodus ausbauen: Tabellenkarten, Beziehungslinien,
+4. eERM-Übungsmodus ausbauen: Tabellenkarten, Beziehungslinien,
    Kardinalitätsauswahl und automatische Plausibilitätsprüfung.
-6. Normalisierung mit mehrstufigen Zerlege-Aufgaben erweitern.
-7. Abitur-Training mit gemischten Modellierungs- und SQL-Aufgaben ergänzen.
-8. Lehrkraftansicht planen: Export mehrerer Lernstände, Rubrik und Hinweise für
+5. Normalisierung mit mehrstufigen Zerlege-Aufgaben erweitern.
+6. Abitur-Training mit gemischten Modellierungs- und SQL-Aufgaben ergänzen.
+7. Lehrkraftansicht planen: Export mehrerer Lernstände, Rubrik und Hinweise für
    mündliche/KE-Leistung.
-9. Screenshots der finalen Oberfläche in `docs/screenshots/` ablegen.
-10. Nach erstem Push Live-Seite testen und README-Live-Link aktualisieren.
+8. Versions- und Release-Prozess für künftige Unterrichtsstände festlegen.
 
 ## Ideen
 

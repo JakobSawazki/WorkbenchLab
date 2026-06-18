@@ -4,6 +4,10 @@ Stand: 18. Juni 2026
 
 Version: 0.1.0
 
+Live: `https://jakobsawazki.github.io/WorkbenchLab/`
+
+Repository: `https://github.com/JakobSawazki/WorkbenchLab`
+
 ## Projektziel
 
 WorkbenchLab ist die Datenbank-Schwester von PythonLab. Es soll Schülerinnen
@@ -53,10 +57,8 @@ Die Struktur folgt den lokalen Ich-kann-Listen:
 
 ## Nächste sinnvolle Schritte
 
-1. Lokalen Server starten und UI in Desktop/Mobil prüfen.
-2. SQL-Aufgaben real durchklicken.
-3. Git initialisieren, committen und GitHub-Remote ergänzen.
-4. Repository nach GitHub pushen.
-5. GitHub Pages über Actions aktivieren.
-6. Live-Link in README eintragen.
-7. Weitere Aufgaben aus den lokalen Lernfortschritten didaktisch übertragen.
+1. Schülerfeedback aus dem ersten Unterrichtseinsatz dokumentieren.
+2. Weitere Aufgaben aus den lokalen Lernfortschritten didaktisch übertragen.
+3. eERM-Interaktion und mehrstufige Normalisierungsaufgaben ausbauen.
+4. Workbench-spezifische Schritt-für-Schritt-Seiten ergänzen.
+5. Abiturähnliche kombinierte Modellierungs-/SQL-Aufgaben entwickeln.

@@ -3,7 +3,10 @@
 **Aktuelle Version:** 0.1.0
 
 **Dokumentationsstand:** 18. Juni 2026
-**Geplante Live-Adresse:** `https://jakobsawazki.github.io/WorkbenchLab/`
+
+**Live:** <https://jakobsawazki.github.io/WorkbenchLab/>
+
+**Repository:** <https://github.com/JakobSawazki/WorkbenchLab>
 
 WorkbenchLab ist eine browserbasierte Lernumgebung für Jahrgangsstufe 1 im
 Fach Informatik an nichtgewerblichen beruflichen Gymnasien. Inhaltlicher Kern
