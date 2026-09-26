@@ -5,9 +5,12 @@
   const storageKey = "workbenchlab-v1";
   const themeStorageKey = "workbenchlab-theme-v1";
   const deviceStorageKey = "workbenchlab-device-v1";
+  const developerStorageKey = "workbenchlab-developer-v1";
+  const pendingModuleStorageKey = "workbenchlab-pending-module-v1";
   const backupAppId = "WorkbenchLab";
-  const backupFormatVersion = 2;
+  const backupFormatVersion = 3;
   const studentCodePattern = /^[A-Z]{3}\.[A-Z]{3}$/;
+  const classNamePattern = /^[A-ZÄÖÜ0-9][A-ZÄÖÜ0-9 ._\/-]{0,19}$/;
   const sqlAssetBase = "vendor/sql.js/";
 
   const main = document.querySelector("#mainContent");
@@ -16,22 +19,32 @@
   const profileDialog = document.querySelector("#profileDialog");
   const profileForm = document.querySelector("#profileForm");
   const profileName = document.querySelector("#profileName");
+  const profileClass = document.querySelector("#profileClass");
   const profileNameError = document.querySelector("#profileNameError");
   const backupDialog = document.querySelector("#backupDialog");
   const progressFileInput = document.querySelector("#progressFileInput");
   const runtimeChip = document.querySelector("#runtimeChip");
   const runtimeText = document.querySelector("#runtimeText");
   const themeToggleButton = document.querySelector("#themeToggleButton");
+  const developerModeButton = document.querySelector("#developerModeButton");
   const themeColorMeta = document.querySelector('meta[name="theme-color"]');
 
   const defaultState = {
     name: "",
+    className: "",
     profileId: "",
+    profileDeviceId: "",
+    profileCreatedAt: "",
+    transferHistory: [],
     completedLessons: [],
+    passedLessonQuizzes: [],
+    lessonChecks: {},
     completedPractices: [],
     completedCommands: [],
     drafts: {},
     slotDrafts: {},
+    lessonNotes: {},
+    lessonWorksheets: {},
     activityDates: [],
     lastLessonId: "warum-datenbanken"
   };
@@ -47,14 +60,24 @@
 
   let state = loadState();
   const deviceIdentity = loadDeviceIdentity();
+  if (state.name && !state.profileDeviceId) {
+    state.profileDeviceId = deviceIdentity.id;
+    state.profileCreatedAt = state.profileCreatedAt || new Date().toISOString();
+  }
   try {
     localStorage.setItem(storageKey, JSON.stringify(state));
   } catch {
     // The app still works for the current tab when browser storage is unavailable.
   }
   let practiceFilter = "all";
+  let developerMode = false;
+  let developerControlRevealed = false;
   let SQLRuntime = null;
   let sqlReadyPromise = null;
+
+  try {
+    developerMode = sessionStorage.getItem(developerStorageKey) === "active";
+  } catch {}
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -97,6 +120,19 @@
     return studentCodePattern.test(value);
   }
 
+  function normalizeClassName(value) {
+    return String(value || "")
+      .trim()
+      .toLocaleUpperCase("de-DE")
+      .replace(/\s+/g, " ")
+      .replace(/[^A-ZÄÖÜ0-9 ._\/-]/g, "")
+      .slice(0, 20);
+  }
+
+  function isValidClassName(value) {
+    return classNamePattern.test(value);
+  }
+
   function createOpaqueId(prefix) {
     const token = globalThis.crypto?.randomUUID?.()
       || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 14)}`;
@@ -134,6 +170,18 @@
     }
   }
 
+  function deviceEnvironment() {
+    const platform = navigator.userAgentData?.platform || navigator.platform || "unbekannt";
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "unbekannt";
+    return {
+      platform: String(platform).slice(0, 80),
+      language: String(navigator.language || "unbekannt").slice(0, 24),
+      timezone: String(timezone).slice(0, 80),
+      screen: `${window.screen?.width || 0}x${window.screen?.height || 0}x${window.screen?.colorDepth || 0}`,
+      origin: String(window.location.origin || "lokale-datei").slice(0, 160)
+    };
+  }
+
   function lessonById(id) {
     return content.lessons.find((lesson) => lesson.id === id);
   }
@@ -142,8 +190,49 @@
     return content.modules.find((module) => module.id === id);
   }
 
+  function orderedLessons() {
+    return content.modules
+      .flatMap((module) => module.lessonIds)
+      .map(lessonById)
+      .filter(Boolean);
+  }
+
+  function lessonPrerequisite(lesson) {
+    const lessons = orderedLessons();
+    const index = lessons.findIndex((item) => item.id === lesson?.id);
+    return index > 0 ? lessons[index - 1] : null;
+  }
+
+  function isLessonUnlocked(lesson) {
+    if (!lesson) {
+      return false;
+    }
+    if (developerMode) {
+      return true;
+    }
+    if (state.completedLessons.includes(lesson.id)) {
+      return true;
+    }
+    const prerequisite = lessonPrerequisite(lesson);
+    return !prerequisite || state.completedLessons.includes(prerequisite.id);
+  }
+
+  function isPracticeUnlocked(practice) {
+    return Boolean(practice && isLessonUnlocked(lessonById(practice.lessonId)));
+  }
+
   function practiceById(id) {
     return content.practices.find((practice) => practice.id === id);
+  }
+
+  function lessonProgressRecord(lesson) {
+    const saved = state.lessonChecks?.[lesson.id] || {};
+    const checkCount = lesson.completionChecks?.length || 0;
+    return {
+      checks: Array.from({ length: checkCount }, (_, index) => Boolean(saved.checks?.[index])),
+      teacherChecked: Boolean(saved.teacherChecked),
+      quizPassed: state.passedLessonQuizzes.includes(lesson.id)
+    };
   }
 
   function commandById(id) {
@@ -172,10 +261,14 @@
     const practiceIds = new Set(content.practices.map((practice) => practice.id));
     const commandIds = new Set(content.commands.map((command) => command.id));
     const completedLessons = uniqueAllowedStrings(candidate.completedLessons, lessonIds);
+    const passedLessonQuizzes = uniqueAllowedStrings(candidate.passedLessonQuizzes, lessonIds);
     const completedPractices = uniqueAllowedStrings(candidate.completedPractices, practiceIds);
     const completedCommands = uniqueAllowedStrings(candidate.completedCommands, commandIds);
     const drafts = {};
     const slotDrafts = {};
+    const lessonChecks = {};
+    const lessonNotes = {};
+    const lessonWorksheets = {};
 
     Object.entries(candidate.drafts || {}).forEach(([id, value]) => {
       if (practiceIds.has(id) && typeof value === "string") {
@@ -195,19 +288,83 @@
       });
     });
 
+    Object.entries(candidate.lessonChecks || {}).forEach(([id, value]) => {
+      if (!lessonIds.has(id) || !value || typeof value !== "object") {
+        return;
+      }
+      const checkCount = lessonById(id)?.completionChecks?.length || 0;
+      lessonChecks[id] = {
+        checks: Array.from({ length: checkCount }, (_, index) => Boolean(value.checks?.[index])),
+        teacherChecked: Boolean(value.teacherChecked)
+      };
+    });
+
+    Object.entries(candidate.lessonNotes || {}).forEach(([id, value]) => {
+      if (lessonIds.has(id) && typeof value === "string") {
+        lessonNotes[id] = value.slice(0, 12000);
+      }
+    });
+
+    Object.entries(candidate.lessonWorksheets || {}).forEach(([id, value]) => {
+      if (!lessonIds.has(id) || !value || typeof value !== "object") {
+        return;
+      }
+      const definitions = {};
+      Object.entries(value.definitions || {}).forEach(([term, answer]) => {
+        if (/^[a-z0-9-]{1,40}$/.test(term) && typeof answer === "string") {
+          definitions[term] = answer.slice(0, 1200);
+        }
+      });
+      const rows = Array.isArray(value.rows)
+        ? value.rows.slice(0, 12).map((row) => ({
+          name: String(row?.name || "").slice(0, 40),
+          type: String(row?.type || "").slice(0, 32),
+          length: String(row?.length || "").replace(/[^0-9]/g, "").slice(0, 5),
+          primary: Boolean(row?.primary)
+        }))
+        : [];
+      const primaryIndex = rows.findIndex((row) => row.primary);
+      rows.forEach((row, index) => {
+        row.primary = index === primaryIndex;
+      });
+      lessonWorksheets[id] = {
+        tableName: String(value.tableName || "").slice(0, 40),
+        definitions,
+        rows
+      };
+    });
+
     const name = normalizeStudentCode(candidate.name);
     const validName = isValidStudentCode(name) ? name : "";
+    const className = normalizeClassName(candidate.className);
+    const validClassName = isValidClassName(className) ? className : "";
+    const transferHistory = Array.isArray(candidate.transferHistory)
+      ? candidate.transferHistory.slice(-12).map((entry) => ({
+        importedAt: typeof entry?.importedAt === "string" ? entry.importedAt.slice(0, 40) : "",
+        sourceExportId: isOpaqueId(entry?.sourceExportId, "export") ? entry.sourceExportId : "",
+        sourceDeviceId: isOpaqueId(entry?.sourceDeviceId, "device") ? entry.sourceDeviceId : "",
+        destinationDeviceId: isOpaqueId(entry?.destinationDeviceId, "device") ? entry.destinationDeviceId : ""
+      }))
+      : [];
     return {
       ...defaultState,
       name: validName,
+      className: validClassName,
       profileId: validName
         ? (isOpaqueId(candidate.profileId, "profile") ? candidate.profileId : createOpaqueId("profile"))
         : "",
+      profileDeviceId: isOpaqueId(candidate.profileDeviceId, "device") ? candidate.profileDeviceId : "",
+      profileCreatedAt: typeof candidate.profileCreatedAt === "string" ? candidate.profileCreatedAt.slice(0, 40) : "",
+      transferHistory,
       completedLessons,
+      passedLessonQuizzes: [...new Set([...passedLessonQuizzes, ...completedLessons])],
+      lessonChecks,
       completedPractices,
       completedCommands,
       drafts,
       slotDrafts,
+      lessonNotes,
+      lessonWorksheets,
       activityDates: Array.isArray(candidate.activityDates)
         ? [...new Set(candidate.activityDates.filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)))].slice(-120)
         : [],
@@ -310,9 +467,10 @@
   }
 
   function nextLesson() {
-    return content.lessons.find((lesson) => !state.completedLessons.includes(lesson.id)) ||
+    const lessons = orderedLessons();
+    return lessons.find((lesson) => !state.completedLessons.includes(lesson.id)) ||
       lessonById(state.lastLessonId) ||
-      content.lessons.at(-1);
+      lessons.at(-1);
   }
 
   function nextPractice() {
@@ -356,9 +514,9 @@
 
   function readTheme() {
     try {
-      return localStorage.getItem(themeStorageKey) === "dark" ? "dark" : "light";
+      return localStorage.getItem(themeStorageKey) === "light" ? "light" : "dark";
     } catch {
-      return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+      return document.documentElement.dataset.theme === "light" ? "light" : "dark";
     }
   }
 
@@ -390,6 +548,12 @@
     document.title = `${title} · WorkbenchLab`;
   }
 
+  function lessonBreadcrumb(module, lesson) {
+    const moduleLabel = `Lernfortschritt ${Number(module?.number || 1)}`;
+    const lessonLabel = lesson.courseCode || `Lektion ${lesson.index}`;
+    return `<button type="button" class="breadcrumb-link" data-path-module="${escapeHtml(module.id)}" title="${escapeHtml(moduleLabel)} im Lernpfad öffnen">${escapeHtml(moduleLabel)}</button><span class="breadcrumb-separator" aria-hidden="true">›</span><span aria-current="page">${escapeHtml(lessonLabel)}</span>`;
+  }
+
   function activateNav(route) {
     document.querySelectorAll(".nav-item").forEach((item) => {
       item.classList.toggle("is-active", item.dataset.route === route);
@@ -410,28 +574,105 @@
     window.lucide?.createIcons();
   }
 
+  function renderPathQuickMenu() {
+    const menu = document.querySelector("#pathQuickMenu");
+    if (!menu) {
+      return;
+    }
+    menu.innerHTML = `
+      <div class="path-quick-heading">
+        <strong>Lernpfad</strong>
+        <small>${developerMode ? "Entwicklermodus · alles offen" : "Einheit für Einheit"}</small>
+      </div>
+      <div class="path-stage-list">
+        ${content.modules.map((module) => {
+          const firstLesson = lessonById(module.lessonIds[0]);
+          const moduleUnlocked = isLessonUnlocked(firstLesson);
+          const progress = moduleProgress(module);
+          const label = `Lernfortschritt ${Number(module.number)}`;
+          return `
+            <div class="path-stage-item ${moduleUnlocked ? "" : "is-locked"}">
+              <button type="button" data-path-module="${escapeHtml(module.id)}" title="${label}" ${moduleUnlocked ? "" : "aria-disabled=\"true\""}>
+                <span>${escapeHtml(module.code)}</span>
+                <span><strong>${escapeHtml(module.title)}</strong><small>${progress.done}/${progress.total} abgeschlossen</small></span>
+                <span class="path-stage-status" aria-hidden="true">${moduleUnlocked ? "›" : "×"}</span>
+              </button>
+              <div class="path-lesson-submenu" aria-label="${label}">
+                <strong>${label}</strong>
+                ${module.lessonIds.map((lessonId) => {
+                  const lesson = lessonById(lessonId);
+                  const unlocked = isLessonUnlocked(lesson);
+                  const completed = state.completedLessons.includes(lessonId);
+                  const prerequisite = lessonPrerequisite(lesson);
+                  const lockedTitle = prerequisite
+                    ? `Zuerst ${prerequisite.courseCode || prerequisite.index} abschließen`
+                    : "Noch gesperrt";
+                  return `
+                    <button type="button" data-lesson="${escapeHtml(lessonId)}" class="${completed ? "is-done" : ""} ${unlocked ? "" : "is-locked"}"
+                      title="${escapeHtml(unlocked ? lesson.title : lockedTitle)}" ${unlocked ? "" : "aria-disabled=\"true\""}>
+                      <span>${escapeHtml(lesson.courseCode || lesson.index)}</span>
+                      <span>${escapeHtml(lesson.title)}</span>
+                    </button>`;
+                }).join("")}
+              </div>
+            </div>`;
+        }).join("")}
+      </div>`;
+  }
+
+  function updateDeveloperControl() {
+    if (!developerModeButton) {
+      return;
+    }
+    developerModeButton.hidden = !developerControlRevealed;
+    developerModeButton.classList.toggle("is-active", developerMode);
+    developerModeButton.setAttribute("aria-pressed", String(developerMode));
+    developerModeButton.setAttribute("aria-label", developerMode ? "Entwicklermodus deaktivieren" : "Entwicklermodus aktivieren");
+    developerModeButton.title = developerMode ? "Entwicklermodus deaktivieren" : "Entwicklermodus: alle Einheiten freischalten";
+    document.querySelector("#developerModeLabel").textContent = developerMode ? "Entwicklermodus ausschalten" : "Entwicklermodus einschalten";
+  }
+
+  function setDeveloperMode(active) {
+    developerMode = Boolean(active);
+    try {
+      sessionStorage.setItem(developerStorageKey, developerMode ? "active" : "inactive");
+    } catch {}
+    updateDeveloperControl();
+    renderRoute();
+    toast(developerMode ? "Entwicklermodus aktiv: alle Einheiten sind offen" : "Entwicklermodus beendet");
+  }
+
   function updateChrome() {
     const xp = stateXp();
     const level = currentLevel();
     const displayName = state.name || "Gast";
     document.querySelector("#sidebarName").textContent = displayName;
     document.querySelector("#sidebarAvatar").textContent = displayName.slice(0, 1).toUpperCase();
+    document.querySelector("#sidebarClass").textContent = state.className || "Klasse noch offen";
     document.querySelector("#sidebarLevel").textContent = `Level ${level.number} · ${level.title}`;
     document.querySelector("#sidebarXpBar").style.width = `${Math.max(0, Math.min(100, level.progress))}%`;
     document.querySelector("#sidebarXpText").textContent = level.number === levels.length
       ? `${xp} XP · Höchstes Level`
       : `${xp} / ${level.nextMin} XP`;
     document.querySelector("#topXp").textContent = `${xp} XP`;
+    renderPathQuickMenu();
+    updateDeveloperControl();
   }
 
   function lessonCard(lesson) {
     const completed = state.completedLessons.includes(lesson.id);
+    const unlocked = isLessonUnlocked(lesson);
+    const prerequisite = lessonPrerequisite(lesson);
+    const lockedLabel = prerequisite
+      ? `Gesperrt: zuerst ${prerequisite.courseCode || prerequisite.index} abschließen`
+      : "Gesperrt";
     return `
-      <article class="lesson-card" tabindex="0" role="button" data-lesson="${lesson.id}" aria-label="${escapeHtml(lesson.title)} öffnen">
-        <span class="lesson-state ${completed ? "is-done" : ""}">
-          <i data-lucide="${completed ? "check" : "book-open"}"></i>
+      <article class="lesson-card ${unlocked ? "" : "is-locked"}" tabindex="0" role="button" data-lesson="${lesson.id}"
+        aria-disabled="${String(!unlocked)}" aria-label="${escapeHtml(unlocked ? `${lesson.title} öffnen` : lockedLabel)}" title="${escapeHtml(unlocked ? lesson.title : lockedLabel)}">
+        <span class="lesson-state ${completed ? "is-done" : ""} ${unlocked ? "" : "is-locked"}">
+          <i data-lucide="${completed ? "check" : unlocked ? "book-open" : "lock-keyhole"}"></i>
         </span>
-        <span class="lesson-index">${escapeHtml(lesson.index)}</span>
+        <span class="lesson-index">${escapeHtml(lesson.courseCode || lesson.index)}</span>
         <h3>${escapeHtml(lesson.title)}</h3>
         <p>${escapeHtml(lesson.subtitle)}</p>
         <div class="lesson-meta">
@@ -445,17 +686,19 @@
   function practiceCard(practice) {
     const completed = state.completedPractices.includes(practice.id);
     const lesson = lessonById(practice.lessonId);
+    const unlocked = isPracticeUnlocked(practice);
     const icon = practice.type === "sql" ? "database" : practice.type === "slots" ? "network" : "circle-help";
     return `
-      <article class="practice-card" tabindex="0" role="button" data-practice="${practice.id}" aria-label="${escapeHtml(practice.title)} öffnen">
+      <article class="practice-card ${unlocked ? "" : "is-locked"}" tabindex="0" role="button" data-practice="${practice.id}"
+        aria-disabled="${String(!unlocked)}" aria-label="${escapeHtml(unlocked ? `${practice.title} öffnen` : `Gesperrt: zuerst ${lesson?.courseCode || "die Lerneinheit"} freischalten`)}">
         <span class="lesson-state ${completed ? "is-done" : ""}">
-          <i data-lucide="${completed ? "check" : icon}"></i>
+          <i data-lucide="${completed ? "check" : unlocked ? icon : "lock-keyhole"}"></i>
         </span>
         <span class="practice-kind"><i data-lucide="${icon}"></i>${practiceKind(practice)}</span>
         <h3>${escapeHtml(practice.title)}</h3>
         <p>${escapeHtml(practice.description)}</p>
         <div class="exercise-meta">
-          <span class="meta-pill">${escapeHtml(lesson?.index || "")} · ${escapeHtml(lesson?.title || "BPE6")}</span>
+          <span class="meta-pill">${escapeHtml(lesson?.courseCode || lesson?.index || "")} · ${escapeHtml(lesson?.title || "BPE6")}</span>
           <span class="meta-pill difficulty-${practice.difficulty}">${difficultyLabel(practice.difficulty)}</span>
           <span class="meta-pill"><i data-lucide="sparkles"></i>${practice.xp} XP</span>
         </div>
@@ -496,12 +739,40 @@
             <tbody><tr><td>1</td><td>Keller</td><td>Mia</td><td>Stuttgart</td></tr><tr><td>2</td><td>Yilmaz</td><td>Cem</td><td>Esslingen</td></tr></tbody>
           </table>
         </div>`,
+      "single-table-model": `
+        <figure class="diagram-wrap opening-model" aria-label="Vom ER-Diagramm zum Relationenschema">
+          <div class="opening-model-stage">
+            <small>Fachliches ER-Diagramm</small>
+            <div class="entity-box"><strong>fahrschueler</strong><span>schuelernr</span><span>vorname · nachname</span><span>geburtsdatum · fahrstundenzahl</span></div>
+          </div>
+          <i data-lucide="arrow-right" aria-hidden="true"></i>
+          <div class="opening-model-stage">
+            <small>Technisches Relationenschema</small>
+            <div class="entity-box"><strong>fahrschueler</strong><span><b>PK</b> schuelernr INT</span><span>vorname VARCHAR(45)</span><span>geburtsdatum DATE</span><span>fahrstundenzahl INT</span></div>
+          </div>
+          <figcaption>Eine Tabelle genügt hier. Beziehungen zwischen Tabellen folgen im zweiten Lernfortschritt.</figcaption>
+        </figure>`,
+      "single-table-workbench": `
+        <figure class="diagram-wrap opening-workbench" aria-label="Schritte für ein EER-Diagramm mit einer Tabelle in MySQL Workbench">
+          <div class="mock-window-bar"><span></span><span></span><span></span><strong>MySQL Workbench · Model</strong></div>
+          <div class="opening-workbench-body">
+            <div><small>SCHEMA</small><strong>fahrschule</strong><span>Add Diagram</span><span>Table Name: fahrschueler</span></div>
+            <div class="entity-box"><strong>fahrschueler</strong><span><b>PK · NN</b> schuelernr INT</span><span>nachname VARCHAR(45)</span><span>geburtsdatum DATE</span><span>fahrstundenzahl INT</span></div>
+          </div>
+          <figcaption>Die Modelldatei (.mwb) speichert diesen Entwurf. Die Datenbank wird erst in L1.4 erzeugt.</figcaption>
+        </figure>`,
       "er-simple": `
         <div class="diagram-wrap er-diagram">
           <div class="entity-box"><strong>Fahrschüler</strong><span>schuelernr PK</span><span>nachname</span><span>vorname</span></div>
           <div class="relationship">wohnt in · 1:N</div>
           <div class="entity-box"><strong>Ort</strong><span>ortnr PK</span><span>plz</span><span>ort</span></div>
         </div>`,
+      "two-table-concept": `
+        <figure class="diagram-wrap er-diagram" aria-label="Fachliches ERD mit Orte, wohnt in und Fahrschüler als 1-zu-N-Beziehung">
+          <div class="entity-box"><strong>Orte</strong><span>Entitätstyp</span></div>
+          <div class="relationship">wohnt in · 1:N</div>
+          <div class="entity-box"><strong>Fahrschüler</strong><span>Entitätstyp</span></div>
+        </figure>`,
       "erm-analysis": `
         <div class="diagram-wrap erm-analysis-board" aria-label="Vom Sachtext zum Entity-Relationship-Modell">
           <div class="analysis-source"><span>Ein</span><strong>Kunde</strong><span>mietet</span><strong>ein Fahrrad</strong><span>von</span><em>Montag bis Mittwoch</em></div>
@@ -590,6 +861,21 @@
             <div class="definition-card"><h3>Chancen</h3><p>Planung, Medizin, Energie, Sicherheit, Forschung.</p></div>
             <div class="definition-card"><h3>Risiken</h3><p>Profile, Manipulation, Diskriminierung, Kontrollverlust.</p></div>
           </div>
+        </div>`,
+      "table-design-flow": `
+        <div class="diagram-wrap table-design-flow" role="img" aria-label="Mehrere unterschiedlich aufgebaute Kontaktkarten werden in eine einheitliche Datenbanktabelle überführt">
+          <div class="contact-card-stack" aria-hidden="true">
+            <div class="contact-card"><strong>Kontakt A</strong><span>Name: Abele, Andreas</span><span>Telefon: 0159...</span><span>Adresse: Ahornweg 3</span></div>
+            <div class="contact-card"><strong>Kontakt B</strong><span>Name: Barbara Beutel</span><span>Mobil: 016...</span><span>Anschrift: Bahnhofstr. 52</span></div>
+            <div class="contact-card"><strong>Kontakt C</strong><span>Conrad Cramer</span><span>Tel.: 0178...</span><span>Ort: Schorndorf</span></div>
+          </div>
+          <div class="design-flow-arrow"><i data-lucide="arrow-right"></i><span>vereinheitlichen</span></div>
+          <div class="designed-table" aria-hidden="true">
+            <strong>fahrschueler</strong>
+            <div><b>schuelernr</b><b>nachname</b><b>vorname</b><b>ort</b></div>
+            <div><span>1</span><span>Abele</span><span>Andreas</span><span>Schorndorf</span></div>
+            <div><span>2</span><span>Beutel</span><span>Barbara</span><span>Stuttgart</span></div>
+          </div>
         </div>`
     };
     return visuals[kind] || "";
@@ -616,7 +902,7 @@
             <div class="launcher-category"><i data-lucide="folder"></i><span>Datenbank</span><small>MariaDB</small></div>
             <div class="launcher-list">
               <div class="launcher-row is-active"><i data-lucide="power"></i><strong>MySQL starten</strong><span>Dienst aktiv</span></div>
-              <div class="launcher-row"><i data-lucide="database"></i><strong>MySQL Workbench 8.0.21</strong><span>danach öffnen</span></div>
+              <div class="launcher-row"><i data-lucide="database"></i><strong>MySQL Workbench 6.3.10</strong><span>Schulversion · danach öffnen</span></div>
               <div class="service-status"><i data-lucide="check-circle-2"></i><span>Server bereit für Verbindungen</span></div>
             </div>
           </div>
@@ -712,19 +998,44 @@
   function renderPath() {
     setHeading("BPE6 Schritt für Schritt", "Lernpfad");
     activateNav("path");
-    main.innerHTML = content.modules.map((module) => {
-      const progress = moduleProgress(module);
-      return `
-        <section class="module-block">
-          <p class="eyebrow">Modul ${module.number} · ${progress.done}/${progress.total} erledigt</p>
-          <h2>${escapeHtml(module.title)}</h2>
-          <p>${escapeHtml(module.description)}</p>
-          <div class="progress-line" aria-label="${progress.percent}% abgeschlossen"><span style="width:${progress.percent}%"></span></div>
-          <div class="card-grid">
-            ${module.lessonIds.map((id) => lessonCard(lessonById(id))).join("")}
-          </div>
-        </section>`;
-    }).join("");
+    const totalMinutes = content.lessons.reduce((sum, lesson) => sum + (lesson.duration || 0), 0);
+    main.innerHTML = `
+      <section class="learning-path-intro">
+        <div>
+          <p class="eyebrow">J1 · BPE6 · ${content.course?.lessonHours || 30} Unterrichtsstunden</p>
+          <h2>Dein Weg durch relationale Datenbanken</h2>
+          <p>Die fünf Lernfortschritte verbinden die Inhalte und Aufgaben aus dem Unterrichtsmaterial mit konkreter Arbeit in MySQL Workbench. Jede Einheit folgt derselben Reihenfolge: verstehen, planen, umsetzen und gemeinsam prüfen.</p>
+        </div>
+        <div class="path-facts" aria-label="Umfang des Lernpfads">
+          <span><strong>${content.modules.length}</strong><small>Lernfortschritte</small></span>
+          <span><strong>${content.lessons.length}</strong><small>Lerneinheiten</small></span>
+          <span><strong>${content.practices.length}</strong><small>Übungen</small></span>
+          <span><strong>${Math.round(totalMinutes / 60)}</strong><small>Stunden Selbstlernzeit</small></span>
+        </div>
+      </section>
+      <ol class="path-workflow" aria-label="Arbeitsreihenfolge">
+        ${(content.course?.workflow || []).map((step, index) => `<li><span>${index + 1}</span><strong>${escapeHtml(step)}</strong></li>`).join("")}
+      </ol>
+      ${content.modules.map((module) => {
+        const progress = moduleProgress(module);
+        const moduleUnlocked = isLessonUnlocked(lessonById(module.lessonIds[0]));
+        return `
+          <section class="module-block ${moduleUnlocked ? "" : "is-locked"}" id="${escapeHtml(module.id)}">
+            <header class="module-heading">
+              <span class="module-number">${escapeHtml(module.code || module.number)}</span>
+              <div>
+                <p class="eyebrow">Lernfortschritt ${Number(module.number)} · ${progress.done}/${progress.total} abgeschlossen${moduleUnlocked ? "" : " · noch gesperrt"}</p>
+                <h2>${escapeHtml(module.title)}</h2>
+                <p>${escapeHtml(module.description)}</p>
+              </div>
+              <strong class="module-percent">${progress.percent}%</strong>
+            </header>
+            <div class="progress-line" aria-label="${progress.percent}% abgeschlossen"><span style="width:${progress.percent}%"></span></div>
+            <div class="card-grid">
+              ${module.lessonIds.map((id) => lessonCard(lessonById(id))).join("")}
+            </div>
+          </section>`;
+      }).join("")}`;
   }
 
   function renderLessonSection(section) {
@@ -739,8 +1050,186 @@
         <div>
           <h3>${escapeHtml(section.title)}</h3>
           ${(section.body || []).map((paragraph) => `<p>${inlineCode(paragraph)}</p>`).join("")}
+          ${section.rules?.length ? `<ul class="rule-list">${section.rules.map((rule) => `<li>${inlineCode(rule)}</li>`).join("")}</ul>` : ""}
+          ${section.definitions?.length ? `
+            <dl class="lesson-definition-grid">
+              ${section.definitions.map((definition) => `<div><dt>${escapeHtml(definition.term)}</dt><dd>${inlineCode(definition.definition)}</dd></div>`).join("")}
+            </dl>` : ""}
+          ${section.dataTypes?.length ? `
+            <div class="data-table-wrap lesson-data-types">
+              <table class="data-table">
+                <thead><tr><th>Datentyp</th><th>Bedeutung</th><th>Speicher</th><th>Beispiel</th></tr></thead>
+                <tbody>${section.dataTypes.map((type) => `<tr><th scope="row"><code>${escapeHtml(type.name)}</code></th><td>${inlineCode(type.meaning)}</td><td>${escapeHtml(type.storage)}</td><td><code>${escapeHtml(type.example)}</code></td></tr>`).join("")}</tbody>
+              </table>
+            </div>` : ""}
         </div>
         ${aside ? `<div>${aside}</div>` : ""}
+      </section>`;
+  }
+
+  function lessonWorksheetRecord(lesson) {
+    const saved = state.lessonWorksheets?.[lesson.id] || {};
+    const rowCount = lesson.webWorksheet?.columnCount || 0;
+    return {
+      tableName: saved.tableName || "",
+      definitions: { ...(saved.definitions || {}) },
+      rows: Array.from({ length: rowCount }, (_, index) => ({
+        name: saved.rows?.[index]?.name || "",
+        type: saved.rows?.[index]?.type || "",
+        length: saved.rows?.[index]?.length || "",
+        primary: Boolean(saved.rows?.[index]?.primary)
+      }))
+    };
+  }
+
+  function renderLessonWorksheet(lesson) {
+    const worksheet = lesson.webWorksheet;
+    if (!worksheet) {
+      return "";
+    }
+    const record = lessonWorksheetRecord(lesson);
+    return `
+      <section class="lesson-worksheet" id="arbeitsblatt">
+        <header class="worksheet-heading">
+          <div>
+            <p class="eyebrow">Digitales Aufgabenblatt · lokal gespeichert</p>
+            <h3>${escapeHtml(worksheet.title)}</h3>
+            <p>${escapeHtml(worksheet.intro)}</p>
+          </div>
+          <i data-lucide="file-pen-line" aria-hidden="true"></i>
+        </header>
+        <div class="definition-answer-grid">
+          ${(worksheet.definitionTerms || []).map((item) => `
+            <label>
+              <span>${escapeHtml(item.label)}</span>
+              <small>${escapeHtml(item.prompt)}</small>
+              <textarea rows="3" maxlength="1200" data-worksheet-definition="${escapeHtml(item.id)}" placeholder="In eigenen Worten ...">${escapeHtml(record.definitions[item.id] || "")}</textarea>
+            </label>`).join("")}
+        </div>
+        ${record.rows.length ? `<div class="worksheet-table-name">
+          <label for="worksheetTableName">Tabellenname</label>
+          <input id="worksheetTableName" data-worksheet-table-name maxlength="40" value="${escapeHtml(record.tableName)}" placeholder="z. B. fahrschueler">
+          <small>Kleinbuchstaben, Plural, keine Leerzeichen, Umlaute oder Sonderzeichen.</small>
+        </div>
+        <div class="data-table-wrap worksheet-table-wrap">
+          <table class="data-table worksheet-table">
+            <thead><tr><th>Nr.</th><th>Attributname</th><th>Datentyp</th><th>max. Zeichenanzahl</th><th>Primärschlüssel</th></tr></thead>
+            <tbody>
+              ${record.rows.map((row, index) => `
+                <tr>
+                  <th scope="row">${index + 1}</th>
+                  <td><input data-worksheet-row="${index}" data-worksheet-field="name" maxlength="40" value="${escapeHtml(row.name)}" aria-label="Attributname ${index + 1}"></td>
+                  <td>
+                    <select data-worksheet-row="${index}" data-worksheet-field="type" aria-label="Datentyp ${index + 1}">
+                      <option value="">auswählen</option>
+                      ${(worksheet.dataTypes || []).map((type) => `<option value="${escapeHtml(type)}" ${row.type === type ? "selected" : ""}>${escapeHtml(type)}</option>`).join("")}
+                    </select>
+                  </td>
+                  <td><input inputmode="numeric" data-worksheet-row="${index}" data-worksheet-field="length" maxlength="5" value="${escapeHtml(row.length)}" aria-label="Maximale Zeichenanzahl ${index + 1}"></td>
+                  <td><input type="radio" name="worksheet-primary-${escapeHtml(lesson.id)}" data-worksheet-row="${index}" data-worksheet-field="primary" ${row.primary ? "checked" : ""} aria-label="Attribut ${index + 1} als Primärschlüssel"></td>
+                </tr>`).join("")}
+            </tbody>
+          </table>
+        </div>` : ""}
+        <div class="callout worksheet-hint"><i data-lucide="circle-help"></i><p>${inlineCode(worksheet.hint)}</p></div>
+      </section>`;
+  }
+
+  function renderLessonNotes(lesson) {
+    return `
+      <section class="lesson-notes" id="notizen">
+        <div>
+          <p class="eyebrow">Eigene Zusammenfassung</p>
+          <h3>Was nehme ich aus ${escapeHtml(lesson.courseCode || `Lektion ${lesson.index}`)} mit?</h3>
+          <p>Formuliere die wichtigsten Zusammenhänge in deinen eigenen Worten. Deine Notizen werden lokal gespeichert und in die JSON-Sicherung aufgenommen.</p>
+          ${lesson.notePrompts?.length ? `<ul>${lesson.notePrompts.map((prompt) => `<li>${escapeHtml(prompt)}</li>`).join("")}</ul>` : ""}
+        </div>
+        <label class="sr-only" for="lessonNotes">Eigene Zusammenfassung</label>
+        <textarea id="lessonNotes" data-lesson-note="${escapeHtml(lesson.id)}" rows="8" maxlength="12000" placeholder="Meine wichtigsten Erkenntnisse ...">${escapeHtml(state.lessonNotes?.[lesson.id] || "")}</textarea>
+      </section>`;
+  }
+
+  function renderClassroomTask(lesson) {
+    const task = lesson.classroomTask;
+    if (!task) {
+      return "";
+    }
+    const relatedPractices = content.practices.filter((practice) => practice.lessonId === lesson.id);
+    return `
+      <section class="classroom-task" id="praxisauftrag">
+        <div class="classroom-task-heading">
+          <div>
+            <p class="eyebrow">Praxisauftrag · ${escapeHtml(task.tool || "Unterricht")}</p>
+            <h3>${escapeHtml(task.title)}</h3>
+            <p>${escapeHtml(task.intro)}</p>
+          </div>
+          <i data-lucide="monitor-cog" aria-hidden="true"></i>
+        </div>
+        <ol class="classroom-task-steps">
+          ${(task.steps || []).map((step, index) => `<li><span>${index + 1}</span><p>${inlineCode(step)}</p></li>`).join("")}
+        </ol>
+        <dl class="task-deliverable">
+          <div><dt>Lernprodukt</dt><dd>${escapeHtml(task.evidence)}</dd></div>
+          ${task.fileName ? `<div><dt>Dateiname</dt><dd><code>${escapeHtml(task.fileName)}</code></dd></div>` : ""}
+        </dl>
+        ${task.download ? `<a class="button button-secondary task-download" href="${escapeHtml(task.download.href)}" download><i data-lucide="download" aria-hidden="true"></i>${escapeHtml(task.download.label)}</a>` : ""}
+        ${relatedPractices.length ? `
+          <div class="task-practice-links" aria-label="Passende Browserübungen">
+            ${relatedPractices.map((practice) => `<button class="button button-secondary" type="button" data-practice="${escapeHtml(practice.id)}"><i data-lucide="flask-conical"></i>${escapeHtml(practice.title)}</button>`).join("")}
+          </div>` : ""}
+      </section>`;
+  }
+
+  function renderLessonSources(lesson) {
+    if (!lesson.sourceMaterials?.length) {
+      return "";
+    }
+    return `
+      <details class="source-disclosure">
+        <summary><span><i data-lucide="library"></i>Materialbezug dieser Einheit</span><i data-lucide="chevron-down"></i></summary>
+        <div>
+          <p>Die Einheit wurde eigenständig und webgerecht aus folgenden lokalen BPE6-Unterlagen abgeleitet. Originaldateien und Lösungen bleiben außerhalb der veröffentlichten Homepage.</p>
+          <ul>${lesson.sourceMaterials.map((source) => `<li>${escapeHtml(source)}</li>`).join("")}</ul>
+        </div>
+      </details>`;
+  }
+
+  function renderLessonCompletion(lesson) {
+    const completed = state.completedLessons.includes(lesson.id);
+    const record = lessonProgressRecord(lesson);
+    const checks = completed ? lesson.completionChecks.map(() => true) : record.checks;
+    const teacherChecked = completed || record.teacherChecked;
+    const quizPassed = completed || record.quizPassed;
+    return `
+      <section class="lesson-completion" id="abschluss">
+        <div class="lesson-completion-head">
+          <div>
+            <p class="eyebrow">Abschluss und Punkte</p>
+            <h3>${escapeHtml(lesson.courseCode || `Lektion ${lesson.index}`)} abschließen</h3>
+            <p>Die Lektions-XP werden erst nach fachlicher Selbstkontrolle, bestandenem Kurzcheck und Bestätigung durch die Lehrkraft gutgeschrieben.</p>
+          </div>
+          <span class="completion-xp"><i data-lucide="sparkles"></i>${lesson.xp} XP</span>
+        </div>
+        <div class="completion-checks">
+          ${(lesson.completionChecks || []).map((label, index) => `
+            <label>
+              <input type="checkbox" data-lesson-check="${index}" ${checks[index] ? "checked" : ""} ${completed ? "disabled" : ""}>
+              <span>${escapeHtml(label)}</span>
+            </label>`).join("")}
+          <label class="quiz-check ${quizPassed ? "is-ready" : ""}">
+            <input type="checkbox" ${quizPassed ? "checked" : ""} disabled>
+            <span>Der Verständnischeck auf dieser Seite ist richtig beantwortet.</span>
+          </label>
+          <label class="teacher-check">
+            <input type="checkbox" data-lesson-teacher ${teacherChecked ? "checked" : ""} ${completed ? "disabled" : ""}>
+            <span>Die Lehrkraft hat mein Lernprodukt gesehen, mit mir besprochen und als fachlich passend bestätigt.</span>
+          </label>
+        </div>
+        <button class="button ${completed ? "button-secondary" : "button-primary"} button-complete-lesson" type="button" data-complete-lesson="${lesson.id}" ${completed ? "disabled" : ""}>
+          <i data-lucide="${completed ? "badge-check" : "check"}"></i>
+          ${completed ? "Einheit abgeschlossen" : "Einheit abschließen"}
+        </button>
+        <p class="completion-note">${state.name ? `Lernprofil ${escapeHtml(state.name)} · lokal auf diesem Browser gespeichert` : "Lege zuerst dein anonymisiertes Lernprofil im Seitenmenü an."}</p>
       </section>`;
   }
 
@@ -750,9 +1239,18 @@
       go("path");
       return;
     }
+    if (!isLessonUnlocked(lesson)) {
+      const prerequisite = lessonPrerequisite(lesson);
+      go("path");
+      window.setTimeout(() => toast(`Zuerst ${prerequisite?.courseCode || "die vorherige Einheit"} abschließen.`, "error"), 0);
+      return;
+    }
+    const module = moduleById(lesson.module);
+    const breadcrumb = `Lernfortschritt ${Number(module?.number || 1)} > ${lesson.courseCode || `Lektion ${lesson.index}`}`;
     state.lastLessonId = lesson.id;
     saveState();
-    setHeading(`Lektion ${lesson.index}`, lesson.title);
+    setHeading(breadcrumb, lesson.title);
+    document.querySelector("#viewEyebrow").innerHTML = lessonBreadcrumb(module, lesson);
     activateNav("path");
     const completed = state.completedLessons.includes(lesson.id);
     const practice = practiceById(lesson.practiceId);
@@ -760,7 +1258,7 @@
       <article class="lesson-detail">
         <header class="lesson-head">
           <div>
-            <p class="eyebrow">${escapeHtml(moduleById(lesson.module)?.title || "BPE6")}</p>
+            <p class="eyebrow">${lessonBreadcrumb(module, lesson)} · ${escapeHtml(module?.title || "BPE6")}</p>
             <h2>${escapeHtml(lesson.title)}</h2>
             <p>${escapeHtml(lesson.subtitle)}</p>
             <div class="lesson-meta">
@@ -777,6 +1275,12 @@
             ${practice ? `<button class="button button-primary" type="button" data-practice="${practice.id}"><i data-lucide="pencil"></i>Übung</button>` : ""}
           </div>
         </header>
+        <ol class="lesson-workflow" aria-label="Arbeitsreihenfolge der Einheit">
+          ${(lesson.workflow || content.course?.workflow || []).map((step, index) => `
+            <li class="${completed || (index === 0) ? "is-active" : ""}">
+              <span>${index + 1}</span><div><strong>${escapeHtml(step)}</strong><small>${(lesson.workflowHints || ["Grundlagen lesen", "Vorgehen festlegen", "Auftrag umsetzen", "Lehrkraft bestätigt"])[index] || ""}</small></div>
+            </li>`).join("")}
+        </ol>
         <div class="lesson-body">
           <section class="content-section">
             <div>
@@ -787,19 +1291,25 @@
             </div>
             <div class="callout ${completed ? "" : "is-warning"}">
               <i data-lucide="${completed ? "circle-check" : "info"}"></i>
-              <p>${completed ? "Diese Lektion ist abgeschlossen. Du kannst Quiz und Übung jederzeit wiederholen." : "Schließe das kurze Quiz ab, um die Lektions-XP zu sammeln."}</p>
+              <p>${completed ? "Diese Einheit ist abgeschlossen. Quiz und Übung kannst du jederzeit wiederholen." : "Lies die Erklärung, bearbeite den Praxisauftrag und schließe die Einheit nach der Besprechung mit deiner Lehrkraft ab."}</p>
             </div>
           </section>
           ${lesson.sections.map(renderLessonSection).join("")}
+          ${renderLessonWorksheet(lesson)}
+          ${renderClassroomTask(lesson)}
+          ${renderLessonNotes(lesson)}
           ${renderLessonQuiz(lesson)}
+          ${renderLessonSources(lesson)}
+          ${renderLessonCompletion(lesson)}
         </div>
       </article>`;
   }
 
   function renderLessonQuiz(lesson) {
+    const passed = state.passedLessonQuizzes.includes(lesson.id) || state.completedLessons.includes(lesson.id);
     return `
       <section class="quiz-panel">
-        <p class="eyebrow">Verständnischeck</p>
+        <p class="eyebrow">Verständnischeck ${passed ? "· bestanden" : ""}</p>
         <h3>${escapeHtml(lesson.quiz.question)}</h3>
         <form id="quizForm" data-lesson-id="${lesson.id}">
           <div class="choice-list">
@@ -811,7 +1321,7 @@
           </div>
           <button class="button button-primary" type="submit">
             <i data-lucide="check"></i>
-            Antwort prüfen
+            ${passed ? "Erneut prüfen" : "Antwort prüfen"}
           </button>
         </form>
         <div class="result-banner" id="quizResult"></div>
@@ -876,9 +1386,17 @@
     setHeading("eERM, Schlüssel und Normalisierung", "Modellieren");
     activateNav("modeling");
     const practices = content.practices.filter((practice) => practice.type !== "sql");
-    const ermLessons = (moduleById("erm-werkstatt")?.lessonIds || [])
-      .map(lessonById)
-      .filter(Boolean);
+    const modelingLessonIds = [
+      "eerm-grundlagen",
+      "erm-sachtext-analyse",
+      "erm-kardinalitaeten",
+      "erm-beziehungsentitaet",
+      "fremdschluessel-integritaet",
+      "mn-beziehungen",
+      "redundanz-3nf",
+      "normalisierung"
+    ];
+    const ermLessons = modelingLessonIds.map(lessonById).filter(Boolean);
     main.innerHTML = `
       <section class="hero-band">
         <div class="hero-content">
@@ -947,6 +1465,12 @@
       return;
     }
     const lesson = lessonById(practice.lessonId);
+    if (!isPracticeUnlocked(practice)) {
+      const prerequisite = lessonPrerequisite(lesson);
+      go("path");
+      window.setTimeout(() => toast(`Zuerst ${prerequisite?.courseCode || "die vorherige Einheit"} abschließen.`, "error"), 0);
+      return;
+    }
     setHeading(practiceKind(practice), practice.title);
     activateNav(practice.type === "sql" ? "sql" : "modeling");
     if (practice.type === "sql") {
@@ -965,7 +1489,7 @@
     return `
       <header class="lesson-head">
         <div>
-          <p class="eyebrow">${escapeHtml(lesson?.index || "")} · ${escapeHtml(lesson?.title || "BPE6")}</p>
+          <p class="eyebrow">${escapeHtml(lesson?.courseCode || lesson?.index || "")} · ${escapeHtml(lesson?.title || "BPE6")}</p>
           <h2>${escapeHtml(practice.title)}</h2>
           <p>${escapeHtml(practice.description)}</p>
           <div class="lesson-meta">
@@ -1015,7 +1539,6 @@
               <button class="runner-tab is-active" type="button" data-runner-tab="result">Ergebnis</button>
               <button class="runner-tab" type="button" data-runner-tab="coach">SQL-Coach</button>
               <button class="runner-tab" type="button" data-runner-tab="hint">Hinweise</button>
-              <button class="runner-tab" type="button" data-runner-tab="solution">Muster</button>
             </div>
             <div class="runner-panel is-active" data-runner-panel="result">
               <div id="sqlOutput" class="console-output">Noch keine Abfrage ausgeführt.</div>
@@ -1034,9 +1557,6 @@
               <ul class="plain-list">
                 ${(practice.hints || []).map((hint) => `<li>${escapeHtml(hint)}</li>`).join("")}
               </ul>
-            </div>
-            <div class="runner-panel" data-runner-panel="solution">
-              <pre class="code-block"><code>${escapeHtml(practice.solution)}</code></pre>
             </div>
           </div>
         </div>
@@ -1300,7 +1820,7 @@
         <div>
           <p class="eyebrow">Unterrichtswerkzeuge</p>
           <h2>Informatik-Stick und MySQL Workbench</h2>
-          <p>Für echte Unterrichtsskripte: Informatik-Stick starten, MySQL starten und geöffnet lassen, danach MySQL Workbench öffnen.</p>
+          <p>In der Schule arbeiten wir mit MySQL Workbench 6.3.10. Zu Hause kann der Informatikstick eine andere Workbench-Version anbieten; die Schritte bleiben grundsätzlich gleich.</p>
         </div>
       </div>
       <section class="start-sequence" aria-label="Startreihenfolge für den Unterricht">
@@ -1309,10 +1829,10 @@
           <div><span>Sicherer Start</span><strong>Vom Stick zur ersten Abfrage</strong></div>
         </div>
         <ol>
-          <li><span>01</span><i data-lucide="usb"></i><div><strong>Stick starten</strong><small>Startfenster offen lassen</small></div></li>
-          <li><span>02</span><i data-lucide="power"></i><div><strong>MySQL starten</strong><small>Dienst muss laufen</small></div></li>
-          <li><span>03</span><i data-lucide="panels-top-left"></i><div><strong>Workbench öffnen</strong><small>Verbindung herstellen</small></div></li>
-          <li><span>04</span><i data-lucide="square-terminal"></i><div><strong>Modell oder SQL</strong><small>Ausführen und prüfen</small></div></li>
+          <li><span>01</span><i data-lucide="play"></i><div><strong>Stick starten</strong><small>Play-Symbol „Start“ öffnen</small></div></li>
+          <li><span>02</span><i data-lucide="power"></i><div><strong>MySQL starten</strong><small>Doppelklick; CMD offen lassen</small></div></li>
+          <li><span>03</span><i data-lucide="panels-top-left"></i><div><strong>Workbench öffnen</strong><small>In der Schule: 6.3.10</small></div></li>
+          <li><span>04</span><i data-lucide="plug-zap"></i><div><strong>Verbindung testen</strong><small>Dann Modell oder SQL bearbeiten</small></div></li>
         </ol>
       </section>
       <div class="card-grid">
@@ -1328,6 +1848,30 @@
             </div>
           </article>`).join("")}
       </div>
+
+      <section class="connection-guide" aria-labelledby="connection-guide-title">
+        <div>
+          <p class="eyebrow">Erste Sitzung in MySQL Workbench</p>
+          <h2 id="connection-guide-title">Lokale Verbindung einrichten</h2>
+          <p>Warte im Konsolenfenster des Sticks auf „ready for connections“. Das Fenster bleibt geöffnet. In Workbench kannst du eine vorhandene Verbindung <strong>local</strong> öffnen oder über das Pluszeichen bei <strong>MySQL Connections</strong> eine neue anlegen.</p>
+          <ol>
+            <li>Wähle <strong>Standard (TCP/IP)</strong>. Für die gezeigte lokale Stick-Umgebung sind <code>127.0.0.1</code> und Port <code>3306</code> die Ausgangswerte; prüfe sie am Schul-PC mit der Lehrkraft.</li>
+            <li>Trage den für die lokale Datenbank vorgesehenen Benutzernamen ein. Auf dem Beispielbild ist das <code>root</code>. Verwende hierfür <strong>nicht</strong> dein Windows- oder Microsoft-365-Passwort.</li>
+            <li>Klicke <strong>Test Connection</strong>, speichere eine funktionierende Verbindung und öffne sie. Prüfe im SQL-Editor mit <code>SELECT VERSION();</code>, ob der Server antwortet.</li>
+          </ol>
+          <p class="connection-guide-note"><i data-lucide="info"></i><span>Der Stick kann intern MariaDB starten, obwohl der Menüpunkt „MySQL starten“ heißt. Eine Versions- oder Kompatibilitätswarnung in Workbench 8 ist nicht dasselbe wie eine fehlgeschlagene Verbindung. Bei Fehlern zuerst Dienst, Adresse, Port und Zugangsdaten mit der Lehrkraft prüfen.</span></p>
+        </div>
+        <div class="connection-guide-example" aria-label="Beispiel einer lokalen Workbench-Verbindung">
+          <div class="connection-example-head"><i data-lucide="database-zap"></i><strong>MySQL Connections</strong><span>local</span></div>
+          <dl>
+            <div><dt>Verfahren</dt><dd>Standard (TCP/IP)</dd></div>
+            <div><dt>Hostname</dt><dd><code>127.0.0.1</code></dd></div>
+            <div><dt>Port</dt><dd><code>3306</code></dd></div>
+            <div><dt>Benutzer</dt><dd><code>root</code> <small>nur Beispiel</small></dd></div>
+          </dl>
+          <div class="connection-example-query"><i data-lucide="square-terminal"></i><code>SELECT VERSION();</code><i data-lucide="check-circle-2"></i></div>
+        </div>
+      </section>
 
       <div class="section-heading">
         <div>
@@ -1476,6 +2020,14 @@
     "year\\s*\\(": ["Jahr prüfen", "YEAR(geburtsdatum) kann in der WHERE-Bedingung verglichen werden."],
     "insert\\s+into": ["Datensatz einfügen", "INSERT INTO nennt zuerst die Zieltabelle und ihre Spalten."],
     values: ["Werte angeben", "VALUES enthält die Werte in derselben Reihenfolge wie die Spaltenliste."],
+    "create\\s+table": ["Tabelle anlegen", "CREATE TABLE nennt Tabellenname, Spalten und ihre Regeln."],
+    "primary\\s+key": ["Primärschlüssel festlegen", "Kennzeichne die eindeutige Identifikation mit PRIMARY KEY."],
+    "not\\s+null": ["Pflichtfeld festlegen", "NOT NULL verhindert einen fehlenden Wert in dieser Spalte."],
+    update: ["Datensatz ändern", "UPDATE nennt die Tabelle, deren vorhandene Zeilen geändert werden."],
+    set: ["Neuen Wert zuweisen", "SET weist einer Spalte den neuen Wert oder Ausdruck zu."],
+    "delete\\s+from": ["Datensatz löschen", "DELETE FROM nennt die Tabelle; die WHERE-Bedingung begrenzt die Zielmenge."],
+    "schuelernr\\s*=\\s*5": ["Änderung eingrenzen", "Begrenze das UPDATE mit der eindeutigen Schülernummer 5."],
+    "schuelernr\\s*=\\s*10": ["Löschung eingrenzen", "Begrenze das DELETE mit der eindeutigen Schülernummer 10."],
     join: ["Tabellen verbinden", "JOIN ergänzt die zweite Tabelle; danach folgt die ON-Bedingung."],
     on: ["Schlüssel zuordnen", "ON verbindet passende Primär- und Fremdschlüssel."],
     "sum\\s*\\(": ["Werte summieren", "SUM(stundenzahl) berechnet die Summe innerhalb jeder Gruppe."],
@@ -1802,13 +2354,32 @@
       .slice(0, 30) || "lernstand";
   }
 
-  function exportFileName() {
-    return `workbenchlab-${safeFilePart(state.name)}-geraet-${shortIdentity(deviceIdentity.id)}-${todayKey()}.json`;
+  function stableStringify(value) {
+    if (Array.isArray(value)) {
+      return `[${value.map(stableStringify).join(",")}]`;
+    }
+    if (value && typeof value === "object") {
+      return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`;
+    }
+    return JSON.stringify(value);
   }
 
-  function backupPayload() {
+  async function sha256Hex(value) {
+    if (!globalThis.crypto?.subtle || !globalThis.TextEncoder) {
+      throw new Error("Dieser Browser unterstützt die SHA-256-Prüfsumme nicht");
+    }
+    const bytes = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+
+  function exportFileName() {
+    return `workbenchlab-${safeFilePart(state.className)}-${safeFilePart(state.name)}-geraet-${shortIdentity(deviceIdentity.id)}-${todayKey()}.json`;
+  }
+
+  async function backupPayload() {
     const exportedAt = new Date().toISOString();
-    return {
+    const payload = {
       app: backupAppId,
       formatVersion: backupFormatVersion,
       appVersion: content.version,
@@ -1816,11 +2387,21 @@
       exportId: createOpaqueId("export"),
       identity: {
         studentCode: state.name,
+        studentClass: state.className,
         profileId: state.profileId,
         profileCode: shortIdentity(state.profileId),
+        profileCreatedAt: state.profileCreatedAt,
+        profileOriginDeviceId: state.profileDeviceId,
+        profileOriginDeviceCode: shortIdentity(state.profileDeviceId),
         deviceId: deviceIdentity.id,
         deviceCode: shortIdentity(deviceIdentity.id),
-        deviceCreatedAt: deviceIdentity.createdAt
+        deviceCreatedAt: deviceIdentity.createdAt,
+        environment: deviceEnvironment(),
+        networkIdentifiers: {
+          macAddress: null,
+          ipAddress: null,
+          status: "Vom Browser einer statischen Website nicht zuverlässig und datenschutzgerecht ermittelbar."
+        }
       },
       summary: {
         xp: stateXp(),
@@ -1829,6 +2410,29 @@
       },
       data: state
     };
+    return {
+      ...payload,
+      integrity: {
+        algorithm: "SHA-256",
+        scope: "vollständiger Export ohne integrity-Block",
+        digest: await sha256Hex(stableStringify(payload))
+      }
+    };
+  }
+
+  async function verifyBackupIntegrity(parsed) {
+    if (parsed.formatVersion < 3) {
+      return { verified: false, legacy: true };
+    }
+    if (parsed.integrity?.algorithm !== "SHA-256" || !/^[a-f0-9]{64}$/.test(parsed.integrity?.digest || "")) {
+      throw new Error("Die Sicherung enthält keine gültige SHA-256-Prüfsumme");
+    }
+    const { integrity, ...payload } = parsed;
+    const expected = await sha256Hex(stableStringify(payload));
+    if (expected !== integrity.digest) {
+      throw new Error("Die Prüfsumme stimmt nicht. Die Sicherung wurde verändert oder beschädigt");
+    }
+    return { verified: true, legacy: false };
   }
 
   function updateBackupSummary() {
@@ -1838,18 +2442,20 @@
     }
     summary.innerHTML = `
       <div><strong>${escapeHtml(state.name || "Noch offen")}</strong><small>Schülerkürzel</small></div>
+      <div><strong>${escapeHtml(state.className || "Noch offen")}</strong><small>Klasse</small></div>
       <div><strong>${escapeHtml(shortIdentity(deviceIdentity.id))}</strong><small>Gerätecode</small></div>
+      <div><strong>${escapeHtml(shortIdentity(state.profileDeviceId))}</strong><small>Profil-Herkunft</small></div>
       <div><strong>${stateXp()} XP</strong><small>Erfahrung</small></div>
       <div><strong>${state.completedPractices.length + state.completedCommands.length}</strong><small>Aufgaben</small></div>`;
   }
 
   async function exportProgress() {
-    if (!isValidStudentCode(state.name)) {
+    if (!isValidStudentCode(state.name) || !isValidClassName(state.className)) {
       backupDialog.close();
-      openProfileDialog("Lege vor dem Export dein Schülerkürzel im Format ABC.DEF fest.");
+      openProfileDialog("Lege vor dem Export Schülerkürzel und Klasse vollständig fest.");
       return;
     }
-    const json = JSON.stringify(backupPayload(), null, 2);
+    const json = JSON.stringify(await backupPayload(), null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const suggestedName = exportFileName();
     if ("showSaveFilePicker" in window) {
@@ -1900,6 +2506,7 @@
       if (!Number.isInteger(parsed.formatVersion) || parsed.formatVersion > backupFormatVersion) {
         throw new Error("Die Datei stammt aus einer neueren Version");
       }
+      const integrity = await verifyBackupIntegrity(parsed);
       const importedState = normalizeState(parsed.data);
       if (parsed.formatVersion >= 2) {
         if (!isValidStudentCode(importedState.name)) {
@@ -1910,22 +2517,35 @@
           throw new Error("Die Identitätsdaten der Sicherung sind widersprüchlich");
         }
       }
+      if (parsed.formatVersion >= 3) {
+        if (!isValidClassName(importedState.className)
+          || parsed.identity?.studentClass !== importedState.className
+          || parsed.identity?.profileOriginDeviceId !== importedState.profileDeviceId) {
+          throw new Error("Klasse oder Profilherkunft der Sicherung sind widersprüchlich");
+        }
+      }
       const profileCode = shortIdentity(importedState.profileId);
       const sourceDeviceCode = parsed.identity?.deviceCode || "älteres Format";
       const legacyLabel = importedState.name || String(parsed.data.name || "älterer Lernstand").slice(0, 30);
       const confirmed = window.confirm(
-        `Lernstand ${legacyLabel} · Profil ${profileCode} · Exportgerät ${sourceDeviceCode} mit ${stateXp(importedState)} XP laden? Der aktuelle Browserstand wird ersetzt.`
+        `Lernstand ${legacyLabel} · Klasse ${importedState.className || "noch offen"} · Profil ${profileCode} · Exportgerät ${sourceDeviceCode} · ${integrity.verified ? "Prüfsumme gültig" : "älteres Format ohne Prüfsumme"} mit ${stateXp(importedState)} XP laden? Der aktuelle Browserstand wird ersetzt.`
       );
       if (!confirmed) {
         return;
       }
+      importedState.transferHistory = [...importedState.transferHistory, {
+        importedAt: new Date().toISOString(),
+        sourceExportId: isOpaqueId(parsed.exportId, "export") ? parsed.exportId : "",
+        sourceDeviceId: isOpaqueId(parsed.identity?.deviceId, "device") ? parsed.identity.deviceId : "",
+        destinationDeviceId: deviceIdentity.id
+      }].slice(-12);
       state = importedState;
       saveState();
       backupDialog.close();
       renderRoute();
       toast("Lernstand erfolgreich geladen");
-      if (!importedState.name) {
-        openProfileDialog("Diese ältere Sicherung braucht einmalig ein Schülerkürzel im Format ABC.DEF.");
+      if (!importedState.name || !importedState.className) {
+        openProfileDialog("Diese ältere Sicherung braucht einmalig Schülerkürzel und Klasse.");
       }
     } catch (error) {
       toast(error.message || "Die Datei konnte nicht geladen werden", "error");
@@ -1979,8 +2599,54 @@
     }
     updateChrome();
     renderIcons();
-    main.focus({ preventScroll: true });
-    window.scrollTo({ top: 0, behavior: "instant" });
+    if (!profileDialog.open) {
+      main.focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+    if (route.name === "path") {
+      let pendingModule = "";
+      try {
+        pendingModule = sessionStorage.getItem(pendingModuleStorageKey) || "";
+        sessionStorage.removeItem(pendingModuleStorageKey);
+      } catch {}
+      if (pendingModule) {
+        window.requestAnimationFrame(() => document.getElementById(pendingModule)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      }
+    }
+  }
+
+  function saveWorksheetControl(control) {
+    const lesson = lessonById(parseRoute().id);
+    if (!lesson?.webWorksheet) {
+      return false;
+    }
+    const record = lessonWorksheetRecord(lesson);
+    if (control.matches("[data-worksheet-table-name]")) {
+      record.tableName = control.value.slice(0, 40);
+    } else if (control.matches("[data-worksheet-definition]")) {
+      record.definitions[control.dataset.worksheetDefinition] = control.value.slice(0, 1200);
+    } else if (control.matches("[data-worksheet-field]")) {
+      const rowIndex = Number(control.dataset.worksheetRow);
+      const field = control.dataset.worksheetField;
+      if (!Number.isInteger(rowIndex) || !record.rows[rowIndex]) {
+        return false;
+      }
+      if (field === "primary") {
+        record.rows.forEach((row, index) => {
+          row.primary = index === rowIndex;
+        });
+      } else if (field === "length") {
+        record.rows[rowIndex].length = control.value.replace(/[^0-9]/g, "").slice(0, 5);
+        control.value = record.rows[rowIndex].length;
+      } else if (field === "name" || field === "type") {
+        record.rows[rowIndex][field] = control.value.slice(0, field === "name" ? 40 : 32);
+      }
+    } else {
+      return false;
+    }
+    state.lessonWorksheets[lesson.id] = record;
+    saveState();
+    return true;
   }
 
   document.addEventListener("click", (event) => {
@@ -1990,16 +2656,29 @@
     const commandButton = event.target.closest("[data-command]");
     const filterButton = event.target.closest("[data-filter]");
     const runnerTab = event.target.closest("[data-runner-tab]");
+    const completeLessonButton = event.target.closest("[data-complete-lesson]");
+    const moduleButton = event.target.closest("[data-path-module]");
 
     if (routeButton) {
       event.preventDefault();
       go(routeButton.dataset.route);
     }
     if (lessonButton) {
-      go(`lesson/${lessonButton.dataset.lesson}`);
+      const lesson = lessonById(lessonButton.dataset.lesson);
+      if (!isLessonUnlocked(lesson)) {
+        const prerequisite = lessonPrerequisite(lesson);
+        toast(`Zuerst ${prerequisite?.courseCode || "die vorherige Einheit"} abschließen.`, "error");
+      } else {
+        go(`lesson/${lessonButton.dataset.lesson}`);
+      }
     }
     if (practiceButton) {
-      go(`practice/${practiceButton.dataset.practice}`);
+      const practice = practiceById(practiceButton.dataset.practice);
+      if (!isPracticeUnlocked(practice)) {
+        toast("Diese Übung wird mit ihrer Lerneinheit freigeschaltet.", "error");
+      } else {
+        go(`practice/${practiceButton.dataset.practice}`);
+      }
     }
     if (commandButton) {
       go(`command/${commandButton.dataset.command}`);
@@ -2016,6 +2695,45 @@
       document.querySelectorAll("[data-runner-panel]").forEach((panel) => {
         panel.classList.toggle("is-active", panel.dataset.runnerPanel === runnerTab.dataset.runnerTab);
       });
+    }
+    if (moduleButton) {
+      const module = moduleById(moduleButton.dataset.pathModule);
+      if (!module || !isLessonUnlocked(lessonById(module.lessonIds[0]))) {
+        toast("Dieser Lernfortschritt ist noch gesperrt.", "error");
+      } else if (parseRoute().name === "path") {
+        document.getElementById(module.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        try {
+          sessionStorage.setItem(pendingModuleStorageKey, module.id);
+        } catch {}
+        go("path");
+      }
+    }
+    if (completeLessonButton) {
+      const lesson = lessonById(completeLessonButton.dataset.completeLesson);
+      if (!lesson || state.completedLessons.includes(lesson.id)) {
+        return;
+      }
+      if (!state.name || !state.className) {
+        openProfileDialog("Lege vor dem Abschluss Schülerkürzel und Klasse vollständig an.");
+        return;
+      }
+      const record = lessonProgressRecord(lesson);
+      if (record.checks.some((checked) => !checked)) {
+        toast("Hake zuerst alle eigenen Arbeitsschritte ab.", "error");
+        return;
+      }
+      if (!record.quizPassed) {
+        toast("Der Verständnischeck ist noch nicht bestanden.", "error");
+        return;
+      }
+      if (!record.teacherChecked) {
+        toast("Die Bestätigung durch die Lehrkraft fehlt noch.", "error");
+        return;
+      }
+      award("lesson", lesson.id, lesson.xp);
+      renderLesson(lesson.id);
+      renderIcons();
     }
     if (event.target.closest("#runSqlButton")) {
       runSqlPractice("run");
@@ -2040,13 +2758,31 @@
   });
 
   document.addEventListener("keydown", (event) => {
+    const altGraph = event.getModifierState?.("AltGraph") || (event.ctrlKey && event.altKey);
+    if (profileDialog.open && altGraph && (event.code === "KeyS" || event.key.toLocaleLowerCase("de-DE") === "s")) {
+      event.preventDefault();
+      developerControlRevealed = !developerControlRevealed;
+      updateDeveloperControl();
+      (developerControlRevealed ? developerModeButton : profileName)?.focus();
+      return;
+    }
     const card = event.target.closest("[data-lesson], [data-practice], [data-command]");
     if (card && (event.key === "Enter" || event.key === " ")) {
       event.preventDefault();
       if (card.dataset.lesson) {
-        go(`lesson/${card.dataset.lesson}`);
+        const lesson = lessonById(card.dataset.lesson);
+        if (isLessonUnlocked(lesson)) {
+          go(`lesson/${card.dataset.lesson}`);
+        } else {
+          toast(`Zuerst ${lessonPrerequisite(lesson)?.courseCode || "die vorherige Einheit"} abschließen.`, "error");
+        }
       } else if (card.dataset.practice) {
-        go(`practice/${card.dataset.practice}`);
+        const practice = practiceById(card.dataset.practice);
+        if (isPracticeUnlocked(practice)) {
+          go(`practice/${card.dataset.practice}`);
+        } else {
+          toast("Diese Übung ist noch gesperrt.", "error");
+        }
       } else {
         go(`command/${card.dataset.command}`);
       }
@@ -2068,9 +2804,39 @@
         saveState();
       }
     }
+    if (event.target.matches("[data-lesson-note]")) {
+      const lessonId = event.target.dataset.lessonNote;
+      if (lessonById(lessonId)) {
+        state.lessonNotes[lessonId] = event.target.value.slice(0, 12000);
+        saveState();
+      }
+    }
+    saveWorksheetControl(event.target);
   });
 
   document.addEventListener("change", (event) => {
+    if (saveWorksheetControl(event.target)) {
+      return;
+    }
+    const lessonCheck = event.target.closest("[data-lesson-check], [data-lesson-teacher]");
+    if (lessonCheck) {
+      const lesson = lessonById(parseRoute().id);
+      if (!lesson || state.completedLessons.includes(lesson.id)) {
+        return;
+      }
+      const current = lessonProgressRecord(lesson);
+      if (lessonCheck.matches("[data-lesson-check]")) {
+        current.checks[Number(lessonCheck.dataset.lessonCheck)] = lessonCheck.checked;
+      } else {
+        current.teacherChecked = lessonCheck.checked;
+      }
+      state.lessonChecks[lesson.id] = {
+        checks: current.checks,
+        teacherChecked: current.teacherChecked
+      };
+      saveState();
+      return;
+    }
     const slot = event.target.closest("[data-slot-id]");
     if (!slot) {
       return;
@@ -2099,8 +2865,18 @@
         return;
       }
       if (Number(selected.value) === lesson.quiz.correct) {
-        award("lesson", lesson.id, lesson.xp);
-        showBanner("#quizResult", true, "Richtig", lesson.quiz.explanation);
+        if (!state.passedLessonQuizzes.includes(lesson.id)) {
+          state.passedLessonQuizzes.push(lesson.id);
+          markActivity();
+          saveState();
+        }
+        const quizCheck = document.querySelector(".quiz-check");
+        quizCheck?.classList.add("is-ready");
+        const quizInput = quizCheck?.querySelector("input");
+        if (quizInput) {
+          quizInput.checked = true;
+        }
+        showBanner("#quizResult", true, "Richtig", `${lesson.quiz.explanation} Schließe jetzt die Arbeitsschritte unten ab.`);
       } else {
         showBanner("#quizResult", false, "Noch nicht", lesson.quiz.explanation);
       }
@@ -2131,14 +2907,17 @@
 
   function openProfileDialog(message = "") {
     profileName.value = state.name;
+    profileClass.value = state.className;
     profileNameError.textContent = message;
     profileName.toggleAttribute("aria-invalid", Boolean(message));
+    profileClass.toggleAttribute("aria-invalid", Boolean(message));
     if (!profileDialog.open) {
       profileDialog.showModal();
     }
     window.requestAnimationFrame(() => {
-      profileName.focus();
-      profileName.select();
+      const target = isValidStudentCode(profileName.value) ? profileClass : profileName;
+      target.focus();
+      target.select();
     });
   }
 
@@ -2146,25 +2925,44 @@
     openProfileDialog();
   });
   document.querySelector("#profileCancelButton").addEventListener("click", () => profileDialog.close());
-  profileName.addEventListener("input", () => {
-    profileName.removeAttribute("aria-invalid");
-    profileNameError.textContent = "";
+  profileDialog.addEventListener("close", () => {
+    developerControlRevealed = false;
+    updateDeveloperControl();
   });
+  [profileName, profileClass].forEach((field) => field.addEventListener("input", () => {
+    profileName.removeAttribute("aria-invalid");
+    profileClass.removeAttribute("aria-invalid");
+    profileNameError.textContent = "";
+  }));
   profileName.addEventListener("blur", () => {
     profileName.value = normalizeStudentCode(profileName.value);
+  });
+  profileClass.addEventListener("blur", () => {
+    profileClass.value = normalizeClassName(profileClass.value);
   });
   profileForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const studentCode = normalizeStudentCode(profileName.value);
+    const className = normalizeClassName(profileClass.value);
     profileName.value = studentCode;
+    profileClass.value = className;
     if (!isValidStudentCode(studentCode)) {
       profileName.setAttribute("aria-invalid", "true");
       profileNameError.textContent = "Bitte genau drei Buchstaben, einen Punkt und drei Buchstaben eingeben, zum Beispiel MIA.MUE.";
       profileName.focus();
       return;
     }
+    if (!isValidClassName(className)) {
+      profileClass.setAttribute("aria-invalid", "true");
+      profileNameError.textContent = "Bitte die offizielle Klassenkurzform eingeben, zum Beispiel J1-1 oder WGJ1/1.";
+      profileClass.focus();
+      return;
+    }
     state.name = studentCode;
+    state.className = className;
     state.profileId = isOpaqueId(state.profileId, "profile") ? state.profileId : createOpaqueId("profile");
+    state.profileDeviceId = isOpaqueId(state.profileDeviceId, "device") ? state.profileDeviceId : deviceIdentity.id;
+    state.profileCreatedAt = state.profileCreatedAt || new Date().toISOString();
     saveState();
     profileDialog.close();
     renderRoute();
@@ -2180,13 +2978,14 @@
   document.querySelector("#importProgressButton").addEventListener("click", () => progressFileInput.click());
   progressFileInput.addEventListener("change", () => importProgressFile(progressFileInput.files?.[0]));
   themeToggleButton?.addEventListener("click", toggleTheme);
+  developerModeButton?.addEventListener("click", () => setDeveloperMode(!developerMode));
   window.addEventListener("hashchange", renderRoute);
 
   applyTheme(readTheme(), false);
   initSqlRuntime().catch(() => {});
   renderRoute();
   const suppressProfilePrompt = new URLSearchParams(window.location.search).has("screenshot");
-  if (!suppressProfilePrompt && !state.name && !sessionStorage.getItem("workbenchlab-profile-seen")) {
+  if (!suppressProfilePrompt && (!state.name || !state.className) && !sessionStorage.getItem("workbenchlab-profile-seen")) {
     sessionStorage.setItem("workbenchlab-profile-seen", "1");
     window.setTimeout(() => openProfileDialog(), 350);
   }

@@ -78,7 +78,8 @@ INSERT INTO fahrschueler VALUES
 (7, 'Roth', 'Emma', 'Tuebingen', '72070', '2007-05-28', 11),
 (8, 'Weber', 'Noah', 'Waiblingen', '71332', '2008-02-18', 4),
 (9, 'Klein', 'Sara', 'Stuttgart', '70173', '2007-08-09', 16),
-(10, 'Wagner', 'Ben', 'Tuebingen', '72070', '2006-10-21', 9);
+(10, 'Wagner', 'Ben', 'Tuebingen', '72070', '2006-10-21', 9),
+(11, 'Keller', 'Aaron', 'Stuttgart', '70173', '2007-04-03', 8);
 `
     },
     fahrschule: {
@@ -643,16 +644,16 @@ INSERT INTO mietvertraege VALUES
       id: "sql-muster",
       module: "sql-einstieg",
       index: "10",
-      title: "DISTINCT und flexible Filter",
-      subtitle: "Mit DISTINCT, LIKE, IN und BETWEEN formulierst du präzise Abfragen für typische Suchsituationen.",
-      duration: 28,
+      title: "Redundanzen im Abfrageergebnis vermeiden",
+      subtitle: "Mit DISTINCT erhältst du einmalige Werte und Wertekombinationen, ohne die Tabelle zu verändern.",
+      duration: 45,
       xp: 40,
       difficulty: "medium",
       practiceId: "sql-distinct",
       objectives: [
-        "doppelte Ergebniszeilen mit DISTINCT entfernen",
-        "Textmuster mit LIKE, Prozentzeichen und Unterstrich beschreiben",
-        "Wertelisten mit IN und Bereiche mit BETWEEN filtern"
+        "Wiederholungen im Abfrageergebnis erkennen",
+        "DISTINCT für einmalige Werte oder Wertekombinationen einsetzen",
+        "die vier Aufträge aus L1_5.7 selbstständig formulieren"
       ],
       sections: [
         {
@@ -664,13 +665,12 @@ INSERT INTO mietvertraege VALUES
           code: `SELECT DISTINCT ort, plz\nFROM fahrschueler\nORDER BY ort;`
         },
         {
-          title: "Muster, Listen und Bereiche",
+          title: "Eine Spalte oder eine Kombination",
           body: [
-            "LIKE vergleicht Textmuster: % steht für beliebig viele Zeichen, _ für genau ein Zeichen. IN prüft, ob ein Wert in einer Liste vorkommt.",
-            "BETWEEN beschreibt einen geschlossenen Bereich. Die beiden Grenzwerte gehören also zum Ergebnis."
+            "Bei SELECT DISTINCT vorname zählt jeder Vorname nur einmal. Bei SELECT DISTINCT ort, plz zählt die Kombination beider Spalten.",
+            "Vergleiche die Zeilenzahlen mit und ohne DISTINCT; die gespeicherten Fahrschüler bleiben unverändert."
           ],
-          code: `WHERE nachname LIKE 'K%'\nWHERE ort IN ('Stuttgart', 'Esslingen')\nWHERE fahrstunden BETWEEN 5 AND 15`,
-          visual: "query-patterns"
+          code: `SELECT DISTINCT vorname\nFROM fahrschueler;`
         }
       ],
       quiz: {
@@ -1110,16 +1110,28 @@ INSERT INTO mietvertraege VALUES
       id: "relation-key-choice",
       lessonId: "relation-und-schluessel",
       type: "choice",
-      title: "Primärschlüssel wählen",
-      description: "Wähle den stabilsten Primärschlüssel für eine Fahrschüler-Tabelle.",
+      title: "ERD und Relationenschema unterscheiden",
+      description: "Ordne die fachliche Skizze und die technischen Festlegungen der Fahrschule richtig zu.",
       difficulty: "easy",
       xp: 25,
       questions: [
         {
-          question: "Welche Spalte eignet sich am besten als Primärschlüssel?",
-          options: ["schuelernr", "nachname", "ort"],
+          question: "Wozu dient das ER-Diagramm vor der Umsetzung in MySQL?",
+          options: ["Es speichert bereits alle Datensätze.", "Es zeigt die fachlich benötigten Entitätstypen und Attribute.", "Es ersetzt die spätere Datentypwahl."],
+          correct: 1,
+          feedback: "Das ERD beschreibt die fachliche Struktur und hilft bei der Verständigung über das Modell."
+        },
+        {
+          question: "Was ergänzt das Relationenschema gegenüber dem einfachen ERD?",
+          options: ["Nur die Reihenfolge der Bildschirmfenster", "Konkrete Schülernamen", "Datentypen, Textlängen und den Primärschlüssel"],
+          correct: 2,
+          feedback: "Erst das Relationenschema präzisiert die technischen Eigenschaften der späteren Tabelle."
+        },
+        {
+          question: "Welche Typen passen zu den zwei neuen Attributen?",
+          options: ["geburtsdatum DATE und fahrstundenzahl INT", "geburtsdatum INT und fahrstundenzahl DATE", "beide VARCHAR, weil alles als Text gespeichert werden kann"],
           correct: 0,
-          feedback: "Die schuelernr kann eindeutig vergeben werden. Nachname und Ort sind nicht eindeutig."
+          feedback: "Ein Datum gehört in DATE, eine Anzahl ganzer Fahrstunden in INT."
         }
       ]
     },
@@ -1127,32 +1139,79 @@ INSERT INTO mietvertraege VALUES
       id: "eerm-cardinality",
       lessonId: "eerm-grundlagen",
       type: "slots",
-      title: "Kardinalitäten setzen",
-      description: "Vervollständige ein kleines eERM für Fahrschüler und Orte.",
+      title: "Workbench-Modell kontrollieren",
+      description: "Prüfe die wichtigsten Einstellungen des einteiligen Fahrschulmodells.",
       difficulty: "medium",
       xp: 35,
-      prompt: "Ein Fahrschüler wohnt genau an einem Ort. Ein Ort kann in der Datenbank zu keinem, einem oder vielen Fahrschülern gehören.",
+      prompt: "Das EER-Diagramm aus L1.3 enthält genau eine Tabelle. Ordne den Workbench-Feldern die fachlich richtigen Werte zu.",
       slots: [
         {
-          id: "left",
-          label: "Fahrschüler zu Ort",
-          options: ["genau 1", "0 bis n", "genau n"],
-          answer: "genau 1"
+          id: "schema",
+          label: "Schema Name",
+          options: ["fahrschule", "mydb", "fahrschueler"],
+          answer: "fahrschule"
         },
         {
-          id: "right",
-          label: "Ort zu Fahrschüler",
-          options: ["genau 1", "0 bis n", "höchstens 1"],
-          answer: "0 bis n"
+          id: "table",
+          label: "Table Name",
+          options: ["fahrschule", "table1", "fahrschueler"],
+          answer: "fahrschueler"
         },
         {
-          id: "relation",
-          label: "Beziehungstyp",
-          options: ["1:N", "M:N", "1:1"],
-          answer: "1:N"
+          id: "key",
+          label: "Primary Key (PK)",
+          options: ["nachname", "schuelernr", "fahrstundenzahl"],
+          answer: "schuelernr"
+        },
+        {
+          id: "birthday",
+          label: "Datatype geburtsdatum",
+          options: ["DATE", "INT", "VARCHAR(45)"],
+          answer: "DATE"
+        },
+        {
+          id: "hours",
+          label: "Datatype fahrstundenzahl",
+          options: ["DATE", "INT", "VARCHAR(45)"],
+          answer: "INT"
         }
       ],
-      explanation: "Ein Fahrschüler verweist auf einen Ort. Ein Ort kann bei vielen Fahrschülern vorkommen."
+      explanation: "Schema, Tabelle, Schlüssel und Datentypen passen zum gespeicherten Ein-Tabellen-Modell."
+    },
+    {
+      id: "erm-fahrschule-redundancy",
+      lessonId: "erm-sachtext-analyse",
+      type: "choice",
+      title: "Vom Ortsproblem zum Zwei-Tabellen-Modell",
+      description: "Prüfe, weshalb wiederholte Ortsdaten eine Modelländerung erfordern und wo der Fremdschlüssel hingehört.",
+      difficulty: "medium",
+      xp: 45,
+      questions: [
+        {
+          question: "Was behebt SELECT DISTINCT ort bei der Fahrschul-Tabelle?",
+          options: ["Nur Wiederholungen im Abfrageergebnis.", "Die mehrfach gespeicherten Ortsdaten in der Tabelle.", "Alle widersprüchlichen Postleitzahlen automatisch."],
+          correct: 0,
+          feedback: "DISTINCT verändert nicht die gespeicherten Fahrschüler."
+        },
+        {
+          question: "Was kann passieren, wenn ein Ortsname nur bei einem von drei betroffenen Fahrschülern geändert wird?",
+          options: ["Die gespeicherten Angaben widersprechen sich.", "Die Primärschlüssel werden automatisch neu vergeben.", "SQL entfernt die beiden übrigen Fahrschüler."],
+          correct: 0,
+          feedback: "Das ist eine Änderungsanomalie: dieselbe fachliche Information ist nicht überall gleich."
+        },
+        {
+          question: "Ein Ort kann vielen Fahrschülern zugeordnet sein; jeder Fahrschüler genau einem Ort. Welche Beziehung liegt vor?",
+          options: ["orte 1:N fahrschueler", "orte M:N fahrschueler", "orte 1:1 fahrschueler"],
+          correct: 0,
+          feedback: "Ein Ort ist die 1-Seite, Fahrschüler bilden die N-Seite."
+        },
+        {
+          question: "Wo liegt im Zwei-Tabellen-Modell ortnr als Fremdschlüssel?",
+          options: ["In fahrschueler.", "In orte zusätzlich zum Primärschlüssel.", "In beiden Tabellen als Fremdschlüssel."],
+          correct: 0,
+          feedback: "Jeder Fahrschüler verweist mit ortnr auf genau einen Ort."
+        }
+      ]
     },
     {
       id: "erm-entity-analysis",
@@ -1231,6 +1290,30 @@ INSERT INTO mietvertraege VALUES
           feedback: "Unter dieser fachlichen Regel ist auf beiden Seiten höchstens ein Exemplar beteiligt."
         }
       ]
+    },
+    {
+      id: "erm-fahrschule-1n-diagram",
+      lessonId: "erm-kardinalitaeten",
+      type: "diagram",
+      title: "EER-Diagramm der Fahrschule vervollständigen",
+      description: "Bestimme die 1:N-Beziehung und platziere Primär- und Fremdschlüssel in den richtigen Tabellen.",
+      difficulty: "medium",
+      xp: 50,
+      prompt: "Ein Ort kann mehreren Fahrschülern zugeordnet sein. Jeder Fahrschüler gehört in diesem vereinfachten Modell genau zu einem Ort. Ortsname und PLZ werden nur einmal in der Ortstabelle gespeichert.",
+      diagram: {
+        caption: "Fahrschule mit zwei Tabellen: orte und fahrschueler",
+        chain: [
+          { type: "entity", title: "orte", role: "Parent", attributes: [{ slotId: "placePrimaryKey" }, "plz VARCHAR(5)", "ort VARCHAR(50)"] },
+          { type: "relation", label: "wohnt in", slotId: "placeToStudents" },
+          { type: "entity", title: "fahrschueler", role: "Child", attributes: ["schuelernr PK", "nachname", "vorname", { slotId: "placeForeignKey" }] }
+        ]
+      },
+      slots: [
+        { id: "placePrimaryKey", label: "Schlüssel in orte", options: ["ortnr PK · AI", "ortnr FK", "plz PK"], answer: "ortnr PK · AI" },
+        { id: "placeToStudents", label: "orte zu fahrschueler", options: ["1:N", "M:N", "1:1"], answer: "1:N" },
+        { id: "placeForeignKey", label: "Schlüssel in fahrschueler", options: ["ortnr FK", "ortnr PK", "ort VARCHAR(50)"], answer: "ortnr FK" }
+      ],
+      explanation: "orte ist die Parent-Tabelle mit ortnr als Primärschlüssel. fahrschueler enthält ortnr als Fremdschlüssel; plz und ort bleiben ausschließlich in orte."
     },
     {
       id: "erm-rental-diagram",
@@ -1317,8 +1400,8 @@ INSERT INTO mietvertraege VALUES
         {
           id: "step4",
           label: "Schritt 4",
-          options: ["Forward Engineer oder Synchronize Model ausführen", "Workbench schließen", "Nur einen Screenshot erstellen"],
-          answer: "Forward Engineer oder Synchronize Model ausführen"
+          options: ["Synchronize Model ausführen und die SQL-Vorschau prüfen", "Workbench schließen", "Nur einen Screenshot erstellen"],
+          answer: "Synchronize Model ausführen und die SQL-Vorschau prüfen"
         },
         {
           id: "step5",
@@ -1334,22 +1417,68 @@ INSERT INTO mietvertraege VALUES
       lessonId: "select-projektion",
       type: "sql",
       schema: "fahrschule-basic",
-      title: "Nur Namen ausgeben",
-      description: "Gib Nachname und Vorname aller Fahrschüler aus. Verwende kein SELECT *.",
+      title: "Schülerliste alphabetisch",
+      description: "Gib Schülernummer, Vorname und Nachname aus. Sortiere alphabetisch nach Nachname.",
       difficulty: "easy",
       xp: 35,
-      starter: "SELECT \nFROM fahrschueler;",
-      solution: "SELECT nachname, vorname\nFROM fahrschueler;",
+      starter: "SELECT \nFROM fahrschueler\nORDER BY ;",
+      solution: "SELECT schuelernr, vorname, nachname\nFROM fahrschueler\nORDER BY nachname;",
       hints: [
-        "Nach SELECT stehen die Spalten, die du sehen möchtest.",
-        "Trenne mehrere Spalten mit Komma.",
-        "FROM nennt die Tabelle."
+        "Nach SELECT stehen genau die drei geforderten Spalten.",
+        "FROM nennt die Tabelle fahrschueler.",
+        "ORDER BY nachname sortiert standardmäßig aufsteigend."
       ],
       check: {
         type: "query",
-        expectedSql: "SELECT nachname, vorname FROM fahrschueler;",
+        expectedSql: "SELECT schuelernr, vorname, nachname FROM fahrschueler ORDER BY nachname;",
         orderSensitive: true,
-        required: ["select", "from", "nachname", "vorname"],
+        required: ["select", "from", "order\\s+by\\s+nachname"],
+        forbidden: ["select\\s+\\*"]
+      }
+    },
+    {
+      id: "sql-projection-ort",
+      lessonId: "select-projektion",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Wohnorte absteigend",
+      description: "Gib Schülernummer, Vorname, Nachname und Ort aus. Sortiere nach Ort absteigend.",
+      difficulty: "easy",
+      xp: 15,
+      starter: "SELECT \nFROM fahrschueler\nORDER BY ;",
+      solution: "SELECT schuelernr, vorname, nachname, ort\nFROM fahrschueler\nORDER BY ort DESC;",
+      hints: [
+        "Nimm ort als vierte Ausgabespalte auf.",
+        "ORDER BY ort DESC kehrt die alphabetische Reihenfolge um."
+      ],
+      check: {
+        type: "query",
+        expectedSql: "SELECT schuelernr, vorname, nachname, ort FROM fahrschueler ORDER BY ort DESC;",
+        orderSensitive: true,
+        required: ["select", "from", "order\\s+by\\s+ort\\s+desc"],
+        forbidden: ["select\\s+\\*"]
+      }
+    },
+    {
+      id: "sql-projection-gleichstand",
+      lessonId: "select-projektion",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Bei gleichem Nachnamen",
+      description: "Gib Schülernummer und Namen aus. Sortiere nach Nachname und dann nach Vorname.",
+      difficulty: "easy",
+      xp: 15,
+      starter: "SELECT \nFROM fahrschueler\nORDER BY ;",
+      solution: "SELECT schuelernr, vorname, nachname\nFROM fahrschueler\nORDER BY nachname, vorname;",
+      hints: [
+        "Das erste ORDER-BY-Kriterium ist nachname.",
+        "Trenne die beiden Sortierkriterien mit einem Komma."
+      ],
+      check: {
+        type: "query",
+        expectedSql: "SELECT schuelernr, vorname, nachname FROM fahrschueler ORDER BY nachname, vorname;",
+        orderSensitive: true,
+        required: ["select", "from", "order\\s+by\\s+nachname\\s*,\\s*vorname"],
         forbidden: ["select\\s+\\*"]
       }
     },
@@ -1374,6 +1503,82 @@ INSERT INTO mietvertraege VALUES
         expectedSql: "SELECT nachname, vorname, fahrstunden FROM fahrschueler WHERE ort = 'Stuttgart' ORDER BY fahrstunden DESC;",
         orderSensitive: true,
         required: ["where", "order\\s+by", "desc"]
+      }
+    },
+    {
+      id: "sql-selection-name",
+      lessonId: "where-sortierung",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Nachname Keller",
+      description: "Zeige Vorname, Nachname und Geburtsdatum aller Keller; sortiere nach Vorname.",
+      difficulty: "easy",
+      xp: 15,
+      starter: "SELECT vorname, nachname, geburtsdatum\nFROM fahrschueler\nWHERE \nORDER BY ;",
+      solution: "SELECT vorname, nachname, geburtsdatum\nFROM fahrschueler\nWHERE nachname = 'Keller'\nORDER BY vorname;",
+      hints: ["Ein Textwert braucht einfache Anführungszeichen.", "Die Sortierung nach Vorname steht nach WHERE."],
+      check: {
+        type: "query",
+        expectedSql: "SELECT vorname, nachname, geburtsdatum FROM fahrschueler WHERE nachname = 'Keller' ORDER BY vorname;",
+        orderSensitive: true,
+        required: ["where", "nachname\\s*=", "order\\s+by\\s+vorname"]
+      }
+    },
+    {
+      id: "sql-selection-range",
+      lessonId: "where-sortierung",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Geburten im Jahr 2007",
+      description: "Zeige Nummer, Namen und Geburtsdatum aller 2007 Geborenen, nach Datum absteigend.",
+      difficulty: "medium",
+      xp: 20,
+      starter: "SELECT schuelernr, vorname, nachname, geburtsdatum\nFROM fahrschueler\nWHERE geburtsdatum BETWEEN  AND \nORDER BY ;",
+      solution: "SELECT schuelernr, vorname, nachname, geburtsdatum\nFROM fahrschueler\nWHERE geburtsdatum BETWEEN '2007-01-01' AND '2007-12-31'\nORDER BY geburtsdatum DESC;",
+      hints: ["BETWEEN enthält beide Grenzen.", "Schreibe Datumswerte als 'JJJJ-MM-TT'.", "DESC kehrt die Reihenfolge um."],
+      check: {
+        type: "query",
+        expectedSql: "SELECT schuelernr, vorname, nachname, geburtsdatum FROM fahrschueler WHERE geburtsdatum BETWEEN '2007-01-01' AND '2007-12-31' ORDER BY geburtsdatum DESC;",
+        orderSensitive: true,
+        required: ["where", "between", "order\\s+by\\s+geburtsdatum\\s+desc"]
+      }
+    },
+    {
+      id: "sql-selection-and",
+      lessonId: "where-sortierung",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Ort und Namensanfang",
+      description: "Zeige Nummer, Vorname, Nachname und Ort aus Stuttgart, wenn der Nachname mit K beginnt.",
+      difficulty: "medium",
+      xp: 20,
+      starter: "SELECT schuelernr, vorname, nachname, ort\nFROM fahrschueler\nWHERE ;",
+      solution: "SELECT schuelernr, vorname, nachname, ort\nFROM fahrschueler\nWHERE ort = 'Stuttgart' AND nachname LIKE 'K%';",
+      hints: ["Beide Bedingungen müssen gelten: AND.", "LIKE 'K%' findet Nachnamen mit K am Anfang."],
+      check: {
+        type: "query",
+        expectedSql: "SELECT schuelernr, vorname, nachname, ort FROM fahrschueler WHERE ort = 'Stuttgart' AND nachname LIKE 'K%';",
+        orderSensitive: false,
+        required: ["where", "and", "like"]
+      }
+    },
+    {
+      id: "sql-selection-not",
+      lessonId: "where-sortierung",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Nicht aus Stuttgart",
+      description: "Zeige Nummer, Nachname und Ort aller anderen Wohnorte, nach Nachname sortiert.",
+      difficulty: "easy",
+      xp: 15,
+      starter: "SELECT schuelernr, nachname, ort\nFROM fahrschueler\nWHERE \nORDER BY ;",
+      solution: "SELECT schuelernr, nachname, ort\nFROM fahrschueler\nWHERE NOT ort = 'Stuttgart'\nORDER BY nachname;",
+      hints: ["NOT kehrt den Vergleich um; <> ist ebenfalls möglich.", "ORDER BY steht nach WHERE."],
+      check: {
+        type: "query",
+        expectedSql: "SELECT schuelernr, nachname, ort FROM fahrschueler WHERE NOT ort = 'Stuttgart' ORDER BY nachname;",
+        orderSensitive: true,
+        required: ["where", "order\\s+by\\s+nachname"]
       }
     },
     {
@@ -1404,8 +1609,8 @@ INSERT INTO mietvertraege VALUES
       lessonId: "sql-muster",
       type: "sql",
       schema: "fahrschule-basic",
-      title: "Namensmuster kombinieren",
-      description: "Zeige Nachname und Vorname aller Personen, deren Nachname mit K oder W beginnt. Sortiere nach Nachname.",
+      title: "Vertiefung: Namensmuster kombinieren",
+      description: "Zusatzaufgabe nach den vier DISTINCT-Aufträgen: Zeige Nachname und Vorname aller Personen, deren Nachname mit K oder W beginnt. Sortiere nach Nachname.",
       difficulty: "medium",
       xp: 40,
       starter: "SELECT nachname, vorname\nFROM fahrschueler\nWHERE \nORDER BY nachname;",
@@ -1420,6 +1625,63 @@ INSERT INTO mietvertraege VALUES
         expectedSql: "SELECT nachname, vorname FROM fahrschueler WHERE nachname LIKE 'K%' OR nachname LIKE 'W%' ORDER BY nachname;",
         orderSensitive: true,
         required: ["like", "or", "order\\s+by"]
+      }
+    },
+    {
+      id: "sql-distinct-firstnames",
+      lessonId: "sql-muster",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Vornamen ohne Wiederholung",
+      description: "Gib jeden vorkommenden Vornamen genau einmal aus.",
+      difficulty: "easy",
+      xp: 30,
+      starter: "SELECT \nFROM fahrschueler;",
+      solution: "SELECT DISTINCT vorname\nFROM fahrschueler;",
+      hints: ["Wähle nur vorname aus.", "DISTINCT steht direkt hinter SELECT."],
+      check: {
+        type: "query",
+        expectedSql: "SELECT DISTINCT vorname FROM fahrschueler;",
+        orderSensitive: false,
+        required: ["select\\s+distinct"]
+      }
+    },
+    {
+      id: "sql-distinct-lastnames",
+      lessonId: "sql-muster",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Nachnamen ohne Wiederholung",
+      description: "Gib jeden vorkommenden Nachnamen genau einmal aus.",
+      difficulty: "easy",
+      xp: 30,
+      starter: "SELECT \nFROM fahrschueler;",
+      solution: "SELECT DISTINCT nachname\nFROM fahrschueler;",
+      hints: ["Wähle nur nachname aus.", "Prüfe die zwei Fahrschüler mit Nachname Keller."],
+      check: {
+        type: "query",
+        expectedSql: "SELECT DISTINCT nachname FROM fahrschueler;",
+        orderSensitive: false,
+        required: ["select\\s+distinct"]
+      }
+    },
+    {
+      id: "sql-distinct-hours",
+      lessonId: "sql-muster",
+      type: "sql",
+      schema: "fahrschule-basic",
+      title: "Fahrstundenzahlen ohne Wiederholung",
+      description: "Gib jede vorkommende Fahrstundenzahl genau einmal aus. In dieser Browser-Testtabelle heißt die Spalte fahrstunden.",
+      difficulty: "easy",
+      xp: 30,
+      starter: "SELECT \nFROM fahrschueler;",
+      solution: "SELECT DISTINCT fahrstunden\nFROM fahrschueler;",
+      hints: ["Wähle nur fahrstunden aus.", "Im MySQL-Unterrichtsmodell heißt das entsprechende Attribut fahrstundenzahl."],
+      check: {
+        type: "query",
+        expectedSql: "SELECT DISTINCT fahrstunden FROM fahrschueler;",
+        orderSensitive: false,
+        required: ["select\\s+distinct"]
       }
     },
     {
@@ -2019,8 +2281,8 @@ INSERT INTO mietvertraege VALUES
   tools: [
     {
       title: "Informatik-Stick",
-      description: "Offizielle Schultasche-BW-Umgebung für schulisch bereitgestellte Programme. Starte zuerst den Stick, dann MySQL und anschließend MySQL Workbench.",
-      note: "Der Link führt zur offiziellen Download- und Informationsseite.",
+      description: "Die offizielle Schultasche-BW-Seite bietet den Informatikstick 2025 zum Download an. So kannst du die Unterrichtsumgebung auch zu Hause vorbereiten; in der Schule ist bereits eine ältere Ausgabe eingerichtet.",
+      note: "Starte das Programm über das Play-Symbol „Start“. Die benötigten Programmversionen wählst du anschließend im Stick aus, nicht über Hersteller-Downloads.",
       icon: "usb",
       url: "https://schultasche-bw.de/",
       visual: "stick",
@@ -2028,15 +2290,15 @@ INSERT INTO mietvertraege VALUES
     },
     {
       title: "MySQL starten",
-      description: "Vor der MySQL Workbench muss auf dem Informatik-Stick der Datenbankdienst gestartet und geöffnet gelassen werden.",
-      note: "Erst danach die passende MySQL-Workbench-Version öffnen, im Unterricht z. B. 8.0.21.",
+      description: "Öffne im Stick „Datenbank MariaDB“ und starte „MySQL starten“ mit einem Doppelklick. Warte, bis das Konsolenfenster „ready for connections“ meldet.",
+      note: "Schließe dieses Konsolenfenster während der Arbeit nicht; du kannst es minimieren. Erst danach die passende MySQL Workbench starten.",
       icon: "power",
       visual: "mysql-service"
     },
     {
       title: "MySQL Workbench",
-      description: "Unterrichtswerkzeug für eERM-Modellierung, Forward Engineering, SQL-Skripte und Abfragen gegen die lokale MySQL/MariaDB-Umgebung.",
-      note: "Das Browser-SQL-Labor dient zum schnellen Üben. Verbindliche Arbeit mit den Unterrichtsskripten erfolgt in MySQL Workbench.",
+      description: "Unterrichtswerkzeug für EER-/eERM-Modellierung, Datenbankschemata und SQL. In der Schule arbeiten wir mit 6.3.10; auf anderen Sticks kann etwa 8.0.21 verfügbar sein.",
+      note: "Die Bedienoberflächen können sich unterscheiden. Das Browser-SQL-Labor ist nur eine Ergänzung; Unterrichtsmodelle und Skripte werden in Workbench bearbeitet.",
       icon: "database",
       visual: "workbench"
     }

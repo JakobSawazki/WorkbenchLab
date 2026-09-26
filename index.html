@@ -4,19 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="WorkbenchLab: Relationale Datenbanken, SQL und eERM fuer J1 Informatik lernen, ueben und XP sammeln.">
-  <meta name="theme-color" content="#123c40">
+  <meta name="theme-color" content="#111817">
   <title>WorkbenchLab · BPE6 Relationale Datenbanken</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2218%22 fill=%22%23123c40%22/><text x=%2250%22 y=%2263%22 font-size=%2246%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22>WB</text></svg>">
   <script>
     (() => {
       try {
-        if (localStorage.getItem("workbenchlab-theme-v1") === "dark") {
-          document.documentElement.dataset.theme = "dark";
-        }
+        document.documentElement.dataset.theme = localStorage.getItem("workbenchlab-theme-v1") === "light"
+          ? "light"
+          : "dark";
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=0.11.0-local">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -36,10 +36,14 @@
           <i data-lucide="layout-dashboard"></i>
           <span>Übersicht</span>
         </button>
-        <button class="nav-item" type="button" data-route="path">
-          <i data-lucide="route"></i>
-          <span>Lernpfad</span>
-        </button>
+        <div class="nav-flyout-host" id="pathNavHost">
+          <button class="nav-item" type="button" data-route="path" aria-haspopup="true" aria-controls="pathQuickMenu">
+            <i data-lucide="route"></i>
+            <span>Lernpfad</span>
+            <i class="nav-caret" data-lucide="chevron-right" aria-hidden="true"></i>
+          </button>
+          <div class="path-quick-menu" id="pathQuickMenu" aria-label="Schnellzugriff auf den Lernpfad"></div>
+        </div>
         <button class="nav-item" type="button" data-route="sql">
           <i data-lucide="database"></i>
           <span>SQL-Labor</span>
@@ -66,14 +70,12 @@
 
       <section class="profile-summary" aria-label="Dein Lernstand">
         <div class="profile-row">
-          <span class="avatar" id="sidebarAvatar">G</span>
+          <button class="avatar profile-avatar-button" id="editProfileButton" type="button" title="Lernprofil öffnen" aria-label="Lernprofil öffnen"><span id="sidebarAvatar">G</span></button>
           <div>
             <strong id="sidebarName">Gast</strong>
+            <small id="sidebarClass">Klasse noch offen</small>
             <small id="sidebarLevel">Level 1 · Tabellenstarter</small>
           </div>
-          <button class="icon-button" id="editProfileButton" type="button" title="Profil bearbeiten" aria-label="Profil bearbeiten">
-            <i data-lucide="pencil"></i>
-          </button>
         </div>
         <div class="xp-track" aria-label="Fortschritt bis zum nächsten Level">
           <span id="sidebarXpBar"></span>
@@ -93,8 +95,8 @@
         </div>
         <div class="topbar-actions">
           <button class="icon-button theme-toggle-button" id="themeToggleButton" type="button"
-            title="Dark Mode aktivieren" aria-label="Dark Mode aktivieren" aria-pressed="false">
-            <i data-lucide="moon"></i>
+            title="Light Mode aktivieren" aria-label="Light Mode aktivieren" aria-pressed="true">
+            <i data-lucide="sun"></i>
           </button>
           <button class="icon-button backup-button" id="backupButton" type="button"
             title="Lernstand sichern oder laden" aria-label="Lernstand sichern oder laden">
@@ -133,15 +135,28 @@
           <h2>Dein Lernprofil</h2>
         </div>
       </div>
-      <p>Verwende drei Buchstaben deines Vornamens, einen Punkt und drei Buchstaben deines Nachnamens. So kann deine Lehrkraft den exportierten Lernstand zuordnen, ohne deinen vollständigen Namen zu speichern.</p>
+      <p>Verwende drei Buchstaben deines Vornamens, einen Punkt und drei Buchstaben deines Nachnamens. Gib außerdem deine Klasse an. So kann deine Lehrkraft den exportierten Lernstand zuordnen, ohne deinen vollständigen Namen zu speichern.</p>
       <div class="profile-example" aria-label="Beispiel für ein Schülerkürzel">
         <code>MIA.MUE</code>
         <span>z. B. Mia Müller</span>
       </div>
-      <label for="profileName">Schülerkürzel</label>
-      <input id="profileName" name="profileName" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC.DEF" pattern="[A-Za-z]{3}\.[A-Za-z]{3}" aria-describedby="profileNameHint profileNameError">
-      <small class="field-hint" id="profileNameHint">Umlaute werden automatisch umgeschrieben: Ä → AE, Ö → OE, Ü → UE, ß → SS.</small>
+      <div class="profile-fields">
+        <div>
+          <label for="profileName">Schülerkürzel</label>
+          <input id="profileName" name="profileName" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC.DEF" pattern="[A-Za-z]{3}\.[A-Za-z]{3}" aria-describedby="profileNameHint profileNameError" required>
+          <small class="field-hint" id="profileNameHint">Umlaute werden automatisch umgeschrieben: Ä → AE, Ö → OE, Ü → UE, ß → SS.</small>
+        </div>
+        <div>
+          <label for="profileClass">Klasse</label>
+          <input id="profileClass" name="profileClass" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="z. B. J1-1" aria-describedby="profileClassHint profileNameError" required>
+          <small class="field-hint" id="profileClassHint">Verwende die offizielle Kurzform deiner Klasse, zum Beispiel WGJ1/1.</small>
+        </div>
+      </div>
       <p class="field-error" id="profileNameError" aria-live="polite"></p>
+      <button class="button button-secondary developer-mode-button" id="developerModeButton" type="button" hidden
+        title="Entwicklermodus: alle Einheiten freischalten" aria-label="Entwicklermodus aktivieren" aria-pressed="false">
+        <i data-lucide="code-2"></i><span id="developerModeLabel">Entwicklermodus einschalten</span>
+      </button>
       <div class="dialog-actions">
         <button class="button button-secondary" value="cancel" type="button" id="profileCancelButton">Abbrechen</button>
         <button class="button button-primary" value="save" type="submit">
@@ -161,7 +176,7 @@
           <h2>Lernstand sichern</h2>
         </div>
       </div>
-      <p>Speichere deinen vollständigen WorkbenchLab-Fortschritt als JSON-Datei. Schülerkürzel, Profilcode und der Code dieses Browserprofils machen die Sicherung nachvollziehbar.</p>
+      <p>Speichere deinen vollständigen WorkbenchLab-Fortschritt als JSON-Datei. Schülerkürzel, Klasse, Profil- und Gerätecode sowie eine SHA-256-Prüfsumme machen die Sicherung nachvollziehbar.</p>
       <div class="backup-summary" id="backupSummary"></div>
       <div class="backup-actions">
         <button class="backup-action" id="exportProgressButton" type="button">
@@ -176,7 +191,7 @@
       </div>
       <div class="callout is-warning backup-note">
         <i data-lucide="info"></i>
-        <p>Der Gerätecode ist keine Hardware-Kennung. Er wird zufällig nur für dieses Browserprofil erzeugt und beim Import nicht auf ein anderes Gerät übertragen.</p>
+        <p>Der Gerätecode ist keine Hardware-Kennung. Browser dürfen MAC-Adressen nicht auslesen; auch eine lokale IP-Adresse ist auf einer statischen Website nicht zuverlässig verfügbar. Die Prüfsumme erkennt unbeabsichtigte Änderungen, ersetzt aber keine kryptografische Lehrkraft-Signatur.</p>
       </div>
       <div class="dialog-actions">
         <button class="button button-secondary" value="cancel" type="button" id="backupCloseButton">Schließen</button>
@@ -188,7 +203,8 @@
 
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
-  <script src="content.js"></script>
-  <script src="app.js"></script>
+  <script src="content.js?v=0.11.0-local"></script>
+  <script src="learning-path.js?v=0.11.0-local"></script>
+  <script src="app.js?v=0.11.0-local"></script>
 </body>
 </html>

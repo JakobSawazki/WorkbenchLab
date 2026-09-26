@@ -1,8 +1,10 @@
 # WorkbenchLab
 
-**Aktuelle Version:** 0.5.0
+**Lokaler Entwicklungsstand:** 0.11.0-local
 
-**Dokumentationsstand:** 18. Juni 2026
+**Veröffentlichter Stand:** 0.5.0
+
+**Dokumentationsstand:** 25. September 2026
 
 **Live:** <https://jakobsawazki.github.io/WorkbenchLab/>
 
@@ -17,7 +19,15 @@ Die Oberfläche orientiert sich bewusst an PythonLab: Lernpfad, Übungen, XP,
 Erfolge, Nachschlagebereich, lokale Lernstandsicherung und GitHub-Pages-fähige
 statische Architektur.
 
-![WorkbenchLab Übersicht mit neuer Bildsprache](docs/screenshots/workbenchlab-visuals-desktop.png)
+**Unterrichtsstart:** L1.1 bis L1.6 sind lokal mit Erklärungen, direkt
+ausfüllbaren Aufgaben, Übungen und Praxisaufträgen vorbereitet. Für L1.4 steht
+ein herunterladbares SQL-Skript mit fiktiven Übungsdaten bereit. Die aktuelle
+Online-Seite enthält diese Fassung noch nicht; ein Aufruf von `127.0.0.1`
+funktioniert nur auf dem jeweiligen Rechner. Vor dem Einsatz an Schüler-PCs
+sind Bereitstellung und ein Test mit dem Informatik-Stick nötig. Die
+Schüleroberfläche zeigt im SQL-Labor keine Musterlösung mehr an.
+
+![WorkbenchLab Übersicht mit neuer Bildsprache](documentation/screenshots/workbenchlab-visuals-desktop.png)
 
 ## Ziel
 
@@ -46,7 +56,39 @@ Die vollständigen lokalen Unterrichtsmaterialien liegen unter:
 Diese Originalmaterialien dienen als fachliche Referenz und werden durch
 `.gitignore` nicht in ein öffentliches Repository übernommen.
 
-## Funktionsumfang in Version 0.5.0
+## Neuer lokaler Lernpfad in Version 0.7.0-local
+
+- fünf Lernfortschritte entsprechend dem lokalen Kompetenzraster
+- 21 Lerneinheiten mit durchgehendem Ablauf **Informieren, Planen, in
+  Workbench arbeiten, Abschließen**
+- integrierte Praxisaufträge mit Lernprodukt, empfohlenem Dateinamen und
+  transparentem Bezug zu Informations- und Aufgabenblättern
+- Abschluss einer Einheit erst nach Selbstkontrolle, Verständnischeck und
+  Bestätigung durch die Lehrkraft
+- drei neue ausführbare SQL-Aufgaben für `CREATE TABLE`, `UPDATE` und `DELETE`
+- zwei neue Einheiten zu digitalen Spuren und zur begründeten
+  Big-Data-Fallanalyse
+- 27 prüfbare Übungen mit XP
+- Dark Mode als Standard und Light Mode als umschaltbare Alternative
+- sequenzielle Freischaltung: zunächst L1.1, danach jeweils die nächste Einheit
+- zweistufiges Lernpfad-Menü und Breadcrumbs je Lernfortschritt
+- sitzungsbezogener Entwicklermodus über `AltGr + S`
+- L1.1 vollständig aus Information, Aufgabe und Vorlage aufbereitet, mit
+  ausfüllbarem Tabellenentwurf und eigenen Lernnotizen
+- Lernprofil mit Schülerkürzel und Klasse
+- JSON-Format 3 mit Profilherkunft, Übertragungshistorie und
+  SHA-256-Integritätsprüfung
+- kompatible Übernahme bisheriger lokaler Lernstände aus Version 0.5.0
+
+Dieser Stand ist bewusst noch nicht auf GitHub veröffentlicht. Die bestehende
+Live-Seite zeigt weiterhin Version 0.5.0, bis der neue Unterrichtsablauf lokal
+geprüft und ausdrücklich freigegeben wurde.
+
+![Lokaler Lernpfad 0.6.0 mit fünf Lernfortschritten](documentation/screenshots/learning-path-0.6-desktop.png)
+
+![Lokale mobile Lektionsansicht mit Workbench-Auftrag](documentation/screenshots/lesson-workflow-0.6-mobile.png)
+
+## Funktionsumfang des veröffentlichten Stands 0.5.0
 
 - 19 Lektionen in sechs Modulen entlang der BPE6-Kompetenzspur
 - 22 prüfbare Übungen mit XP
@@ -77,19 +119,25 @@ Diese Originalmaterialien dienen als fachliche Referenz und werden durch
 - eigenständige responsive Illustrationen für Informatik-Stick,
   MySQL-Dienst und eERM in Workbench statt eingebetteter Screenshots
 
-![Neu gestalteter Nachschlagebereich](docs/screenshots/nachschlagen-desktop.png)
+![Neu gestalteter Nachschlagebereich](documentation/screenshots/nachschlagen-desktop.png)
 
-![Interaktive eERM-Aufgabe](docs/screenshots/eerm-diagram-desktop.png)
+![Interaktive eERM-Aufgabe](documentation/screenshots/eerm-diagram-desktop.png)
 
 ## SQL-Labor und MySQL Workbench
 
 Das SQL-Labor läuft vollständig im Browser und verwendet SQLite über `sql.js`.
 Es ist für schnelles Üben gedacht. Die Unterrichtsumgebung bleibt:
 
-1. Informatik-Stick starten.
-2. Auf dem Stick **MySQL starten** und geöffnet lassen.
-3. MySQL Workbench öffnen, z. B. Version 8.0.21.
-4. Unterrichtsskripte aus den BPE6-Materialien in MySQL Workbench verwenden.
+1. [Informatik-Stick über Schultasche-BW](https://schultasche-bw.de/) beziehen
+   und mit dem Play-Symbol **Start** öffnen; an der Schule ist eine ältere
+   Ausgabe bereits eingerichtet.
+2. Unter **Datenbank MariaDB** **MySQL starten** doppelklicken, auf
+   `ready for connections` warten und das Konsolenfenster geöffnet lassen.
+3. In der Schule **MySQL Workbench 6.3.10** aus dem Stick öffnen. Zu Hause kann
+   eine andere Stick-Version, etwa 8.0.21, angeboten werden.
+4. Die lokale Verbindung in Workbench testen und erst danach Modell oder
+   Unterrichtsskripte bearbeiten. Das Windows-/Microsoft-365-Passwort gehört
+   nicht in die lokale Datenbankverbindung.
 
 Im Browser-Labor sind ausgewählte MySQL-Funktionen wie `YEAR`, `MONTH`, `NOW`
 und `DATEDIFF` als Übungshilfe nachgebildet. Für verbindliche Arbeit mit den
@@ -100,7 +148,7 @@ geforderter SQL-Aufbau, Ergebnismenge und Sortierung. Er übersetzt typische
 SQLite-Fehler in fachliche Hinweise und zeigt den nächsten Prüfschritt, ohne
 eine externe API oder einen offenen Schlüssel zu verwenden.
 
-![Lokaler SQL-Coach mit differenzierter Rückmeldung](docs/screenshots/sql-coach-desktop.png)
+![Lokaler SQL-Coach mit differenzierter Rückmeldung](documentation/screenshots/sql-coach-desktop.png)
 
 ## Technische Architektur
 
@@ -112,12 +160,13 @@ damit das Portal nicht von externen CDNs abhängt.
 | --- | --- |
 | `index.html` | App-Shell, Navigation, Dialoge und Skripteinbindung |
 | `styles.css` | Layout, Responsive Design, SQL-Runner, Diagramme |
-| `content.js` | Lektionen, Übungen, SQL-Schemata, Befehle, Quellen |
-| `app.js` | Routing, Rendering, XP, SQL-Prüfung, Export/Import |
+| `content.js` | Basistexte, Übungen, SQL-Schemata, Befehle, Quellen |
+| `learning-path.js` | lokaler BPE6-Lernpfad, Materialbezug, Workbench-Aufträge und ergänzende Übungen |
+| `app.js` | Routing, Freischaltung, Rendering, XP, SQL-Prüfung, Export/Import |
 | `assets/` | optimierte Bildserie für Unterrichtskontext; Fachdiagramme bleiben responsiv in HTML und CSS |
 | `vendor/` | lokal eingebundene Laufzeitdateien für Lucide und `sql.js` |
-| `docs/` | didaktische und technische Dokumentation |
-| `references/bpe6/` | Quellenentscheidung und lokaler Materialüberblick |
+| `documentation/documentation.md` | zentraler Versions-, Aufgaben- und Prüfstand mit didaktischen und technischen Anhängen |
+| `documentation/screenshots/` | Screenshots der lokalen Entwicklungsstände |
 
 Hash-Routing wie `#lesson/joins` oder `#practice/sql-group-having` bleibt mit
 GitHub Pages kompatibel.
@@ -130,6 +179,11 @@ python -m http.server 4174
 ```
 
 Danach `http://localhost:4174` öffnen.
+
+Die ersten Einheiten lassen sich mit `node --test tests/learning-path.test.js`
+auf Vollständigkeit und Zuordnung prüfen.
+Das fiktive Importskript und seine Selektionsfälle prüft
+`python -B -m unittest discover -s tests -p 'test_*.py' -v`.
 
 ## GitHub Pages
 
@@ -144,19 +198,21 @@ veröffentlicht werden.
 
 ## Datenschutz und Leistungsbewertung
 
-WorkbenchLab speichert Schülerkürzel, Lernstand, XP, gelöste Aufgaben und
-Entwürfe lokal im Browser unter `workbenchlab-v1`. Das Kürzel folgt dem Schema
-`ABC.DEF`: drei Buchstaben des Vornamens, Punkt, drei Buchstaben des Nachnamens.
-Es gibt kein Backend und keine zentrale Schülerdatenbank.
+WorkbenchLab speichert Schülerkürzel, Klasse, Lernstand, XP, gelöste Aufgaben,
+Arbeitsblätter, Notizen und Entwürfe lokal im Browser unter `workbenchlab-v1`.
+Das Kürzel folgt dem Schema `ABC.DEF`: drei Buchstaben des Vornamens, Punkt,
+drei Buchstaben des Nachnamens. Es gibt kein Backend und keine zentrale
+Schülerdatenbank.
 
-Beim JSON-Export werden zusätzlich eine portable Profil-ID und eine zufällige
-ID des aktuellen Browserprofils ausgegeben. Die Geräte-ID ist keine
-Hardware-Kennung und wird beim Import nicht übernommen. Details und Grenzen
-der Zuordnung stehen in [Lernstand und Identität](docs/LERNSTAND_UND_IDENTITAET.md).
+Beim JSON-Export werden zusätzlich Profilherkunft, aktuelles Exportgerät,
+Übertragungshistorie und eine SHA-256-Prüfsumme ausgegeben. Browser können
+weder eine MAC-Adresse noch zuverlässig eine lokale IP-Adresse bereitstellen;
+diese Werte werden deshalb nicht vorgetäuscht. Details und Grenzen der
+Zuordnung stehen in der [Projektdokumentation](documentation/documentation.md).
 
 Der SQL-Coach sendet weder SQL-Code noch Profil- oder Leistungsdaten an einen
 KI-Dienst. Ein optionaler KI-Ausbau ist nur über ein geschütztes serverseitiges
-Gateway vorgesehen; Details stehen in `docs/SQL_FEEDBACK_UND_KI.md`.
+Gateway vorgesehen; Details stehen in der [Projektdokumentation](documentation/documentation.md).
 
 Die XP sind motivierend und transparent, aber technisch kein
 manipulationssicheres Prüfungssystem. Für die mündliche Note bzw.
@@ -165,9 +221,4 @@ Lehrkraft maßgeblich.
 
 ## Dokumentation
 
-- [Tasks und Projektstand](TASKS.md)
-- [Technik und Didaktik](docs/TECHNIK_UND_DIDAKTIK.md)
-- [Lernstand und Identität](docs/LERNSTAND_UND_IDENTITAET.md)
-- [BPE6-Abgleich](docs/BPE6_ABGLEICH_2026.md)
-- [BPE6-Quellenentscheidung](references/bpe6/README.md)
-- [Übergabe für weitere Arbeit](UEBERGABE_Codex.md)
+- [Verbindliche Projektdokumentation mit Aufgabenstand, Materialmatrix und Anhängen](documentation/documentation.md)
