@@ -1,10 +1,10 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 26. September 2026, 17:51 Uhr (Europe/Berlin)
+Stand: 26. September 2026, 21:12 Uhr (Europe/Berlin)
 
-Lokaler Entwicklungsstand: **0.14.0**
+Lokaler Entwicklungsstand: **0.15.0**
 
-Veröffentlichter Stand: **0.14.0**
+Veröffentlichter Stand: **0.15.0**
 
 Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 
@@ -188,6 +188,18 @@ Die Lernstandsdatei bleibt daher ein Nachweisbaustein und ersetzt nicht die
 Beobachtung und Bestätigung durch die Lehrkraft.
 
 ## 6. Versionsverlauf
+
+### 0.15.0, 26.09.2026, 21:12 Uhr
+
+- Dark Mode als HTML- und CSS-Ausgangszustand gesetzt. Eine bewusst gewählte
+  Light-Mode-Einstellung bleibt weiterhin im Browser gespeichert.
+- Oberfläche mit Graphit- und Stahltönen, metallischen Lichtkanten und
+  differenzierten Hover-/Fokuszuständen für Navigation und Bedienelemente
+  überarbeitet. Dashboard-Titel kompakter gesetzt, damit auf Desktop und
+  Mobilgeräten mehr Lerninhalt im ersten Bildschirm sichtbar ist.
+- Startseite und L1.2 auf Desktop sowie Startseite mobil geprüft; Light-/Dark-
+  Umschaltung und horizontalen Überlauf kontrolliert. 13 Node- und zwei
+  Python-Tests bestanden. CSS-Version für Browser-Cache aktualisiert.
 
 ### 0.14.0, 26.09.2026, 17:51 Uhr
 

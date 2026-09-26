@@ -523,7 +523,7 @@
   function applyTheme(theme, persist = true) {
     const normalized = theme === "dark" ? "dark" : "light";
     document.documentElement.dataset.theme = normalized;
-    themeColorMeta?.setAttribute("content", normalized === "dark" ? "#111817" : "#123c40");
+    themeColorMeta?.setAttribute("content", normalized === "dark" ? "#101518" : "#123c40");
     if (themeToggleButton) {
       themeToggleButton.setAttribute("aria-pressed", String(normalized === "dark"));
       themeToggleButton.setAttribute("aria-label", normalized === "dark" ? "Light Mode aktivieren" : "Dark Mode aktivieren");

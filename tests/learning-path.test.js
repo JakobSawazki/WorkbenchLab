@@ -14,6 +14,15 @@ const content = context.window.WORKBENCH_CONTENT;
 const lesson = (code) => content.lessons.find((item) => item.courseCode === code);
 const practice = (item) => content.practices.find((entry) => entry.id === item.practiceId);
 
+test("Dark Mode startet ohne gespeicherte Einstellung als Standard", () => {
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  const css = fs.readFileSync(path.join(root, "styles.css"), "utf8");
+  assert.match(html, /<html lang="de" data-theme="dark">/);
+  assert.match(html, /localStorage\.getItem\("workbenchlab-theme-v1"\) === "light"/);
+  assert.match(css, /:root\s*\{\s*color-scheme: dark;/);
+  assert.match(css, /:root\[data-theme="light"\]\s*\{\s*color-scheme: light;/);
+});
+
 test("die ersten drei Lerneinheiten stehen in der richtigen Reihenfolge", () => {
   const firstModule = content.modules[0];
   assert.equal(firstModule.code, "L1");
