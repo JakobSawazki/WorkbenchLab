@@ -1,10 +1,10 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 26. September 2026, 17:31 Uhr (Europe/Berlin)
+Stand: 26. September 2026, 17:51 Uhr (Europe/Berlin)
 
-Lokaler Entwicklungsstand: **0.14.0-local**
+Lokaler Entwicklungsstand: **0.14.0**
 
-Veröffentlichter Stand: **0.5.0**
+Veröffentlichter Stand: **0.14.0**
 
 Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 
@@ -12,7 +12,7 @@ Live-Seite: `https://jakobsawazki.github.io/WorkbenchLab/`
 
 ## 1. Projektziel
 
-WorkbenchLab ist ein lokales und später öffentliches Lernportal für die
+WorkbenchLab ist ein öffentliches Lernportal für die
 Bildungsplaneinheit BPE6 „Relationale Datenbanken“ in Jahrgangsstufe 1. Die
 Schülerinnen und Schüler sollen Fachwissen aufbauen, in MySQL Workbench
 anwenden, browsergestützte Übungen bearbeiten, eigene Notizen führen und ihren
@@ -188,6 +188,16 @@ Die Lernstandsdatei bleibt daher ein Nachweisbaustein und ersetzt nicht die
 Beobachtung und Bestätigung durch die Lehrkraft.
 
 ## 6. Versionsverlauf
+
+### 0.14.0, 26.09.2026, 17:51 Uhr
+
+- Nach ausdrücklicher Freigabe auf `main` veröffentlicht (Release-Commit
+  `4809fad`). Der GitHub-Pages-Workflow war erfolgreich.
+- Live geprüft: Startseite, `learning-path.js` und das L2-Beispieldaten-Skript
+  liefern HTTP 200. Die lokalen Originalmaterialien unter `resources/` und
+  der unfertige Lehrbuchentwurf liefern HTTP 404 und sind nicht veröffentlicht.
+- Vor dem Push bestanden 12 Node-Inhaltstests und zwei Python-Datentests.
+  Ein echter Durchlauf mit MySQL Workbench 6.3.10 am Schul-PC bleibt offen.
 
 ### 0.14.0-local, 26.09.2026, 17:31 Uhr
 
