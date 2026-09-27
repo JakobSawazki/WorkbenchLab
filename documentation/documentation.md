@@ -1,10 +1,10 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 27. September 2026, 10:28 Uhr (Europe/Berlin)
+Stand: 27. September 2026, 10:55 Uhr (Europe/Berlin)
 
-Lokaler Entwicklungsstand: **0.16.0**
+Lokaler Entwicklungsstand: **0.16.1**
 
-Veröffentlichter Stand: **0.16.0**
+Veröffentlichter Stand: **0.16.1**
 
 Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 
@@ -46,6 +46,8 @@ eigenständig und webgerecht aufbereitet.
 - eigenständige eERM- und Workbench-Illustrationen in HTML/CSS
 - lokales Lernprofil mit Schülerkürzel und Klasse
 - JSON-Sicherung mit Profil-, Geräte- und Übertragungsinformationen
+- sechs ergänzende YouTube-Tutorials unter Nachschlagen, mit direkten
+  Sprunglinks aus den passenden L1-/L2-Einheiten
 
 ## 3. Lernpfad
 
@@ -188,6 +190,21 @@ Die Lernstandsdatei bleibt daher ein Nachweisbaustein und ersetzt nicht die
 Beobachtung und Bestätigung durch die Lehrkraft.
 
 ## 6. Versionsverlauf
+
+### 0.16.1, 27.09.2026, 10:55 Uhr
+
+- Alle sechs eingebetteten Tutorials auf der veröffentlichten HTTPS-Seite
+  einzeln geladen. Die Player wurden sichtbar geöffnet; bei fünf Videos
+  wurde der Wiedergabestatus „Video anhalten“ beobachtet. Beim zweiten Video
+  waren laufende Untertitel sichtbar. Nach jedem Test wurde der Player
+  geschlossen. Kein Fehler 153 auf der Live-Seite beobachtet.
+- Video-Zuordnungen als einzelne Lektionskürzel hinterlegt. In L1.1, L1.2,
+  L1.3, L1.4, L2.1 und L2.2 führt nun ein Video-Button direkt zur passenden
+  Karte unter Nachschlagen. L2.2 zeigt beide zugeordneten Tutorials an.
+  Die Zieladresse ist auch direkt verlinkbar; Videoaufrufe vergeben keine XP.
+- Lokalen Direktlink aus L1.1 einschließlich Scroll- und Fokusziel geprüft.
+  14 Node- und zwei Python-Tests bestanden. Ein Test im Schulbrowser bleibt
+  offen.
 
 ### 0.16.0, 27.09.2026, 10:28 Uhr
 
@@ -579,8 +596,9 @@ auf Erreichbarkeit geprüft.
    `MySQL starten`, Workbench 6.3.10 und den dortigen Connection-Daten
    erproben. Die hier abgebildeten `127.0.0.1:3306` und `root` sind nur
    Werte aus dem privaten Screenshot, keine verifizierte Schulkonfiguration.
-2. Schülerzugriff für die erste Stunde bereitstellen; Online-Stand 0.5.0
-   enthält die lokalen L1.1-bis-L1.7-Änderungen noch nicht.
+2. Schülerzugriff für die erste Stunde am Schulnetz und den eingesetzten
+   Browsern praktisch testen, einschließlich Video-Einbettung und
+   JSON-Sicherung.
 3. L1.8 bis L5.3 schrittweise mit direkt ausfüllbaren, quellennahen
    Aufgabenblättern ergänzen; L2.1 und L2.2 sind bereits vertieft.
 4. Tastatur- und Screenreader-Abnahme mit realer Hilfstechnik durchführen.
@@ -592,8 +610,8 @@ auf Erreichbarkeit geprüft.
    und differenzierter Rückmeldung über die neue geführte 1:N-Übung hinaus
    entwickeln.
 8. Mehrstufige Normalisierungs- und gemischte Abituraufgaben ergänzen.
-9. Erst nach ausdrücklicher Freigabe committen, pushen und GitHub Pages auf
-   den freigegebenen lokalen Stand aktualisieren.
+9. Nach dem ersten Unterrichtseinsatz Rückmeldungen der Lernenden und
+   Lehrkraft sammeln und Prioritäten für den nächsten Release festlegen.
 
 ## 10. Ideen für spätere Versionen
 

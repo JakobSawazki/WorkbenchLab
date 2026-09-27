@@ -1254,6 +1254,7 @@
     activateNav("path");
     const completed = state.completedLessons.includes(lesson.id);
     const practice = practiceById(lesson.practiceId);
+    const tutorials = content.tutorials.filter((item) => item.lessonCodes.includes(lesson.courseCode));
     main.innerHTML = `
       <article class="lesson-detail">
         <header class="lesson-head">
@@ -1268,6 +1269,7 @@
             </div>
           </div>
           <div class="detail-actions">
+            ${tutorials.length ? `<button class="button button-secondary" type="button" data-route="reference/${tutorials[0].id}"><i data-lucide="circle-play"></i>${tutorials.length === 1 ? "Video" : `Videos (${tutorials.length})`}</button>` : ""}
             <button class="button button-secondary" type="button" data-route="path">
               <i data-lucide="arrow-left"></i>
               Lernpfad
@@ -1895,7 +1897,7 @@
         <p class="video-privacy"><i data-lucide="shield-check" aria-hidden="true"></i>Erst beim Laden eines Videos verbindet sich dein Browser mit YouTube. Falls die Einbettung gesperrt ist, nutze „Auf YouTube öffnen“.</p>
         <div class="video-grid">
           ${content.tutorials.map((tutorial) => `
-            <article class="video-card">
+            <article class="video-card" id="tutorial-${escapeHtml(tutorial.id)}" tabindex="-1">
               <div class="video-stage" data-video-stage="${escapeHtml(tutorial.id)}">${renderTutorialPreview(tutorial)}</div>
               <div class="video-body">
                 <div class="video-meta"><span>${escapeHtml(tutorial.lesson)}</span><span>${escapeHtml(tutorial.topic)}</span></div>
@@ -2649,6 +2651,13 @@
       if (pendingModule) {
         window.requestAnimationFrame(() => document.getElementById(pendingModule)?.scrollIntoView({ behavior: "smooth", block: "start" }));
       }
+    }
+    if (route.name === "reference" && content.tutorials.some((item) => item.id === route.id)) {
+      window.requestAnimationFrame(() => {
+        const target = document.getElementById(`tutorial-${route.id}`);
+        target?.scrollIntoView({ block: "start" });
+        target?.focus({ preventScroll: true });
+      });
     }
   }
 

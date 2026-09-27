@@ -2331,6 +2331,7 @@ INSERT INTO mietvertraege VALUES
       title: "Datenbanken und SQL: Einführung",
       channel: "Programmieren Starten",
       lesson: "L1.1",
+      lessonCodes: ["L1.1"],
       topic: "Grundlagen",
       description: "Einstieg in Datenbanken und SQL, bevor du die erste Tabelle planst."
     },
@@ -2339,6 +2340,7 @@ INSERT INTO mietvertraege VALUES
       title: "SQL: Tabelle erstellen",
       channel: "Christian Programmiert",
       lesson: "L1.3–L1.4",
+      lessonCodes: ["L1.3", "L1.4"],
       topic: "Tabellen",
       description: "Zeigt den technischen Aufbau einer Tabelle; vergleiche ihn mit deinem Fahrschulmodell."
     },
@@ -2347,6 +2349,7 @@ INSERT INTO mietvertraege VALUES
       title: "Das Entity-Relationship-Modell",
       channel: "Patrick Boekhoven",
       lesson: "L1.2",
+      lessonCodes: ["L1.2"],
       topic: "ER-Modell",
       description: "Wiederholt Entitätstypen, Attribute und Beziehungen im fachlichen Modell."
     },
@@ -2355,6 +2358,7 @@ INSERT INTO mietvertraege VALUES
       title: "ER-Diagramme: Einführung",
       channel: "informatikZentrale",
       lesson: "L2.1",
+      lessonCodes: ["L2.1"],
       topic: "ER-Diagramm",
       description: "Ergänzung zum Zeichnen und Lesen von ER-Diagrammen mit mehreren Entitätstypen."
     },
@@ -2363,6 +2367,7 @@ INSERT INTO mietvertraege VALUES
       title: "ER-Diagramme mit MySQL Workbench erstellen",
       channel: "informatikZentrale",
       lesson: "L2.2",
+      lessonCodes: ["L2.2"],
       topic: "Workbench",
       description: "Begleitet die grafische Modellierung in MySQL Workbench."
     },
@@ -2371,6 +2376,7 @@ INSERT INTO mietvertraege VALUES
       title: "Aus dem eERM eine Datenbank generieren",
       channel: "informatikkeller.de",
       lesson: "L2.2",
+      lessonCodes: ["L2.2"],
       topic: "Datenbank erzeugen",
       description: "Zeigt den Übergang vom Workbench-Modell zum Datenbankschema. Prüfe die SQL-Vorschau vor dem Ausführen."
     }

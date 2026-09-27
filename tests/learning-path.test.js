@@ -20,8 +20,13 @@ test("sechs öffentliche Tutorials sind eindeutigen Lernstellen zugeordnet", () 
   for (const item of content.tutorials) {
     assert.match(item.id, /^[A-Za-z0-9_-]{11}$/);
     assert.match(item.lesson, /^L[12]\.\d/);
+    assert.ok(item.lessonCodes.length >= 1);
+    for (const code of item.lessonCodes) {
+      assert.ok(lesson(code), `${item.title}: ${code} fehlt im Lernpfad`);
+    }
     assert.ok(item.title && item.channel && item.description);
   }
+  assert.equal(content.tutorials.filter((item) => item.lessonCodes.includes("L2.2")).length, 2);
 });
 
 test("Dark Mode startet ohne gespeicherte Einstellung als Standard", () => {
