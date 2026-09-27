@@ -201,9 +201,11 @@ Beobachtung und Bestätigung durch die Lehrkraft.
   YouTube-Link als Alternative. Die Startseite lädt keinen Drittanbieter-
   Player im Hintergrund.
 - Desktop und Mobilansicht sowie Laden/Schließen geprüft; 14 Node- und zwei
-  Python-Tests bestanden. Im integrierten Testbrowser blieb der YouTube-
-  Player leer (direkter Embed-Aufruf: Fehler 153). Wiedergabe in einem
-  regulären Schulbrowser ist noch praktisch zu prüfen.
+  Python-Tests bestanden. Die Einbettung des ersten Videos spielte auf der
+  veröffentlichten HTTPS-Seite sichtbar ab. Der lokale `127.0.0.1`-Test
+  blieb ohne Bild; ein direkter Embed-Aufruf ohne Referrer zeigte den von
+  YouTube dokumentierten Fehler 153. Die übrigen fünf Videos und die
+  Wiedergabe im Schulbrowser sind noch praktisch zu prüfen.
 
 ### 0.15.0, 26.09.2026, 21:12 Uhr
 
