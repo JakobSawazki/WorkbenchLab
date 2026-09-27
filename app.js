@@ -1812,6 +1812,17 @@
       </div>`;
   }
 
+  function renderTutorialPreview(tutorial) {
+    return `
+      <div class="video-placeholder">
+        <i data-lucide="circle-play" aria-hidden="true"></i>
+        <span>${escapeHtml(tutorial.topic)}</span>
+        <button class="button button-primary" type="button" data-video-load="${escapeHtml(tutorial.id)}">
+          <i data-lucide="play" aria-hidden="true"></i>Video laden
+        </button>
+      </div>`;
+  }
+
   function renderReference() {
     setHeading("Quellen, Werkzeuge und Kurzbegriffe", "Nachschlagen");
     activateNav("reference");
@@ -1870,6 +1881,32 @@
             <div><dt>Benutzer</dt><dd><code>root</code> <small>nur Beispiel</small></dd></div>
           </dl>
           <div class="connection-example-query"><i data-lucide="square-terminal"></i><code>SELECT VERSION();</code><i data-lucide="check-circle-2"></i></div>
+        </div>
+      </section>
+
+      <section class="video-library" aria-labelledby="video-library-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Ergänzende Tutorials</p>
+            <h2 id="video-library-title">Videos zu MySQL und ER-Modellen</h2>
+            <p>Sechs Videos aus der OneNote-Tutorialsammlung, passend zu den ersten Lerneinheiten. Die Aufgaben und die Workbench-Arbeit bleiben der Kern des Lernpfads.</p>
+          </div>
+        </div>
+        <p class="video-privacy"><i data-lucide="shield-check" aria-hidden="true"></i>Erst beim Laden eines Videos verbindet sich dein Browser mit YouTube. Falls die Einbettung gesperrt ist, nutze „Auf YouTube öffnen“.</p>
+        <div class="video-grid">
+          ${content.tutorials.map((tutorial) => `
+            <article class="video-card">
+              <div class="video-stage" data-video-stage="${escapeHtml(tutorial.id)}">${renderTutorialPreview(tutorial)}</div>
+              <div class="video-body">
+                <div class="video-meta"><span>${escapeHtml(tutorial.lesson)}</span><span>${escapeHtml(tutorial.topic)}</span></div>
+                <h3>${escapeHtml(tutorial.title)}</h3>
+                <p>${escapeHtml(tutorial.description)}</p>
+                <div class="video-footer">
+                  <small>${escapeHtml(tutorial.channel)}</small>
+                  <a href="https://www.youtube.com/watch?v=${escapeHtml(tutorial.id)}" target="_blank" rel="noopener noreferrer">Auf YouTube öffnen <i data-lucide="external-link" aria-hidden="true"></i></a>
+                </div>
+              </div>
+            </article>`).join("")}
         </div>
       </section>
 
@@ -2658,6 +2695,42 @@
     const runnerTab = event.target.closest("[data-runner-tab]");
     const completeLessonButton = event.target.closest("[data-complete-lesson]");
     const moduleButton = event.target.closest("[data-path-module]");
+    const videoLoadButton = event.target.closest("[data-video-load]");
+    const videoCloseButton = event.target.closest("[data-video-close]");
+
+    if (videoLoadButton) {
+      const id = videoLoadButton.dataset.videoLoad;
+      const tutorial = content.tutorials.find((item) => item.id === id);
+      const stage = videoLoadButton.closest("[data-video-stage]");
+      if (tutorial && stage && /^[A-Za-z0-9_-]{11}$/.test(id)) {
+        const frame = document.createElement("iframe");
+        frame.src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&autoplay=1&origin=${encodeURIComponent(window.location.origin)}`;
+        frame.title = tutorial.title;
+        frame.loading = "eager";
+        frame.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share";
+        frame.allowFullscreen = true;
+        const close = document.createElement("button");
+        close.type = "button";
+        close.className = "video-close";
+        close.dataset.videoClose = id;
+        close.setAttribute("aria-label", `${tutorial.title} schließen`);
+        close.title = "Video schließen";
+        close.innerHTML = '<i data-lucide="x" aria-hidden="true"></i>';
+        stage.replaceChildren(frame, close);
+        stage.classList.add("is-loaded");
+        renderIcons();
+      }
+    }
+    if (videoCloseButton) {
+      const tutorial = content.tutorials.find((item) => item.id === videoCloseButton.dataset.videoClose);
+      const stage = videoCloseButton.closest("[data-video-stage]");
+      if (tutorial && stage) {
+        stage.innerHTML = renderTutorialPreview(tutorial);
+        stage.classList.remove("is-loaded");
+        renderIcons();
+      }
+    }
 
     if (routeButton) {
       event.preventDefault();

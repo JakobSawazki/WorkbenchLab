@@ -14,6 +14,16 @@ const content = context.window.WORKBENCH_CONTENT;
 const lesson = (code) => content.lessons.find((item) => item.courseCode === code);
 const practice = (item) => content.practices.find((entry) => entry.id === item.practiceId);
 
+test("sechs öffentliche Tutorials sind eindeutigen Lernstellen zugeordnet", () => {
+  assert.equal(content.tutorials.length, 6);
+  assert.equal(new Set(content.tutorials.map((item) => item.id)).size, 6);
+  for (const item of content.tutorials) {
+    assert.match(item.id, /^[A-Za-z0-9_-]{11}$/);
+    assert.match(item.lesson, /^L[12]\.\d/);
+    assert.ok(item.title && item.channel && item.description);
+  }
+});
+
 test("Dark Mode startet ohne gespeicherte Einstellung als Standard", () => {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const css = fs.readFileSync(path.join(root, "styles.css"), "utf8");

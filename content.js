@@ -2325,6 +2325,57 @@ INSERT INTO mietvertraege VALUES
     }
   ],
 
+  tutorials: [
+    {
+      id: "fgOiWEGNJ-o",
+      title: "Datenbanken und SQL: Einführung",
+      channel: "Programmieren Starten",
+      lesson: "L1.1",
+      topic: "Grundlagen",
+      description: "Einstieg in Datenbanken und SQL, bevor du die erste Tabelle planst."
+    },
+    {
+      id: "7Z-xn81I73s",
+      title: "SQL: Tabelle erstellen",
+      channel: "Christian Programmiert",
+      lesson: "L1.3–L1.4",
+      topic: "Tabellen",
+      description: "Zeigt den technischen Aufbau einer Tabelle; vergleiche ihn mit deinem Fahrschulmodell."
+    },
+    {
+      id: "fVbYB_34v-E",
+      title: "Das Entity-Relationship-Modell",
+      channel: "Patrick Boekhoven",
+      lesson: "L1.2",
+      topic: "ER-Modell",
+      description: "Wiederholt Entitätstypen, Attribute und Beziehungen im fachlichen Modell."
+    },
+    {
+      id: "JV2EjTEqllM",
+      title: "ER-Diagramme: Einführung",
+      channel: "informatikZentrale",
+      lesson: "L2.1",
+      topic: "ER-Diagramm",
+      description: "Ergänzung zum Zeichnen und Lesen von ER-Diagrammen mit mehreren Entitätstypen."
+    },
+    {
+      id: "5aJHU0lrY2g",
+      title: "ER-Diagramme mit MySQL Workbench erstellen",
+      channel: "informatikZentrale",
+      lesson: "L2.2",
+      topic: "Workbench",
+      description: "Begleitet die grafische Modellierung in MySQL Workbench."
+    },
+    {
+      id: "HaG1NmfRDx0",
+      title: "Aus dem eERM eine Datenbank generieren",
+      channel: "informatikkeller.de",
+      lesson: "L2.2",
+      topic: "Datenbank erzeugen",
+      description: "Zeigt den Übergang vom Workbench-Modell zum Datenbankschema. Prüfe die SQL-Vorschau vor dem Ausführen."
+    }
+  ],
+
   reference: [
     { title: "Entitätstyp", description: "Klasse gleichartiger, eindeutig unterscheidbarer Objekte, Rollen oder Ereignisse.", code: "kunden, fahrraeder, mietvertraege" },
     { title: "Beziehungstyp", description: "Fachlicher Zusammenhang zwischen Entitätstypen, meist als Verb formuliert.", code: "Kunde schliesst Mietvertrag ab" },

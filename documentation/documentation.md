@@ -1,10 +1,10 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 26. September 2026, 21:12 Uhr (Europe/Berlin)
+Stand: 27. September 2026, 10:28 Uhr (Europe/Berlin)
 
-Lokaler Entwicklungsstand: **0.15.0**
+Lokaler Entwicklungsstand: **0.16.0**
 
-Veröffentlichter Stand: **0.15.0**
+Veröffentlichter Stand: **0.16.0**
 
 Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 
@@ -188,6 +188,22 @@ Die Lernstandsdatei bleibt daher ein Nachweisbaustein und ersetzt nicht die
 Beobachtung und Bestätigung durch die Lehrkraft.
 
 ## 6. Versionsverlauf
+
+### 0.16.0, 27.09.2026, 10:28 Uhr
+
+- Sechs öffentliche YouTube-Tutorials aus der schulischen OneNote-Seite
+  „Tutorials“ als ergänzende Videothek unter „Nachschlagen“ aufgenommen.
+  Themen, Kanäle und Video-IDs wurden mit YouTubes oEmbed-Angaben abgeglichen;
+  die private OneNote-Adresse und angehängte SQL-Dateien werden nicht
+  veröffentlicht. Jede Karte verweist auf passende L1-/L2-Einheiten.
+- Einbettung über `youtube-nocookie.com` erst nach bewusstem Klick, mit
+  Referrer-Richtlinie, Seitenursprung, Schließen-Schaltfläche und direktem
+  YouTube-Link als Alternative. Die Startseite lädt keinen Drittanbieter-
+  Player im Hintergrund.
+- Desktop und Mobilansicht sowie Laden/Schließen geprüft; 14 Node- und zwei
+  Python-Tests bestanden. Im integrierten Testbrowser blieb der YouTube-
+  Player leer (direkter Embed-Aufruf: Fehler 153). Wiedergabe in einem
+  regulären Schulbrowser ist noch praktisch zu prüfen.
 
 ### 0.15.0, 26.09.2026, 21:12 Uhr
 
