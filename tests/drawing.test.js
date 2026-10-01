@@ -21,4 +21,8 @@ test("Zeichnungsimport begrenzt Datenmenge und bewahrt Radieroperationen", () =>
   assert.equal(result.general.length, 8);
   const erased = drawing.normalize({ general: [stroke, { ...stroke, tool: "erase", width: 20 }] }, new Set(["general"]));
   assert.equal(erased.general[1].tool, "erase");
+  for (const width of drawing.eraserWidths) {
+    assert.equal(drawing.normalize({ general: [{ ...stroke, tool: "erase", width }] }, new Set(["general"])).general[0].width, width);
+    assert.equal(drawing.normalize({ general: [{ ...stroke, width }] }, new Set(["general"])).general.length, 0);
+  }
 });

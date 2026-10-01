@@ -9,6 +9,11 @@ const study = context.window.WORKBENCH_STUDY;
 const plain = (value) => JSON.parse(JSON.stringify(value));
 const anchor = { block: "section-0-paragraph-0", start: 0, end: 10, quote: "abcdefghij" };
 
+test("Grüne Markierungen werden erstellt und beim Import erhalten", () => {
+  const entries = study.updateHighlights([], [anchor], "green");
+  assert.deepEqual(plain(study.normalizeHighlights({ lesson: entries }, new Set(["lesson"]))), { lesson: [{ ...anchor, color: "green" }] });
+});
+
 test("Textmarker ersetzt nur die ausgewählte Teilstrecke und bewahrt Restfarben", () => {
   const result = study.updateHighlights([{ ...anchor, color: "yellow" }], [{ ...anchor, start: 3, end: 6, quote: "def" }], "mint");
   assert.deepEqual(plain(result), [

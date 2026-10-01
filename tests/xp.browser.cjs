@@ -13,6 +13,37 @@ const output = path.join(__dirname, "..", ".tmp", "xp-qa");
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(`${base}?screenshot=1#home`);
+    for (const theme of ["dark", "light"]) {
+      if (await page.locator("html").getAttribute("data-theme") !== theme) await page.locator("#themeToggleButton").click();
+      await page.locator("#xpButton").hover();
+      const profile = page.locator("#editProfileButton");
+      const before = await profile.evaluate((el) => ({ background: getComputedStyle(el).backgroundImage, width: el.offsetWidth, height: el.offsetHeight }));
+      for (const selector of ["#sidebarAvatar", "#sidebarName", "#sidebarClass", "#sidebarLevel"]) {
+        await page.locator(selector).hover();
+        await page.waitForTimeout(200);
+        const after = await profile.evaluate((el) => ({ background: getComputedStyle(el).backgroundImage, border: getComputedStyle(el).borderTopColor, accent: getComputedStyle(el).getPropertyValue("--brand-2").trim(), width: el.offsetWidth, height: el.offsetHeight }));
+        const accentRgb = await page.evaluate((color) => { const el = document.createElement("span"); el.style.color = color; document.body.append(el); const rgb = getComputedStyle(el).color; el.remove(); return rgb; }, after.accent);
+        assert.equal(after.border, accentRgb);
+        assert.notEqual(after.background, before.background);
+        assert.equal(after.width, before.width);
+        assert.equal(after.height, before.height);
+      }
+    }
+    await page.locator("#themeToggleButton").click();
+    for (const selector of ["#sidebarAvatar", "#sidebarName", "#sidebarClass", "#sidebarLevel"]) {
+      await page.locator(selector).click();
+      assert.ok(await page.locator("#profileDialog").isVisible());
+      await page.locator("#profileCancelButton").click();
+    }
+    await page.locator("#editProfileButton").click({ position: { x: 5, y: 5 } });
+    assert.ok(await page.locator("#profileDialog").isVisible());
+    await page.locator("#profileCancelButton").click();
+    for (const key of ["Enter", "Space"]) {
+      await page.locator("#editProfileButton").focus();
+      await page.keyboard.press(key);
+      assert.ok(await page.locator("#profileDialog").isVisible());
+      await page.locator("#profileCancelButton").click();
+    }
     assert.equal(await page.locator("#sidebarXpBar, #sidebarXpText").count(), 0);
     await page.locator("#xpButton").click();
     assert.equal(await page.locator("#xpProgressLabel").innerText(), "0 / 120 XP");

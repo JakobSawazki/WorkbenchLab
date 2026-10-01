@@ -6,7 +6,7 @@
     return;
   }
 
-  content.version = "0.20.0";
+  content.version = "0.21.0";
   content.updated = "2026-10-01";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
@@ -228,7 +228,7 @@
             "Für die folgenden Einheiten umfasst dein Relationenschema genau diese elf Attribute: `schuelernr`, `nachname`, `vorname`, `telefon`, `email`, `strasse`, `hausnr`, `plz`, `ort`, `geburtsdatum`, `fahrstundenzahl`. Prüfe, welche Textlängen sinnvoll sind und ob `hausnr` auch Buchstaben enthalten können muss."
           ],
           visual: "single-table-model",
-          tip: "Lies das Modell von links nach rechts: fachliches Objekt → Relation mit Schlüssel und Datentypen. Noch keine zweite Tabelle und keine Kardinalität nötig."
+          tip: "Folge dem Pfeil: fachliches Objekt → Relation mit Schlüssel und Datentypen. Noch keine zweite Tabelle und keine Kardinalität nötig."
         },
         {
           title: "ERD und Relationenschema nicht verwechseln",
@@ -755,70 +755,291 @@
     "funktionen-gruppierung": {
       courseCode: "L1.8",
       module: "lernfortschritt-1",
+      duration: 90,
+      subtitle: "Kennzahlen berechnen, Ergebniszeilen formatieren und Daten mit GROUP BY, WHERE und HAVING gezielt auswerten.",
+      workflow: ["Funktionen verstehen", "Sechs Kennzahlen", "Acht Gruppenaufträge", "Abschließen"],
+      workflowHints: ["Einzelzeile oder Zusammenfassung?", "Workbench und Plausibilität", "WHERE von HAVING trennen", "Lehrkraft bestätigt"],
       sourceMaterials: ["L1_5.5 Information Datenbankabfrage Funktionen", "L1_5.5 Aufgabe Datenbankabfrage Funktionen", "L1_5.8 Information Datenbankabfrage Gruppierung", "L1_5.8 Aufgabe Datenbankabfrage Gruppierung"],
+      objectives: [
+        "COUNT, MIN, MAX, AVG und SUM passend zur Frage auswählen",
+        "Umsatz je Person von einer Gesamtsumme unterscheiden und Ausgaben formatieren",
+        "Gruppen bilden und zwischen Zeilenfilter WHERE und Gruppenfilter HAVING unterscheiden",
+        "Kennzahlen von Hand prüfen und Ergebnisreihenfolgen mit ORDER BY festlegen"
+      ],
+      sections: [
+        {
+          title: "Eine Kennzahl statt vieler Zeilen",
+          body: [
+            "Eine Aggregatfunktion fasst mehrere Werte zu einer Kennzahl zusammen. Ohne GROUP BY entsteht bei einer reinen Aggregatabfrage eine Ergebniszeile für die ausgewählten Datensätze. MIN und MAX liefern den kleinsten bzw. größten Wert, AVG den Durchschnitt und SUM die Summe.",
+            "COUNT(*) zählt alle ausgewählten Zeilen. COUNT(attribut) zählt nur Zeilen mit einem Wert ungleich NULL in diesem Attribut. Eine gespeicherte 0 zählt mit; NULL steht für einen fehlenden Wert. COUNT(schuelernr) zählt hier wie COUNT(*), weil der Primärschlüssel nicht NULL sein darf."
+          ],
+          code: "SELECT MIN(fahrstundenzahl) AS minimum\nFROM fahrschueler;",
+          definitions: [
+            { term: "Aggregatfunktion", definition: "Verdichtet mehrere Eingabewerte zu einer Kennzahl pro ausgewählter Datenmenge oder Gruppe." },
+            { term: "Alias mit AS", definition: "Ein verständlicher Name für eine Ergebnisspalte; die gespeicherte Tabelle wird dadurch nicht umbenannt." }
+          ]
+        },
+        {
+          title: "Rechnen und darstellen sind unterschiedliche Aufgaben",
+          body: [
+            "Eine Berechnung hinter SELECT erzeugt eine Ergebnisspalte, ohne gespeicherte Werte zu ändern. Ein Preis pro Fahrstunde führt bei der Multiplikation mit fahrstundenzahl zu einem Betrag je Fahrschüler. Für einen Gesamtbetrag muss dagegen über alle passenden Zeilen zusammengefasst werden.",
+            "FORMAT(zahl, 2) stellt eine Zahl in MySQL mit zwei Dezimalstellen dar und liefert Text. ROUND(zahl, 2) rundet einen Zahlenwert; die Anzeige muss dabei keine abschließenden Nullen zeigen. Rechne und filtere möglichst mit Zahlen und formatiere erst die Ausgabe. In den Aufgaben gilt der vorgegebene Preis von 30 Euro je Fahrstunde."
+          ],
+          code: "SELECT FORMAT(17.896578, 2) AS anzeige;",
+          tip: "Nutze in deinem Workbench-Modell fahrstundenzahl. Einige Originalbeispiele nennen fahrstundenanzahl; die separate Browser-Testtabelle verwendet fahrstunden. FORMAT wird hier in Workbench geprüft."
+        },
+        {
+          title: "Eine Ergebniszeile je Gruppe",
+          body: [
+            "GROUP BY ort fasst Zeilen mit demselben Wohnort zusammen. Eine Aggregatfunktion wird dann für jede Gruppe getrennt berechnet. In dieser Einheit stehen neben den Aggregaten nur die Gruppierungsattribute im SELECT-Teil.",
+            "Die Gruppierung garantiert keine sortierte Ausgabe. Ergänze ORDER BY, wenn eine bestimmte Reihenfolge benötigt wird. Das gilt unabhängig von der Workbench-Version; entscheidend ist der verbundene Datenbankserver."
+          ],
+          code: "SELECT ort, MIN(fahrstundenzahl) AS minimum\nFROM fahrschueler\nGROUP BY ort\nORDER BY ort;"
+        },
+        {
+          title: "WHERE vor der Gruppierung, HAVING danach",
+          body: [
+            "WHERE entscheidet zuerst, welche einzelnen Datensätze berücksichtigt werden. Anschließend bildet GROUP BY Gruppen, und HAVING entscheidet, welche fertigen Gruppen im Ergebnis bleiben. Eine PLZ-Bedingung betrifft eine einzelne Zeile; eine Bedingung auf COUNT(*) oder SUM(...) betrifft die Gruppe.",
+            "Die Reihenfolge der Klauseln im SQL-Befehl lautet SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY. Nicht jeder Befehl benötigt jede Klausel. Prüfe genau, ob eine Grenze inklusive ist: mehr als zwei bedeutet > 2, mindestens zwei bedeutet >= 2."
+          ],
+          code: "SELECT ort, MIN(fahrstundenzahl) AS minimum\nFROM fahrschueler\nWHERE fahrstundenzahl >= 0\nGROUP BY ort\nHAVING MIN(fahrstundenzahl) < 5\nORDER BY ort;",
+          tip: "Eine leere Ausgabe kann richtig sein. Prüfe dann, ob deine Testdaten die verlangten Orte, PLZ oder Grenzwerte überhaupt enthalten."
+        }
+      ],
+      webWorksheet: {
+        title: "L1.8: Funktionen und Gruppierung",
+        answerPlaceholder: "SQL-Befehl und kurze Ergebniskontrolle ...",
+        intro: "Bearbeite die sechs Funktionsaufträge (F1–F6) und die acht Gruppierungsaufträge (G1–G8). Notiere jeweils den vollständigen SQL-Befehl und eine kurze Ergebniskontrolle. Verwende dein Workbench-Modell mit fahrstundenzahl.",
+        definitionTerms: [
+          { id: "f1-anzahl", label: "F1 · Anzahl", prompt: "Ermittle die Anzahl aller Fahrschüler." },
+          { id: "f2-maximum", label: "F2 · Höchste Stundenzahl", prompt: "Ermittle die größte Fahrstundenzahl eines Fahrschülers." },
+          { id: "f3-durchschnitt", label: "F3 · Durchschnitt", prompt: "Ermittle die durchschnittliche Fahrstundenzahl. Stelle das Ergebnis in MySQL mit zwei Dezimalstellen dar." },
+          { id: "f4-summe", label: "F4 · Gesamtstunden", prompt: "Ermittle die insgesamt durchgeführten Fahrstunden." },
+          { id: "f5-umsatz-person", label: "F5 · Umsatz je Person", prompt: "Berechne für jeden Fahrschüler den Betrag seiner Fahrstunden bei 30 Euro je Fahrstunde. Gib die Person eindeutig mit aus." },
+          { id: "f6-umsatz-gesamt", label: "F6 · Gesamtumsatz", prompt: "Ermittle den Gesamtbetrag aller Fahrstunden bei 30 Euro je Fahrstunde." },
+          { id: "g1-anzahl-ort", label: "G1 · Personen je Ort", prompt: "Ermittle die Anzahl der Fahrschüler je Wohnort." },
+          { id: "g2-summe-ort", label: "G2 · Stunden je Ort", prompt: "Ermittle die insgesamt genommenen Fahrstunden je Wohnort." },
+          { id: "g3-zwei-orte", label: "G3 · Zwei Wohnorte", prompt: "Zeige die Anzahl der Fahrschüler getrennt für Schorndorf und Welzheim." },
+          { id: "g4-stunden-zwei-orte", label: "G4 · Zwei Stundensummen", prompt: "Zeige die Summe der Fahrstunden getrennt für Lorch und Plüderhausen." },
+          { id: "g5-wenige-stunden", label: "G5 · Gleiche Stundenzahl", prompt: "Ermittle je Fahrstundenzahl, wie viele Fahrschüler diese Anzahl haben. Berücksichtige nur Fahrstundenzahlen unter vier." },
+          { id: "g6-plz", label: "G6 · PLZ-Präfix", prompt: "Ermittle je Wohnort die Anzahl der Fahrschüler, deren PLZ mit 736 beginnt." },
+          { id: "g7-mehr-als-zwei", label: "G7 · Große Ortsgruppen", prompt: "Ermittle die Anzahl je Wohnort. Zeige nur Orte mit mehr als zwei Fahrschülern." },
+          { id: "g8-mehr-als-zwanzig", label: "G8 · Hohe Stundensummen", prompt: "Ermittle die Fahrstundensumme je Wohnort. Zeige nur Orte mit insgesamt mehr als 20 Fahrstunden." }
+        ],
+        hint: "Kontrolliere Spalten, Aliasnamen, Zeilen- oder Gruppenfilter und die genaue Grenze. Ordne Ausgaben bei Bedarf ausdrücklich mit ORDER BY. Die Browserübung mit mindestens zwei Personen hat eine andere Grenze als G7."
+      },
+      notePrompts: ["Wie unterscheiden sich COUNT(*) und COUNT(attribut) bei NULL?", "Wann erhalte ich einen Betrag je Person, wann eine Gesamtsumme?", "Warum stehen die PLZ-Bedingung in WHERE und die Bedingung auf COUNT(*) in HAVING?"],
       classroomTask: {
         tool: "MySQL Workbench SQL Editor",
         title: "Vom einzelnen Datensatz zur Kennzahl",
-        intro: "Berechne Kennzahlen zuerst für die gesamte Tabelle und danach je Gruppe. Prüfe jede Zahl auf Plausibilität.",
+        intro: "Bearbeite F1–F6 und G1–G8 in MySQL Workbench. Falls du mit den fünf fiktiven Datensätzen aus L1.4 arbeitest, ergänze die unten verlinkten Testfälle einmalig; sie ändern keine bestehenden Zeilen.",
         steps: [
-          "Bestimme Anzahl, Minimum, Maximum, Durchschnitt und Summe der Fahrstunden.",
-          "Ermittle Anzahl und Fahrstundensumme je Ort.",
-          "Filtere Gruppen mit HAVING und erkläre, weshalb WHERE dafür nicht genügt.",
-          "Prüfe eine Kennzahl an einer kleinen Teilmenge von Hand."
+          "Prüfe zuerst den Datenbestand und das Attribut fahrstundenzahl. Sichere deine SQL-Datei und ergänze bei Bedarf die fiktiven Testfälle genau einmal.",
+          "Bearbeite die sechs Funktionsaufträge und unterscheide Einzelbeträge, Gesamtbetrag und formatierte Ausgabe.",
+          "Bearbeite die acht Gruppenaufträge. Ordne jede Bedingung begründet WHERE oder HAVING zu.",
+          "Prüfe eine Ortsgruppe von Hand und vergleiche beim HAVING-Filter auch Gruppen genau an der Grenze von zwei Personen bzw. 20 Stunden."
         ],
-        evidence: "Ergebnistabelle mit kurzer Plausibilitätskontrolle",
+        evidence: "14 ausgeführte SQL-Abfragen, digitales Aufgabenblatt und eine nachvollziehbare Plausibilitätskontrolle",
+        download: { href: "assets/sql/l1-8-fahrschule-testfaelle.sql", label: "Fiktive Testfälle ergänzen" },
         fileName: "L1_8_funktionen_gruppierung.sql"
       },
       completionChecks: [
-        "Ich kann COUNT, SUM, AVG, MIN und MAX passend auswählen.",
-        "Meine SELECT-Spalten passen zu GROUP BY.",
-        "Ich kann WHERE und HAVING unterscheiden."
+        "Ich habe die sechs Funktionsaufträge formuliert und in Workbench geprüft.",
+        "Ich habe die acht Gruppenaufträge geprüft; SELECT-Spalten und GROUP BY passen zusammen.",
+        "Ich kann WHERE und HAVING unterscheiden und eine Kennzahl von Hand bestätigen."
       ]
     },
     "datum-berechnungen": {
       courseCode: "L1.9",
       module: "lernfortschritt-1",
+      duration: 75,
+      subtitle: "Datumsbestandteile auswerten und Kennzahlen auf eine Fahrradvermietung übertragen.",
+      workflow: ["Datum verstehen", "Fahrschule auswerten", "Fahrradvermietung", "Abschließen"],
+      workflowHints: ["YEAR, MONTH und NOW", "SQL und Ergebnis prüfen", "Acht Transferaufträge", "Lehrkraft bestätigt"],
       sourceMaterials: ["L1_5.6 Information Datenbankabfrage Datum_Funktionen", "L1_5.6 Vertiefungsaufgabe Funktionen"],
+      objectives: [
+        "YEAR und MONTH auf DATE-Werte anwenden und Ergebnisse benennen",
+        "NOW als aktuellen Zeitpunkt des Datenbankservers erklären",
+        "Kennzahlen, Abschreibung und gerundete Wochenpreise berechnen",
+        "Kalenderjahresdifferenz, vollständige Jahre und Tagesdifferenz unterscheiden"
+      ],
+      sections: [
+        {
+          title: "Jahr und Monat aus einem Datum gewinnen",
+          body: [
+            "Speichere ein Geburts- oder Anschaffungsdatum als DATE. SQL-Datumsliterale stehen in einfachen Anführungszeichen im Format 'YYYY-MM-DD'. YEAR liefert die Jahreszahl, MONTH die Monatszahl. Ein Datum bleibt ein Datum; die Funktionen berechnen lediglich neue Ergebniswerte.",
+            "Du kannst die Funktionen sowohl in SELECT als auch in WHERE verwenden. Benenne berechnete Spalten mit AS, und gib die Person oder das Fahrrad eindeutig mit aus. Für eine festgelegte Reihenfolge ergänzt du ORDER BY."
+          ],
+          code: "SELECT YEAR('2024-11-15') AS jahr,\n       MONTH('2024-11-15') AS monat;",
+          tip: "Die Browserübung verwendet einen eigenen Fahrschul-Datenbestand mit Geburtsjahr 2008. In Workbench arbeitest du mit deinen Daten aus L1.4 und wählst ein dort vorhandenes Geburtsjahr."
+        },
+        {
+          title: "Ein aktueller Zeitpunkt verändert sich",
+          body: [
+            "NOW() liefert Datum und Uhrzeit des Datenbankservers. Anders als ein festes Datum kann sich das Ergebnis beim nächsten Ausführen ändern. Die verwendete Sitzungszeitzone beeinflusst die Anzeige; Workbench zeigt die Antwort des verbundenen Servers.",
+            "Die Differenz zweier Jahreszahlen beschreibt eine Kalenderjahresdifferenz. Sie ist nicht automatisch das Alter in vollständig vergangenen Jahren: Vor dem Jahrestag kann die reine Jahresdifferenz um eins zu hoch sein. Notiere bei der Fahrradaufgabe deshalb die verwendete Zählweise. Für vollständige Jahre bietet MySQL TIMESTAMPDIFF(YEAR, beginn, ende)."
+          ],
+          code: "SELECT NOW() AS serverzeit;",
+          tip: "Notiere das Ausführungsdatum deiner Altersauswertung. Beim späteren Wiederholen darf ein dynamisches Ergebnis anders aussehen."
+        },
+        {
+          title: "Transfer zur Fahrradvermietung",
+          body: [
+            "Das Vertiefungsblatt wechselt zur Fahrradvermietung Rent A Bike. Die acht Aufträge verbinden Aggregatfunktionen aus L1.8 mit berechneten Preisen und Anschaffungsdaten. Verwende die Unterrichtsdaten deiner Lehrkraft oder den getrennten fiktiven Übungsbestand unten.",
+            "Unser Übungsbestand nutzt die Tabelle fahrraeder mit fahrradnr, typ, anschaffungspreis, tagessatz und anschaffungsdatum. Er liegt in der eigenen Datenbank workbenchlab_l1_9 und ist nicht die spätere Browser-Datenbank zu Mietverträgen. Bei anderen Unterrichtsdaten überträgst du die Attributnamen auf deren Modell.",
+            "Eine lineare Abschreibung verteilt den Anschaffungspreis gleichmäßig auf die vorgegebenen Jahre; hier wird vereinfachend ohne Restwert gerechnet. Ein Wochenpreis gilt für sieben Tage. 30 Prozent Rabatt bedeutet, dass 70 Prozent des normalen Preises zu bezahlen sind. ROUND(zahl, 0) rundet numerisch auf eine ganze Zahl; FORMAT dient dagegen der Textdarstellung."
+          ],
+          code: "SELECT ROUND(12.6, 0) AS gerundet;",
+          rules: ["Berechnete Spalten verändern keine gespeicherten Preise.", "Filtere Fahrradtypen vor der Berechnung, wenn nur bestimmte Typen verlangt sind.", "Prüfe einen Einzelpreis von Hand, bevor du die Gesamtauswertung beurteilst."]
+        },
+        {
+          title: "Tagesdifferenz ist nicht die Zahl aller Kalendertage",
+          body: [
+            "DATEDIFF(ende, beginn) berechnet die Tagesdifferenz aus den Datumsanteilen; Uhrzeitanteile werden nicht mitgerechnet. Die Reihenfolge ist wichtig: Liegt ende vor beginn, wird die Differenz negativ.",
+            "Bei demselben Datum beträgt die Differenz null. Soll eine Aufgabe stattdessen alle Kalendertage einschließlich Anfangs- und Endtag zählen, kommt bei einem gültigen Zeitraum ein Tag hinzu. Das ist eine fachliche Zählregel, kein automatischer Bestandteil von DATEDIFF."
+          ],
+          code: "SELECT DATEDIFF('2024-11-15', '2024-11-15') AS differenz;",
+          tip: "Die Tagesdifferenz ist eine zusätzliche Brücke zu späteren Mietzeiträumen, kein weiterer Auftrag im Originalblatt L1_5.6."
+        }
+      ],
+      webWorksheet: {
+        title: "L1.9: Datum und berechnete Werte",
+        answerPlaceholder: "SQL-Befehl und kurze Ergebniskontrolle ...",
+        intro: "Bearbeite D1–D3 mit deiner Fahrschule und R1–R8 mit der Fahrradvermietung. Notiere SQL und Ergebniskontrolle. D4 ist ein zusätzlicher Transfer zur Tageszählung.",
+        definitionTerms: [
+          { id: "d1-geburtsjahr", label: "D1 · Geburtsjahre", prompt: "Gib Schülernummer, Nachname und Geburtsjahr aus. Benenne die berechnete Spalte jahr und sortiere nach Schülernummer." },
+          { id: "d2-geburtsmonat", label: "D2 · Geburtsmonate", prompt: "Wähle ein in deiner Tabelle vorhandenes Geburtsjahr. Gib Schülernummer, Nachname und Geburtsmonat nur für dieses Jahr aus. Benenne die Monatsspalte monat." },
+          { id: "d3-serverzeit", label: "D3 · Aktueller Zeitpunkt", prompt: "Gib den aktuellen Serverzeitpunkt aus. Notiere, weshalb dieser Wert nicht dauerhaft gleich bleibt." },
+          { id: "r1-mountainbikes", label: "R1 · Mountainbikes zählen", prompt: "Ermittle die Anzahl der Fahrräder vom Typ Mountainbike." },
+          { id: "r2-teuerstes", label: "R2 · Höchster Anschaffungspreis", prompt: "Ermittle den Anschaffungswert des teuersten Fahrrads." },
+          { id: "r3-durchschnitt", label: "R3 · Durchschnittlicher Tagespreis", prompt: "Ermittle den durchschnittlichen Tagesmietpreis und stelle ihn mit zwei Dezimalstellen dar." },
+          { id: "r4-gesamtwert", label: "R4 · Gesamter Anschaffungswert", prompt: "Ermittle den Anschaffungswert aller Fahrräder zusammen." },
+          { id: "r5-abschreibung", label: "R5 · Jährliche Abschreibung", prompt: "Die Fahrräder werden über fünf Jahre linear ohne Restwert abgeschrieben. Ermittle die gesamte jährliche Abschreibungssumme." },
+          { id: "r6-wochenpreis", label: "R6 · Gerundete Wochenpreise", prompt: "Berechne nur für Mountainbikes und Rennräder den Wochenpreis für sieben Tage mit 30 Prozent Rabatt. Runde auf ganze Zahlen und gib Fahrradnummer und Typ mit aus." },
+          { id: "r7-anschaffungsjahr", label: "R7 · Anschaffungsjahre", prompt: "Gib für alle Fahrräder die Fahrradnummer, den Anschaffungspreis und das Jahr der Anschaffung aus." },
+          { id: "r8-alter", label: "R8 · Alter und aktuelles Jahr", prompt: "Gib für Mountainbikes und Rennräder das aktuelle Jahr und ihr Alter als Kalenderjahresdifferenz aus. Notiere das Ausführungsdatum und erkläre die Abweichung zu vollständig vergangenen Jahren." },
+          { id: "d4-tageszaehlung", label: "D4 · Zusatz: Tage zählen", prompt: "Berechne für den Zeitraum vom 1. bis 5. Oktober 2026 einmal die Tagesdifferenz und einmal die Zahl der Kalendertage einschließlich beider Grenzen. Begründe den Unterschied und prüfe auch einen Zeitraum mit identischem Beginn und Ende." }
+        ],
+        hint: "R1–R8 übertragen die acht Aufträge des Vertiefungsblatts auf die benannten Attribute. Bei R8 ist die Kalenderjahreszählung bewusst festgelegt. D4 ist zusätzlich. Prüfe FORMAT und TIMESTAMPDIFF in Workbench."
+      },
+      notePrompts: ["Wie unterscheiden sich ein DATE-Wert, YEAR und MONTH?", "Warum ist eine Jahreszahldifferenz nicht immer das vollständige Alter?", "Wann zähle ich Tagesabstände, wann beide Kalendertage mit?"],
       classroomTask: {
         tool: "MySQL Workbench SQL Editor",
-        title: "Datumswerte und berechnete Spalten auswerten",
-        intro: "Arbeite mit echten DATE-Werten und benenne berechnete Ausgabespalten verständlich.",
+        title: "Von Geburtsdaten zu Fahrradpreisen",
+        intro: "Beginne mit D1–D3 in deiner Fahrschule. Wechsle anschließend bewusst zur Fahrradvermietung für R1–R8. Der optionale Download erstellt einen eigenen Übungsbestand, ohne die Fahrschule zu verändern. Führe ihn nur einmal aus.",
         steps: [
-          "Gib Jahr und Monat eines Datums mit YEAR und MONTH getrennt aus.",
-          "Filtere einen fachlich sinnvollen Zeitraum.",
-          "Berechne eine Dauer mit DATEDIFF und notiere ausdrücklich, ob Anfangs- und Endtag mitgezählt werden sollen.",
-          "Vergib für jede berechnete Spalte einen Alias."
+          "Bearbeite die drei Datumsaufträge in fahrschule; wähle für D2 ein vorhandenes Jahr.",
+          "Prüfe vor R1–R8 die aktive Datenbank und Attributnamen. Nutze die Unterrichtsdaten oder den fiktiven Download in workbenchlab_l1_9.",
+          "Bearbeite die acht Transferaufträge. Kontrolliere einen gerundeten Wochenpreis und die Abschreibung von Hand.",
+          "Dokumentiere bei R8 das Ausführungsdatum und die Kalenderjahreszählung. Bearbeite D4 als zusätzlichen Transfer."
         ],
-        evidence: "Drei Abfragen mit dokumentierter Zählweise",
+        evidence: "D1–D3 und R1–R8 mit Ergebniskontrollen; D4 als Zusatz",
+        download: { href: "assets/sql/l1-9-fahrradvermietung-testdaten.sql", label: "Fiktive Fahrrad-Testdaten" },
         fileName: "L1_9_datum_berechnung.sql"
       },
       completionChecks: [
-        "Ich speichere Datumswerte im geeigneten Datentyp und Format.",
-        "Ich kann YEAR, MONTH und DATEDIFF erklären.",
-        "Die Zählweise meiner Dauer ist dokumentiert."
+        "Ich habe D1–D3 ausgeführt und kann YEAR, MONTH und NOW erklären.",
+        "Ich habe R1–R8 geprüft und einen Preis oder eine Kennzahl von Hand kontrolliert.",
+        "Ich habe das Ausführungsdatum notiert und kann die Kalenderjahreszählung von vollständigen Jahren unterscheiden."
       ]
     },
     "daten-verwalten": {
       courseCode: "L1.10",
       module: "lernfortschritt-1",
-      sourceMaterials: ["L1_6 Information Daten einfügen", "L1_7 Information Daten ändern", "L1_8 Information Daten löschen", "L1_6 bis L1_8 Aufgaben"],
+      duration: 90,
+      subtitle: "Neue Datensätze erfassen, gezielt korrigieren und kontrolliert löschen, ausschließlich im eigenen Übungsbestand.",
+      workflow: ["Übungsbestand prüfen", "Einfügen", "Ändern und löschen", "Abschließen"],
+      workflowHints: ["Datenbank und Schlüssel", "Bekannt oder unbekannt?", "Vorher und nachher", "Lehrkraft bestätigt"],
+      sourceMaterials: ["L1_6 Information Daten einfügen", "L1_6.1 Aufgabe Daten einfügen", "L1_6.2 Vertiefungsaufgabe Daten einfügen", "L1_7 Information Daten ändern", "L1_7.1 Aufgabe Daten ändern", "L1_7.2 Vertiefungsaufgabe Daten ändern", "L1_8 Information Daten löschen", "L1_8.1 Aufgabe Daten löschen", "L1_8.2 Vertiefungsaufgabe Daten löschen"],
+      objectives: [
+        "INSERT mit expliziter Spaltenliste und passenden Datentypen formulieren",
+        "unbekannte Werte von leeren Texten und null Fahrstunden unterscheiden",
+        "UPDATE mit SET und DELETE mit einer geprüften Zielmenge ausführen",
+        "Vorher-Nachher-Kontrollen und Schutzfunktionen für Änderungen nutzen"
+      ],
+      sections: [
+        {
+          title: "Eine eigene Datenbank zum Verändern",
+          body: [
+            "In dieser Einheit veränderst du gespeicherte Daten. Nutze ausschließlich den fiktiven Bestand workbenchlab_l1_10 oder eine ausdrücklich freigegebene Unterrichtskopie. Deine Fahrschule aus L1.4 und die Fahrrad-Auswertungen aus L1.9 bleiben unberührt.",
+            "Prüfe die aktive Datenbank und die Tabellenstruktur vor dem ersten Befehl. Der Download enthält eine Kontrollperson und zehn Fahrräder, aber noch nicht die neuen Personen 13–15 oder Fahrräder 20–22. Führe den Download nur einmal aus; eine bereits vorhandene Tabelle ist kein Anlass, sie zu löschen."
+          ],
+          code: "SELECT DATABASE() AS aktive_datenbank;\nDESCRIBE fahrschueler;\nDESCRIBE fahrraeder;",
+          warning: "Die Browserübungen starten mit einem frischen eigenen Testbestand. Workbench setzt deine Übungsdaten nach einem Lauf nicht automatisch zurück. Führe Änderungen nicht mehrfach unkontrolliert aus."
+        },
+        {
+          title: "INSERT: Spalten und Werte gehören zusammen",
+          body: [
+            "INSERT INTO nennt die Zieltabelle. Die Spaltenliste legt fest, in welcher Reihenfolge du die Werte angibst. Texte und Datumswerte stehen in einfachen Anführungszeichen, Zahlen nicht. Eine explizite Spaltenliste ist leichter zu prüfen als eine unbenannte Folge von Werten.",
+            "Unbekannt bedeutet nicht 0 und nicht leerer Text. NULL steht für einen fehlenden Wert, sofern die Spalte NULL zulässt. Ein ausgelassenes Attribut erhält seinen definierten Standardwert; ohne passenden Standard kann der Befehl scheitern. Prüfe deshalb die Struktur und erfinde keine Angaben.",
+            "Jeder neue Datensatz braucht einen freien Primärschlüssel. Zwei gelieferte Fahrräder desselben Modells sind zwei physische Gegenstände und erhalten unterschiedliche Fahrradnummern und Rahmennummern."
+          ],
+          code: "INSERT INTO beispieltabelle (nummer, bezeichnung)\nVALUES (101, 'Fiktives Beispiel');",
+          tip: "Die Syntax zeigt eine andere Tabelle, keine fertige Aufgabenlösung. Prüfe nach INSERT den neuen Datensatz anhand seines Primärschlüssels."
+        },
+        {
+          title: "UPDATE: Ziel prüfen, Werte ändern, Ergebnis prüfen",
+          body: [
+            "UPDATE verändert vorhandene Datensätze; SET legt die neuen Attributwerte fest. Mit WHERE wählst du die Zielzeilen aus. Mehrere Attribute lassen sich in einem Befehl ändern. Ein Primärschlüssel identifiziert eine bestimmte Person oder ein bestimmtes Fahrrad zuverlässig.",
+            "Ein fester neuer Preis, ein Zuschlag in Euro und eine prozentuale Änderung sind unterschiedliche Aufträge. Beziehe eine relative Änderung auf den aktuellen gespeicherten Preis und runde Geldbeträge auf zwei Dezimalstellen. Beim erneuten Ausführen wird eine relative Änderung erneut angewandt.",
+            "Bei Gruppenaufträgen prüfst du zuerst alle betroffenen Fahrradnummern mit SELECT. Nutze anschließend die bestätigten Primärschlüssel für die Änderung und kontrolliere danach dieselben Nummern, nicht nur erneut die möglicherweise veränderte Filterbedingung."
+          ],
+          rules: ["Vorher: Zielzeilen und alte Werte auswählen.", "Änderung: nur die bestätigten Schlüssel bearbeiten.", "Nachher: dieselben Schlüssel auswählen und neue Werte vergleichen."],
+          tip: "Safe Updates kann UPDATE oder DELETE ohne geeigneten Schlüsselbezug blockieren. Lass die Schutzfunktion eingeschaltet und prüfe Datenbank, Schlüssel und Zielmenge mit deiner Lehrkraft."
+        },
+        {
+          title: "DELETE entfernt den ganzen Datensatz",
+          body: [
+            "DELETE FROM entfernt Zeilen aus einer Tabelle. Es löscht nicht nur eine einzelne E-Mail-Adresse. Soll nur ein unbekannter Attributwert geleert werden, ist das eine UPDATE-Aufgabe, sofern NULL zulässig ist.",
+            "Ohne WHERE betreffen UPDATE und DELETE grundsätzlich alle Zeilen. Auch eine WHERE-Bedingung kann fachlich falsch sein: Prüfe bei ODER-Verknüpfungen beide Teilmengen und die Grenzen. Unter 100 bedeutet < 100; genau 100 gehört nicht dazu.",
+            "Die Alters-Löschaufgabe verwendet bewusst das feste Bezugsjahr 2018, nicht NOW(). Die Zählweise ist hier eine Kalenderjahresdifferenz. Lösche erst nach dokumentierter Vorschau und kontrolliere, ob andere Datensätze erhalten bleiben."
+          ],
+          warning: "Bei aktivem Autocommit sind erfolgreiche Änderungen unmittelbar bestätigt. ROLLBACK ist dann kein nachträglicher Rückgängig-Knopf. Transaktionen können nur unter passenden Voraussetzungen helfen; CREATE TABLE wird in MySQL nicht einfach durch ROLLBACK aufgehoben."
+        }
+      ],
+      webWorksheet: {
+        title: "L1.10: Daten kontrolliert verwalten",
+        answerPlaceholder: "SQL, Zielschlüssel und Vorher-Nachher-Kontrolle ...",
+        intro: "Arbeite die Aufträge in der angegebenen Reihenfolge im fiktiven Bestand workbenchlab_l1_10 ab. Notiere bei jeder Änderung SELECT-Vorschau, Zielschlüssel, SQL und Ergebniskontrolle. Die Aufgaben übertragen die Originalblätter auf fiktive Personen und Fahrräder.",
+        definitionTerms: [
+          { id: "i1-vollstaendig", label: "I1 · Vollständige Person", prompt: "Füge Person 13 ein: Demo, Sina; Testweg 8, 00013 Teststadt; Telefon 0000000013; sina@example.invalid; geboren 2002-02-18; eine Fahrstunde. Nutze eine explizite Spaltenliste." },
+          { id: "i2-unbekannt", label: "I2 · Unbekannte Angaben", prompt: "Füge Person 14 ein: Probe, Hadi; Musterweg 19, 00014 Testdorf; Telefon 0000000014. E-Mail, Geburtsdatum und Fahrstundenzahl sind unbekannt. Prüfe, wie diese Spalten fehlende Werte zulassen." },
+          { id: "i3-teilweise", label: "I3 · Weitere Person", prompt: "Füge Person 15 ein: Beispiel, Luca; Demoweg 33, 00015 Beispielort; zwei Fahrstunden. Telefon, E-Mail und Geburtsdatum sind unbekannt." },
+          { id: "u1-erganzen", label: "U1 · Angaben ergänzen", prompt: "Person 14 meldet hadi@example.invalid und das Geburtsdatum 2002-05-21. Inzwischen wurden drei Fahrstunden absolviert. Aktualisiere die drei Angaben und kontrolliere Person 14 vorher und nachher." },
+          { id: "u2-umzug", label: "U2 · Umzug", prompt: "Person 15 zieht in den Testpfad 19. Ändere Straße und Hausnummer gemeinsam; die übrigen Angaben bleiben gleich." },
+          { id: "d1-person", label: "D1 · Eine Person löschen", prompt: "Person 15 verlässt die Übungsfahrschule. Prüfe den Datensatz, lösche genau diese Person und kontrolliere danach auch die übrigen Personen." },
+          { id: "d2-person", label: "D2 · Weitere Person löschen", prompt: "Auch Person 13 soll aus dem Übungsbestand entfernt werden. Dokumentiere Vorschau und Nachkontrolle anhand des Primärschlüssels." },
+          { id: "bi1-lieferung", label: "BI1 · Drei gelieferte Fahrräder", prompt: "Am 2026-05-21 werden drei Fahrräder geliefert: Nummern 20 und 21, Modell Test-Trail, Typ Mountainbike, je 2499 Euro, Rahmennummern TEST-20 und TEST-21; Nummer 22, Modell Test-Tour, Typ Trekkingrad, 889 Euro, Rahmen TEST-22. Tagespreise sind noch unbekannt. Erfasse jeden Gegenstand separat." },
+          { id: "bu1-fester-preis", label: "BU1 · Fester Tagespreis", prompt: "Setze den Tagespreis von Fahrrad 5 auf 15 Euro. Prüfe den alten und neuen Wert." },
+          { id: "bu2-zuschlag", label: "BU2 · Zuschlag in Euro", prompt: "Erhöhe den aktuellen Tagespreis von Fahrrad 1 um 2,85 Euro. Führe die Änderung genau einmal aus." },
+          { id: "bu3-rabatt", label: "BU3 · Prozentuale Senkung", prompt: "Senke den aktuellen Tagespreis von Fahrrad 16 um zwölf Prozent. Runde den neuen Geldbetrag auf zwei Dezimalstellen." },
+          { id: "bu4-spezial", label: "BU4 · Spezialräder", prompt: "Erhöhe die Tagespreise aller Spezialräder um 20 Prozent. Ermittle zuerst die Zielschlüssel; unbekannte Preise bleiben unbekannt. Runde auf zwei Dezimalstellen." },
+          { id: "bu5-ausnahmen", label: "BU5 · Zwei Typen ausnehmen", prompt: "Senke die Tagespreise aller Fahrräder außer Trekkingrad und Mountainbike um fünf Prozent. Prüfe die Zielschlüssel und runde auf zwei Dezimalstellen. Unbekannte Preise bleiben unbekannt." },
+          { id: "bd1-preis-oder-typ", label: "BD1 · Preis oder Fahrradtyp", prompt: "Lösche Fahrräder mit Anschaffungswert unter 100 Euro sowie alle Kinderfahrräder unabhängig vom Wert. Prüfe beide Teilmengen und den Grenzfall genau 100 Euro; ändere nur bestätigte Schlüssel." },
+          { id: "bd2-alter", label: "BD2 · Festes Bezugsjahr", prompt: "Lösche Fahrräder, die im Bezugsjahr 2018 als Kalenderjahresdifferenz älter als vier Jahre sind. Verwende kein aktuelles Serverdatum. Dokumentiere Vorschau, Zielschlüssel und Nachkontrolle." },
+          { id: "s1-sicherheit", label: "S1 · Sicherheitskontrolle", prompt: "Erkläre den Unterschied zwischen DELETE einer Zeile und UPDATE einer einzelnen Angabe. Weshalb reicht irgendeine WHERE-Bedingung nicht aus? Weshalb kann eine relative Preisänderung nicht beliebig wiederholt werden?" }
+        ],
+        hint: "Fiktive Namen, Kontakte und Lieferdaten ersetzen die Originalbeispiele. BI1 verwendet ausdrücklich drei physische Fahrräder. Die Gruppenaufträge können mehrere Zeilen betreffen; bestätigte Schlüssel und Nachkontrollen sind Teil der Bearbeitung."
+      },
+      notePrompts: ["Wann ist NULL fachlich korrekt und wann ist 0 ein bekannter Wert?", "Wie prüfe ich dieselben Datensätze vor und nach einer Änderung?", "Warum ist der Browser-Neustart der Testdaten kein Rückgängig in Workbench?"],
       classroomTask: {
         tool: "MySQL Workbench SQL Editor",
         title: "Daten kontrolliert einfügen, ändern und löschen",
-        intro: "Jede Änderung folgt derselben Sicherheitsfolge: Zielmenge auswählen, Änderung ausführen, Ergebnis erneut auswählen.",
+        intro: "Nutze ausschließlich workbenchlab_l1_10. Der Download legt den Anfangsbestand an, aber führt keine Aufgabenänderungen oder Löschungen aus. Jede Änderung folgt der Sicherheitsfolge: Zielmenge auswählen, ändern, dieselben Schlüssel kontrollieren.",
         steps: [
-          "Lege eine kleine Übungstabelle per CREATE TABLE an.",
-          "Füge einen vollständigen Datensatz mit expliziter Spaltenliste ein.",
-          "Prüfe vor einem UPDATE mit SELECT genau die betroffene Zeile und führe danach dieselbe Kontrolle erneut aus.",
-          "Wiederhole die Vorher-Nachher-Kontrolle für DELETE."
+          "Lege den fiktiven Anfangsbestand einmal an und prüfe aktive Datenbank, Tabellenstruktur und freie Schlüssel.",
+          "Bearbeite I1–I3, dann U1–U2 und D1–D2. Dokumentiere unbekannte Werte und jede Zielkontrolle.",
+          "Bearbeite BI1, BU1–BU5 und anschließend BD1–BD2 in dieser Reihenfolge. Relative Änderungen nur einmal ausführen.",
+          "Beantworte S1 und prüfe die Browserübungen CREATE, INSERT, UPDATE und DELETE mit ihrem getrennten Testbestand."
         ],
-        evidence: "SQL-Skript mit CREATE, INSERT, UPDATE, DELETE und Kontrollabfragen",
+        evidence: "SQL-Skript und ausgefülltes Aufgabenblatt mit Zielschlüsseln und Vorher-Nachher-Kontrollen",
+        download: { href: "assets/sql/l1-10-aenderungen-testdaten.sql", label: "Fiktiven Übungsbestand anlegen" },
         fileName: "L1_10_daten_verwalten.sql"
       },
       completionChecks: [
-        "Mein SQL-Skript lässt sich von oben nach unten nachvollziehen.",
-        "UPDATE und DELETE besitzen eine bewusst geprüfte WHERE-Bedingung.",
-        "Ich habe die drei Browserübungen CREATE, UPDATE und DELETE geprüft."
+        "Ich habe die Personen- und Fahrradaufträge in der vorgegebenen Reihenfolge dokumentiert.",
+        "UPDATE und DELETE betreffen nur die vorher geprüften Schlüssel; meine Nachkontrollen sind dokumentiert.",
+        "Ich habe die Browserübungen CREATE, INSERT, UPDATE und DELETE geprüft und kann ihre Testdaten von Workbench unterscheiden."
       ]
     },
     "erm-sachtext-analyse": {
@@ -1013,70 +1234,291 @@
     "fremdschluessel-integritaet": {
       courseCode: "L2.3",
       module: "lernfortschritt-2",
+      duration: 65,
+      subtitle: "Gültige Verweise prüfen und blockierte Änderungen in einem Drei-Tabellen-Modell begründen.",
+      workflow: ["Verweise prüfen", "Löschversuch", "Neue Datensätze", "Abschließen"],
+      workflowHints: ["Parent und Child", "Fehler ist erwartbar", "Reihenfolge begründen", "Lehrkraft bestätigt"],
       sourceMaterials: ["L2_3 Information referentielle Integrität", "L2_3 Aufgabe referentielle Integrität"],
+      objectives: [
+        "Parent- und Child-Tabellen für jeden Fremdschlüssel benennen",
+        "blockierte Änderungen auf konkrete Verweise zurückführen",
+        "Parent-Datensätze vor abhängigen Child-Datensätzen erfassen",
+        "Löschregeln unterscheiden und eine fachlich erlaubte Reihenfolge begründen"
+      ],
+      sections: [
+        {
+          title: "Ein Verweis braucht ein vorhandenes Ziel",
+          body: [
+            "Ein Fremdschlüssel verbindet eine Child-Tabelle mit einem Schlüssel der Parent-Tabelle. Im bisherigen Modell verweist fahrschueler.ortnr auf orte.ortnr. Referentielle Integrität verhindert, dass ein gespeicherter Verweis auf ein nicht vorhandenes Ziel zeigt.",
+            "Sie garantiert nicht, dass jede gespeicherte Angabe fachlich richtig ist: Eine vorhandene, aber falsch zugeordnete Ortnummer verletzt den Fremdschlüssel nicht. Ob ein Verweis fehlen darf, ist eine weitere Modellregel. In unserem Testbestand sind die Fremdschlüssel NOT NULL."
+          ],
+          visual: "foreign-key",
+          code: "FOREIGN KEY (ortnr) REFERENCES orte(ortnr)",
+          definitions: [{ term: "Parent", definition: "Tabelle mit dem referenzierten Schlüssel." }, { term: "Child", definition: "Tabelle mit dem darauf verweisenden Fremdschlüssel." }]
+        },
+        {
+          title: "Drei Tabellen, zwei Rollen für Fahrlehrer",
+          body: [
+            "Das Aufgabenblatt ergänzt Fahrlehrer zum Fahrschulmodell. Unser getrenntes Schema workbenchlab_l2_3 enthält orte, fahrlehrer und fahrschueler. Ein Fahrlehrer verweist mit ortnr auf seinen Wohnort; ein Fahrschüler verweist auf einen Wohnort und auf seinen Fahrlehrer.",
+            "fahrlehrer ist damit Child gegenüber orte, aber Parent gegenüber fahrschueler. Parent und Child sind Rollen einer konkreten Beziehung, keine feste Eigenschaft einer Tabelle. Jede Schülerzeile hat im vereinfachten Übungsmodell genau einen Fahrlehrer.",
+            "Die Schlüssel heißen ortnr, fahrlehrernr und schuelernr. Die Namen und Daten im Download sind fiktiv; bei einem anderen Unterrichtsmodell musst du die Attributnamen und Regeln dort prüfen. Die L2.2-Datenbank wird nicht verändert."
+          ],
+          code: "orte(ortnr PK, plz, ort)\nfahrlehrer(fahrlehrernr PK, ..., ortnr FK)\nfahrschueler(schuelernr PK, ..., ortnr FK, fahrlehrernr FK)",
+          tip: "Prüfe nach dem Import die Fremdschlüssel mit SHOW CREATE TABLE und die Tabellen im Navigator. Eine gezeichnete Verbindung allein beweist nicht, dass der verbundene Server die Regel durchsetzt."
+        },
+        {
+          title: "Eine blockierte Änderung schützt das Modell",
+          body: [
+            "Unser Testbestand verwendet ausdrücklich ON DELETE RESTRICT und ON UPDATE RESTRICT. Ein referenzierter Parent kann deshalb nicht einfach gelöscht oder sein Schlüssel verändert werden. Ein neuer Child mit nicht vorhandener Parent-ID wird ebenfalls abgelehnt.",
+            "Andere Modelle können andere Regeln festlegen: CASCADE führt die entsprechende Parent-Änderung an abhängigen Child-Zeilen weiter, SET NULL setzt einen zulässigen Fremdschlüssel auf NULL. Solche Regeln müssen fachlich gewollt sein; sie sind kein Mittel, einen Fehler beliebig verschwinden zu lassen.",
+            "Notiere den ausgeführten Befehl, die tatsächliche Fehlermeldung, den betroffenen Fremdschlüssel und das fehlende oder noch referenzierte Ziel. Prüfe nach dem Fehler, dass der Zustand unverändert blieb. Ein blockierter Löschversuch ist in dieser Aufgabe ein erwartetes Ergebnis."
+          ],
+          warning: "Lass Fremdschlüsselprüfungen und Safe Updates eingeschaltet. Lösche abhängige Schüler nicht nur, damit ein Fahrlehrer-Löschbefehl funktioniert. Die fachliche Entscheidung kommt vor der technischen Änderung."
+        },
+        {
+          title: "Einfügen und Löschen brauchen eine begründete Reihenfolge",
+          body: [
+            "Prüfe beim Erfassen zuerst, welche Orte bereits existieren. Lege fehlende Parent-Datensätze an, bevor du auf sie verweist. Ein neuer Fahrlehrer braucht seinen vorhandenen Ort; der neue Schüler braucht sowohl seinen Ort als auch den neuen Fahrlehrer.",
+            "Beim Entfernen gilt im RESTRICT-Modell die umgekehrte Abhängigkeitsrichtung. Wenn Schüler und Fahrlehrer laut Auftrag beide ausscheiden, prüfst und entfernst du zunächst den abhängigen Schüler. Erst wenn kein anderer Schüler mehr auf den Fahrlehrer verweist, darfst du ihn entfernen. Ein gemeinsam genutzter Ort bleibt bestehen.",
+            "Ist nur der Fahrlehrer ausgeschieden, musst du zuerst fachlich klären, was mit seinen Schülern geschieht, etwa eine zulässige neue Zuordnung. In dieser Einheit wird die blockierte Löschung untersucht; bestehende Schüler werden dafür nicht automatisch entfernt."
+          ],
+          tip: "Prüfe vor jedem UPDATE oder DELETE die Zielschlüssel und nachher dieselben Zeilen. Der Download ist ein Anfangsbestand, keine Rücksetzfunktion und keine Aufgabenlösung."
+        }
+      ],
+      webWorksheet: {
+        title: "L2.3: Verweise und Integritätsfehler",
+        answerPlaceholder: "SQL, Beobachtung und fachliche Begründung ...",
+        intro: "Übertrage die Aufträge des Materials auf workbenchlab_l2_3. Arbeite in der angegebenen Reihenfolge und dokumentiere echte Beobachtungen. Die Personen und Kontakte sind ausschließlich fiktiv.",
+        definitionTerms: [
+          { id: "regel", label: "1 · Regeln und Beziehungen", prompt: "Benenne für alle drei Fremdschlüssel Parent, Child und Zielschlüssel. Erkläre, was referentielle Integrität schützt und was sie nicht garantiert." },
+          { id: "loeschen-plan", label: "2.1 · Ausscheidenden Fahrlehrer prüfen", prompt: "Fahrlehrerin 201, Iris Demo, verlässt die Übungsfahrschule. Prüfe ihre Daten und alle auf sie verweisenden Schüler. Welche Änderung wäre fachlich nötig, welche technische Schwierigkeit erwartest du?" },
+          { id: "loeschen-test", label: "2.2 · Blockierten Versuch dokumentieren", prompt: "Versuche im Testbestand genau Fahrlehrerin 201 zu löschen. Führe keinen weiteren Löschbefehl aus. Notiere SQL und die tatsächliche Servermeldung; kontrolliere danach, ob Fahrlehrerin und Schüler unverändert vorhanden sind." },
+          { id: "fehler-erklaeren", label: "2.3 · Fehlermeldung erklären", prompt: "Erkläre anhand des konkreten Fremdschlüssels, warum die Löschung blockiert ist. Unterscheide den Integritätsschutz von einer möglichen Safe-Updates-Meldung. Nenne eine fachlich zulässige Vorgehensweise, ohne sie hier auszuführen." },
+          { id: "erfassen", label: "3.1 · Neue Personen erfassen", prompt: "Erfasse Fahrlehrer 203, Tari Fiktiv, geboren 1990-05-02, Telefon 0000000203, tari@example.invalid, Testweg 23, Gehalt 2100 Euro, 40 Wochenstunden. Er wohnt im neuen Ort 103, PLZ 00103, Beispielheim. Schüler 2, Finn Fiktiv, geboren 2001-10-10, Telefon 0000000002, finn@example.invalid, Musterweg 22A, 0 Fahrstunden, wohnt im vorhandenen Ort 101 und wird von 203 unterrichtet. Plane zuerst freie Schlüssel und Reihenfolge." },
+          { id: "reihenfolge", label: "3.2 · Reihenfolge begründen", prompt: "Begründe die Reihenfolge deiner INSERT-Befehle anhand der Fremdschlüssel. Erkläre, weshalb der vorhandene Schülerort nicht erneut eingefügt wird, und kontrolliere die neuen Verweise." },
+          { id: "entfernen", label: "3.3 · Beide Personen entfernen", prompt: "Schüler 2 und Fahrlehrer 203 scheiden beide aus. Entferne ausschließlich diese beiden Personen in einer begründeten Reihenfolge. Prüfe vorher andere Verweise und nachher, dass die bisherigen Personen und Orte erhalten geblieben sind." },
+          { id: "ungueltiger-verweis", label: "4 · Zusatz: Ungültigen Verweis testen", prompt: "Prüfe, dass Ort 999 nicht existiert. Versuche dann, bei Schüler 1 die Ortnummer auf 999 zu ändern. Dokumentiere Fehlermeldung und unveränderte Ortnummer. Schalte dafür keine Schutzfunktionen aus." },
+          { id: "loeschregeln", label: "5 · Zusatz: Löschregeln vergleichen", prompt: "Vergleiche RESTRICT, CASCADE und SET NULL am Beispiel eines ausgeschiedenen Fahrlehrers. Weshalb wäre das automatische Löschen seiner Schüler fachlich problematisch? Welche Voraussetzung braucht SET NULL? Verändere die Modellregeln nicht." }
+        ],
+        hint: "Aufträge 1–3.3 übertragen das Originalblatt. 4 und 5 sind zusätzliche Kontrollen. Eine Fehlermeldung gehört hier zum Nachweis; notiere den tatsächlichen Text deines Servers, nicht einen erfundenen Fehlercode."
+      },
+      notePrompts: ["Wieso kann fahrlehrer gleichzeitig Parent und Child sein?", "Warum ist ein vorhandener Fremdschlüssel noch kein Beweis für eine fachlich richtige Zuordnung?", "Welche fachliche Entscheidung muss vor dem Löschen eines Fahrlehrers geklärt werden?"],
       classroomTask: {
         tool: "MySQL Workbench SQL Editor",
         title: "Gültige und ungültige Fremdschlüssel gezielt testen",
-        intro: "Erzeuge einen kontrollierten Regelverstoß und lies die Fehlermeldung als Hinweis auf das Datenmodell.",
+        intro: "Nutze ausschließlich den fiktiven Drei-Tabellen-Bestand workbenchlab_l2_3. L2.2 bleibt unverändert. Der Download legt nur den Anfangsbestand an und wird einmal ausgeführt; blockierte Befehle dokumentierst du als erwartete Beobachtung.",
         steps: [
-          "Zeige den vorhandenen Parent-Datensatz und den dazugehörigen Child-Datensatz.",
-          "Versuche einen Child-Datensatz mit nicht vorhandener Parent-ID einzufügen.",
-          "Dokumentiere Fehlermeldung, verletzte Regel und eine fachlich korrekte Lösung.",
-          "Prüfe die festgelegte Löschregel an einem referenzierten Parent-Datensatz."
+          "Prüfe Datenbank, drei Tabellen, NOT NULL und die RESTRICT-Regeln. Bearbeite Auftrag 1.",
+          "Bearbeite 2.1–2.3: Ziel und Verweise auswählen, blockierten Versuch dokumentieren, unveränderte Daten prüfen.",
+          "Bearbeite 3.1–3.2: fehlenden Ort, neuen Fahrlehrer und neuen Schüler in begründeter Reihenfolge erfassen.",
+          "Bearbeite 3.3: nur die beiden neu erfassten Personen kontrolliert entfernen. Die Zusatzaufträge vertiefen Verweisfehler und Löschregeln."
         ],
         evidence: "Vorher-Nachher-Protokoll mit erklärter Fehlermeldung",
+        download: { href: "assets/sql/l2-3-integritaet-testdaten.sql", label: "Fiktiven Integritäts-Testbestand" },
         fileName: "L2_3_referentielle_integritaet.sql"
       },
       completionChecks: [
-        "Ich kann den Zielschlüssel eines Fremdschlüssels nennen.",
-        "Ich habe einen Integritätsfehler erzeugt und fachlich erklärt.",
-        "Ich kenne die im Modell festgelegte Löschregel."
+        "Ich habe die drei Fremdschlüssel mit Parent und Child dokumentiert.",
+        "Ich habe die blockierte Löschung beobachtet, erklärt und den unveränderten Bestand geprüft.",
+        "Ich habe die neuen Personen in begründeter Reihenfolge erfasst und wieder entfernt; die bisherigen Daten bleiben erhalten."
       ]
     },
     "joins": {
       courseCode: "L2.4",
       module: "lernfortschritt-2",
+      duration: 120,
+      subtitle: "Zusammengehörige Daten über Schlüssel verbinden, Ergebniszeilen prüfen und Gruppen auswerten.",
+      workflow: ["Verbindung verstehen", "Zwei Tabellen", "Mehrere Tabellen", "Abschließen"],
+      workflowHints: ["ON statt Zufall", "Fünf Einstiegsaufträge", "Grundaufträge und Transfer", "Lehrkraft bestätigt"],
       sourceMaterials: ["L2_2.3 Information Datenbankabfrage 2 Tabellen", "L2_2.3 Aufgabe Datenbankabfragen 2 Tabellen", "L2_4 Aufgabe Datenbankabfragen n Tabellen"],
+      objectives: [
+        "einen Equi-Join über passende Primär- und Fremdschlüssel formulieren",
+        "Verknüpfung mit ON von Ergebnisfilterung mit WHERE unterscheiden",
+        "mehrdeutige Attribute und mehrere Rollen derselben Tabelle qualifizieren",
+        "Zeilenzahlen, Gruppen und skalare Unterabfragen fachlich kontrollieren"
+      ],
+      sections: [
+        {
+          title: "Ohne passende Verknüpfung entstehen Kombinationen",
+          body: [
+            "Zwei Tabellen nebeneinander in FROM ohne passende Verknüpfung erzeugen alle Kombinationen ihrer Zeilen. Bei neun Schülern und fünf Orten sind das 45 Kombinationen, nicht neun richtige Adressen. Dieses kartesische Produkt ist keine Zuordnung über einen Fremdschlüssel.",
+            "Ein Equi-Join vergleicht Werte auf Gleichheit. Hier passt die Ortnummer des Schülers zum Primärschlüssel des Ortes. Im geprüften 1:N-Modell mit einem verpflichtenden gültigen Wohnort erhält ein INNER JOIN ohne weiteren Filter genau eine Ergebniszeile je Schüler. Diese Zeilenzahl ist keine allgemeine Eigenschaft aller JOINs."
+          ],
+          code: "SELECT f.schuelernr, o.ortnr\nFROM fahrschueler AS f\nINNER JOIN orte AS o ON f.ortnr = o.ortnr;",
+          tip: "Die Originalunterlagen zeigen den Equi-Join auch mit FROM tabelle1, tabelle2 und der Schlüsselbedingung in WHERE. Wir schreiben die Verknüpfung ausdrücklich als JOIN ... ON, damit sie vom fachlichen Filter getrennt bleibt."
+        },
+        {
+          title: "Aliasnamen machen Herkunft und Rollen sichtbar",
+          body: [
+            "AS f, AS l und AS o sind kurze Tabellennamen innerhalb dieser Abfrage. f.nachname stammt vom Schüler, l.nachname vom Fahrlehrer. Gleiche Attributnamen müssen eindeutig zugeordnet werden; AS fahrlehrername kann zusätzlich eine Ergebnisspalte benennen.",
+            "Lies jeden Verbindungsschritt im Modell: Schüler zu Fahrlehrer über fahrlehrernr, Schüler zu Schülerort über ortnr. Für den Wohnort des Fahrlehrers wird orte ein zweites Mal mit einem anderen Alias eingebunden. Zwei Rollen derselben Tabelle sind nicht zwei verschiedene gespeicherte Ortstabellen."
+          ],
+          code: "fahrschueler AS f\nfahrlehrer AS l\norte AS schuelerort\norte AS lehrerort",
+          tip: "Verbinde nicht Schüler und Fahrlehrer nur deshalb, weil beide dieselbe ortnr haben. Sie können am selben Ort wohnen, ohne einander zugeordnet zu sein. Entscheidend ist fahrlehrernr."
+        },
+        {
+          title: "INNER JOIN, LEFT JOIN und gezählter Schlüssel",
+          body: [
+            "INNER JOIN zeigt nur passende Paare. Ein Ort ohne Schüler und eine Lehrkraft ohne Schüler fehlen dann in einer gruppierten Personenliste. LEFT JOIN erhält dagegen auch die Zeile der linken Tabelle, wenn es keinen passenden Child gibt; dessen Spalten sind im Ergebnis NULL.",
+            "Bei einem LEFT JOIN zählt COUNT(*) auch die erhaltene Parent-Zeile ohne Schüler. COUNT(f.schuelernr) zählt nur tatsächlich zugeordnete Schüler und ergibt für die leere Gruppe null Personen. Gruppiere Orte nach ortnr, plz und ort sowie Lehrkräfte nach ihrem Schlüssel und den ausgegebenen Namen, nicht allein nach einem möglicherweise gleichen Namen.",
+            "WHERE filtert einzelne Ergebniszeilen, HAVING fertige Gruppen. Mehr als zwei bedeutet > 2. ORDER BY legt die Ausgabeordnung fest. DISTINCT entfernt doppelte Ergebniswerte, ersetzt aber keine fehlende oder falsche JOIN-Bedingung."
+          ],
+          tip: "In den Aufträgen T4 und M10 sollen auch Orte bzw. Lehrkräfte ohne Schüler sichtbar werden. Diese Präzisierung lässt sich mit unserem fiktiven Bestand ausdrücklich prüfen."
+        },
+        {
+          title: "Durchschnittswerte sind Zahlen, nicht formatierter Text",
+          body: [
+            "Die Zusatzaufgaben vergleichen Einzelwerte mit einem Durchschnitt. Eine skalare Unterabfrage steht in runden Klammern und liefert genau einen Wert. Eine reine AVG-Abfrage ohne GROUP BY eignet sich dazu; ein gruppiertes Ergebnis mit mehreren Zeilen passt nicht an diese Stelle.",
+            "Verwende für den Vergleich den ungerundeten Zahlenwert. FORMAT liefert eine Textdarstellung für die Anzeige; eine gerundete Anzeige kann einen Vergleich direkt an der Grenze verfälschen. Kontrolliere B zunächst mit dem notierten numerischen Durchschnitt und C anschließend mit einer Unterabfrage.",
+            "Bei Altersaufgaben ist gemeint, wie alt die Person im aktuellen Kalenderjahr wird. Notiere das Bezugsjahr und berechne die Kalenderjahresdifferenz, nicht das heutige Alter in vollständig vergangenen Jahren. Die Unterlagen zeigen historische Beispieljahre; heutige Werte dürfen davon abweichen."
+          ],
+          tip: "Alle Abfragen dieser Einheit lesen Daten. Verändere nicht den Bestand aus L2.3, um Ergebnisse passend zu machen; der Download für L2.4 enthält einen eigenen festen Anfangsbestand."
+        }
+      ],
+      webWorksheet: {
+        title: "L2.4: JOIN und Mehrtabellen-Abfragen",
+        intro: "Arbeite im fiktiven Schema workbenchlab_l2_4. Beginne mit T1–T5, bearbeite anschließend M1–M15. A–G sind Zusatzaufgaben. Notiere SQL und eine Ergebniskontrolle; verwende eindeutige Aliasnamen und eine nachvollziehbare Sortierung.",
+        answerPlaceholder: "SQL-Befehl, erwartete Zeilenzahl und Ergebniskontrolle ...",
+        definitionGroups: [
+          { label: "Zwei Tabellen · T1–T5", open: true, ids: ["t1-adressen", "t2-ein-ort", "t3-zwei-orte", "t4-ortszahl", "t5-grosse-orte"] },
+          { label: "Mehrere Tabellen · M1–M15", ids: Array.from({ length: 15 }, (_, index) => `m${index + 1}`) },
+          { label: "Zusatzaufgaben · A–G", ids: ["a", "b", "c", "d", "e", "f", "g"] }
+        ],
+        definitionTerms: [
+          { id: "t1-adressen", label: "T1 · Schüleradressen", prompt: "Liste alle Schüler mit Vorname, Nachname, Straße, Hausnummer, PLZ und Ort auf. Prüfe die erwartete Zeilenzahl." },
+          { id: "t2-ein-ort", label: "T2 · Ein Wohnort", prompt: "Liste Vorname, Nachname, PLZ und Ort der Schüler aus Musterstadt auf." },
+          { id: "t3-zwei-orte", label: "T3 · Zwei Wohnorte", prompt: "Liste Vorname, Nachname, PLZ und Ort der Schüler aus Musterstadt oder Testdorf auf." },
+          { id: "t4-ortszahl", label: "T4 · Schüler je Ort", prompt: "Ermittle für jeden gespeicherten Ort die Schülerzahl, ausdrücklich einschließlich Orten ohne Schüler." },
+          { id: "t5-grosse-orte", label: "T5 · Mehr als zwei", prompt: "Liste die Orte mit mehr als zwei Schülern einschließlich ihrer Schülerzahl auf." },
+          { id: "m1", label: "M1 · Lehreradressen", prompt: "Liste Vor- und Nachnamen sowie Straße, Hausnummer, PLZ und Wohnort aller Fahrlehrer auf." },
+          { id: "m2", label: "M2 · Schüler und Lehrkraft", prompt: "Liste alle Schüler mit Vor- und Nachname und dem Nachnamen der zugeordneten Lehrkraft auf. Benenne gleichnamige Ergebnisspalten eindeutig." },
+          { id: "m3", label: "M3 · Schüler von Demo", prompt: "Wie heißen die Schüler der Fahrlehrerin mit Nachname Demo?" },
+          { id: "m4", label: "M4 · Mit Schülerwohnort", prompt: "Ergänze bei M3 die Wohnorte der Schüler. Prüfe, dass du nicht den Wohnort der Lehrkraft ausgibst." },
+          { id: "m5", label: "M5 · Orte ohne Dopplungen", prompt: "Aus welchen Orten kommen die Schüler des Fahrlehrers Probe? Vermeide Doppelnennungen von Ortsnamen." },
+          { id: "m6", label: "M6 · Buchstabe im Ortsnamen", prompt: "Wie M5, aber nur Ortsnamen, in denen der Buchstabe e vorkommt." },
+          { id: "m7", label: "M7 · Bewohnte Orte zählen", prompt: "Wie viele Schüler wohnen in den jeweiligen Orten? Zeige hier nur Orte mit mindestens einem Schüler und vergleiche mit T4." },
+          { id: "m8", label: "M8 · Gruppen filtern", prompt: "Wie M7, aber nur Orte mit mehr als zwei Schülern." },
+          { id: "m9", label: "M9 · Schülerzahl von Fiktiv", prompt: "Wie viele Schüler betreut die Fahrlehrkraft mit Nachname Fiktiv?" },
+          { id: "m10", label: "M10 · Alle Lehrkräfte zählen", prompt: "Ermittle je Fahrlehrer die Schülerzahl, ausdrücklich auch für Lehrkräfte ohne Schüler." },
+          { id: "m11", label: "M11 · Alter im Kalenderjahr", prompt: "Wie alt werden die Schüler der Lehrkraft Fiktiv im aktuellen Jahr? Gib Schülernamen und Bezugsjahr mit aus." },
+          { id: "m12", label: "M12 · Durchschnittsalter", prompt: "Wie hoch ist das durchschnittliche Alter, das die Schüler von Fiktiv im aktuellen Jahr erreichen?" },
+          { id: "m13", label: "M13 · Durchschnitt je Lehrkraft", prompt: "Ermittle das durchschnittliche Kalenderjahresalter der Schüler je Lehrkraft mit Schülern. Notiere das Bezugsjahr." },
+          { id: "m14", label: "M14 · Fahrstunden von Probe", prompt: "Ermittle die Summe der Schüler-Fahrstunden des Fahrlehrers Probe." },
+          { id: "m15", label: "M15 · Durchschnitt aller Schüler", prompt: "Ermittle die durchschnittliche Fahrstundenzahl aller Schüler. Ist hierfür überhaupt ein JOIN nötig?" },
+          { id: "a", label: "A · Formatierte Ausgabe", prompt: "Stelle den Durchschnitt aus M15 mit zwei Dezimalstellen dar. Bewahre den ungerundeten Zahlenwert für die nächsten Vergleiche auf." },
+          { id: "b", label: "B · Mehr als der Durchschnitt", prompt: "Welche Schüler haben mehr Fahrstunden als der Durchschnitt? Verwende zunächst den notierten numerischen Durchschnitt und prüfe die Grenze." },
+          { id: "c", label: "C · Skalare Unterabfrage", prompt: "Löse B erneut, jetzt mit einer Unterabfrage für den ungerundeten Durchschnitt. Vergleiche beide Ausgaben." },
+          { id: "d", label: "D · Durchschnittsalter aller", prompt: "Ermittle das durchschnittliche Alter, das alle Schüler im aktuellen Kalenderjahr erreichen. Notiere das Bezugsjahr." },
+          { id: "e", label: "E · Überdurchschnittliches Alter", prompt: "Welche Schüler werden im aktuellen Jahr älter als der Altersdurchschnitt? Verwende eine Unterabfrage." },
+          { id: "f", label: "F · Zwei Durchschnittsgrenzen", prompt: "Welche Schüler werden im aktuellen Jahr überdurchschnittlich alt und haben gleichzeitig überdurchschnittlich viele Fahrstunden? Prüfe beide Bedingungen getrennt und gemeinsam." },
+          { id: "g", label: "G · Zwei Rollen der Ortstabelle", prompt: "Welche Schüler aus Testdorf werden von Lehrkräften betreut, die in Beispielheim wohnen? Verwende unterschiedliche Aliasnamen für Schülerort und Lehrerort." }
+        ],
+        hint: "Die Orts- und Lehrernamen übertragen die Originalaufträge auf fiktive Daten. T4/M10 präzisieren die Behandlung leerer Gruppen. M11–M13 und D–F verwenden Kalenderjahresalter, nicht vollständig vergangene Jahre."
+      },
+      notePrompts: ["Wann kann ich eine Zeile je Schüler erwarten und wann nicht?", "Warum zählt COUNT(*) bei einem LEFT JOIN eine andere Menge als COUNT(f.schuelernr)?", "Wieso braucht orte in Aufgabe G zwei Aliasnamen?"],
       classroomTask: {
         tool: "MySQL Workbench SQL Editor",
         title: "Den Verbindungspfad aus dem Modell ablesen",
-        intro: "Entwickle JOIN-Abfragen schrittweise und prüfe nach jedem JOIN, ob die Zeilenzahl fachlich plausibel bleibt.",
+        intro: "Nutze den getrennten fiktiven Bestand workbenchlab_l2_4. Er enthält neun Schüler, vier Lehrkräfte und fünf Orte. Der einmalige Download verändert die bisherigen Datenbanken nicht. Teile die Bearbeitung bei Bedarf auf mehrere Stunden auf.",
         steps: [
-          "Markiere im Relationenmodell Primär- und Fremdschlüssel des ersten Verbindungspaars.",
-          "Formuliere FROM, JOIN und ON zunächst für zwei Tabellen.",
-          "Ergänze gewünschte Ausgabespalten mit eindeutigen Tabellenaliasnamen.",
-          "Erweitere die Abfrage um eine dritte Tabelle und dokumentiere die erwartete Zeilenzahl."
+          "Prüfe Schema, Datenbestand und die drei Fremdschlüssel. Notiere den Verbindungspfad für Schüler, Lehrkraft und Ort.",
+          "Bearbeite T1–T5 und vergleiche die leere Ortsgruppe bei INNER JOIN und LEFT JOIN.",
+          "Bearbeite M1–M15. Kontrolliere nach jedem zusätzlichen JOIN Schlüssel, Spaltenherkunft und Zeilenzahl.",
+          "Bearbeite Zusatzaufgaben nach Absprache. Verwende ungerundete Zahlen für Vergleiche und dokumentiere das Bezugsjahr."
         ],
-        evidence: "Kommentierte Zwei- und Drei-Tabellen-Abfrage",
+        evidence: "T1–T5 und M1–M15 mit Ergebniskontrollen; A–G als Zusatz",
+        download: { href: "assets/sql/l2-4-join-testdaten.sql", label: "Fiktiven JOIN-Testbestand" },
         fileName: "L2_4_joins.sql"
       },
       completionChecks: [
-        "Jede JOIN-Bedingung verbindet fachlich passende Schlüssel.",
-        "Mehrdeutige Spalten sind mit Tabellenalias qualifiziert.",
-        "Ich habe Zeilen- und Spaltenzahl mit meiner Erwartung verglichen."
+        "Ich habe T1–T5 mit richtigen Schlüsselbedingungen und geprüften Zeilenzahlen bearbeitet.",
+        "Ich habe M1–M15 mit eindeutigen Aliasnamen und Ergebniskontrollen dokumentiert.",
+        "Ich kann leere Gruppen, COUNT beim LEFT JOIN und die beiden Rollen der Ortstabelle erklären."
       ]
     },
     "erm-beziehungsentitaet": {
       courseCode: "L3.1",
       module: "lernfortschritt-3",
+      duration: 120,
       sourceMaterials: ["L3_1 Information M-N-Beziehung", "L3_1.1 bis L3_1.6 Aufgaben Datenbankmodell"],
+      objectives: [
+        "eine M:N-Beziehung in beiden Leserichtungen beschreiben und relational auflösen",
+        "Zuordnung und wiederholbaren Vorgang unterscheiden",
+        "Primärschlüssel, Fremdschlüssel und Vorgangsattribute begründet festlegen",
+        "Mindestbeteiligung und zusätzliche Geschäftsregeln getrennt prüfen"
+      ],
+      sections: [
+        {
+          title: "Eine Zeile für jede Zuordnung",
+          body: [
+            "Ein Teilnehmer kann mehrere Kurse belegen, ein Kurs hat mehrere Teilnehmer: M:N. Ein einzelner Fremdschlüssel in einer der beiden Tabellen würde nur eine Seite auf höchstens eine Zuordnung beschränken. kursnr_1, kursnr_2 und weitere Wiederholungsspalten setzen dagegen eine künstliche Grenze.",
+            "Eine relationale Datenbank kann M:N-Beziehungen darstellen: Eine zusätzliche Relation speichert jede Zuordnung als eigene Zeile mit zwei Fremdschlüsseln. Dadurch entstehen zwei 1:N-Beziehungen. Die folgende Grafik überträgt dieses Prinzip auf Kunden und Fahrräder."
+          ],
+          visual: "mn-associative"
+        },
+        {
+          title: "Zuordnung oder wiederholbarer Vorgang?",
+          body: [
+            "Eine Belegung verbindet einen Teilnehmer mit einem Kurs. Wenn diese Kombination nur einmal vorkommen darf, kann das Paar der beiden Fremdschlüssel gemeinsam Primärschlüssel sein. Bei einem künstlichen Primärschlüssel braucht dieselbe Einmaligkeitsregel zusätzlich eine UNIQUE-Bedingung auf dem Paar.",
+            "Eine Vermietung beschreibt dagegen einen konkreten Vorgang: Derselbe Kunde kann dasselbe Fahrrad später erneut mieten. Das reine Fremdschlüsselpaar wäre dafür kein geeigneter Primärschlüssel. Eine eigene Vorgangsnummer unterscheidet die Verträge; ein zusammengesetzter Schlüssel wäre nur mit weiteren, nachweislich eindeutigen Merkmalen möglich.",
+            "Mietbeginn und Mietende gehören zum Mietvertrag, nicht dauerhaft zum Kunden oder Fahrrad. Eine Vorgangsnummer verhindert aber nicht, dass sich zwei Vermietungen desselben Fahrrads zeitlich überschneiden. Solche Geschäftsregeln müssen zusätzlich geprüft werden."
+          ],
+          tip: "Erfinde keine Eindeutigkeit: Auch Nachname, Vorname und Geburtsdatum zusammen identifizieren Menschen nicht verlässlich. Natürliche, künstliche und zusammengesetzte Schlüssel brauchen jeweils eine fachliche Begründung."
+        },
+        {
+          title: "Die Kardinalitäten präzise lesen",
+          body: [
+            "In unserem Mietmodell gehört jeder Mietvertrag zu genau einem Kunden und genau einem Fahrrad. Beide Fremdschlüssel sind deshalb verpflichtend (NOT NULL). Ein Kunde oder Fahrrad darf zunächst ohne Vertrag gespeichert sein und später viele Verträge haben: jeweils 0..N.",
+            "M:N beschreibt die möglichen vielen Zuordnungen, legt aber die Mindestbeteiligung nicht fest. Ob mindestens eine Zuordnung verlangt wird, ergibt sich aus dem Sachtext. Ein Fremdschlüssel allein erzwingt keine Mindestanzahl von Vorgängen je Kunde."
+          ]
+        }
+      ],
+      webWorksheet: {
+        title: "M:N modellieren und begründen",
+        intro: "Bearbeite zuerst Fahrschule und Fahrradvermietung. Zeichne die Modelle in Workbench und halte hier deine Entscheidungen fest. Die vier weiteren Fälle sind Transferaufgaben nach Absprache.",
+        answerPlaceholder: "Modellentscheidung, Schlüssel und Begründung ...",
+        definitionGroups: [
+          { label: "Fahrschule · F1–F4", open: true, ids: ["f1", "f2", "f3", "f4"] },
+          { label: "Fahrradvermietung · R1–R2", ids: ["r1", "r2"] },
+          { label: "Transfer und Modellprüfung", ids: ["i1", "i2", "w1", "w2", "m1", "m2", "s1", "s2", "pruefung"] }
+        ],
+        definitionTerms: [
+          { id: "f1", label: "F1 · Fahrlehrer und Fahrzeuge", prompt: "Ein Fahrlehrer nutzt im Lauf der Zeit verschiedene Fahrzeuge; ein Fahrzeug wird von mehreren Fahrlehrern genutzt. Beschreibe beide Leserichtungen und zeichne das konzeptionelle ER-Diagramm. Notiere Annahmen zur Mindestbeteiligung." },
+          { id: "f2", label: "F2 · Die Grenze eines einzelnen Fremdschlüssels", prompt: "Warum reicht ein einzelner Fremdschlüssel in fahrlehrer oder kfz nicht für diese M:N-Beziehung? Erkläre auch, warum kfz_nr_1, kfz_nr_2 usw. keine tragfähige Lösung sind." },
+          { id: "f3", label: "F3 · Den Unterrichtsvorgang modellieren", prompt: "Gesucht ist: Welche Lehrkraft hat an welchem Tag mit welchem Fahrzeug wie viele Unterrichtsstunden gegeben? Löse M:N auf. Begründe Primärschlüssel, beide Fremdschlüssel und deren Pflichtbeteiligung. Dasselbe Lehrer-Fahrzeug-Paar darf erneut vorkommen. Ein Schülerbezug ist in diesem Auftrag nicht verlangt." },
+          { id: "f4", label: "F4 · Attribute und Relationenmodell", prompt: "Erfasse Kennzeichen, Anschaffungsdatum und Anschaffungspreis des Fahrzeugs sowie Datum und Dauer in Stunden des Unterrichtsvorgangs. Ordne jedes Attribut begründet zu und notiere die Relationen mit PK und FK. Prüfe, ob auch zwei Vorgänge desselben Paares am selben Tag unterscheidbar bleiben." },
+          { id: "r1", label: "R1 · Kunden, Fahrräder und Mietverträge", prompt: "Für jedes vermietete einzelne Fahrrad wird erfasst, welcher Kunde es in welchem Zeitraum mietet. Kunden haben Vorname, Nachname und eine vollständige Anschrift. Erstelle ER-Diagramm und Relationenmodell mit atomaren Adressattributen." },
+          { id: "r2", label: "R2 · Wiederholte Vermietungen", prompt: "Derselbe Kunde mietet dasselbe Fahrrad zweimal zu verschiedenen Zeitpunkten. Zeige zwei mögliche Vertragszeilen und begründe deinen Schlüssel. Welche zusätzliche Prüfung verhindert eine zeitlich überlappende Vermietung desselben Fahrrads?" },
+          { id: "i1", label: "Immobilien · Häuser und Kategorien", prompt: "Häuser haben Grundmietpreis, Wohnfläche und vollständige Adresse. Kategorien haben eindeutige Kürzel EH, DHH oder RH und eine Bezeichnung. Modelliere Kategorien und Häuser ohne mehrfach gespeicherte Kategorienbezeichnungen." },
+          { id: "i2", label: "Immobilien · Der Hauptmieter", prompt: "Jeder Mietvertrag wird mit genau einer Person als Hauptmieter abgeschlossen. Erfasse Vorname, Nachname, gemietetes Haus und Mietbeginn. Erstelle das Gesamtmodell und markiere eigene Annahmen; ein Mietende ist im Ausgangsauftrag nicht gefordert." },
+          { id: "w1", label: "Wartungen · Mehrere Berufsabschlüsse", prompt: "Mitarbeiter haben Vorname, Nachname und Gehalt. Ein Mitarbeiter kann mehrere Ausbildungsberufe mit eindeutigem Kürzel und Bezeichnung abgeschlossen haben. Zu jedem Abschluss gehören Termin und Note. Modelliere diese Zuordnungen und begründe den Ort von Termin und Note." },
+          { id: "w2", label: "Wartungen · Zeit je beteiligter Person", prompt: "An einer Wartung mit festem Datum arbeiten mehrere Monteure; Monteure nehmen an mehreren Wartungen teil. Die Arbeitszeit in Minuten wird für jeden beteiligten Monteur getrennt erfasst. Ergänze das Modell aus dem vorigen Auftrag und unterscheide beide M:N-Beziehungen." },
+          { id: "m1", label: "Motorsport · Rennen und Platzierungen", prompt: "Rennstrecken haben Name und Länge. Jede eintägige Rennveranstaltung hat Name und Datum und findet auf genau einer Strecke statt; eine Strecke hat im Lauf der Zeit viele Veranstaltungen. Teams mit Teambezeichnung nehmen an mehreren Veranstaltungen teil. Erfasse die jeweilige Platzierung und begründe ihre Zuordnung." },
+          { id: "m2", label: "Motorsport · Mitglieder und Teamleitung", prompt: "Fahrer haben eine vom Verband eindeutig vergebene Lizenznummer, Vorname und Nachname; Mechaniker Vorname, Nachname und Telefonnummer. Jede Person gehört genau einem Team an. Jedes Team hat genau eine Leitung; eine Leitung kann mehrere Teams leiten und hat Vorname, Nachname und E-Mail. Ergänze ER-Diagramm und Relationenmodell und begründe einen natürlichen Schlüssel." },
+          { id: "s1", label: "Schulen · Bildungsgänge und Voraussetzungen", prompt: "Bildungsgänge haben Name, erforderlichen Notenschnitt und Dauer sowie einen vorausgesetzten Schulabschluss mit Bezeichnung und Kürzel. Mehrere Bildungsgänge können denselben Abschluss voraussetzen. Modelliere diese Daten und kennzeichne PK und FK." },
+          { id: "s2", label: "Schulen · Angebote zuordnen", prompt: "Schulen haben Name, Straße, Postleitzahl und Ort. Jede Schule bietet mehrere Bildungsgänge an, ein Bildungsgang wird an mehreren Schulen angeboten. Ergänze das Gesamtmodell. Begründe einen Schlüssel für die Angebotszuordnung, wenn dasselbe Angebot je Schule nur einmal vorkommen darf." },
+          { id: "pruefung", label: "Modellprüfung · Eigene Annahmen sichtbar machen", prompt: "Wähle einen Transferfall. Lies jede Beziehung in beiden Richtungen, prüfe Mindestbeteiligung und wiederholbare Vorgänge und trenne verlangte Angaben von eigenen Annahmen. Speichere dein Modell und öffne die .mwb-Datei zur Kontrolle erneut." }
+        ],
+        hint: "1:N allein beantwortet noch nicht, ob null Zuordnungen zulässig sind. Entscheide über Schlüssel anhand der Geschäftsregel, nicht anhand der momentan vorhandenen Beispieldaten."
+      },
+      notePrompts: ["Wann reicht das Fremdschlüsselpaar als Primärschlüssel?", "Welches Attribut beschreibt die Verbindung statt eine der beteiligten Personen oder Sachen?", "Welche Regel wird durch meine Schlüssel noch nicht abgesichert?"],
       classroomTask: {
         tool: "MySQL Workbench EER Diagram",
         title: "Eine M:N-Beziehung als fachlichen Vorgang modellieren",
-        intro: "Löse eine M:N-Beziehung über eine Beziehungsentität auf und ordne deren eigene Attribute begründet zu.",
+        intro: "Bearbeite Fahrschule und Fahrradvermietung in getrennten Workbench-Modellen. Die weiteren Fälle dienen dem Transfer nach Absprache. Halte Schlüsselentscheidungen und Annahmen im Arbeitsblatt fest.",
         steps: [
-          "Beschreibe die ursprüngliche M:N-Beziehung in beiden Leserichtungen.",
-          "Führe eine Beziehungsentität mit eigenem Primärschlüssel ein.",
-          "Übernimm die Schlüssel der beiden Parent-Tabellen als Fremdschlüssel.",
-          "Ordne Beginn, Ende oder andere Vorgangsattribute der Beziehungsentität zu."
+          "Beschreibe die ursprüngliche M:N-Beziehung in beiden Leserichtungen und löse sie in zwei 1:N-Beziehungen auf.",
+          "Begründe je Modell den Primärschlüssel und beide Fremdschlüssel. Berücksichtige wiederholte Vorgänge mit demselben Paar.",
+          "Ordne Vorgangsattribute und Stammdaten getrennt zu und notiere Mindestbeteiligung sowie zusätzliche Geschäftsregeln.",
+          "Speichere als L3_1_fahrschule.mwb und L3_1_fahrradvermietung.mwb. Öffne beide Dateien erneut und kontrolliere Tabellen und Beziehungen."
         ],
-        evidence: "Aufgelöstes EER-Diagramm mit Begründung der Vorgangsattribute",
-        fileName: "L3_1_mn_aufloesung.mwb"
+        evidence: "Zwei EER-Diagramme und Relationenmodelle mit begründeten Schlüsseln und Attributen; weitere Fälle als Transfer",
+        fileName: "L3_1_fahrschule.mwb"
       },
       completionChecks: [
-        "Die direkte M:N-Beziehung wurde in zwei 1:N-Beziehungen aufgelöst.",
-        "Die Beziehungsentität enthält beide notwendigen Fremdschlüssel.",
-        "Eigene Attribute des Vorgangs liegen an der fachlich richtigen Stelle."
+        "Ich habe die Modelle für Fahrschule und Fahrradvermietung gespeichert und erneut geöffnet.",
+        "Ich kann beide Fremdschlüssel, meine Schlüsselwahl und wiederholte Vorgänge erklären.",
+        "Ich habe Vorgangsattribute richtig zugeordnet und Mindestbeteiligung sowie zusätzliche Geschäftsregeln begründet."
       ]
     },
     "mn-beziehungen": {

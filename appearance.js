@@ -6,14 +6,14 @@
   };
   const choices = {
     dark: {
-      text: ["#f5f7fa", "#e3edf9", "#fff1d8"],
-      background: ["#090b0e", "#11151c", "#131817"],
-      accent: ["#8adccb", "#9fc8ff", "#f1c785", "#deb9ec"]
+      text: ["#f5f7fa", "#e3edf9", "#fff1d8", "#e8f3ed", "#f3e8ef"],
+      background: ["#090b0e", "#11151c", "#131817", "#171419", "#141414"],
+      accent: ["#8adccb", "#9fc8ff", "#f1c785", "#deb9ec", "#edaeae", "#b9c6d5"]
     },
     light: {
-      text: ["#17212b", "#243b53", "#35283d"],
-      background: ["#f2f4f7", "#ffffff", "#edf3f1"],
-      accent: ["#15635b", "#245b9a", "#8c4c14", "#73468b"]
+      text: ["#17212b", "#243b53", "#35283d", "#263a30", "#3a272b"],
+      background: ["#f2f4f7", "#ffffff", "#edf3f1", "#f3eff5", "#f4f2ed"],
+      accent: ["#15635b", "#245b9a", "#8c4c14", "#73468b", "#98454b", "#46596e"]
     }
   };
   const validHex = (value) => typeof value === "string" && /^#[\da-f]{6}$/i.test(value);
@@ -66,7 +66,7 @@
       const palette = {};
       for (const field of ["text", "background", "accent"]) {
         const raw = value?.palettes?.[theme]?.[field];
-        palette[field] = validHex(raw) ? raw.toLowerCase() : defaults[theme][field];
+        palette[field] = validHex(raw) && choices[theme][field].includes(raw.toLowerCase()) ? raw.toLowerCase() : defaults[theme][field];
       }
       result.palettes[theme] = tokens(palette, theme).minimum >= 4.5 ? palette : { ...defaults[theme] };
     }

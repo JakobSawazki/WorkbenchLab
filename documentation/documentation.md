@@ -1,10 +1,11 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 1. Oktober 2026, 19:40 Uhr (Europe/Berlin)
+Stand: 1. Oktober 2026, 23:22 Uhr (Europe/Berlin)
 
-Aktueller Release-Stand: **0.20.0**
+Aktueller Release-Stand: **0.21.0**
 
-Veröffentlichter Stand: **0.20.0**, Deployment und öffentliche Seite geprüft
+Veröffentlichter Stand vor diesem Release: **0.20.0**; Veröffentlichung von
+**0.21.0** ausdrücklich beauftragt, Deploymentprüfung folgt nach dem Push.
 
 Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 
@@ -47,7 +48,7 @@ eigenständig und webgerecht aufbereitet.
 - lokales SQL-Labor mit `sql.js`, deterministischer Prüfung und SQL-Coach
 - eigenständige eERM- und Workbench-Illustrationen in HTML/CSS
 - lokales Lernprofil mit Schülerkürzel und Klasse
-- JSON-Sicherung (Format 5) mit Profil-, Geräte- und Übertragungsinformationen
+- JSON-Sicherung (Format 6) mit Profil-, Geräte- und Übertragungsinformationen
 - sechs ergänzende YouTube-Tutorials unter Nachschlagen, mit direkten
   Sprunglinks aus den passenden L1-/L2-Einheiten
 - ausblendbare Navigation; Lernfortschritte und Arbeitsreihenfolge anfangs
@@ -181,9 +182,20 @@ Version 5 enthält unter anderem:
 - SHA-256-Prüfsumme über den vollständigen Export ohne den Integritätsblock
 
 Beim Import wird die Prüfsumme vor der Übernahme kontrolliert. Die Formate 1
-bis 4 bleiben lesbar; Formate 1 und 2 besitzen keine Prüfsumme. Format 5
+bis 5 bleiben lesbar; Formate 1 und 2 besitzen keine Prüfsumme. Format 5
 verhindert, dass ältere WorkbenchLab-Versionen eine neue Sicherung annehmen
 und die ihnen unbekannten Zeichnungen bei einer erneuten Sicherung verlieren.
+Format 6 schützt zusätzlich die neuen Radierergrößen (24, 48 und 96 logische
+Canvas-Pixel) vor dem Verlust beim Import in ältere Apps. Bestehende Zeichnungen
+mit den früheren Radierstärken bleiben gültig. Neue Format-6-Dateien benötigen
+WorkbenchLab ab 0.21; die noch öffentliche Version 0.20 lehnt sie sicher ab.
+Exportdateien werden kompakt serialisiert. Export und Import verwenden dieselbe
+Größengrenze von 25 MiB, damit eine erfolgreich erzeugte Datei nicht an einer
+kleineren Importgrenze scheitert. Aufbewahrte ältere, eingerückte JSON-Dateien
+bleiben lesbar. Fehler werden im geöffneten Sicherungsdialog angezeigt;
+außerhalb des Dialogs erscheint eine kurze Rückmeldung. Während eines laufenden
+Dateivorgangs sind die beiden Dateiaktionen gesperrt. Dieser Schutz ersetzt
+weder eine Dateisicherung noch eine serverseitige Signatur.
 Technische Angaben erscheinen nicht im Schülerdialog; die kurze Ladebestätigung
 zeigt Kürzel, Klasse und XP und warnt vor dem Ersetzen des aktuellen Lernstands.
 
@@ -238,6 +250,248 @@ Die Lernstandsdatei bleibt daher ein Nachweisbaustein und ersetzt nicht die
 Beobachtung und Bestätigung durch die Lehrkraft.
 
 ## 6. Versionsverlauf
+
+### 0.21.0, 01.10.2026
+
+- Veröffentlichung ausdrücklich beauftragt. Release beinhaltet die bisherigen
+  lokalen Änderungen; Originalmaterialien, Testexporte, Lehrbuchentwurf und
+  separate unversionierte Dokumente bleiben unveröffentlicht.
+
+- [x] L3.1 anhand des Informationsblatts und der sechs Modellierungsaufgaben
+  erweitert, ohne Musterlösungsdateien zu lesen. 15 ausfüllbare Aufträge:
+  Fahrschule und Fahrradvermietung als Kern, Immobilien, Wartungen,
+  Motorsportclub und Schulen als optionale Transfers. Drei aufklappbare
+  Arbeitsblattgruppen vermeiden eine gleichzeitig sichtbare Aufgabenfülle.
+- [x] M:N relational darstellbar erklärt; Fremdschlüsselpaar als Schlüssel
+  nur bei einmaliger Zuordnung, separate Vorgangsnummer bei Wiederholungen,
+  UNIQUE-Regel und zusätzliche Geschäftsregeln unterschieden. Mindest-
+  beteiligung, NOT NULL und 0..N präzisiert. Fahrschulauftrag enthält bewusst
+  keinen unaufgeforderten Schülerbezug; Wartungszeiten werden je Beteiligung
+  und Berufsabschlussdaten je Abschluss erfasst. Zwei .mwb-Dateien speichern
+  und erneut öffnen; kein unnötiger SQL-Download für Modellierungsaufgaben.
+- [x] Drei neue Tests für Quellenabdeckung, Schlüssel-/Kardinalitätstheorie
+  und tatsächliche PK-/FK-/NOT-NULL-Constraints im SQLite-Testmodell.
+  Browserprüfung: 15 Felder und gespeicherte Antworten bei 390/1440 Pixeln;
+  Diagramm bei vier Breiten, beiden Themes und großer Schrift. Tabellen und
+  Kardinalitäten stehen in getrennten Zeilen statt mehrdeutigem Flex-Umbruch.
+  Die Speicherung und das Wiederöffnen realer Workbench-Dateien bleiben vor
+  Ort zu prüfen; Browsertests ersetzen diese Kontrolle nicht.
+- [x] L2.4 anhand von L2_2.3 Information/Aufgabe und L2_4 Aufgabe ausgebaut,
+  ohne Musterlösungsdateien zu lesen. Fünf Zwei-Tabellen-, 15 Mehrtabellen-
+  und sieben Zusatzaufträge eigenständig übertragen. Große Aufgabenmenge in
+  drei native aufklappbare Abschnitte gegliedert; nur Einstieg zunächst offen.
+  Vorhandene Arbeitsblätter behalten ihre bisherige Darstellung.
+- [x] Fiktiver Download `assets/sql/l2-4-join-testdaten.sql`: eigenes Schema
+  `workbenchlab_l2_4`, neun Schüler, vier Lehrkräfte, fünf Orte. Kein vorhandener
+  Bestand verändert. Ein leerer Ort und eine Lehrkraft ohne Schüler machen
+  LEFT JOIN und COUNT(Child-PK) überprüfbar; Talort ohne e kontrastiert den
+  LIKE-Filter. Namensgleiche Attribute und zwei Rollen der Ortstabelle erklärt.
+- [x] Originalaufträge bei T4/M10 um leere Gruppen präzisiert. Zeilenzahl
+  eines INNER JOIN nicht verallgemeinert. Kalenderjahresalter statt heutiges
+  vollständiges Alter; ungerundete Durchschnitte für Unterabfragen statt
+  FORMAT-Text als Vergleichsgrenze. Fachlicher Abgleich mit
+  [MySQL JOIN](https://dev.mysql.com/doc/refman/8.0/en/join.html) und
+  [skalaren Unterabfragen](https://dev.mysql.com/doc/refman/8.0/en/scalar-subqueries.html).
+- [x] Zwei neue Tests für eindeutige Gruppenzuordnung sämtlicher 27 Felder,
+  kartesisches Produkt, INNER/LEFT JOIN, leere Gruppen, Schlüsselzählung,
+  striktes HAVING, DISTINCT/LIKE, zwei Ortsaliasnamen und skalare Vergleiche.
+  Browserprüfung bei 390/1440 Pixeln: Auf-/Zuklappen, Speicherung, Downloadlink,
+  Layout und Screenshotkontrolle. Bestehender Arbeitsblatt-/Textmarker-/Notiz-
+  und JSON-Workflow weiterhin erfolgreich. SQL-Test nutzt SQLite; reale
+  MySQL/MariaDB-Funktionen, Importrechte und Workbench bleiben vor Ort zu prüfen.
+- [x] Landkarte auf Wunsch des Nutzers neu gestaltet: fotorealistische,
+  zunehmend große Siedlungen vom blauen Dorf L1 bis zur korallfarbenen Stadt L5.
+  Ein einziger Weg verbindet L1–L2–L3–L4–L5 ohne Abkürzungen. Graphitrelief,
+  metallische Materialien und die fünf bestehenden Lernfortschrittfarben bleiben.
+  Mit eingebauter Bildgenerierung in zwei Durchgängen erstellt; letzter
+  Durchgang entfernt zwei ungewollte Direktverbindungen. Promptprotokoll:
+  `documentation/SETTLEMENT_MAP_PROMPT.md`.
+- [x] Neue Assets `assets/bpe6-settlement-map.png` und `.webp` mit 1672×941
+  Pixeln; WebP ca. 449 kB. Altes Kartenbild unverändert aufbewahrt. HTML-Pins
+  neu positioniert; Alternativtext beschreibt die Reihenfolge. Menüs, Touch,
+  Tastaturzugang und vorhandene Sperrlogik bleiben erhalten.
+- [x] Eigene Kartenprüfung bei 390/1440/1920 Pixeln: Bild geladen, fünf Buttons
+  innerhalb des Bildes, keine überlappenden Buttons oder horizontales Scrollen,
+  gesperrte Lerneinheit bleibt gesperrt, verfügbare Einheit erreichbar.
+  Screenshotkontrolle auf Desktop/Mobil und bestehende Notiz-/Zeichnungsprüfung
+  bestanden. Noch nicht veröffentlicht.
+- [x] L2.3 lokal vertieft und gezielt geprüft: sieben Aufträge aus dem
+  Drei-Tabellen-Originalblatt übertragen, zwei Zusatzaufträge zu ungültigen
+  Verweisen und Löschregeln. Rollen von Parent/Child, Grenzen der referentiellen
+  Integrität und RESTRICT/CASCADE/SET NULL erläutert. Echte Fehlermeldungen
+  dokumentieren statt einen Fehlercode vorauszusetzen; Schutzfunktionen bleiben
+  eingeschaltet. Personen und Kontaktdaten vollständig fiktiv.
+- [x] `assets/sql/l2-3-integritaet-testdaten.sql` legt ausschließlich den
+  getrennten Anfangsbestand `workbenchlab_l2_3` an, mit InnoDB, drei NOT-NULL-
+  Fremdschlüsseln und expliziten RESTRICT-Regeln. Daten aus L2.2 bleiben erhalten.
+  Lehrkraftabgleich von Schema/Importrechten und Workbench-Test stehen aus.
+- [x] Zwei neue Tests prüfen Aufgabenabdeckung und aktive Fremdschlüssel im
+  SQL-Testbestand. Ungültige INSERT/UPDATE/DELETE verändern den Bestand nicht;
+  erlaubte Einfügereihenfolge und umgekehrte Löschreihenfolge geprüft,
+  Kontrollpersonen und Orte erhalten. SQLite verifiziert nicht Workbench-
+  Fehlermeldungen oder MySQL-Safe-Updates. Fachlicher Abgleich:
+  [MySQL-Fremdschlüssel](https://dev.mysql.com/doc/refman/8.0/en/create-table-foreign-keys.html).
+- [x] L2.3-Browserprüfung bei 390/1440 Pixeln: neun Antwortfelder, Speicherung
+  nach Neuladen, Downloadlink und Layout. Gemeinsamer Aufgabenblatt-Test leitet
+  Freischaltung nun aus der tatsächlichen Modulreihenfolge ab statt nur L1.
+- [x] Autarke Inhaltsrunde 22:35 Uhr: L1.10 anhand von drei Informations-
+  und sechs Aufgabenblättern L1_6 bis L1_8 vertieft, ohne Musterlösungen zu lesen.
+  16 Antwortfelder decken drei Personen-Inserts, zwei Updates, zwei Deletes,
+  eine Fahrradlieferung, fünf Preisänderungen, zwei Löschaufträge und eine
+  zusätzliche Sicherheitsreflexion ab. Personen, Kontakte und Lieferung
+  sind ausdrücklich fiktiv; Aufgaben sind webgerechte Übertragungen.
+- [x] Getrennte Datenbank `workbenchlab_l1_10` mit einer Kontrollperson und
+  zehn Fahrrädern. Keine vorhandenen Tabellen zurückgesetzt; Download enthält
+  nur Anfangsdaten, keine Aufgabenlösungen. Unbekannte Angaben sind NULL-fähig.
+  Rechnungsvorlage nennt im Einleitungstext zwei Fahrräder, zeigt aber drei
+  physische Fahrräder; Übertragung benennt eindeutig drei, mit freien IDs 20–22.
+- [x] Vorher-Nachher-Kontrollen anhand bestätigter Primärschlüssel, Safe Updates
+  eingeschaltet lassen, relative Preisänderungen nur einmal. DELETE einer Zeile
+  von UPDATE eines Attributs unterschieden. Autocommit/ROLLBACK-Grenzen erläutert.
+  Fachabgleich mit [Workbench Safe Updates](https://dev.mysql.com/doc/workbench/en/wb-preferences-sql-editor.html)
+  und [MySQL-Transaktionen](https://dev.mysql.com/doc/refman/8.0/en/commit.html).
+- [x] Zwei neue Tests prüfen Inhaltsabdeckung und komplette Änderungsfolge,
+  erhaltene Kontrollperson, NULL, gerundete Preise, ODER-Zielmenge und strikte
+  Preis-/Altersgrenzen (festes Bezugsjahr 2018). Insgesamt 30 Node-Tests bestanden;
+  Browserprüfung für Speicherung und Layout bei 390/1440 Pixeln bestanden.
+  SQLite-Datentests ersetzen nicht die Abnahme mit Workbench/MariaDB am Schul-PC.
+- [x] Autarke Inhaltsrunde 22:27 Uhr: L1.9 mit YEAR, MONTH, NOW, Datumsformat,
+  berechneten Preisen und dokumentierter Alterszählung vertieft. Die acht
+  Fahrradvermietungsaufträge aus L1_5.6 sind eigenständig paraphrasiert;
+  D1–D3 sind Einstiegsaufträge, D4 zur Tageszählung ausdrücklich ein Zusatz.
+  Keine Musterlösungsdateien gelesen. R8 legt die Kalenderjahresdifferenz
+  fest und erklärt deren Unterschied zu vollständig vergangenen Jahren.
+- [x] Optionaler fiktiver Fahrradbestand in `workbenchlab_l1_9`, getrennt von
+  Fahrschule und späterer Browser-Mietdatenbank. Sechs Fahrräder mit Preisen
+  und Anschaffungsdaten; einmaliges Anlegen, ohne DROP, UPDATE oder DELETE.
+  Download benennt Voraussetzung und Attributzuordnung. MySQL-Datenbankanlage,
+  FORMAT, NOW und TIMESTAMPDIFF benötigen noch den echten Workbench-Durchlauf.
+- [x] Zwei weitere Inhalt-/Datenprüfungen, insgesamt 28 Node-Tests erfolgreich.
+  Browserprüfung bei 390/1440 Pixeln für zwölf Antwortfelder, automatische
+  Speicherung, Downloadlink und Layout; Screenshots geprüft. SQL-Datentests
+  nutzen SQLite und weisen MySQL-spezifische Verifikation nicht als erledigt aus.
+  Fachlicher Abgleich mit [MySQL-Datumsfunktionen](https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html)
+  und [MySQL-Rundung](https://dev.mysql.com/doc/refman/8.0/en/mathematical-functions.html#function_round).
+- [x] Autarke Inhaltsrunde 22:20 Uhr: L1.8 anhand der Informations- und
+  Aufgabenblätter L1_5.5 und L1_5.8 vertieft, ohne Musterlösungen zu lesen.
+  Sechs Funktions- und acht Gruppierungsaufträge sind direkt ausfüllbar,
+  automatisch gespeichert und mit SQL-spezifischen Platzhaltern versehen.
+  Die lokale Einheitsnummer L1.8 ist nicht die DELETE-Datei L1_8 im Materialpaket.
+- [x] Erklärung unterscheidet COUNT bei NULL, Einzelbetrag und Gesamtbetrag,
+  FORMAT als Textdarstellung, WHERE/HAVING und explizites ORDER BY. Technischer
+  Abgleich mit den offiziellen MySQL-8.0-Handbuchseiten zu Aggregatfunktionen,
+  FORMAT, GROUP BY und ORDER BY; keine automatische Sortierung versprochen.
+- [x] Separater Download `assets/sql/l1-8-fahrschule-testfaelle.sql` ergänzt sechs
+  ausdrücklich fiktive Zeilen. Originale L1.4-Daten bleiben unverändert.
+  Orts-/PLZ-Filter und Grenzen von zwei Personen bzw. 20 Stunden sind prüfbar.
+  Skript setzt das eigene Modell und die fünf L1.4-Zeilen voraus, nur einmal
+  importieren; keine Tabellenlöschung und keine Musterlösungsabfragen.
+- [x] Zwei neue Inhalt-/SQL-Tests und Browserprüfung bei 390/1440 Pixeln:
+  14 Antwortfelder, Antworten nach Neuladen, Downloadlink und kein horizontaler
+  Überlauf. SQLite prüft die Testdaten und Aggregationslogik, nicht MySQL FORMAT.
+  Ein echter Durchlauf mit den Schulversionen von Workbench bleibt erforderlich.
+- [x] Autarke Sicherungsrunde 22:05 Uhr: bisherige Importgrenze von 2 MB
+  war kleiner als mögliche Zeichnungs-/SQL-Sicherungen. Export jetzt kompakt,
+  gemeinsame Export-/Importgrenze 25 MiB. Jeder angebotene Download wird vorher
+  gegen dieselbe Grenze geprüft; größere Dateien werden nicht erzeugt.
+- [x] Manuelle Exportfehler werden abgefangen statt als unbehandelte Promise
+  zu enden. Kurze, zugängliche Statusmeldung im Sicherungsfenster; ohne Fehler
+  bleibt sie ausgeblendet. Fehlerhafte JSON-Dateien erhalten verständlichen
+  deutschen Text. Dateiaktionen sind während des Vorgangs gesperrt; Dateiname
+  wird passend zum Snapshot vor der asynchronen Prüfsumme festgelegt.
+- [x] Import weist Versionsnummern unter 1 und nicht objektförmige Nutzdaten
+  zurück. Prüfsumme und Identitätskonsistenz bleiben verpflichtend für die
+  entsprechenden Versionen. Abbruch/Fehler verändert den aktuellen Lernstand
+  nicht; Dateifeld wird zurückgesetzt und erlaubt erneutes Laden.
+- [x] Neue Sicherungs-Browsersuite: neun ungültige Dateivarianten, zu große
+  Datei, Bestätigungsabbruch, Datei über 2 MB mit 48.000 Zeichnungspunkten und
+  zehn langen SQL-Entwürfen verlustfrei durch Laden/Export, Prüfsumme, mobile
+  Fehleransicht und fehlende Web-Crypto-Unterstützung ohne Laufzeitfehler.
+  Lernheft-/JSON-, Zeichnungs- und Darstellungs-Regressionssuiten ebenfalls grün.
+- [x] Autarke Abschlussrunde 21:56 Uhr: Nach erfolgreichem Abschluss erscheint
+  ein Direktbutton zur nächsten freigeschalteten Einheit. Er erhält den Fokus;
+  nach der letzten Einheit führt der Button zurück zum Lernpfad. Gesperrte
+  Einheiten und doppelte XP bleiben durch die bestehenden Regeln verhindert.
+- [x] Fehlender Selbstcheck, Kurzcheck oder Lehrkraft-Haken wird beim Versuch
+  des Abschlusses gezielt fokussiert und ins Sichtfeld gebracht. Quiz-Abgabe
+  ohne Auswahl führt ebenfalls zu den Antworten. Radiogruppe ist mit der
+  Frage beschriftet; Quiz-Rückmeldung besitzt eine höfliche Live-Region.
+- [x] Neue End-to-End-Suite prüft alle 21 Einheiten nacheinander, sämtliche
+  Lernfortschritt-Übergänge, exakte XP-Gesamtsumme, Wiederaufruf ohne Doppel-XP,
+  falsche/richtige/leere Quizantwort, gespeicherte Haken nach Neuladen,
+  fehlende Abschlussvoraussetzungen und Desktop/Mobil mit großer Schrift.
+  Diese Suite und die Lernheft-/JSON-Regressionssuite erfolgreich; alle 24
+  Node-Tests ebenfalls grün. Die clientseitige Lehrkraft-Bestätigung bleibt
+  eine Selbstauskunft, keine technische Authentifizierung der Lehrkraft.
+- [ ] Mit echter Hilfstechnik prüfen, ob Quizfrage, Prüfergebnis und
+  Fokuswechsel beim Abschluss verständlich angekündigt werden.
+- [x] Autarke Qualitätsrunde 21:45 Uhr: systematischer Layouttest für L1.1,
+  L1.2 und L1.3 bei vier Breiten (390, 768, 1100, 1440 px), beiden Modi und
+  großer Schrift. Konkreter Fehler bei 1100 px gefunden: ER-Modell lief seitlich
+  über und Attributnamen im Workbench-Modell wurden abgeschnitten. Beide
+  Diagramme reagieren jetzt auf die verfügbare Containerbreite, erhalten
+  mehr Platz und wechseln bei Bedarf zur vertikalen Darstellung. Attributnamen
+  bleiben vollständig lesbar. 24 Prüfkombinationen und Screenshots erfolgreich.
+  Hinweis „Folge dem Pfeil“ ersetzt die feste Leserichtung „von links nach
+  rechts“, damit Text und vertikale Darstellung zusammenpassen. Gesamtabgleich:
+  24 Node-Tests und alle sieben aktuellen Browser-Prüfsuiten erfolgreich;
+  `git diff --check` ohne Fehler. Weitere Qualitätsarbeit bleibt aktiv, und
+  schulische Praxistests sowie die Veröffentlichung bleiben ausstehend.
+- [x] eERM-Erklärung von der Startseite entfernt; Bildunterschrift nennt dort
+  allgemein das Datenmodell. L1.2 behandelt zuerst das grundlegende ER-Modell.
+  In L1.3 erklärt ein aufklappbarer Begriffsblock eERM und Workbenchs englische
+  Bezeichnung EER direkt zum ersten Workbench-Modell. Beziehungen/Erweiterungen
+  werden als spätere Inhalte eingeordnet; die ausführliche Erklärung bleibt
+  bei L2 und im Modellierbereich zugänglich.
+- [x] Profil-Hover auf die gesamte Fläche erweitert: leichter Akzentglanz,
+  farbiger Außenrahmen und Avatar-Rand, auch über Kürzel/Klasse/Level. Gezielte
+  Selektoren verhindern Überschreiben durch Dark-Mode-Grundstile. Tastaturfokus
+  erhält denselben Effekt; Abmessungen bleiben unverändert. Beide Modi getestet.
+- [x] Grüner Textmarker rechts neben Koralle ergänzt. Bestehende Farben und
+  Markierungen bleiben erhalten; Grün bleibt auch nach Neuladen und JSON-Import
+  gültig. Text bleibt wie bei den übrigen Markierungen zusätzlich fett.
+- [x] Nachtrag 21:25 Uhr: L1.1-Kontaktkarten-Grafik erhält eine breitere rechte
+  Spalte, die weiter links beginnt. Containerabhängige Aufteilung verhindert
+  das bisherige Überlaufen fester Mindestbreiten; schmale Ansichten zeigen
+  Karten, Pfeil und Tabelle untereinander. Tabellenzellen umbrechen statt
+  Inhalte mit Auslassungspunkten zu kürzen. Tabellenkopf `fahrschueler` in
+  Dunkelblau (#17486b) mit weißer Schrift. Eigene Edge-Browsersuite prüft
+  fünf Breiten (390 bis 1920 px), beide Modi und 16/20-px-Schrift auf Überlauf.
+- [x] Nachtrag: Gesamter Profilbereich links unten ist ein einziger nativer
+  Button. Avatar, Kürzel, Klasse, Level und freie Fläche öffnen denselben
+  Profildialog. Enter/Leertaste und sichtbarer Tastaturfokus unterstützt;
+  gezielte Browserprüfungen für sämtliche Klickbereiche ergänzt.
+- [x] Freie Farbwähler entfernt. Pro Modus stehen fünf Schriftfarben, fünf
+  Hintergrundfarben und sechs Akzentfarben bereit; alle Text-/Hintergrund-
+  Kombinationen auf Mindestkontrast 4,5:1 geprüft. Alte freie Farben fallen
+  auf zulässige Standardwerte zurück; Schriftgrößen bleiben erhalten.
+- [x] Menüs und Dialoge erhalten dezente helle Glaskanten und zurückhaltende
+  Schatten, ohne transparente Textflächen oder zusätzliche Bedienhinweise.
+- [x] Textmarker-Leiste zeigt nur das erkennbare Symbol und Farbfelder;
+  markierter Text erscheint zusätzlich fett. Gespeicherte Markierungen gelten
+  weiterhin und profitieren ebenfalls von dieser Darstellung.
+- [x] ESC schließt Notizen wie X und kehrt zur vorherigen Lerneinheit samt
+  Scrollposition zurück. Offene Dialoge und Radierergrößen schließen zuerst,
+  ohne gleichzeitig die Notizen zu verlassen.
+- [x] Landkarte dauerhaft sichtbar und vor Lernstand/Nächster-Schritt-Bereich.
+  Stationsmenüs öffnen bei Mauszeiger, Tastaturfokus oder Touch und zeigen alle
+  zugehörigen Lerneinheiten. Freischaltungsregeln bleiben unverändert; gesperrte
+  Einheiten erhalten keine Direktfreigabe. Mobile Menüs passen ins Sichtfeld.
+- [x] Langer Druck auf Radierer öffnet Klein/Mittel/Groß; Tastaturzugang über
+  Pfeil nach unten. Standard Mittel (48 px), unabhängig von der Stiftstärke.
+  Zeichnungen, Radieroperationen und JSON-Prüfsumme bleiben beim Export/Import
+  erhalten; Sicherungsformat auf 6 angehoben.
+- [x] YouTube-Einbettung bewusst unverändert: Jakob bestätigte am 01.10.2026
+  die funktionierende öffentliche Wiedergabe unter `#reference/fgOiWEGNJ-o`.
+  Lokale Wiedergabe funktioniert bei ihm nicht und wird vorerst akzeptiert.
+  Fehler 153 bedeutet laut offizieller YouTube-IFrame-API-Dokumentation eine
+  fehlende Herkunftsangabe; kein pauschaler Beleg für einen Inhaltsfehler.
+  Quelle: https://developers.google.com/youtube/iframe_api_reference
+- [x] 23 Node-Tests sowie vier Edge/Playwright-Browsersuiten erfolgreich.
+  Desktop und Mobil, beide Modi, große Schrift, Markierungen, ESC,
+  Langdruck-Größenauswahl, Canvas-Pixel, JSON-Roundtrip und alte Imports geprüft.
+- [x] Erneuter Veröffentlichungsauftrag erhalten; Version und Cache-Parameter
+  für Release 0.21.0 vorbereitet. Deploymentprüfung folgt nach dem Push.
 
 ### 0.20.0, 01.10.2026, 19:36 Uhr
 
@@ -790,7 +1044,7 @@ auf Erreichbarkeit geprüft.
 - [x] Lernpfad-Schnellmenü und Breadcrumbs
 - [x] L1.1 inhaltlich und interaktiv vollständig integriert
 - [x] L1.2 bis L1.6 quellennah für den Unterrichtsstart vertieft
-- [x] Inhaltstests für L1.1 bis L1.7 ergänzt
+- [x] Inhaltstests für L1.1 bis L1.10 ergänzt
 - [x] L2.1 und L2.2 samt interaktivem 1:N-Diagramm und fiktiven
   Zwei-Tabellen-Testdaten ergänzt
 - [x] sichtbaren Musterlösungs-Reiter aus der Schüleransicht entfernt
@@ -807,8 +1061,8 @@ auf Erreichbarkeit geprüft.
 2. Schülerzugriff für die erste Stunde am Schulnetz und den eingesetzten
    Browsern praktisch testen, einschließlich Video-Einbettung und
    JSON-Sicherung.
-3. L1.8 bis L5.3 schrittweise mit direkt ausfüllbaren, quellennahen
-   Aufgabenblättern ergänzen; L2.1 und L2.2 sind bereits vertieft.
+3. L3.2 bis L5.3 schrittweise mit direkt ausfüllbaren, quellennahen
+   Aufgabenblättern ergänzen; L1 und L2 sind bereits vertieft.
 4. Tastatur- und Screenreader-Abnahme mit realer Hilfstechnik durchführen.
 5. Eine Lehrkraftansicht für mehrere JSON-Dateien entwickeln: Zuordnung,
    Prüfsummenstatus, Übertragungshistorie, Rubrik und Exportübersicht.

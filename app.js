@@ -15,7 +15,9 @@
   const developerStorageKey = "workbenchlab-developer-v1";
   const pendingModuleStorageKey = "workbenchlab-pending-module-v1";
   const backupAppId = "WorkbenchLab";
-  const backupFormatVersion = 5;
+  const backupFormatVersion = 6;
+  const maxBackupBytes = 25 * 1024 * 1024;
+  let backupBusy = false;
   const studentCodePattern = /^[A-Z]{3}\.[A-Z]{3}$/;
   const classNamePattern = /^[A-ZÄÖÜ0-9][A-ZÄÖÜ0-9 ._\/-]{0,19}$/;
   const sqlAssetBase = "vendor/sql.js/";
@@ -603,8 +605,7 @@
     document.querySelector("#appearanceError").textContent = "";
     document.querySelector("#appearanceFields").innerHTML = Object.entries({ text: "Schrift", background: "Hintergrund", accent: "Elemente" }).map(([field, label]) => `
       <fieldset class="color-option"><legend>${label}</legend><div class="color-options">
-      ${appearance.choices[theme][field].map((color, index) => `<button class="color-swatch" type="button" data-color-field="${field}" data-color-value="${color}" style="--swatch:${color}" aria-label="${label}: ${["Standard", "Variante 2", "Variante 3", "Variante 4"][index]}" title="${label}: ${["Standard", "Variante 2", "Variante 3", "Variante 4"][index]}" aria-pressed="${palette[field] === color}">${palette[field] === color ? '<i data-lucide="check"></i>' : ""}</button>`).join("")}
-      <label class="custom-color" title="Eigene Farbe"><span>Eigene</span><input type="color" data-custom-color="${field}" value="${palette[field]}" aria-label="Eigene Farbe für ${label}"></label>
+      ${appearance.choices[theme][field].map((color, index) => `<button class="color-swatch" type="button" data-color-field="${field}" data-color-value="${color}" style="--swatch:${color}" aria-label="${label}: ${index === 0 ? "Standard" : `Variante ${index + 1}`}" title="${label}: ${index === 0 ? "Standard" : `Variante ${index + 1}`}" aria-pressed="${palette[field] === color}">${palette[field] === color ? '<i data-lucide="check"></i>' : ""}</button>`).join("")}
       </div></fieldset>`).join("");
     document.querySelectorAll("[data-font-size]").forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.fontSize) === appearanceSettings.fontSize)));
     renderIcons();
@@ -613,11 +614,10 @@
   function changeAppearanceColor(field, color) {
     if (!["text", "background", "accent"].includes(field) || !appearance.validHex(color)) return;
     const theme = document.documentElement.dataset.theme;
+    if (!appearance.choices[theme][field].includes(color.toLowerCase())) return;
     const candidate = { ...appearanceSettings.palettes[theme], [field]: color.toLowerCase() };
     if (appearance.tokens(candidate, theme).minimum < 4.5) {
       document.querySelector("#appearanceError").textContent = "Diese Kombination ist zu kontrastarm. Wähle eine andere Schrift- oder Hintergrundfarbe.";
-      const picker = document.querySelector(`[data-custom-color="${field}"]`);
-      if (picker) picker.value = appearanceSettings.palettes[theme][field];
       return;
     }
     appearanceSettings.palettes[theme] = candidate;
@@ -1057,10 +1057,10 @@
         </div>
         <figure class="hero-visual learning-photo">
           <img src="assets/images/learning-database-classroom.jpg" alt="Zwei Schüler vergleichen ein Datenbankmodell mit ihrer Arbeit am Laptop">
-          <figcaption><i data-lucide="network"></i> Reale Situation → eERM → SQL</figcaption>
+          <figcaption><i data-lucide="network"></i> Reale Situation → Datenmodell → SQL</figcaption>
         </figure>
       </section>
-      ${renderModelGlossary()}
+      ${renderLearningMap()}
 
       <section class="stat-strip" aria-label="Lernstand">
         <div class="stat-card"><strong>${stateXp()}</strong><small>XP gesammelt</small></div>
@@ -1079,10 +1079,11 @@
       <div class="card-grid two">
         ${lessonCard(lesson)}
         ${practiceCard(practice)}
-      </div>
+      </div>`;
+  }
 
-      <details class="path-overview">
-      <summary><i data-lucide="map" aria-hidden="true"></i>BPE6-Landkarte: alle fünf Lernfortschritte</summary>
+  function renderLearningMap() {
+    return `<section class="path-overview" aria-label="BPE6-Landkarte">
       <div class="section-heading">
         <div>
           <p class="eyebrow">BPE6-Landkarte</p>
@@ -1091,21 +1092,34 @@
         </div>
       </div>
       <div class="relief-map">
-        <img src="assets/bpe6-relief-map.webp" alt="Relief-Landkarte mit fünf Stationen: eine Tabelle, verbundene Tabellen, ein Tabellennetz, geordnete Ebenen und ein Datenobservatorium" width="1600" height="900" loading="lazy">
+        <img src="assets/bpe6-settlement-map.webp" alt="Fotorealistische Relief-Landkarte: Ein einziger Weg führt vom kleinen blauen Dorf L1 über das grüne Dorf L2, die goldene Kleinstadt L3 und die violette Stadt L4 zur großen korallfarbenen Stadt L5." width="1672" height="941" loading="lazy">
         <nav class="map-pins" aria-label="Stationen der BPE6-Landkarte">
           ${content.modules.map((module, index) => {
             const unlocked = isLessonUnlocked(lessonById(module.lessonIds[0]));
-            const positions = [[12, 70], [33, 40], [50, 76], [68, 40], [89, 68]];
-            return `<button class="map-pin ${unlocked ? "" : "is-locked"}" type="button" data-path-module="${escapeHtml(module.id)}" data-module-color="${escapeHtml(module.code)}" style="--pin-x:${positions[index][0]}%;--pin-y:${positions[index][1]}%" title="${escapeHtml(module.code)} · ${escapeHtml(module.title)}${unlocked ? "" : " · noch gesperrt"}" aria-label="${escapeHtml(module.code)} · ${escapeHtml(module.title)}${unlocked ? "" : " · noch gesperrt"}" ${unlocked ? "" : 'aria-disabled="true"'}>${escapeHtml(module.code)}<i data-lucide="${unlocked ? "arrow-up-right" : "lock-keyhole"}" aria-hidden="true"></i></button>`;
+            const positions = [[12, 72], [33, 41], [50, 82], [68, 43], [89, 82]];
+            return `<div class="map-stop ${index === 4 ? "align-right" : ""}" data-module-color="${escapeHtml(module.code)}" style="--pin-x:${positions[index][0]}%;--pin-y:${positions[index][1]}%">
+              <button class="map-pin ${unlocked ? "" : "is-locked"}" type="button" data-map-menu="${escapeHtml(module.id)}" aria-expanded="false" aria-controls="map-menu-${escapeHtml(module.id)}" title="Lernfortschritt ${Number(module.number)}" aria-label="Lernfortschritt ${Number(module.number)}: Lerneinheiten">${escapeHtml(module.code)}<i data-lucide="${unlocked ? "chevron-up" : "lock-keyhole"}" aria-hidden="true"></i></button>
+              <div class="map-lesson-menu" id="map-menu-${escapeHtml(module.id)}" hidden>
+                <button type="button" data-path-module="${escapeHtml(module.id)}" ${unlocked ? "" : 'aria-disabled="true"'}><strong>Lernfortschritt ${Number(module.number)}</strong><i data-lucide="arrow-up-right" aria-hidden="true"></i></button>
+                ${module.lessonIds.map((id) => {
+                  const lesson = lessonById(id);
+                  const available = isLessonUnlocked(lesson);
+                  return `<button type="button" data-lesson="${escapeHtml(id)}" ${available ? "" : 'aria-disabled="true"'} title="${escapeHtml(available ? lesson.title : `Zuerst ${lessonPrerequisite(lesson)?.courseCode || "die vorherige Einheit"} abschließen`)}"><strong>${escapeHtml(lesson.courseCode)}</strong><span>${escapeHtml(lesson.title)}</span><i data-lucide="${available ? "arrow-up-right" : "lock-keyhole"}" aria-hidden="true"></i></button>`;
+                }).join("")}
+              </div>
+            </div>`;
           }).join("")}
         </nav>
       </div>
       <nav class="map-legend" aria-label="Lernfortschritte und Fortschritt">
         ${content.modules.map((module) => `<button type="button" data-path-module="${escapeHtml(module.id)}" data-module-color="${escapeHtml(module.code)}"><strong>${escapeHtml(module.code)}</strong><span>${escapeHtml(module.title)}<small>${moduleProgress(module).done}/${moduleProgress(module).total}</small></span></button>`).join("")}
-      </nav></details>`;
+      </nav></section>`;
   }
 
-  function renderModelGlossary() {
+  function renderModelGlossary(workbenchIntro = false) {
+    if (workbenchIntro) {
+      return `<details class="model-glossary"><summary><i data-lucide="network" aria-hidden="true"></i><strong>EER in Workbench und eERM im Unterricht</strong><i data-lucide="chevron-down" class="glossary-caret" aria-hidden="true"></i></summary><p><strong>eERM</strong> bedeutet <strong>erweitertes Entity-Relationship-Modell</strong>. Das Modell beschreibt Entitätstypen, ihre Eigenschaften und Beziehungen. MySQL Workbench verwendet die englische Abkürzung <abbr title="Enhanced Entity-Relationship">EER</abbr> für seine Modellierungsansicht. In dieser Einheit setzt du zunächst nur einen Entitätstyp als Tabelle um. Beziehungen und die Erweiterungen des Modells behandeln wir später.</p></details>`;
+    }
     return `<details class="model-glossary"><summary><i data-lucide="network" aria-hidden="true"></i><strong>eERM = erweitertes Entity-Relationship-Modell</strong><i data-lucide="chevron-down" class="glossary-caret" aria-hidden="true"></i></summary><p>Ein Modell der Dinge, die gespeichert werden sollen, ihrer Eigenschaften und ihrer Beziehungen. Beispiel: Ein Fahrschüler <em>wohnt in</em> einem Ort. Das „e“ steht für „erweitert“; dazu gehören auch speziellere Entitätstypen (Generalisierung und Spezialisierung). MySQL Workbench bezeichnet sein erweitertes Modell als <abbr title="Enhanced Entity-Relationship">EER</abbr>-Modell.</p></details>`;
   }
 
@@ -1161,7 +1175,7 @@
       section.warning ? `<div class="callout is-warning"><i data-lucide="triangle-alert"></i><p data-highlight-block="section-${index}-warning">${inlineCode(section.warning)}</p></div>` : ""
     ].filter(Boolean).join("");
     return `
-      <section class="content-section ${aside ? "" : "is-full"}">
+      <section class="content-section ${aside ? "" : "is-full"} ${section.visual === "table-design-flow" ? "is-table-design" : ""} ${["single-table-model", "single-table-workbench"].includes(section.visual) ? "is-model-intro" : ""}">
         <div>
           <h3 data-highlight-block="section-${index}-heading">${escapeHtml(section.title)}</h3>
           ${(section.body || []).map((paragraph, item) => `<p data-highlight-block="section-${index}-paragraph-${item}">${inlineCode(paragraph)}</p>`).join("")}
@@ -1203,6 +1217,13 @@
       return "";
     }
     const record = lessonWorksheetRecord(lesson);
+    const answerFields = (items) => `<div class="definition-answer-grid">${items.map((item) => `
+      <label>
+        <span>${escapeHtml(item.label)}</span>
+        <small>${escapeHtml(item.prompt)}</small>
+        <textarea rows="3" maxlength="1200" data-worksheet-definition="${escapeHtml(item.id)}" placeholder="${escapeHtml(worksheet.answerPlaceholder || "In eigenen Worten ...")}">${escapeHtml(record.definitions[item.id] || "")}</textarea>
+      </label>`).join("")}</div>`;
+    const terms = worksheet.definitionTerms || [];
     return `
       <section class="lesson-worksheet" id="arbeitsblatt">
         <header class="worksheet-heading">
@@ -1213,14 +1234,7 @@
           </div>
           <i data-lucide="file-pen-line" aria-hidden="true"></i>
         </header>
-        <div class="definition-answer-grid">
-          ${(worksheet.definitionTerms || []).map((item) => `
-            <label>
-              <span>${escapeHtml(item.label)}</span>
-              <small>${escapeHtml(item.prompt)}</small>
-              <textarea rows="3" maxlength="1200" data-worksheet-definition="${escapeHtml(item.id)}" placeholder="In eigenen Worten ...">${escapeHtml(record.definitions[item.id] || "")}</textarea>
-            </label>`).join("")}
-        </div>
+        ${worksheet.definitionGroups?.length ? worksheet.definitionGroups.map((group) => `<details class="worksheet-group" ${group.open ? "open" : ""}><summary>${escapeHtml(group.label)}</summary>${answerFields(terms.filter((item) => group.ids.includes(item.id)))}</details>`).join("") : answerFields(terms)}
         ${record.rows.length ? `<div class="worksheet-table-name">
           <label for="worksheetTableName">Tabellenname</label>
           <input id="worksheetTableName" data-worksheet-table-name maxlength="40" value="${escapeHtml(record.tableName)}" placeholder="z. B. fahrschueler">
@@ -1311,7 +1325,10 @@
         <div id="noteDrawingPanel" role="tabpanel" aria-labelledby="noteDrawingTab" ${notebookTab === "drawing" ? "" : "hidden"}>
           <div class="drawing-toolbar" role="toolbar" aria-label="Zeichenwerkzeuge">
             <button class="icon-button" type="button" data-draw-tool="pen" title="Stift" aria-label="Stift" aria-pressed="true"><i data-lucide="pencil"></i></button>
-            <button class="icon-button" type="button" data-draw-tool="erase" title="Radierer" aria-label="Radierer" aria-pressed="false"><i data-lucide="eraser"></i></button>
+            <div class="eraser-options">
+              <button class="icon-button" type="button" data-draw-tool="erase" title="Radierer · Größe" aria-label="Radierer" aria-pressed="false" aria-expanded="false" aria-controls="eraserSizes"><i data-lucide="eraser"></i></button>
+              <div id="eraserSizes" class="eraser-sizes" role="group" aria-label="Radierergröße" hidden>${drawing.eraserWidths.map((width, index) => `<button type="button" data-eraser-width="${width}" aria-pressed="${index === 1}">${["Klein", "Mittel", "Groß"][index]}</button>`).join("")}</div>
+            </div>
             ${drawing.colors.map((color, index) => `<button class="pen-swatch" type="button" data-pen-color="${color}" style="--swatch:${color}" title="${["Graphit", "Blau", "Grün", "Rot", "Violett", "Ocker"][index]}" aria-label="Stiftfarbe ${["Graphit", "Blau", "Grün", "Rot", "Violett", "Ocker"][index]}" aria-pressed="${index === 0}"></button>`).join("")}
             <label class="drawing-width"><span class="sr-only">Strichstärke</span><select id="drawingWidth" aria-label="Strichstärke">${drawing.widths.map((n) => `<option value="${n}" ${n === 5 ? "selected" : ""}>${n} px</option>`).join("")}</select></label>
             <button class="icon-button" type="button" data-draw-action="undo" title="Rückgängig" aria-label="Zeichnung rückgängig" ${state.noteDrawings[entry.id]?.length ? "" : "disabled"}><i data-lucide="undo-2"></i></button>
@@ -1361,10 +1378,78 @@
     document.querySelector("#noteCanvas").classList.toggle("is-erasing", activeDrawing.settings.tool === "erase");
   }
 
+  let eraserPressTimer;
+  function showEraserSizes(open) {
+    clearTimeout(eraserPressTimer);
+    const menu = document.querySelector("#eraserSizes");
+    if (!menu) return;
+    menu.hidden = !open;
+    document.querySelector('[data-draw-tool="erase"]').setAttribute("aria-expanded", String(open));
+  }
+
+  function closeNotes() {
+    activeDrawing?.finish();
+    const entry = lessonById(parseRoute().id);
+    const destination = notesReturn || { route: entry && isLessonUnlocked(entry) ? `lesson/${entry.id}` : "home", top: 0 };
+    pendingNotesReturn = destination;
+    notesReturn = null;
+    go(destination.route);
+  }
+
+  function showMapMenu(stop, open) {
+    document.querySelectorAll(".map-stop").forEach((item) => {
+      const visible = item === stop && open;
+      item.querySelector(".map-lesson-menu").hidden = !visible;
+      item.querySelector(".map-pin").setAttribute("aria-expanded", String(visible));
+      item.classList.toggle("is-open", visible);
+    });
+  }
+
+  document.addEventListener("pointerover", (event) => {
+    if (event.pointerType !== "mouse") return;
+    const stop = event.target.closest(".map-stop");
+    if (stop && !stop.contains(event.relatedTarget)) showMapMenu(stop, true);
+  });
+  document.addEventListener("pointerout", (event) => {
+    const eraser = event.target.closest('[data-draw-tool="erase"]');
+    if (eraser && !eraser.contains(event.relatedTarget)) clearTimeout(eraserPressTimer);
+    const stop = event.target.closest(".map-stop");
+    if (event.pointerType === "mouse" && stop && !stop.contains(event.relatedTarget)) showMapMenu(stop, false);
+  });
+  document.addEventListener("focusin", (event) => {
+    const stop = event.target.closest(".map-stop");
+    if (stop) showMapMenu(stop, true);
+  });
+  document.addEventListener("focusout", (event) => {
+    const stop = event.target.closest(".map-stop");
+    if (stop && !stop.contains(event.relatedTarget)) showMapMenu(stop, false);
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (event.target.closest('[data-draw-tool="erase"]') && event.button === 0) {
+      clearTimeout(eraserPressTimer);
+      eraserPressTimer = setTimeout(() => showEraserSizes(true), 550);
+    } else if (!event.target.closest(".eraser-options")) showEraserSizes(false);
+    if (!event.target.closest(".map-stop")) showMapMenu(null, false);
+  });
+  for (const type of ["pointerup", "pointercancel"]) document.addEventListener(type, () => clearTimeout(eraserPressTimer));
+
   document.addEventListener("change", (event) => {
     if (event.target.id === "drawingWidth" && activeDrawing) activeDrawing.settings.width = Number(event.target.value);
   });
   document.addEventListener("keydown", (event) => {
+    if (event.target.closest('[data-draw-tool="erase"]') && (event.key === "ArrowDown" || event.key === "ContextMenu" || (event.shiftKey && event.key === "F10"))) {
+      event.preventDefault();
+      showEraserSizes(true);
+      document.querySelector('[data-eraser-width="48"]').focus();
+    }
+    if (event.key === "Escape" && !document.querySelector("dialog[open]")) {
+      if (document.querySelector("#eraserSizes:not([hidden])")) {
+        showEraserSizes(false);
+        document.querySelector('[data-draw-tool="erase"]').focus();
+      } else if (document.querySelector(".map-stop.is-open")) {
+        showMapMenu(null, false);
+      } else if (parseRoute().name === "notes") closeNotes();
+    }
     if (event.target.closest("[data-notebook-tab]") && ["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
       event.preventDefault();
       setNotebookTab(event.key === "Home" ? "text" : event.key === "End" ? "drawing" : notebookTab === "text" ? "drawing" : "text");
@@ -1412,8 +1497,8 @@
 
   function renderHighlighter() {
     return `<div class="reading-tools" role="toolbar" aria-label="Textmarker">
-      <span><i data-lucide="highlighter" aria-hidden="true"></i>Textmarker</span>
-      ${["yellow", "mint", "coral"].map((color, index) => `<button class="marker-swatch" type="button" data-highlight-color="${color}" title="${["Gelb", "Mint", "Koralle"][index]} markieren" aria-label="${["Gelb", "Mint", "Koralle"][index]} markieren"><span></span></button>`).join("")}
+      <span title="Textmarker" role="img" aria-label="Textmarker"><i data-lucide="highlighter" aria-hidden="true"></i></span>
+      ${["yellow", "mint", "coral", "green"].map((color, index) => `<button class="marker-swatch" type="button" data-highlight-color="${color}" title="${["Gelb", "Mint", "Koralle", "Grün"][index]} markieren" aria-label="${["Gelb", "Mint", "Koralle", "Grün"][index]} markieren"><span></span></button>`).join("")}
       <button class="icon-button" type="button" data-highlight-color="erase" title="Markierung im ausgewählten Text entfernen" aria-label="Markierung im ausgewählten Text entfernen"><i data-lucide="eraser"></i></button>
       <span class="toolbar-spacer"></span><button class="icon-button" type="button" data-route="notes/${parseRoute().id}" title="Zusammenfassung öffnen" aria-label="Zusammenfassung öffnen"><i data-lucide="notebook-pen"></i></button>
     </div>`;
@@ -1485,6 +1570,8 @@
 
   function renderLessonCompletion(lesson) {
     const completed = state.completedLessons.includes(lesson.id);
+    const ordered = orderedLessons();
+    const following = ordered[ordered.findIndex((item) => item.id === lesson.id) + 1];
     const record = lessonProgressRecord(lesson);
     const checks = completed ? lesson.completionChecks.map(() => true) : record.checks;
     const teacherChecked = completed || record.teacherChecked;
@@ -1514,12 +1601,24 @@
             <span>Die Lehrkraft hat mein Lernprodukt gesehen, mit mir besprochen und als fachlich passend bestätigt.</span>
           </label>
         </div>
+        <div class="completion-actions">
         <button class="button ${completed ? "button-secondary" : "button-primary"} button-complete-lesson" type="button" data-complete-lesson="${lesson.id}" ${completed ? "disabled" : ""}>
           <i data-lucide="${completed ? "badge-check" : "check"}"></i>
           ${completed ? "Einheit abgeschlossen" : "Einheit abschließen"}
         </button>
+        ${completed ? following && isLessonUnlocked(following)
+          ? `<button class="button button-primary" type="button" data-next-lesson data-lesson="${escapeHtml(following.id)}"><i data-lucide="arrow-right"></i>Weiter zu ${escapeHtml(following.courseCode || `Lektion ${following.index}`)}</button>`
+          : '<button class="button button-secondary" type="button" data-route="path"><i data-lucide="route"></i>Lernpfad</button>' : ""}
+        </div>
         <p class="completion-note">${state.name ? `Lernprofil ${escapeHtml(state.name)} · lokal auf diesem Browser gespeichert` : "Lege zuerst dein anonymisiertes Lernprofil im Seitenmenü an."}</p>
       </section>`;
+  }
+
+  function focusLessonRequirement(selector) {
+    const target = document.querySelector(selector);
+    if (!target) return;
+    target.focus({ preventScroll: true });
+    (target.closest(".quiz-panel") || target.closest("label, form"))?.scrollIntoView({ block: "center" });
   }
 
   function renderLesson(id) {
@@ -1573,7 +1672,7 @@
             </li>`).join("")}
         </ol></details>
         <div class="lesson-body">
-          ${["L1.2", "L1.3", "L2.1", "L2.2"].includes(lesson.courseCode) ? renderModelGlossary() : ""}
+          ${["L1.3", "L2.1", "L2.2"].includes(lesson.courseCode) ? renderModelGlossary(lesson.courseCode === "L1.3") : ""}
           <div class="lesson-reading" data-lesson-reading="${lesson.id}">
           ${renderHighlighter()}
           <section class="content-section">
@@ -1606,9 +1705,9 @@
     return `
       <section class="quiz-panel">
         <p class="eyebrow">Verständnischeck ${passed ? "· bestanden" : ""}</p>
-        <h3>${escapeHtml(lesson.quiz.question)}</h3>
+        <h3 id="quizQuestion">${escapeHtml(lesson.quiz.question)}</h3>
         <form id="quizForm" data-lesson-id="${lesson.id}">
-          <div class="choice-list">
+          <div class="choice-list" role="radiogroup" aria-labelledby="quizQuestion">
             ${lesson.quiz.options.map((option, index) => `
               <label>
                 <input type="radio" name="quizAnswer" value="${index}">
@@ -1620,7 +1719,7 @@
             ${passed ? "Erneut prüfen" : "Antwort prüfen"}
           </button>
         </form>
-        <div class="result-banner" id="quizResult"></div>
+        <div class="result-banner" id="quizResult" role="status" aria-live="polite" aria-atomic="true"></div>
       </section>`;
   }
 
@@ -2785,16 +2884,43 @@
   }
 
   async function exportProgress() {
+    if (backupBusy) return;
     if (!isValidStudentCode(state.name) || !isValidClassName(state.className)) {
       backupDialog.close();
       openProfileDialog("Lege vor dem Export Schülerkürzel und Klasse vollständig fest.");
       return;
     }
-    const json = JSON.stringify(await backupPayload(), null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const suggestedName = exportFileName();
-    downloadBlob(blob, suggestedName);
-    toast("JSON-Sicherung zum Download übergeben");
+    setBackupBusy(true);
+    setBackupStatus("");
+    try {
+      activeDrawing?.finish();
+      const suggestedName = exportFileName();
+      const json = JSON.stringify(await backupPayload());
+      const blob = new Blob([json], { type: "application/json" });
+      if (blob.size > maxBackupBytes) throw new Error("Der Lernstand ist zu groß für eine Sicherungsdatei (maximal 25 MB).");
+      downloadBlob(blob, suggestedName);
+      setBackupStatus("Datei zum Download übergeben.");
+      if (!backupDialog.open) toast("JSON-Sicherung zum Download übergeben");
+    } catch (error) {
+      const message = `Speichern nicht möglich: ${error.message || "Bitte erneut versuchen."}`;
+      setBackupStatus(message, true);
+      if (!backupDialog.open) toast(message, "error");
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+
+  function setBackupBusy(busy) {
+    backupBusy = busy;
+    for (const id of ["exportProgressButton", "importProgressButton"]) document.querySelector(`#${id}`).disabled = busy;
+    backupDialog.setAttribute("aria-busy", String(busy));
+  }
+
+  function setBackupStatus(message, error = false) {
+    const status = document.querySelector("#backupStatus");
+    status.textContent = message;
+    status.classList.toggle("is-error", error);
+    status.hidden = !message;
   }
 
   function downloadBlob(blob, filename) {
@@ -2809,20 +2935,28 @@
   }
 
   async function importProgressFile(file) {
-    if (!file) {
+    if (!file || backupBusy) {
       return;
     }
-    if (file.size > 2_000_000) {
-      toast("Die Datei ist zu groß", "error");
+    if (file.size > maxBackupBytes) {
+      setBackupStatus("Die Datei ist zu groß (maximal 25 MB).", true);
       progressFileInput.value = "";
       return;
     }
+    setBackupBusy(true);
+    setBackupStatus("");
     try {
-      const parsed = JSON.parse(await file.text());
-      if (parsed?.app !== backupAppId || !parsed.data) {
+      const contents = await file.text();
+      let parsed;
+      try { parsed = JSON.parse(contents); }
+      catch { throw new Error("Die Datei ist keine lesbare JSON-Sicherung."); }
+      if (parsed?.app !== backupAppId || !parsed.data || typeof parsed.data !== "object" || Array.isArray(parsed.data)) {
         throw new Error("Keine WorkbenchLab-Datei");
       }
-      if (!Number.isInteger(parsed.formatVersion) || parsed.formatVersion > backupFormatVersion) {
+      if (!Number.isInteger(parsed.formatVersion) || parsed.formatVersion < 1) {
+        throw new Error("Die Datei enthält keine gültige Versionsangabe");
+      }
+      if (parsed.formatVersion > backupFormatVersion) {
         throw new Error("Die Datei stammt aus einer neueren Version");
       }
       await verifyBackupIntegrity(parsed);
@@ -2848,6 +2982,7 @@
         `Lernstand für ${legacyLabel}, Klasse ${importedState.className || "noch offen"}, mit ${stateXp(importedState)} XP laden? Dein aktueller Lernstand wird ersetzt.`
       );
       if (!confirmed) {
+        setBackupStatus("Laden abgebrochen.");
         return;
       }
       importedState.transferHistory = [...importedState.transferHistory, {
@@ -2865,8 +3000,11 @@
         openProfileDialog("Diese ältere Sicherung braucht einmalig Schülerkürzel und Klasse.");
       }
     } catch (error) {
-      toast(error.message || "Die Datei konnte nicht geladen werden", "error");
+      const message = error.message || "Die Datei konnte nicht geladen werden";
+      setBackupStatus(message, true);
+      if (!backupDialog.open) toast(message, "error");
     } finally {
+      setBackupBusy(false);
       progressFileInput.value = "";
     }
   }
@@ -2889,6 +3027,7 @@
   }
 
   function renderRoute() {
+    clearTimeout(eraserPressTimer);
     activeDrawing?.finish();
     activeDrawing = null;
     selectedTextAnchors = [];
@@ -3000,13 +3139,22 @@
 
   document.addEventListener("click", (event) => {
     if (event.target.closest("[data-close-notes]")) {
-      activeDrawing?.finish();
-      const entry = lessonById(parseRoute().id);
-      const destination = notesReturn || { route: entry && isLessonUnlocked(entry) ? `lesson/${entry.id}` : "home", top: 0 };
-      pendingNotesReturn = destination;
-      notesReturn = null;
-      go(destination.route);
+      closeNotes();
       return;
+    }
+    const mapPin = event.target.closest("[data-map-menu]");
+    if (mapPin) {
+      const stop = mapPin.closest(".map-stop");
+      showMapMenu(stop, true);
+      return;
+    }
+    const eraserSize = event.target.closest("[data-eraser-width]");
+    if (eraserSize && activeDrawing) {
+      activeDrawing.settings.eraserWidth = Number(eraserSize.dataset.eraserWidth);
+      activeDrawing.settings.tool = "erase";
+      document.querySelectorAll("[data-eraser-width]").forEach((button) => button.setAttribute("aria-pressed", String(button === eraserSize)));
+      showEraserSizes(false);
+      updateDrawingTools();
     }
     const noteTab = event.target.closest("[data-notebook-tab]");
     if (noteTab) setNotebookTab(noteTab.dataset.notebookTab);
@@ -3144,19 +3292,23 @@
       const record = lessonProgressRecord(lesson);
       if (record.checks.some((checked) => !checked)) {
         toast("Hake zuerst alle eigenen Arbeitsschritte ab.", "error");
+        focusLessonRequirement(`[data-lesson-check="${record.checks.findIndex((checked) => !checked)}"]`);
         return;
       }
       if (!record.quizPassed) {
         toast("Der Verständnischeck ist noch nicht bestanden.", "error");
+        focusLessonRequirement('#quizForm input[name="quizAnswer"]');
         return;
       }
       if (!record.teacherChecked) {
         toast("Die Bestätigung durch die Lehrkraft fehlt noch.", "error");
+        focusLessonRequirement("[data-lesson-teacher]");
         return;
       }
       award("lesson", lesson.id, lesson.xp);
       renderLesson(lesson.id);
       renderIcons();
+      document.querySelector("[data-next-lesson], .completion-actions [data-route]")?.focus();
       if (autoDownloadBackup) exportProgress().catch(() => toast("Die automatische JSON-Sicherung konnte nicht erstellt werden. Bitte manuell sichern.", "error"));
     }
     if (event.target.closest("#runSqlButton")) {
@@ -3307,6 +3459,7 @@
       const selected = form.querySelector('input[name="quizAnswer"]:checked');
       if (!selected) {
         showBanner("#quizResult", false, "Noch keine Antwort", "Wähle zuerst eine Möglichkeit aus.");
+        focusLessonRequirement('#quizForm input[name="quizAnswer"]');
         return;
       }
       if (Number(selected.value) === lesson.quiz.correct) {
@@ -3430,6 +3583,7 @@
 
   document.querySelector("#backupButton").addEventListener("click", () => {
     updateBackupSummary();
+    setBackupStatus("");
     backupDialog.showModal();
   });
   document.querySelector("#backupCloseButton").addEventListener("click", () => backupDialog.close());
@@ -3462,7 +3616,6 @@
     if (button) changeAppearanceColor(button.dataset.colorField, button.dataset.colorValue);
   });
   document.querySelector("#appearanceFields").addEventListener("change", (event) => {
-    if (event.target.matches("[data-custom-color]")) changeAppearanceColor(event.target.dataset.customColor, event.target.value);
   });
   document.querySelector("#fontSizeOptions").addEventListener("click", (event) => {
     const button = event.target.closest("[data-font-size]");

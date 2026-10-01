@@ -37,5 +37,5 @@ test("Ungültige gespeicherte Farben, Schriftgrößen und kontrastarme Paletten 
   assert.equal(JSON.stringify(invalid), JSON.stringify(defaults));
   const custom = appearance.normalize({ fontSize: 20, palettes: { dark: { ...appearance.defaults.dark, background: "#101018" } } });
   assert.equal(custom.fontSize, 20);
-  assert.equal(custom.palettes.dark.background, "#101018");
+  assert.equal(custom.palettes.dark.background, appearance.defaults.dark.background);
 });

@@ -2,6 +2,7 @@
   "use strict";
   const colors = ["#17212b", "#175fa4", "#167454", "#a63d37", "#6b4386", "#a06512"];
   const widths = [2, 5, 10, 20];
+  const eraserWidths = [24, 48, 96];
   const maxPoints = 8000;
   const maxStrokes = 120;
   function normalize(candidate, allowedIds) {
@@ -14,7 +15,7 @@
       const strokes = [];
       for (const entry of entries.slice(0, maxStrokes)) {
         if (!entry || !["pen", "erase"].includes(entry.tool) || !colors.includes(entry.color)
-          || !widths.includes(entry.width) || !Array.isArray(entry.points)
+          || !(entry.tool === "erase" ? [...widths, ...eraserWidths] : widths).includes(entry.width) || !Array.isArray(entry.points)
           || !entry.points.length || entry.points.length > 1000) continue;
         if (entry.points.some((point) => !Array.isArray(point) || point.length !== 2
           || point.some((n) => typeof n !== "number" || !Number.isFinite(n) || n < 0 || n > 1))) continue;
@@ -56,7 +57,7 @@
     let current = null;
     let pointer = null;
     let warned = false;
-    const settings = { tool: "pen", color: colors[0], width: 5 };
+    const settings = { tool: "pen", color: colors[0], width: 5, eraserWidth: 48 };
     const count = () => strokes.reduce((sum, stroke) => sum + stroke.points.length, 0);
     const redraw = () => paint(context, current ? [...strokes, current] : strokes);
     const publish = () => { redraw(); onChange(structuredClone(strokes), { undo: Boolean(strokes.length), redo: Boolean(redo.length) }); };
@@ -93,7 +94,7 @@
       canvas.focus({ preventScroll: true });
       pointer = event.pointerId;
       warned = false;
-      current = { ...settings, points: [] };
+      current = { tool: settings.tool, color: settings.color, width: settings.tool === "erase" ? settings.eraserWidth : settings.width, points: [] };
       canvas.setPointerCapture(pointer);
       add(event);
     });
@@ -118,5 +119,5 @@
       }
     };
   }
-  window.WORKBENCH_DRAWING = { colors, widths, normalize, paint, attach };
+  window.WORKBENCH_DRAWING = { colors, widths, eraserWidths, normalize, paint, attach };
 })();

@@ -1,10 +1,10 @@
 # WorkbenchLab
 
-**Lokaler Entwicklungsstand:** 0.11.0-local
+**Aktueller Release:** 0.21.0
 
-**Veröffentlichter Stand:** 0.5.0
+**Veröffentlichung:** GitHub Pages, ausgelöst durch Push auf `main`.
 
-**Dokumentationsstand:** 25. September 2026
+**Dokumentationsstand:** 1. Oktober 2026
 
 **Live:** <https://jakobsawazki.github.io/WorkbenchLab/>
 
@@ -19,13 +19,14 @@ Die Oberfläche orientiert sich bewusst an PythonLab: Lernpfad, Übungen, XP,
 Erfolge, Nachschlagebereich, lokale Lernstandsicherung und GitHub-Pages-fähige
 statische Architektur.
 
-**Unterrichtsstart:** L1.1 bis L1.6 sind lokal mit Erklärungen, direkt
-ausfüllbaren Aufgaben, Übungen und Praxisaufträgen vorbereitet. Für L1.4 steht
-ein herunterladbares SQL-Skript mit fiktiven Übungsdaten bereit. Die aktuelle
-Online-Seite enthält diese Fassung noch nicht; ein Aufruf von `127.0.0.1`
-funktioniert nur auf dem jeweiligen Rechner. Vor dem Einsatz an Schüler-PCs
-sind Bereitstellung und ein Test mit dem Informatik-Stick nötig. Die
-Schüleroberfläche zeigt im SQL-Labor keine Musterlösung mehr an.
+**Unterrichtsstart:** L1.1 bis L3.1 sind mit Erklärungen, direkt ausfüllbaren
+Aufgaben und Praxisaufträgen vertieft. Ergänzende SQL-Downloads enthalten nur
+fiktive Übungsdaten. Eine fotorealistische Landkarte zeigt den Lernweg vom
+Dorf zur Stadt; Markierungen, Notizen und Zeichnungen begleiten die Einheiten.
+Der Lernstand lässt sich über das Diskettensymbol als JSON sichern und laden.
+Ein Aufruf von `127.0.0.1` funktioniert nur auf dem jeweiligen Rechner. Vor
+dem Einsatz an Schüler-PCs ist ein Test mit dem Informatik-Stick nötig. Die
+Schüleroberfläche zeigt im SQL-Labor keine Musterlösung an.
 
 ![WorkbenchLab Übersicht mit neuer Bildsprache](documentation/screenshots/workbenchlab-visuals-desktop.png)
 

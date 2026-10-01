@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const colors = new Set(["yellow", "mint", "coral"]);
+  const colors = new Set(["yellow", "mint", "coral", "green"]);
 
   function normalizeHighlights(candidate, allowedLessons) {
     const result = {};

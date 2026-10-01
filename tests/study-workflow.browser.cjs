@@ -54,9 +54,9 @@ async function verifyExport(download, name) {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(`${base}?screenshot=1#home`);
-    await page.locator(".model-glossary").waitFor();
-    assert.ok((await page.locator(".model-glossary").innerText()).includes("erweitertes Entity-Relationship-Modell"));
-    assert.equal(await page.locator(".path-overview").evaluate((element) => element.open), false);
+    await page.locator(".path-overview").waitFor();
+    assert.equal(await page.locator(".model-glossary").count(), 0);
+    assert.equal(await page.locator(".path-overview").evaluate((element) => element.tagName), "SECTION");
     await page.screenshot({ path: path.join(output, "home-desktop.png") });
     await page.locator('#mobileMenuButton').click();
     assert.equal(await page.locator("#sidebar").isVisible(), false);
@@ -91,6 +91,8 @@ async function verifyExport(download, name) {
     await selectText(page, block);
     await page.getByRole("button", { name: "Gelb markieren", exact: true }).click();
     assert.ok(await page.locator(`${block} mark`).count() > 0);
+    assert.equal(await page.locator(`${block} mark`).first().evaluate((el) => getComputedStyle(el).fontWeight), "700");
+    assert.equal((await page.locator(".reading-tools").innerText()).includes("Textmarker"), false);
     assert.equal(await page.locator(block).textContent(), text);
     await selectText(page, block, 0, 12);
     await page.getByRole("button", { name: "Mint markieren", exact: true }).click();
@@ -100,6 +102,11 @@ async function verifyExport(download, name) {
     assert.equal(await page.locator(block).textContent(), text);
     await page.reload();
     assert.ok(await page.locator(`${block} mark`).count() > 0);
+    assert.equal(await page.locator('[data-highlight-color="coral"] + [data-highlight-color="green"]').count(), 1);
+    await selectText(page, block, 4, 12);
+    await page.getByRole("button", { name: "Grün markieren", exact: true }).click();
+    await page.reload();
+    assert.ok(await page.locator(`${block} mark[data-study-mark="green"]`).count() > 0);
     await page.evaluate(() => {
       const first = document.querySelector('[data-highlight-block="section-0-paragraph-0"]');
       const second = document.querySelector('[data-highlight-block="section-0-paragraph-1"]');
@@ -135,7 +142,7 @@ async function verifyExport(download, name) {
     await page.locator("#backupButton").click();
     await page.locator("#exportProgressButton").click();
     const exported = await verifyExport(await downloaded, "study-export.json");
-    assert.equal(exported.payload.formatVersion, 5);
+    assert.equal(exported.payload.formatVersion, 6);
     assert.equal(exported.payload.data.generalNotes, "BPE6: Offene Fragen und meine Merksätze.");
     assert.ok(exported.payload.data.lessonHighlights["warum-datenbanken"].length > 0);
     assert.equal(exported.payload.data.lessonWorksheets["warum-datenbanken"].rows[0].length, "45");

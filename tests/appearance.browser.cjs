@@ -41,9 +41,10 @@ async function checkWidth(page, selector = "html") {
     await page.locator('[data-font-size="20"]').click();
     assert.equal(await page.locator("html").evaluate((el) => getComputedStyle(el).fontSize), "20px");
     await checkWidth(page, "#appearanceDialog");
-    const picker = page.locator('[data-custom-color="text"]');
-    await picker.evaluate((el) => { el.value = "#11151c"; el.dispatchEvent(new Event("change", { bubbles: true })); });
-    assert.ok((await page.locator("#appearanceError").innerText()).includes("kontrastarm"));
+    assert.equal(await page.locator('input[type="color"]').count(), 0);
+    assert.equal(await page.locator('[data-color-field="text"]').count(), 5);
+    assert.equal(await page.locator('[data-color-field="background"]').count(), 5);
+    assert.equal(await page.locator('[data-color-field="accent"]').count(), 6);
     await page.locator("#appearanceDoneButton").click();
     await page.reload();
     assert.equal(await page.locator("html").evaluate((el) => getComputedStyle(el).fontSize), "20px");
