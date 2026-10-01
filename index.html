@@ -6,7 +6,7 @@
   <meta name="description" content="WorkbenchLab: Relationale Datenbanken, SQL und eERM fuer J1 Informatik lernen, ueben und XP sammeln.">
   <meta name="theme-color" content="#101518">
   <title>WorkbenchLab · BPE6 Relationale Datenbanken</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2218%22 fill=%22%23123c40%22/><text x=%2250%22 y=%2263%22 font-size=%2246%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22>WB</text></svg>">
+  <link rel="icon" type="image/webp" href="assets/workbenchlab-titanium.webp">
   <script>
     (() => {
       try {
@@ -16,7 +16,7 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.16.1">
+  <link rel="stylesheet" href="styles.css?v=0.20.0">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -24,7 +24,7 @@
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="#home" data-route="home" aria-label="WorkbenchLab Startseite">
-        <span class="brand-mark">WB</span>
+        <img class="brand-mark" src="assets/workbenchlab-titanium.webp" alt="" width="56" height="56">
         <span>
           <strong>WorkbenchLab</strong>
           <small>BPE6 · Relationale Datenbanken</small>
@@ -64,6 +64,10 @@
           <i data-lucide="book-open-text"></i>
           <span>Nachschlagen</span>
         </button>
+        <button class="nav-item" type="button" data-route="notes">
+          <i data-lucide="notebook-pen"></i>
+          <span>Meine Notizen</span>
+        </button>
       </nav>
 
       <div class="sidebar-spacer"></div>
@@ -77,16 +81,12 @@
             <small id="sidebarLevel">Level 1 · Tabellenstarter</small>
           </div>
         </div>
-        <div class="xp-track" aria-label="Fortschritt bis zum nächsten Level">
-          <span id="sidebarXpBar"></span>
-        </div>
-        <small id="sidebarXpText">0 / 120 XP</small>
       </section>
     </aside>
 
     <div class="page-column">
       <header class="topbar">
-        <button class="icon-button mobile-menu-button" id="mobileMenuButton" type="button" title="Navigation öffnen" aria-label="Navigation öffnen">
+        <button class="icon-button mobile-menu-button" id="mobileMenuButton" type="button" title="Navigation ausblenden" aria-label="Navigation ausblenden" aria-controls="sidebar" aria-expanded="true">
           <i data-lucide="menu"></i>
         </button>
         <div>
@@ -98,18 +98,21 @@
             title="Light Mode aktivieren" aria-label="Light Mode aktivieren" aria-pressed="true">
             <i data-lucide="sun"></i>
           </button>
+          <button class="icon-button" id="appearanceButton" type="button" title="Darstellung anpassen" aria-label="Darstellung anpassen" aria-haspopup="dialog" aria-controls="appearanceDialog">
+            <i data-lucide="settings-2"></i>
+          </button>
           <button class="icon-button backup-button" id="backupButton" type="button"
             title="Lernstand sichern oder laden" aria-label="Lernstand sichern oder laden">
             <i data-lucide="save"></i>
           </button>
-          <div class="runtime-chip" id="runtimeChip" title="Browser-SQL nutzt SQLite als Übungsdatenbank. MySQL Workbench bleibt das Unterrichtswerkzeug.">
-            <span class="status-dot"></span>
-            <span id="runtimeText">SQL wird vorbereitet</span>
-          </div>
-          <div class="points-chip" title="Deine Erfahrungspunkte">
+          <button class="icon-button runtime-button" id="runtimeChip" type="button" title="SQL wird vorbereitet" aria-label="SQL wird vorbereitet" aria-busy="true">
+            <i data-lucide="database"></i><span class="status-dot" aria-hidden="true"></span>
+            <span class="sr-only" id="runtimeText">SQL wird vorbereitet</span>
+          </button>
+          <button class="points-chip metal-points" id="xpButton" type="button" title="Level-Fortschritt öffnen" aria-label="Level-Fortschritt öffnen" aria-haspopup="dialog" aria-controls="xpDialog">
             <i data-lucide="sparkles"></i>
             <strong id="topXp">0 XP</strong>
-          </div>
+          </button>
         </div>
       </header>
 
@@ -167,21 +170,45 @@
     </form>
   </dialog>
 
-  <dialog class="profile-dialog backup-dialog" id="backupDialog">
+  <dialog class="profile-dialog xp-dialog" id="xpDialog" aria-labelledby="xpTitle">
+    <div class="dialog-heading"><span class="dialog-icon"><i data-lucide="sparkles"></i></span><div><p class="eyebrow">Dein Lernfortschritt</p><h2 id="xpTitle">Dein Level</h2></div><button class="icon-button" id="xpCloseButton" type="button" title="Schließen" aria-label="Level-Fortschritt schließen"><i data-lucide="x"></i></button></div>
+    <div class="level-summary"><strong id="xpLevelName"></strong><span id="xpTotal"></span></div>
+    <label for="xpLevelProgress" id="xpProgressLabel"></label>
+    <progress id="xpLevelProgress" max="120" value="0"></progress>
+    <p id="xpNextLevel"></p>
+  </dialog>
+
+  <dialog class="profile-dialog appearance-dialog" id="appearanceDialog" aria-labelledby="appearanceTitle">
+    <div class="dialog-heading">
+      <span class="dialog-icon"><i data-lucide="sliders-horizontal"></i></span>
+      <div><p class="eyebrow" id="appearanceMode">Dark Mode</p><h2 id="appearanceTitle">Darstellung</h2></div>
+      <button class="icon-button" id="appearanceCloseButton" type="button" aria-label="Darstellung schließen" title="Schließen"><i data-lucide="x"></i></button>
+    </div>
+    <div class="appearance-fields" id="appearanceFields"></div>
+    <fieldset class="font-options"><legend>Schriftgröße</legend><div class="segmented-control" id="fontSizeOptions">
+      <button type="button" data-font-size="16" aria-pressed="true">Standard</button>
+      <button type="button" data-font-size="18" aria-pressed="false">Groß</button>
+      <button type="button" data-font-size="20" aria-pressed="false">Sehr groß</button>
+    </div></fieldset>
+    <p class="field-error" id="appearanceError" role="status"></p>
+    <div class="dialog-actions"><button class="button button-secondary" id="appearanceResetButton" type="button"><i data-lucide="rotate-ccw"></i>Zurücksetzen</button><button class="button button-primary" id="appearanceDoneButton" type="button"><i data-lucide="check"></i>Fertig</button></div>
+  </dialog>
+
+  <dialog class="profile-dialog backup-dialog" id="backupDialog" aria-labelledby="backupTitle">
     <form method="dialog" id="backupForm">
       <div class="dialog-heading">
         <span class="dialog-icon"><i data-lucide="hard-drive-download"></i></span>
         <div>
-          <p class="eyebrow">Geräteunabhängig weiterlernen</p>
-          <h2>Lernstand sichern</h2>
+          <p class="eyebrow">Dein Fortschritt</p>
+          <h2 id="backupTitle">Speichern &amp; Laden</h2>
         </div>
       </div>
-      <p>Speichere deinen vollständigen WorkbenchLab-Fortschritt als JSON-Datei. Schülerkürzel, Klasse, Profil- und Gerätecode sowie eine SHA-256-Prüfsumme machen die Sicherung nachvollziehbar.</p>
       <div class="backup-summary" id="backupSummary"></div>
+      <p class="field-hint" id="backupStorageHint">Hier automatisch gespeichert. Für einen anderen PC: Datei herunterladen und dort laden.</p>
       <div class="backup-actions">
         <button class="backup-action" id="exportProgressButton" type="button">
           <span class="backup-action-icon"><i data-lucide="download"></i></span>
-          <span><strong>Datei speichern</strong><small>Desktop, Download-Ordner oder Informatik-Stick auswählen</small></span>
+          <span><strong>JSON herunterladen</strong><small>Vollständigen Lernstand als Datei sichern</small></span>
         </button>
         <button class="backup-action" id="importProgressButton" type="button">
           <span class="backup-action-icon"><i data-lucide="upload"></i></span>
@@ -189,10 +216,7 @@
         </button>
         <input class="sr-only" id="progressFileInput" type="file" accept=".json,application/json">
       </div>
-      <div class="callout is-warning backup-note">
-        <i data-lucide="info"></i>
-        <p>Der Gerätecode ist keine Hardware-Kennung. Browser dürfen MAC-Adressen nicht auslesen; auch eine lokale IP-Adresse ist auf einer statischen Website nicht zuverlässig verfügbar. Die Prüfsumme erkennt unbeabsichtigte Änderungen, ersetzt aber keine kryptografische Lehrkraft-Signatur.</p>
-      </div>
+      <label class="auto-download-option"><input id="autoDownloadBackup" type="checkbox"><span>Nach jeder Einheit automatisch herunterladen</span></label>
       <div class="dialog-actions">
         <button class="button button-secondary" value="cancel" type="button" id="backupCloseButton">Schließen</button>
       </div>
@@ -204,7 +228,10 @@
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
   <script src="content.js?v=0.16.1"></script>
-  <script src="learning-path.js?v=0.11.0-local"></script>
-  <script src="app.js?v=0.16.3"></script>
+  <script src="learning-path.js?v=0.20.0"></script>
+  <script src="study-tools.js?v=0.17.0-local"></script>
+  <script src="appearance.js?v=0.18.0-local"></script>
+  <script src="drawing.js?v=0.19.0-local"></script>
+  <script src="app.js?v=0.20.0"></script>
 </body>
 </html>

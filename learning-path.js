@@ -6,8 +6,8 @@
     return;
   }
 
-  content.version = "0.11.0-local";
-  content.updated = "2026-09-25";
+  content.version = "0.20.0";
+  content.updated = "2026-10-01";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
     subtitle: "Vom Tabellenentwurf bis zur begründeten Datenbewertung",

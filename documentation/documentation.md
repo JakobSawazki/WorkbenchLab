@@ -1,8 +1,8 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 27. September 2026, 10:55 Uhr (Europe/Berlin)
+Stand: 1. Oktober 2026, 19:36 Uhr (Europe/Berlin)
 
-Lokaler Entwicklungsstand: **0.16.1**
+Aktueller Release-Stand: **0.20.0** (zur Veröffentlichung freigegeben)
 
 Veröffentlichter Stand: **0.16.1**
 
@@ -28,6 +28,8 @@ eigenständig und webgerecht aufbereitet.
 
 - statische Single-Page-App ohne erforderliches Backend
 - Dark Mode als Standard; Light Mode über das Sonnen-/Mond-Symbol
+- dunkle Graphitflächen mit metallischen Werkzeugen und fotorealistischem
+  Titan-Datenbank-Icon; persönlich einstellbare Farben und Schriftgröße
 - fünf Lernfortschritte `L1` bis `L5`
 - 21 Lerneinheiten und 38 Übungen
 - sequenzielle Freischaltung: zunächst nur `L1.1`, danach jeweils die nächste
@@ -45,9 +47,17 @@ eigenständig und webgerecht aufbereitet.
 - lokales SQL-Labor mit `sql.js`, deterministischer Prüfung und SQL-Coach
 - eigenständige eERM- und Workbench-Illustrationen in HTML/CSS
 - lokales Lernprofil mit Schülerkürzel und Klasse
-- JSON-Sicherung mit Profil-, Geräte- und Übertragungsinformationen
+- JSON-Sicherung (Format 5) mit Profil-, Geräte- und Übertragungsinformationen
 - sechs ergänzende YouTube-Tutorials unter Nachschlagen, mit direkten
   Sprunglinks aus den passenden L1-/L2-Einheiten
+- ausblendbare Navigation; Lernfortschritte und Arbeitsreihenfolge anfangs
+  zugeklappt; farbliche Unterscheidung der Arbeitsbereiche
+- lokal gespeicherte Textmarker in Gelb, Mint und Koralle, mit Radierer
+- eingebettetes Lernheft unter „Meine Notizen“ mit allgemeinen Notizen und
+  den bereits bestehenden Lektionszusammenfassungen
+- persönliche Zeichnungen je Notiz mit Stift, Radierer, Farben, Strichstärke,
+  Rückgängig/Wiederholen und PNG-Export; Skizzen sind Teil der JSON-Sicherung
+- fotorealistische BPE6-Relief-Landkarte mit fünf anklickbaren Stationen
 
 ## 3. Lernpfad
 
@@ -153,9 +163,9 @@ Beim Import auf ein anderes Browserprofil bleibt das Herkunftsgerät des
 Lernprofils erhalten. Zusätzlich wird eine begrenzte Übertragungshistorie mit
 Quell-Export, Quellgerät, Zielgerät und Importzeitpunkt geführt.
 
-### 5.3 Exportformat 3
+### 5.3 Exportformat 5
 
-Version 3 enthält unter anderem:
+Version 5 enthält unter anderem:
 
 - App- und Formatversion
 - Export-ID und Exportzeitpunkt
@@ -166,13 +176,51 @@ Version 3 enthält unter anderem:
 - Lektionsabschlüsse, Quizstatus und Abschlusschecks
 - SQL-Entwürfe und Modellierungsantworten
 - eigene Notizen und digitale Arbeitsblätter
+- allgemeine Lernheftnotizen und Textmarkierungen mit Textankern
+- vektorbasierte Zeichnungen je Notiz, einschließlich Radieroperationen
 - SHA-256-Prüfsumme über den vollständigen Export ohne den Integritätsblock
 
 Beim Import wird die Prüfsumme vor der Übernahme kontrolliert. Die Formate 1
-und 2 bleiben lesbar; bei ihnen wird transparent angezeigt, dass keine
-Prüfsumme vorliegt.
+bis 4 bleiben lesbar; Formate 1 und 2 besitzen keine Prüfsumme. Format 5
+verhindert, dass ältere WorkbenchLab-Versionen eine neue Sicherung annehmen
+und die ihnen unbekannten Zeichnungen bei einer erneuten Sicherung verlieren.
+Technische Angaben erscheinen nicht im Schülerdialog; die kurze Ladebestätigung
+zeigt Kürzel, Klasse und XP und warnt vor dem Ersetzen des aktuellen Lernstands.
 
-### 5.4 Technische Sicherheitsgrenzen
+### 5.4 Lokale Speicherung, Markierungen und Lernheft
+
+Eingaben werden beim Bearbeiten im Browser gespeichert. Bei einem Fehler des
+Browserspeichers bleiben die Daten im geöffneten Tab bearbeitbar, und der
+Disketten-Symbol wird hervorgehoben und der Sicherungsdialog warnt vor dem
+Speicherfehler. Browserdaten können gelöscht werden oder an einem anderen PC
+fehlen. Download und Laden erfolgen ausschließlich über das Disketten-Symbol;
+der zusätzliche Hinweisblock am Seitenende wurde auf Wunsch entfernt.
+
+Im Sicherungsdialog kann der Schüler zusätzlich einen automatischen
+JSON-Download nach jedem erstmals abgeschlossenen Lernabschnitt einschalten.
+Diese Option ist zunächst aus. Der Browser legt Downloads gemäß seinen
+Einstellungen ab oder fragt nach einem Ort. Eine Website kann nicht ohne
+Benutzerfreigabe fortlaufend dieselbe Datei im Download-Ordner überschreiben.
+Der Export verwendet einen unveränderlichen Schnappschuss des Lernstands,
+damit Eingaben während der Prüfsummenberechnung die Sicherung nicht beschädigen.
+
+Die Textmarker arbeiten im Informationsteil der Lektionsseiten, einschließlich
+Begriffen, Regeln, Datentypen und Codebeispielen. Gespeichert werden der
+Lektionsbezug, der Textblock, die Start-/Endposition, der markierte Text und
+die Farbe. Beim Wiederherstellen muss der Text zum Anker passen; überarbeitete
+Inhalte werden dadurch nicht versehentlich an einer anderen Stelle markiert.
+Umfärben und Radieren erhalten nicht ausgewählte Reststücke und verändern
+weder den Unterrichtstext noch die Inline-Code-Struktur.
+
+„Meine Notizen“ enthält ein allgemeines Lernheft und eine Zusammenfassung je
+Lerneinheit. Die Zusammenfassung verwendet dieselben Daten wie das Notizfeld
+direkt in der Lektion. Der Texteditor bietet Überschrift-/Listen-/Checklisten-
+Einfügung, Datum, Kopieren, Textdatei-Download und Suche in Titeln und Inhalten.
+Es wird kein externer Editor geladen. Eingaben werden als Text behandelt;
+HTML- oder Skripteinträge werden nicht ausgeführt. Maximal 12.000 Zeichen je
+Notiz und 400 Markierungsabschnitte je Lektion sind vorgesehen.
+
+### 5.5 Technische Sicherheitsgrenzen
 
 Eine Browserseite auf GitHub Pages kann keine MAC-Adresse auslesen. Eine lokale
 IP-Adresse ist durch heutige Browser ebenfalls nicht zuverlässig verfügbar;
@@ -190,6 +238,157 @@ Die Lernstandsdatei bleibt daher ein Nachweisbaustein und ersetzt nicht die
 Beobachtung und Bestätigung durch die Lehrkraft.
 
 ## 6. Versionsverlauf
+
+### 0.20.0, 01.10.2026, 19:36 Uhr
+
+- [x] Doppelte XP-Zahl und Fortschrittsbalken aus dem Profil links unten entfernt.
+  Kürzel, Klasse und Level bleiben sichtbar.
+- [x] XP-Symbol oben rechts öffnet einen kompakten Dialog mit aktuellem Level,
+  XP-Zahl, Fortschritt und verbleibenden XP zum nächsten Level. Die ersten
+  120 XP führen zu Level 2; spätere Schwellen werden dynamisch berechnet.
+  Das höchste Level besitzt einen eigenen Abschlusszustand.
+- [x] X und Escape schließen den Dialog; der Fokus kehrt zum XP-Symbol zurück.
+- [x] 23 Node-Tests und zwei Python-Datentests bestanden. Vier isolierte
+  Edge-Browserdurchläufe bestanden: Lernworkflow, Darstellung, Zeichnungen
+  und XP-Dialog. Desktop/Mobil einschließlich großer Schrift geprüft.
+- [x] Windows-Metadatendateien `desktop.ini` störten `git fetch`, weil sie
+  im internen Referenzverzeichnis lagen. Sechs Dateien wurden nach
+  `.tmp/git-metadata-backup/` gesichert, nicht gelöscht. Anschließend war
+  der Abgleich erfolgreich; lokal und `origin/main` standen auf `0307b59`.
+- Veröffentlichung ausdrücklich beauftragt. Release enthält die bisherigen
+  lokalen Funktionen aus 0.17 bis 0.19 einschließlich Textmarker, Notizen,
+  Zeichnungen, Landkarte und Darstellungsoptionen.
+- Originalmaterialien unter `resources/`, lokale Testdaten unter `.tmp/`,
+  der unversionierte Lehrbuchentwurf und separate unversionierte Dokumente
+  werden nicht mit veröffentlicht. Deploymentprüfung folgt nach dem Push.
+
+### 0.19.0-local, 01.10.2026, 19:28 Uhr
+
+- [x] Zusätzlichen Speicherhinweis und JSON-Button am Seitenende entfernt.
+  Automatische lokale Speicherung bleibt aktiv; Speicherfehler erscheinen
+  am Disketten-Symbol und im Sicherungsdialog statt in einem dauerhaften Textblock.
+- [x] Start-Icon springt auch bei bereits geöffneter Startseite nach ganz oben.
+- [x] eERM-Erklärung als zunächst geschlossenes Details-Element umgesetzt.
+  Die ausgeschriebene Abkürzung bleibt stets sichtbar.
+- [x] Urheberhinweis dezenter rechts unten platziert; XP-Anzeige und
+  Profil-Avatar an die metallischen Werkzeuge angeglichen. Der Avatar behält
+  den persönlichen Initialbuchstaben; ein separates statisches Profilbild
+  würde diese persönliche Zuordnung verlieren und wurde daher nicht verwendet.
+- [x] Fotorealistische Relief-Landkarte mit fünf verbundenen Stationen
+  generiert. Echte HTML-Schaltflächen ergänzen L1 bis L5, Fortschritt und
+  Sperrstatus. Zugang bleibt an die bestehenden Voraussetzungen gekoppelt.
+  Die Darstellung ist eine Lernlandkarte, kein fachliches eERM-Diagramm.
+- [x] Notizeditor erhält einen X-Knopf statt „Zur Lerneinheit“. Bei Öffnen aus
+  einer Lerneinheit werden Ziel und Leseposition gemerkt; Schließen stellt
+  beides wieder her. Direkte Notizlinks haben einen sicheren Rücksprung.
+- [x] Zeichenbereich mit sechs Stiftfarben, vier Strichstärken, Radierer,
+  Rückgängig/Wiederholen, bestätigtem Leeren und PNG-Download eingebaut.
+  Text und Zeichnung sind getrennte Ansichten derselben Notiz. Rasteranzeige
+  erfolgt im Canvas; gespeichert werden normalisierte Strichkoordinaten,
+  Farben und Werkzeuge. Dadurch bleiben Zeichnungen beim Größenwechsel stabil.
+- [x] Zeichnungen werden nach jedem fertigen Strich lokal gespeichert und
+  in JSON-Format 5 übernommen. Ältere Sicherungen bleiben importierbar.
+  Ungültige Koordinaten, fremde Notiz-IDs und unerlaubte Werkzeuge werden
+  verworfen. Maximal 120 Striche/8.000 Punkte je Notiz und 60.000 Punkte
+  insgesamt begrenzen Speicherverbrauch; Erreichen des Limits wird angezeigt.
+- [x] 23 Node-Tests bestanden; Browserprüfungen für Lernworkflow,
+  Darstellung und Zeichnungsfunktionen bestanden. Pixelprüfungen belegen
+  Zeichnen, Teilradierung, Farben und Undo/Redo. PNG-Download, Neuladen,
+  JSON-Prüfsumme, Format-5-Roundtrip und Format-4-Import geprüft. Desktop
+  1440×1000 sowie Mobil 390×844, beide Modi einschließlich 20-px-Schrift,
+  ohne horizontalen Überlauf geprüft. Screenshots in `.tmp/drawing-qa/`.
+- [ ] Physische Eingabestifte und Schulbrowser noch praktisch testen.
+- Ausschließlich lokal; kein Commit, kein Push, Online bleibt 0.16.1.
+
+#### Landkarten-Asset
+
+Werkzeug: eingebautes `image_gen`; Optimierung lokal mit `sharp`.
+Original: `assets/bpe6-relief-map.png`. Verwendete WebP-Datei:
+`assets/bpe6-relief-map.webp`, rund 425 KB. HTML-Beschriftungen wurden
+bewusst nicht in das Bild generiert, damit sie korrekt und zugänglich bleiben.
+Generierungs-Prompt:
+
+```text
+Use case: scientific-educational. Asset type: landscape image background for an interactive five-stage learning map on WorkbenchLab. Create a premium photorealistic miniature relief map, near overhead camera, landscape 16:9 composition. Graphite and brushed titanium terrain contours with winding paths connect five clearly separated circular stations, placed approximately at image coordinates (12% across,65% down), (30%,30%), (50%,65%), (70%,30%), (88%,65%). Each station has one tiny realistic sculpted educational landmark: a single database table, two joined tables, a network of three tables, neatly organized nested tiles, and a data observatory. The five regions have subtle blue, mint, amber, violet and coral accents respectively. Crisp legible geography and paths, softly lit realistic terrain texture, silver contours, dark charcoal backing, professional architectural model photography. Entire miniature terrain map visible edge to edge, no frame, no lettering, no text, no labels, no numbers, no watermark, no orbs. Small landmarks, plenty of clear terrain for HTML navigation pins to be overlaid. No diagrams or SQL text to hallucinate.
+```
+
+### 0.18.0-local, 01.10.2026, 19:07 Uhr
+
+- [x] Neues fotorealistisches WorkbenchLab-Icon generiert und lokal eingebaut.
+  Das Original liegt unter `assets/workbenchlab-titanium.png`; die für
+  Seitenleiste und Favicon verwendete 192-px-WebP-Datei unter
+  `assets/workbenchlab-titanium.webp` ist nur rund 6 KB groß.
+- [x] Dark Mode dunkler und neutraler gestaltet: Graphitflächen, dezente
+  Metallkanten, geprägte Werkzeuge, Lichtreflex beim Hover und Druckeffekt.
+  Dark Mode bleibt ohne gespeicherte Wahl Standard; Light Mode bleibt erhalten.
+- [x] Darstellungsoptionen rechts neben dem Moduswechsel ergänzt:
+  Schrift, Hintergrund und Elemente mit vordefinierten Farbswatches sowie
+  eigener Farbauswahl; Schriftgrößen 16, 18 und 20 px. Einstellungen gelten
+  sofort, bleiben lokal gespeichert und sind für beide Modi getrennt.
+  Zurücksetzen stellt beide Standardpaletten und 16 px wieder her, lässt aber
+  den gewählten Modus und sämtliche Lerndaten unverändert.
+- [x] Kontrastprüfung ergänzt: zu kontrastarme Text-/Hintergrundkombinationen
+  werden zurückgewiesen; Sekundärtext und Akzente werden für Lesbarkeit
+  abgeleitet. Text, Links und Primärbutton-Beschriftungen werden gegen die
+  entsprechenden Flächen mit mindestens 4,5:1 getestet.
+- [x] SQL-Status durch ein Datenbanksymbol im gleichen Werkzeugstil ersetzt.
+  Statuspunkt und Tooltip unterscheiden Vorbereitung, Bereitschaft und Fehler.
+  Anklicken öffnet das SQL-Labor; bei Ladefehlern wird ein neuer Versuch gestartet.
+- [x] Speicherdialog vereinfacht: Kürzel, Klasse, XP, Download, Laden und
+  optionaler automatischer Download. Technische Herkunftsdaten und Prüfsumme
+  bleiben unverändert in der JSON-Datei, werden aber nicht mehr im Dialog oder
+  der Ladebestätigung angezeigt. Die Bestätigung vor dem Ersetzen bleibt erhalten.
+- [x] Ursache des seitlichen Scrollbalkens behoben: Das unsichtbare
+  Dateiauswahlfeld erbte zuvor die volle Breite normaler Profileingaben.
+  Auch die Checkbox ist wieder kompakt und steht neben ihrer Beschriftung.
+- [x] 21 Node-Tests bestanden. Zwei isolierte Edge-Browserdurchläufe bestanden:
+  bisherige Notiz-/Textmarker-/Exportfunktionen sowie Optionen, Kontrastwarnung,
+  Neuladen, Reset, Icon-Laden und SQL-Navigation. Desktop 1440×1000 und Mobil
+  390×844 in beiden Modi einschließlich 20-px-Schrift geprüft. Screenshots
+  liegen lokal in `.tmp/appearance-qa/` und `.tmp/study-qa/`.
+- [ ] Sichtprüfung auf Schul-PCs und im dortigen Browser steht noch aus.
+- Keine Veröffentlichung, kein Commit und kein GitHub-Push. Online bleibt 0.16.1.
+
+#### Icon-Erstellung
+
+Werkzeug: eingebautes `image_gen`, danach lokale Größenoptimierung mit `sharp`.
+Keine externen Herstellerlogos oder personenbezogenen Bilder als Vorlage verwendet.
+Generierungs-Prompt:
+
+```text
+Use case: product-mockup. Create a single square photorealistic premium app icon for WorkbenchLab, a relational database learning application. A physically crafted brushed titanium database cylinder with three stacked tiers, connected by crisp engraved circuit traces to two small table-grid tiles. Subtle mint enamel accents and a small amber detail. Black graphite square backing with lightly chamfered corners, studio product photography, sharp metallic reflections, controlled lighting, high contrast recognizable silhouette at 60px size, front-facing centered object filling 85% of frame. No lettering, no watermark, no extra objects. Square image.
+```
+
+### 0.17.0-local, 01.10.2026, 11:14 Uhr
+
+- eERM-Abkürzung und Bezug zum EER-Modell in Workbench erläutert, auf der
+  Übersicht und den frühen Modellierungsseiten direkt sichtbar.
+- Landkarte, Lernfortschritte und Arbeitsreihenfolge zunächst zugeklappt.
+  Schnellmenü und Breadcrumb öffnen den gewünschten Lernfortschritt weiterhin
+  gezielt. Eine direkte Weiterlernen-Schaltfläche bleibt sichtbar.
+- Blaue, grüne, gelbe, violette und korallfarbene Akzente für Lernfortschritte
+  und Information, Aufgaben, Notizen und Checks ergänzt. Die linke Navigation
+  ist über das Menüsymbol aus-/einblendbar; die Desktopwahl bleibt gespeichert.
+- Textmarker mit drei Farbswatches und Teilradierung, persistenten Textankern
+  und JSON-Sicherung ergänzt. Der Markerbalken bleibt beim Lesen sichtbar.
+- Eingebettetes persönliches Lernheft unter Nachschlagen eingebaut, mit Suche,
+  eigener allgemeiner Notiz, gemeinsamen Lektionsnotizen und Textdatei-Export.
+- L1.1 unterscheidet max. Zeichenzahl und Speicherbedarf: VARCHAR bleibt
+  numerisch; für andere Typen sind Text und eine Vorschlagsliste möglich.
+  Bei Typwechsel werden feste Basiswerte wie INT 4 Byte und DATE 3 Byte
+  vorbelegt. Eigene Texte überstehen Neuladen und Import.
+- Dauerhaften Speicherstatus und JSON-Download am Seitenende ergänzt;
+  optionaler automatischer Download nach Lektionsabschluss. Speicherfehler
+  werden angezeigt. Exportformat 4 schützt die neuen Felder vor Verlust in
+  älteren App-Versionen; ältere Sicherungen bleiben importierbar.
+- 18 Node-Tests, zwei Python-Datentests sowie ein isolierter Edge-Browserdurchlauf mit synthetischem
+  Profil bestanden: Farben, Inline-Code-Erhalt, absatzübergreifende Auswahl,
+  Umfärben, Radieren, Neuladen, Notizsynchronisierung, Suche, manueller und
+  automatischer JSON-Download, gültige Prüfsumme, Import von Format 4,
+  Rückwärtskompatibilität mit Format 3 und Speicherfehler.
+  Desktop 1440×1000 und Mobil 390×844 geprüft; der mobile Überlauf in L1.1
+  wurde korrigiert. Screenshots und Testexporte liegen lokal in `.tmp/study-qa/`.
+- Ausschließlich lokal umgesetzt. Online bleibt Version 0.16.1 unverändert.
 
 ### 0.16.1, 27.09.2026, 10:55 Uhr
 
