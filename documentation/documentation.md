@@ -1,11 +1,10 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 1. Oktober 2026, 23:22 Uhr (Europe/Berlin)
+Stand: 1. Oktober 2026, 23:34 Uhr (Europe/Berlin)
 
 Aktueller Release-Stand: **0.21.0**
 
-Veröffentlichter Stand vor diesem Release: **0.20.0**; Veröffentlichung von
-**0.21.0** ausdrücklich beauftragt, Deploymentprüfung folgt nach dem Push.
+Veröffentlichter Stand: **0.21.0**, Deployment und öffentliche Seite geprüft.
 
 Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 
@@ -256,6 +255,15 @@ Beobachtung und Bestätigung durch die Lehrkraft.
 - Veröffentlichung ausdrücklich beauftragt. Release beinhaltet die bisherigen
   lokalen Änderungen; Originalmaterialien, Testexporte, Lehrbuchentwurf und
   separate unversionierte Dokumente bleiben unveröffentlicht.
+- [x] Release-Commit `ad3b09a` auf `main` gepusht. GitHub-Pages-Lauf
+  `36929273971` erfolgreich. Öffentliche Seite liefert HTTP 200 und verweist
+  auf Version 0.21.0. SHA-256-Abgleich für Lernpfad, App, CSS, neue Karten-WebP
+  und JOIN-Download bestätigt den tatsächlichen Inhalt auf der Online-Seite.
+- [x] 37 Node-Tests erfolgreich. Sieben Browserdurchläufe lokal und acht
+  auf der veröffentlichten HTTPS-Seite bestanden: Lernworkflow, Darstellung,
+  Notizen/Zeichnungen, XP, Sicherungsgrenzen, Siedlungskarte, M:N-Diagramm und
+  online zusätzlich L3.1-Arbeitsblatt. HTTP 404 für lokale Testgrafik,
+  Lehrbuch-README und nicht freigegebenes Technikdokument bestätigt.
 
 - [x] L3.1 anhand des Informationsblatts und der sechs Modellierungsaufgaben
   erweitert, ohne Musterlösungsdateien zu lesen. 15 ausfüllbare Aufträge:
@@ -491,7 +499,7 @@ Beobachtung und Bestätigung durch die Lehrkraft.
   Desktop und Mobil, beide Modi, große Schrift, Markierungen, ESC,
   Langdruck-Größenauswahl, Canvas-Pixel, JSON-Roundtrip und alte Imports geprüft.
 - [x] Erneuter Veröffentlichungsauftrag erhalten; Version und Cache-Parameter
-  für Release 0.21.0 vorbereitet. Deploymentprüfung folgt nach dem Push.
+  für Release 0.21.0 gesetzt. Deployment und Online-Funktionen geprüft.
 
 ### 0.20.0, 01.10.2026, 19:36 Uhr
 
