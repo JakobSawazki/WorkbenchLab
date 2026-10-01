@@ -1,10 +1,10 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 1. Oktober 2026, 19:36 Uhr (Europe/Berlin)
+Stand: 1. Oktober 2026, 19:40 Uhr (Europe/Berlin)
 
-Aktueller Release-Stand: **0.20.0** (zur Veröffentlichung freigegeben)
+Aktueller Release-Stand: **0.20.0**
 
-Veröffentlichter Stand: **0.16.1**
+Veröffentlichter Stand: **0.20.0**, Deployment und öffentliche Seite geprüft
 
 Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 
@@ -261,6 +261,15 @@ Beobachtung und Bestätigung durch die Lehrkraft.
 - Originalmaterialien unter `resources/`, lokale Testdaten unter `.tmp/`,
   der unversionierte Lehrbuchentwurf und separate unversionierte Dokumente
   werden nicht mit veröffentlicht. Deploymentprüfung folgt nach dem Push.
+- [x] Release-Commit `d49ce79` auf `main` gepusht. GitHub-Pages-Lauf
+  `36900911054` am 01.10.2026 erfolgreich abgeschlossen.
+- [x] Öffentliche Seite liefert HTTP 200 und referenziert Release 0.20.0.
+  Alle vier Browserdurchläufe nochmals auf der veröffentlichten HTTPS-Seite
+  erfolgreich ausgeführt, einschließlich SQL-Runtime, Grafiken und JSON-Import.
+  Original-PDF, lokaler Testexport und Lehrbuch-README liefern HTTP 404.
+- [ ] Bei einer späteren CI-Wartung die GitHub-Actions-Versionen prüfen:
+  Der erfolgreiche Lauf meldete die erzwungene Umstellung der verwendeten
+  Node-20-Actions auf Node 24. Keine CI-Änderung für diesen Release vorgenommen.
 
 ### 0.19.0-local, 01.10.2026, 19:28 Uhr
 
