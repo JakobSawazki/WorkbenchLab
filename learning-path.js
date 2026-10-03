@@ -6,7 +6,7 @@
     return;
   }
 
-  content.version = "0.22.1";
+  content.version = "0.22.2";
   content.updated = "2026-10-03";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
@@ -627,6 +627,11 @@
       webWorksheet: {
         title: "L1.6: Auswahlbedingungen formulieren",
         intro: "Die Nummern entsprechen dem Originalaufgabenblatt L1_5.3. Schreibe jeweils einen vollständigen SQL-Befehl und teste ihn in MySQL Workbench.",
+        definitionGroups: [
+          { label: "Begriff und Namen · 1–4", open: true, ids: ["selektion", "ort", "dressel", "dressel-sortiert"] },
+          { label: "Zahlen und Datum · 5–7", ids: ["stunden", "vor-2001", "vor-2001-sortiert"] },
+          { label: "Bedingungen verbinden · 8–12", ids: ["anfang-d", "strasse", "zeitraum", "ausserhalb", "nicht-ort"] }
+        ],
         definitionTerms: [
           { id: "selektion", label: "1 · Begriff", prompt: "Erkläre Selektion und den Unterschied zur Projektion." },
           { id: "ort", label: "2 · Ort", prompt: "Alle Informationen zu Fahrschülern aus Schorndorf." },
@@ -821,6 +826,12 @@
         title: "L1.8: Funktionen und Gruppierung",
         answerPlaceholder: "SQL-Befehl und kurze Ergebniskontrolle ...",
         intro: "Bearbeite die sechs Funktionsaufträge (F1–F6) und die acht Gruppierungsaufträge (G1–G8). Notiere jeweils den vollständigen SQL-Befehl und eine kurze Ergebniskontrolle. Verwende dein Workbench-Modell mit fahrstundenzahl.",
+        definitionGroups: [
+          { label: "Zählen und berechnen · F1–F4", open: true, ids: ["f1-anzahl", "f2-maximum", "f3-durchschnitt", "f4-summe"] },
+          { label: "Umsatz berechnen · F5–F6", ids: ["f5-umsatz-person", "f6-umsatz-gesamt"] },
+          { label: "Nach Ort gruppieren · G1–G4", ids: ["g1-anzahl-ort", "g2-summe-ort", "g3-zwei-orte", "g4-stunden-zwei-orte"] },
+          { label: "Gruppen filtern · G5–G8", ids: ["g5-wenige-stunden", "g6-plz", "g7-mehr-als-zwei", "g8-mehr-als-zwanzig"] }
+        ],
         definitionTerms: [
           { id: "f1-anzahl", label: "F1 · Anzahl", prompt: "Ermittle die Anzahl aller Fahrschüler." },
           { id: "f2-maximum", label: "F2 · Höchste Stundenzahl", prompt: "Ermittle die größte Fahrstundenzahl eines Fahrschülers." },
@@ -917,6 +928,12 @@
         title: "L1.9: Datum und berechnete Werte",
         answerPlaceholder: "SQL-Befehl und kurze Ergebniskontrolle ...",
         intro: "Bearbeite D1–D3 mit deiner Fahrschule und R1–R8 mit der Fahrradvermietung. Notiere SQL und Ergebniskontrolle. D4 ist ein zusätzlicher Transfer zur Tageszählung.",
+        definitionGroups: [
+          { label: "Datum · D1–D3", open: true, ids: ["d1-geburtsjahr", "d2-geburtsmonat", "d3-serverzeit"] },
+          { label: "Fahrradbestand auswerten · R1–R4", ids: ["r1-mountainbikes", "r2-teuerstes", "r3-durchschnitt", "r4-gesamtwert"] },
+          { label: "Preise und Alter berechnen · R5–R8", ids: ["r5-abschreibung", "r6-wochenpreis", "r7-anschaffungsjahr", "r8-alter"] },
+          { label: "Zusatz · Tage zählen · D4", ids: ["d4-tageszaehlung"] }
+        ],
         definitionTerms: [
           { id: "d1-geburtsjahr", label: "D1 · Geburtsjahre", prompt: "Gib Schülernummer, Nachname und Geburtsjahr aus. Benenne die berechnete Spalte jahr und sortiere nach Schülernummer." },
           { id: "d2-geburtsmonat", label: "D2 · Geburtsmonate", prompt: "Wähle ein in deiner Tabelle vorhandenes Geburtsjahr. Gib Schülernummer, Nachname und Geburtsmonat nur für dieses Jahr aus. Benenne die Monatsspalte monat." },
@@ -1012,6 +1029,13 @@
         title: "L1.10: Daten kontrolliert verwalten",
         answerPlaceholder: "SQL, Zielschlüssel und Vorher-Nachher-Kontrolle ...",
         intro: "Arbeite die Aufträge in der angegebenen Reihenfolge im fiktiven Bestand workbenchlab_l1_10 ab. Notiere bei jeder Änderung SELECT-Vorschau, Zielschlüssel, SQL und Ergebniskontrolle. Die Aufgaben übertragen die Originalblätter auf fiktive Personen und Fahrräder.",
+        definitionGroups: [
+          { label: "Personen erfassen · I1–I3", open: true, ids: ["i1-vollstaendig", "i2-unbekannt", "i3-teilweise"] },
+          { label: "Personen ändern und löschen · U1–D2", ids: ["u1-erganzen", "u2-umzug", "d1-person", "d2-person"] },
+          { label: "Fahrräder erfassen und Preise ändern · BI1–BU3", ids: ["bi1-lieferung", "bu1-fester-preis", "bu2-zuschlag", "bu3-rabatt"] },
+          { label: "Fahrräder filtern und löschen · BU4–BD2", ids: ["bu4-spezial", "bu5-ausnahmen", "bd1-preis-oder-typ", "bd2-alter"] },
+          { label: "Abschluss · Sicherheitskontrolle · S1", ids: ["s1-sicherheit"] }
+        ],
         definitionTerms: [
           { id: "i1-vollstaendig", label: "I1 · Vollständige Person", prompt: "Füge Person 13 ein: Demo, Sina; Testweg 8, 00013 Teststadt; Telefon 0000000013; sina@example.invalid; geboren 2002-02-18; eine Fahrstunde. Nutze eine explizite Spaltenliste." },
           { id: "i2-unbekannt", label: "I2 · Unbekannte Angaben", prompt: "Füge Person 14 ein: Probe, Hadi; Musterweg 19, 00014 Testdorf; Telefon 0000000014. E-Mail, Geburtsdatum und Fahrstundenzahl sind unbekannt. Prüfe, wie diese Spalten fehlende Werte zulassen." },
@@ -1315,6 +1339,11 @@
         title: "L2.3: Verweise und Integritätsfehler",
         answerPlaceholder: "SQL, Beobachtung und fachliche Begründung ...",
         intro: "Übertrage die Aufträge des Materials auf workbenchlab_l2_3. Arbeite in der angegebenen Reihenfolge und dokumentiere echte Beobachtungen. Die Personen und Kontakte sind ausschließlich fiktiv.",
+        definitionGroups: [
+          { label: "Regeln und blockierte Löschung · 1–2.3", open: true, ids: ["regel", "loeschen-plan", "loeschen-test", "fehler-erklaeren"] },
+          { label: "Neue Personen geordnet erfassen · 3.1–3.3", ids: ["erfassen", "reihenfolge", "entfernen"] },
+          { label: "Zusatz · Verweisfehler und Löschregeln", ids: ["ungueltiger-verweis", "loeschregeln"] }
+        ],
         definitionTerms: [
           { id: "regel", label: "1 · Regeln und Beziehungen", prompt: "Benenne für alle drei Fremdschlüssel Parent, Child und Zielschlüssel. Erkläre, was referentielle Integrität schützt und was sie nicht garantiert." },
           { id: "loeschen-plan", label: "2.1 · Ausscheidenden Fahrlehrer prüfen", prompt: "Fahrlehrerin 201, Iris Demo, verlässt die Übungsfahrschule. Prüfe ihre Daten und alle auf sie verweisenden Schüler. Welche Änderung wäre fachlich nötig, welche technische Schwierigkeit erwartest du?" },
@@ -1407,8 +1436,11 @@
         answerPlaceholder: "SQL-Befehl, erwartete Zeilenzahl und Ergebniskontrolle ...",
         definitionGroups: [
           { label: "Zwei Tabellen · T1–T5", open: true, ids: ["t1-adressen", "t2-ein-ort", "t3-zwei-orte", "t4-ortszahl", "t5-grosse-orte"] },
-          { label: "Mehrere Tabellen · M1–M15", ids: Array.from({ length: 15 }, (_, index) => `m${index + 1}`) },
-          { label: "Zusatzaufgaben · A–G", ids: ["a", "b", "c", "d", "e", "f", "g"] }
+          { label: "Schüler und Lehrkräfte · M1–M5", ids: ["m1", "m2", "m3", "m4", "m5"] },
+          { label: "Orte und Gruppen · M6–M10", ids: ["m6", "m7", "m8", "m9", "m10"] },
+          { label: "Alter und Fahrstunden · M11–M15", ids: ["m11", "m12", "m13", "m14", "m15"] },
+          { label: "Zusatz · Ausgabe und Unterabfragen · A–D", ids: ["a", "b", "c", "d"] },
+          { label: "Zusatz · Durchschnitte und Rollen · E–G", ids: ["e", "f", "g"] }
         ],
         definitionTerms: [
           { id: "t1-adressen", label: "T1 · Schüleradressen", prompt: "Liste alle Schüler mit Vorname, Nachname, Straße, Hausnummer, PLZ und Ort auf. Prüfe die erwartete Zeilenzahl." },
@@ -1506,7 +1538,11 @@
         definitionGroups: [
           { label: "Fahrschule · F1–F4", open: true, ids: ["f1", "f2", "f3", "f4"] },
           { label: "Fahrradvermietung · R1–R2", ids: ["r1", "r2"] },
-          { label: "Transfer und Modellprüfung", ids: ["i1", "i2", "w1", "w2", "m1", "m2", "s1", "s2", "pruefung"] }
+          { label: "Nach Absprache · Immobilien", ids: ["i1", "i2"] },
+          { label: "Nach Absprache · Wartungen", ids: ["w1", "w2"] },
+          { label: "Nach Absprache · Motorsport", ids: ["m1", "m2"] },
+          { label: "Nach Absprache · Schulen", ids: ["s1", "s2"] },
+          { label: "Modellprüfung · Gewählter Transferfall", ids: ["pruefung"] }
         ],
         definitionTerms: [
           { id: "f1", label: "F1 · Fahrlehrer und Fahrzeuge", prompt: "Ein Fahrlehrer nutzt im Lauf der Zeit verschiedene Fahrzeuge; ein Fahrzeug wird von mehreren Fahrlehrern genutzt. Beschreibe beide Leserichtungen und zeichne das konzeptionelle ER-Diagramm. Notiere Annahmen zur Mindestbeteiligung." },
@@ -1614,8 +1650,10 @@
         definitionGroups: [
           { label: "Fahrschule · F1–F5", open: true, ids: ["f1", "f2", "f3", "f4", "f5"] },
           { label: "Fahrschule · F6–F10", ids: ["f6", "f7", "f8", "f9", "f10"] },
-          { label: "Fahrradvermietung · R1–R8", ids: Array.from({ length: 8 }, (_, i) => `r${i + 1}`) },
-          { label: "Fahrradvermietung · R9–R16", ids: Array.from({ length: 8 }, (_, i) => `r${i + 9}`) }
+          { label: "Verträge und Miettage · R1–R4", ids: ["r1", "r2", "r3", "r4"] },
+          { label: "Umsatz und Mietdauer · R5–R8", ids: ["r5", "r6", "r7", "r8"] },
+          { label: "Miettage und Vertragsgruppen · R9–R12", ids: ["r9", "r10", "r11", "r12"] },
+          { label: "Orte, Häufigkeiten und Preise · R13–R16", ids: ["r13", "r14", "r15", "r16"] }
         ],
         definitionTerms: [
           { id: "f1", label: "F1 · Unterrichtstage", prompt: "An welchen unterschiedlichen Tagen hat die Fahrlehrkraft mit Nachname Probe Unterricht gegeben? Gib jeden Tag nur einmal aus und sortiere chronologisch." },

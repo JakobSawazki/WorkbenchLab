@@ -36,7 +36,7 @@ async function revealAnswer(page, id) {
       assert.equal(await fields.first().getAttribute("placeholder"), target.webWorksheet.answerPlaceholder);
       if (target.webWorksheet.definitionGroups) {
         assert.equal(await page.locator(".worksheet-group").count(), target.webWorksheet.definitionGroups.length);
-        assert.deepEqual(await page.locator(".worksheet-group").evaluateAll((elements) => elements.map((el) => el.open)), [true, false, false]);
+        assert.deepEqual(await page.locator(".worksheet-group").evaluateAll((elements) => elements.map((el) => el.open)), Array.from(target.webWorksheet.definitionGroups, (group) => Boolean(group.open)));
       }
       for (const id of answerIds) {
         await (await revealAnswer(page, id)).fill(`Testantwort ${id}`);

@@ -13,7 +13,7 @@ const lesson = context.window.WORKBENCH_CONTENT.lessons.find((item) => item.cour
 test("L3.1 covers six source cases once with two core models and optional transfers", () => {
   const worksheet = lesson.webWorksheet;
   assert.equal(worksheet.definitionTerms.length, 15);
-  assert.deepEqual(Array.from(worksheet.definitionGroups, (group) => group.ids.length), [4, 2, 9]);
+  assert.deepEqual(Array.from(worksheet.definitionGroups, (group) => group.ids.length), [4, 2, 2, 2, 2, 2, 1]);
   const ids = Array.from(worksheet.definitionGroups.flatMap((group) => group.ids));
   assert.equal(new Set(ids).size, 15);
   assert.deepEqual(ids.slice().sort(), Array.from(worksheet.definitionTerms, (term) => term.id).sort());

@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.22.1
+**Aktueller Release:** 0.22.2
 
 **Veröffentlichung:** GitHub Pages, ausgelöst durch Push auf `main`.
 
@@ -41,6 +41,12 @@ nativ geprüft. [Prüfumfang und Release-Nachweise](documentation/RELEASE_0_22_0
 kurze Überschrift und eine aufklappbare vollständige Anleitung. Der erste
 Schritt ist geöffnet. Details können unabhängig geöffnet und geschlossen
 werden; Aufgaben und Sicherheitsregeln bleiben erhalten.
+
+**Kleine Aufgabenabschnitte:** Seit 0.22.2 sind die zehn umfangreicheren
+Aufgabenblätter in aufklappbare Abschnitte mit höchstens fünf Fragen gegliedert.
+Nur der erste Abschnitt ist anfangs geöffnet. Alle 164 Antwortfelder bleiben
+erhalten, einschließlich Speicherung und JSON-Sicherung. Zusatzaufgaben sind
+gesondert gekennzeichnet.
 
 ![WorkbenchLab Übersicht mit neuer Bildsprache](documentation/screenshots/workbenchlab-visuals-desktop.png)
 

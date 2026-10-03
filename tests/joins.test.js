@@ -12,7 +12,7 @@ test("L2.4 groups all source tasks exactly once and specifies empty groups and a
   const lesson = context.window.WORKBENCH_CONTENT.lessons.find((item) => item.courseCode === "L2.4");
   const worksheet = lesson.webWorksheet;
   assert.equal(worksheet.definitionTerms.length, 27);
-  assert.deepEqual(Array.from(worksheet.definitionGroups, (group) => group.ids.length), [5,15,7]);
+  assert.deepEqual(Array.from(worksheet.definitionGroups, (group) => group.ids.length), [5,5,5,5,4,3]);
   const grouped = Array.from(worksheet.definitionGroups.flatMap((group) => group.ids));
   assert.equal(new Set(grouped).size, 27);
   assert.deepEqual(grouped.slice().sort(), Array.from(worksheet.definitionTerms, (item) => item.id).sort());
