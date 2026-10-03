@@ -6,8 +6,8 @@
     return;
   }
 
-  content.version = "0.21.0";
-  content.updated = "2026-10-01";
+  content.version = "0.22.0";
+  content.updated = "2026-10-03";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
     subtitle: "Vom Tabellenentwurf bis zur begründeten Datenbewertung",
@@ -87,8 +87,8 @@
       subtitle: "Aus uneinheitlichen Kontaktdaten entsteht eine klar benannte, atomare und durch einen Primärschlüssel eindeutig identifizierbare Relation.",
       duration: 55,
       xp: 40,
-      workflow: ["Informieren", "Tabellenentwurf", "Übung prüfen", "Abschließen"],
-      workflowHints: ["Grundbegriffe lesen", "Digitales Blatt ausfüllen", "Entwurf besprechen", "Lehrkraft bestätigt"],
+      workflow: ["Informieren", "Entwerfen und üben", "In Workbench arbeiten", "Abschließen"],
+      workflowHints: ["Grundbegriffe lesen", "Entwurf und Kurzcheck", "Erste SQL-Tabelle untersuchen", "Lehrkraft bestätigt"],
       sourceMaterials: ["L1_1 Information Tabellenentwurf", "L1_1 Aufgabe Tabellenentwurf", "L1_1 Vorlage Tabellenentwurf"],
       objectives: [
         "Datensatz, Primärschlüssel, Attribut und Attributwert sicher unterscheiden",
@@ -166,20 +166,27 @@
         "Welche Datentypen würde ich für Telefonnummer, Geburtsdatum und Anzahl Fahrstunden wählen?"
       ],
       classroomTask: {
-        tool: "Browser, Heft und Unterrichtsgespräch",
-        title: "Den Tabellenentwurf prüfen und begründen",
-        intro: "Heiner Blechle möchte seine Fahrschule verwalten, Daten für TÜV und Rechnungen nutzen und Informationsmails versenden. Prüfe, ob dein Entwurf diese Aufgaben zuverlässig vorbereitet.",
+        tool: "MySQL Workbench · SQL",
+        title: "Vom Tabellenentwurf zur ersten SQL-Tabelle",
+        intro: "Prüfe deinen Entwurf. Untersuche danach die kleine Einstiegstabelle mit zwei fiktiven Personen in Workbench. Sie enthält nur drei Spalten, nicht die Lösung deines vollständigen Entwurfs.",
         steps: [
           "Vergleiche deine Definitionen mit den Fachbegriffen im Informationsteil und verbessere sie bei Bedarf.",
           "Kontrolliere Tabellenname, Attributnamen, Atomarität und Datentypen mit der Checkliste.",
           "Markiere deinen Primärschlüssel und begründe schriftlich, weshalb er jeden Fahrschüler eindeutig identifiziert.",
-          "Besprich den Entwurf mit einer Mitschülerin, einem Mitschüler oder der Lehrkraft und dokumentiere eine Verbesserung."
+          "Starte den Informatik-Stick, dann unter Datenbank MariaDB MySQL starten. Warte auf ready for connections und lasse das Konsolenfenster geöffnet. Starte zuletzt Workbench 6.3.10. Unter Nachschlagen findest du den animierten Startablauf.",
+          "Öffne die lokale Verbindung oder lege sie mit der Lehrkraft über das Plus bei MySQL Connections an: local, Standard (TCP/IP), Host 127.0.0.1, Port 3306, Benutzer root. Ein Passwort verwendest du nur nach Vorgabe für diesen lokalen Server; kein Windows- oder Schulpasswort.",
+          "Lade das Einstiegsskript herunter und öffne es über File > Open SQL Script. Prüfe das getrennte Ziel workbenchlab_l1_1_einstieg und führe das Skript genau einmal mit dem Blitz aus. CREATE TABLE beschreibt Spalten, INSERT INTO fügt Daten hinzu und SELECT zeigt sie an. fahrschule wird nicht verändert.",
+          "Ordne im Ergebnis eine Zeile einem Datensatz, eine Spalte einem Attribut und einen Zellinhalt einem Attributwert zu. Notiere die beiden Schlüsselwerte bei deinen Definitionen. Markiere und wiederhole danach nur die SELECT-Anweisung, nicht das gesamte Skript.",
+          "Speichere dein SQL-Skript als L1_1_einstieg.sql. Öffne die Datei erneut, zeige das Ergebnis der Lehrkraft und dokumentiere eine Verbesserung deines Entwurfs."
         ],
-        evidence: "Ausgefüllte digitale Vorlage, eigene Definitionen und begründete Schlüsselwahl"
+        download: { href: "assets/sql/l1-1-workbench-einstieg.sql", label: "SQL-Einstieg herunterladen" },
+        fileName: "L1_1_einstieg.sql",
+        evidence: "Tabellenentwurf, eigene Definitionen mit Beobachtungen aus Workbench und erneut geöffnetes SQL-Skript"
       },
       completionChecks: [
         "Ich habe alle vier Fachbegriffe in eigenen Worten erklärt.",
         "Mein Tabellenentwurf enthält atomare Attribute, passende Datentypen und genau einen Primärschlüssel.",
+        "Ich habe die Einstiegstabelle in Workbench angezeigt, die beiden Datensätze zugeordnet und mein SQL-Skript gespeichert.",
         "Ich habe eine eigene Zusammenfassung geschrieben und mindestens eine Verbesserung dokumentiert."
       ],
       quiz: {
@@ -199,8 +206,8 @@
       title: "ER-Diagramm und Relationenschema",
       subtitle: "Aus dem Tabellenentwurf wird zuerst ein fachliches ER-Diagramm und danach ein technisch präzisiertes Relationenschema.",
       duration: 55,
-      workflow: ["Informieren", "ERD zeichnen", "Relationenschema", "Abschließen"],
-      workflowHints: ["Grundlagen lesen", "Fachliches Modell skizzieren", "Datentypen und PK festlegen", "Lehrkraft bestätigt"],
+      workflow: ["Informieren", "Skizzieren und üben", "In Workbench modellieren", "Abschließen"],
+      workflowHints: ["ERD und Schema unterscheiden", "Entwurf und Kurzcheck", "Erstes EER-Modell speichern", "Lehrkraft bestätigt"],
       sourceMaterials: ["L1_2.1 Information Datenbank modellieren", "L1_2 Aufgabe Datenbank modellieren"],
       objectives: [
         "erklären, wozu ein ER-Diagramm bei der Verständigung über Daten dient",
@@ -255,21 +262,25 @@
         "Warum ist `fahrstundenzahl` INT, aber eine Telefonnummer VARCHAR?"
       ],
       classroomTask: {
-        tool: "Browser und Heft",
-        title: "Vom Entwurf zum ERD und Relationenschema",
-        intro: "Heiner ergänzt zu seinem bisherigen Entwurf Geburtsdatum und Fahrstundenzahl. Bearbeite die vier Aufgaben des digitalen Blatts und zeichne danach das ERD.",
+        tool: "MySQL Workbench · EER-Modell",
+        title: "Den eigenen Entwurf erstmals in Workbench modellieren",
+        intro: "Erkläre und skizziere zuerst ERD und Relationenschema. Setze danach deinen eigenen Entwurf in Workbench um; eine Serverdatenbank erzeugst du hier noch nicht.",
         steps: [
           "Beschreibe den Zweck eines ER-Diagramms und zeichne den Entitätstyp fahrschueler mit seinen Attributen.",
           "Unterscheide eine konkrete Entität vom Entitätstyp und erläutere den Zweck des Relationenschemas.",
           "Übertrage den Entwurf in ein Relationenschema mit Schlüssel, Datentypen und maximalen Textlängen.",
-          "Vergleiche ERD und Relationenschema mit einer Mitschülerin, einem Mitschüler oder der Lehrkraft."
+          "Öffne Workbench 6.3.10 und lege über File > New Model ein Modell an. Benenne mydb über Edit Schema in fahrschule um und öffne mit Add Diagram die Zeichenfläche.",
+          "Platziere eine Tabelle fahrschueler und übertrage die elf Attribute unter Column Name mit Datentypen unter Datatype und passenden Textlängen. Kennzeichne schuelernr als PK und NN (NOT NULL). Füge noch keine Beziehung hinzu. Das technische EER-Modell ersetzt nicht die fachliche Skizze im Heft.",
+          "Speichere als L1_2_entwurf.mwb und öffne die Datei erneut. Vergleiche die Tabelle mit deinem Relationenschema und dokumentiere eine Abweichung oder bestätige, dass alle elf Attribute übereinstimmen. Nutze dieses Modell in L1.3 weiter."
         ],
-        evidence: "ERD-Skizze im Heft und ausgefülltes digitales Relationenschema"
+        fileName: "L1_2_entwurf.mwb",
+        evidence: "Fachliche ERD-Skizze, digitales Relationenschema und erneut geöffnetes erstes Workbench-Modell"
       },
       completionChecks: [
         "Ich habe die vier Aufgaben des digitalen Blatts beantwortet und ein ERD gezeichnet.",
         "Mein Relationenschema enthält schuelernr als PK sowie geburtsdatum DATE und fahrstundenzahl INT.",
-        "Ich kann den Unterschied zwischen fachlichem ERD und technischem Relationenschema erklären."
+        "Ich kann den Unterschied zwischen fachlichem ERD und technischem Relationenschema erklären.",
+        "Ich habe mein erstes EER-Modell in Workbench gespeichert, erneut geöffnet und mit den elf Attributen des Entwurfs verglichen."
       ],
       quiz: {
         question: "Welche Angabe macht aus der fachlichen ERD-Skizze ein technisch genaueres Relationenschema?",
@@ -300,7 +311,7 @@
           title: "Vom Papiermodell zum Workbench-Modell",
           body: [
             "MySQL Workbench nennt ihre Zeichenfläche EER-Diagramm. Dort legst du den Entitätstyp aus L1.2 als Tabelle `fahrschueler` an. Diese erste Übung verwendet nur eine Tabelle. Beziehungen und Kardinalitäten werden erst bei mehreren Tabellen gebraucht.",
-            "Das EER-Modell kannst du als `.mwb` speichern, ohne schon eine Datenbank auf dem Server anzulegen. Für die erste gemeinsame Einrichtung prüfen wir trotzdem vorab den Informatik-Stick und die lokale Verbindung; die eigentliche Datenbank wird erst in L1.4 erzeugt."
+            "Öffne deinen ersten Entwurf `L1_2_entwurf.mwb` aus L1.2. Das EER-Modell kannst du als `.mwb` speichern, ohne schon eine Datenbank auf dem Server anzulegen. Die kleine Einstiegstabelle aus L1.1 liegt in einem getrennten Schema; die vollständige Datenbank `fahrschule` wird erst in L1.4 erzeugt."
           ],
           visual: "single-table-workbench",
           warning: "Ein gespeichertes `.mwb`-Modell ist noch keine erzeugte Datenbank. Prüfe den Unterschied, bevor du später Forward Engineering ausführst."
@@ -318,7 +329,7 @@
         {
           title: "Schema, Diagramm und Tabelle anlegen",
           body: [
-            "Erstelle ein neues Modell. Benenne das Standardschema `mydb` per `Edit Schema...` in `fahrschule` um. Füge mit `Add Diagram` ein EER-Diagramm hinzu, platziere das Tabellensymbol und ändere `table1` in `fahrschueler`.",
+            "Prüfe im geöffneten Entwurf das Schema `fahrschule` und die Tabelle `fahrschueler`. Fehlt deine Entwurfsdatei, erstelle ein neues Modell, benenne `mydb` per `Edit Schema...` um und lege mit `Add Diagram` die Tabelle an.",
             "Trage alle elf Attribute aus L1.2 im Tabellendialog unter `Column Name` ein und wähle unter `Datatype` die Typen. Kontrolliere `schuelernr` als PK. `NN` bedeutet NOT NULL: Für diese Spalte muss später ein Wert vorliegen. Übernimm Pflichtfelder nur dort, wo sie fachlich sinnvoll sind."
           ],
           rules: [
@@ -354,7 +365,7 @@
         steps: [
           "Öffne das Play-Symbol `Start`, doppelklicke `MySQL starten` und warte auf `ready for connections`. Lasse das Konsolenfenster geöffnet.",
           "Starte in der Schule MySQL Workbench 6.3.10. Öffne oder teste die lokale Verbindung und führe `SELECT VERSION();` aus.",
-          "Benenne das Schema in `fahrschule` um und lege mit `Add Diagram` ein EER-Diagramm an.",
+          "Öffne L1_2_entwurf.mwb aus L1.2 und prüfe Schema fahrschule und das EER-Diagramm. Fehlt die Datei, erstelle das Modell mit Add Diagram neu.",
           "Füge eine Tabelle `fahrschueler` ein; übernimm Attribute, Datentypen, PK und passende NN-Markierungen aus L1.2.",
           "Speichere als `L1_2 Lösung fahrschule.mwb`, öffne die Datei erneut und überprüfe Schema, Tabelle und Schlüssel mit der Lehrkraft."
         ],
@@ -1047,10 +1058,10 @@
       module: "lernfortschritt-2",
       title: "Redundanz erkennen und zwei Tabellen planen",
       subtitle: "Wiederholte Ortsangaben werden in einen eigenen Entitätstyp überführt; aus der fachlichen 1:N-Beziehung entsteht ein Fremdschlüssel.",
-      duration: 65,
+      duration: 80,
       practiceId: "erm-fahrschule-redundancy",
-      workflow: ["Daten prüfen", "Änderungsproblem erklären", "ERD zeichnen", "Relationen planen"],
-      workflowHints: ["PK und Atomarität", "Redundanz und Anomalie", "Zwei Leserichtungen", "FK auf der N-Seite"],
+      workflow: ["Daten prüfen", "ERD und Relationen", "Workbench-Entwurf", "Datei prüfen"],
+      workflowHints: ["Redundanz und Anomalie", "FK auf der N-Seite", "Zwei Tabellen ohne Serveränderung", "Speichern und erneut öffnen"],
       sourceMaterials: ["L2_1 Information Redundanzfreiheit", "L2_1 Aufgabe Redundanzfreiheit", "L2_1 Vorlage Tabellenentwurf", "L2_2.1 Information Datenbankmodell 2 Tabellen", "L2_2.1 Aufgabe Datenbankmodell 2 Tabellen"],
       objectives: [
         "wiederholte Speicherung von Orten von mehrfachen Werten in einem SELECT-Ergebnis unterscheiden",
@@ -1091,17 +1102,27 @@
             "`ortnr` ist eine technische Kennung. Postleitzahl und Ortsname sind dafür kein verlässlicher Ersatz, weil Schreibweisen, Zustellgebiete und fachliche Regeln variieren können. Prüfe im eigenen Modell, welche Attribute aus L1 unverändert bei `fahrschueler` bleiben."
           ],
           code: "orte(ortnr PK, plz, ort)\nfahrschueler(schuelernr PK, nachname, vorname, ..., ortnr FK)"
+        },
+        {
+          title: "Den Tabellenentwurf in Workbench vorbereiten",
+          body: [
+            "Nach dem fachlichen ERD und den Browserübungen setzt du deinen eigenen Entwurf als Modelldatei um. Öffne deine vollständige L1-Modelldatei und speichere über File > Save Model As eine Kopie L2_1_tabellenentwurf.mwb. Benenne nur in dieser Kopie das Schema fahrschule_l2. Die L1-Datei und die bestehende Datenbank bleiben unverändert.",
+            "Öffne das EER-Diagramm oder ergänze über Add Diagram ein Diagramm und ziehe die bestehende Tabelle aus dem Catalog darauf. Lege mit dem Tabellenwerkzeug orte an: ortnr INT als PK, NN und AI, plz VARCHAR(5) sowie ort VARCHAR(50), beide NN. Ergänze in fahrschueler ortnr INT NN als vorgesehenen Verweis und entferne dort plz und ort nur aus der Modellkopie. Alle übrigen Attribute aus L1 bleiben erhalten.",
+            "In L2.1 planst du die Beziehung fachlich, richtest aber noch keinen Foreign-Key-Constraint ein. Eine Spalte ortnr allein erzwingt keine Zuordnung und erzeugt keine Beziehungslinie. Die technische 1:N-Verbindung folgt in L2.2; notiere bis dahin beide Leserichtungen in einer Textnotiz im Diagramm. Speichere die Datei, schließe sie und öffne sie zur Kontrolle erneut."
+          ],
+          warning: "Dies ist ein Tabellenentwurf, noch kein fertiges relationales Modell. Kein Forward Engineer, keine Synchronisierung und keine Änderung am Server in L2.1. Die .mwb-Datei wird separat gespeichert; die JSON-Sicherung enthält sie nicht."
         }
       ],
       webWorksheet: {
         title: "L2.1: Redundanz und Zwei-Tabellen-Modell",
-        intro: "Bearbeite die Fragen aus L2_1 und L2_2.1 in eigenen Worten. Zeichne dein ERD zusätzlich im Heft; die Software folgt erst in L2.2.",
+        intro: "Bearbeite zuerst die Fragen aus L2_1 und L2_2.1 und zeichne das fachliche ERD im Heft. Nach den Übungen folgt dein eigener Tabellenentwurf in Workbench.",
         definitionTerms: [
           { id: "pruefung", label: "1 · Bestehende Tabelle", prompt: "Sind Primärschlüssel und atomare Werte vorhanden? Welche Daten werden trotzdem mehrfach gespeichert?" },
           { id: "anomalie", label: "2 · Änderungsanomalie", prompt: "Beschreibe an zwei Fahrschülern desselben Ortes, wie durch eine nur teilweise Änderung widersprüchliche Daten entstehen." },
           { id: "beziehung", label: "3 · Fachliches ERD", prompt: "Nenne beide Entitätstypen, den Beziehungstyp und zwei vollständige Leserichtungssätze. Welche maximale Kardinalität entsteht?" },
           { id: "relationen", label: "4 · Relationenschema", prompt: "Schreibe beide Relationen mit PK, FK sowie plz und ort auf. Wo steht ortnr als Fremdschlüssel?" },
-          { id: "begriffe", label: "5 · Begriffe", prompt: "Definiere Entität, Entitätstyp, Beziehungstyp, Kardinalität und Fremdschlüssel anhand des Beispiels." }
+          { id: "begriffe", label: "5 · Begriffe", prompt: "Definiere Entität, Entitätstyp, Beziehungstyp, Kardinalität und Fremdschlüssel anhand des Beispiels." },
+          { id: "modellkontrolle", label: "6 · Workbench-Entwurf", prompt: "Wie heißt deine gespeicherte Modelldatei? Welche beiden Tabellen und Schlüssel siehst du nach erneutem Öffnen? Prüfe, wo plz und ort stehen und welche L1-Attribute erhalten sind. Warum ist ortnr in fahrschueler noch kein technisch eingerichteter Fremdschlüssel?" }
         ],
         hint: "Ein Fremdschlüssel wiederholt nur die Ortsnummer als Verweis. Ortsname und PLZ werden in der neuen Ortstabelle gepflegt."
       },
@@ -1111,21 +1132,26 @@
         "Weshalb steht der Fremdschlüssel auf der Fahrschüler-Seite?"
       ],
       classroomTask: {
-        tool: "Heft und digitales Aufgabenblatt",
-        title: "Fahrschule ohne mehrfach gespeicherte Ortsdaten planen",
-        intro: "Gehe von der Ein-Tabellen-Struktur aus L1 aus. L2_1 fragt nach den Qualitätskriterien; L2_2.1 führt zum fachlichen ERD und Relationenschema.",
+        tool: "MySQL Workbench EER Diagram und fachlicher Entwurf",
+        title: "Zwei Tabellen selbst entwerfen und in Workbench vorbereiten",
+        intro: "Gehe von deiner vollständigen L1-Struktur aus. Begründe zunächst die Aufteilung auf Papier; übertrage danach deinen Entwurf in eine eigene Modelldatei. Server und L1-Datei bleiben unverändert.",
         steps: [
           "Prüfe die bestehende Tabelle auf Primärschlüssel, atomare Werte und mehrfach gespeicherte Ortsangaben.",
           "Beschreibe eine konkrete Änderungsanomalie und skizziere zwei Tabellen als Lösung.",
           "Zeichne ein fachliches ERD mit `orte`, `fahrschueler`, `wohnt in` und einer begründeten 1:N-Beziehung.",
-          "Überführe das ERD in zwei Relationen; markiere `ortnr` als PK in `orte` und als FK in `fahrschueler`."
+          "Überführe das ERD in zwei Relationen; markiere `ortnr` als PK in `orte` und als vorgesehenen FK in `fahrschueler`.",
+          "Öffne die vollständige L1-Modelldatei in Workbench 6.3.10 beziehungsweise 8.0.21. Sichere über File > Save Model As die Kopie L2_1_tabellenentwurf.mwb und benenne nur deren Schema fahrschule_l2. Wenn die L1-Datei fehlt, erstelle die vollständige L1-Struktur anhand deines gespeicherten Tabellenentwurfs neu, nicht nur eine gekürzte Namenstabelle.",
+          "Öffne oder ergänze das EER-Diagramm. Lege orte mit ortnr INT PK NN AI, plz VARCHAR(5) NN und ort VARCHAR(50) NN an. Ergänze fahrschueler.ortnr INT NN und entferne plz und ort nur aus dieser Modellkopie. Prüfe, dass alle anderen L1-Attribute erhalten bleiben.",
+          "Füge eine Textnotiz mit beiden Leserichtungen hinzu. Richte noch keine Beziehung ein: Die vorgesehene FK-Spalte allein erzwingt keine Zuordnung. Speichere, schließe und öffne die .mwb-Datei erneut; zeige der Lehrkraft die beiden Tabellen und die unveränderte L1-Datei. Kein Forward Engineer und keine Synchronisierung in dieser Einheit."
         ],
-        evidence: "Begründete Redundanzprüfung, handgezeichnetes ERD, zwei Relationenschemata und digitales Blatt"
+        evidence: "Begründete Redundanzprüfung, handgezeichnetes ERD, zwei Relationenschemata und erneut geöffnete eigene Workbench-Modelldatei",
+        fileName: "L2_1_tabellenentwurf.mwb"
       },
       completionChecks: [
         "Ich kann eine Speicher-Redundanz und eine Änderungsanomalie am Beispiel erklären.",
         "Mein fachliches ERD enthält die beiden Entitätstypen und die 1:N-Beziehung.",
-        "Mein Relationenschema speichert plz und ort nur in orte und verwendet ortnr als Fremdschlüssel."
+        "Mein Relationenschema speichert plz und ort nur in orte und plant ortnr als Fremdschlüssel.",
+        "Ich habe meinen Zwei-Tabellen-Entwurf in Workbench gespeichert und erneut geöffnet; L1-Datei und Server sind unverändert. Ich kann die noch fehlende technische Beziehung benennen."
       ],
       quiz: {
         question: "Was ändert SELECT DISTINCT ort an der ursprünglichen Fahrschüler-Tabelle?",
@@ -1145,7 +1171,7 @@
       subtitle: "Aus dem ERD aus L2.1 entsteht ein EER-Diagramm mit zwei Tabellen, einem Fremdschlüssel und einer geprüften Modelldatei.",
       duration: 70,
       practiceId: "erm-fahrschule-1n-diagram",
-      workflow: ["L1-Modell kopieren", "Ortstabelle anlegen", "1:N setzen", "Modell prüfen"],
+      workflow: ["L2.1-Entwurf öffnen", "Ortstabelle prüfen", "1:N setzen", "Modell prüfen"],
       workflowHints: ["Eigenes L2-Schema", "ortnr PK und AI", "FK in fahrschueler", "Keine vorhandenen Daten löschen"],
       sourceMaterials: ["L2_2.2 Information softwaregestütztes Datenbankmodell 2 Tabellen", "L2_2.2 Aufgabe softwaregestütztes Datenbankmodell 2 Tabellen", "L2_2.2 Vorlage_fahrschule.mwb"],
       objectives: [
@@ -1158,8 +1184,8 @@
         {
           title: "Eigenständige L2-Kopie anlegen",
           body: [
-            "Öffne deine `.mwb`-Datei aus L1 oder die lokale Unterrichtsvorlage. Speichere sofort eine neue Kopie für L2; die ursprüngliche L1-Datei bleibt erhalten. Benenne das Schema dieser Kopie `fahrschule_l2`, damit du nicht versehentlich die bestehende L1-Datenbank überschreibst.",
-            "Im EER-Diagramm ist `fahrschueler` zunächst noch die einzige Tabelle. Ergänze `orte` mit `ortnr` als `INT`-Primärschlüssel und Auto Increment (`AI`), `plz` als Text und `ort` als Ortsname."
+            "Öffne deinen Entwurf L2_1_tabellenentwurf.mwb und speichere eine neue Kopie L2_2_fahrschule_zwei_tabellen.mwb. Das Schema heißt fahrschule_l2. Die L2.1- und L1-Dateien bleiben erhalten. Falls du ohne diesen Entwurf beginnst, kopiere die vollständige L1-Datei oder die lokale Unterrichtsvorlage und benenne das Schema der Kopie fahrschule_l2.",
+            "Prüfe im EER-Diagramm die beiden Tabellen aus L2.1: orte enthält ortnr INT PK NN AI, plz VARCHAR(5) NN und ort VARCHAR(50) NN. Fahrschueler enthält alle übrigen L1-Attribute sowie ortnr INT NN. Ergänze fehlende Spalten, aber lege vorhandene Tabellen und ortnr nicht doppelt an."
           ],
           visual: "foreign-key",
           warning: "Erzeuge aus der Modellkopie noch keine Datenbank. Besonders eine Option zum Löschen vorhandener Objekte darfst du nicht ungeprüft übernehmen."
@@ -1168,7 +1194,7 @@
           title: "Beziehung setzen und Fremdschlüssel prüfen",
           body: [
             "Wähle in Workbench das Werkzeug für eine nicht-identifizierende 1:N-Beziehung. Klicke zuerst auf die Child-Tabelle `fahrschueler`, die den Fremdschlüssel erhält, danach auf die Parent-Tabelle `orte`. Die Namen der Werkzeuge können in 6.3.10 und 8.0.21 leicht abweichen.",
-            "Workbench kann den neuen Fremdschlüssel automatisch `orte_ortnr` nennen. Benenne ihn für unser Schema in `ortnr` um. Entferne danach `plz` und `ort` aus der Modell-Tabelle `fahrschueler`; beide Attribute gehören jetzt ausschließlich zu `orte`. Kontrolliere die Verbindung `orte.ortnr` zu `fahrschueler.ortnr` und speichere die `.mwb`-Kopie."
+            "Wenn das Beziehungswerkzeug eine zusätzliche Spalte orte_ortnr erzeugt, ordne im Tabelleneditor unter Foreign Keys die Beziehung der bereits geplanten Spalte ortnr zu. Prüfe zuerst die Zuordnung ortnr zu orte.ortnr; entferne erst danach die ungenutzte automatisch erzeugte Zusatzspalte. Wenn du von L1 ohne geplante Spalte beginnst, kannst du die neu erzeugte FK-Spalte in ortnr umbenennen. Am Ende gibt es genau eine Orts-Verweisspalte INT NN. Plz und ort stehen ausschließlich in orte. Speichere die .mwb-Kopie."
           ],
           code: "orte(ortnr INT PK AI, plz VARCHAR(5), ort VARCHAR(50))\nfahrschueler(..., ortnr INT FK)\n\norte.ortnr  1 ---- N  fahrschueler.ortnr",
           tip: "AI vergibt bei neuen Orten automatisch eine Nummer. Für die Beziehung zählt trotzdem der gleiche Datentyp von PK und FK."
@@ -1203,11 +1229,11 @@
       classroomTask: {
         tool: "MySQL Workbench EER Diagram",
         title: "Fahrschule als Zwei-Tabellen-Modell umsetzen",
-        intro: "Setze die Aufgabe L2_2.2 in Workbench um. Verwende eine Kopie deines L1-Modells und ein getrenntes L2-Übungsschema.",
+        intro: "Führe deinen L2.1-Entwurf als neue Modelldatei weiter und setze die Aufgabe L2_2.2 um. Prüfe den tatsächlichen Fremdschlüssel, bevor du das getrennte L2-Übungsschema erzeugst.",
         steps: [
-          "Sichere die geöffnete L1-Modelldatei unter neuem L2-Namen und benenne das Schema der Kopie `fahrschule_l2`.",
-          "Ergänze `orte` mit `ortnr` als PK und AI sowie `plz` und `ort`.",
-          "Setze die 1:N-Beziehung: zuerst `fahrschueler` als Child, dann `orte` als Parent. Prüfe `ortnr` als FK und entferne die redundanten Ortsattribute aus `fahrschueler`.",
+          "Öffne L2_1_tabellenentwurf.mwb und sichere eine neue L2.2-Kopie. Ohne diesen Entwurf kopierst du die vollständige L1-Modelldatei. Das Schema der Kopie heißt fahrschule_l2; die bisherigen Dateien bleiben erhalten.",
+          "Prüfe oder ergänze orte mit ortnr INT PK NN AI sowie plz VARCHAR(5) NN und ort VARCHAR(50) NN. Fahrschueler behält alle übrigen L1-Attribute und benötigt genau eine ortnr-Spalte INT NN.",
+          "Setze die nicht-identifizierende 1:N-Beziehung: zuerst fahrschueler als Child, dann orte als Parent. Ordne unter Foreign Keys die bestehende Spalte ortnr der Parent-Spalte orte.ortnr zu. Entferne eine automatisch erzeugte Zusatzspalte erst nach dieser Kontrolle. Plz und ort dürfen nicht zusätzlich bei fahrschueler stehen.",
           "Speichere und öffne die `.mwb`-Datei erneut. Zeige der Lehrkraft Diagramm, PK/FK, Kardinalität und die unveränderte L1-Datei.",
           "Übertrage nur nach Freigabe in das neue Schema. Prüfe die SQL-Vorschau auf DROP/ALTER gegen L1, importiere das fiktive L2-Skript einmal und kontrolliere das JOIN-Ergebnis."
         ],
@@ -1524,91 +1550,429 @@
     "mn-beziehungen": {
       courseCode: "L3.2",
       module: "lernfortschritt-3",
+      title: "Vorgänge über mehrere Tabellen auswerten",
+      duration: 180,
+      subtitle: "Vorgänge über mehrere Tabellen auswerten und Summen, Mietdauer und Gruppen fachlich kontrollieren.",
+      workflow: ["Modell lesen", "Fahrschule", "Fahrradvermietung", "Abschließen"],
+      workflowHints: ["Verbindungspfad prüfen", "F1–F10", "R1–R16", "Lehrkraft bestätigt"],
       sourceMaterials: ["L3_2.1 Aufgabe Datenbankabfragen Fahrschule", "L3_2.2 Aufgabe Datenbankabfragen Fahrradvermietung"],
+      objectives: [
+        "Vorgangstabellen mit den richtigen Stammdaten über Schlüssel verbinden",
+        "Datensätze, unterschiedliche Tage und aufsummierte Stunden unterscheiden",
+        "Mietdauer und Umsatz mit ausdrücklich festgelegten Einheiten berechnen",
+        "Zeilenfilter, Gruppenfilter und die Bezugsmenge eines Durchschnitts begründen"
+      ],
+      sections: [
+        {
+          title: "Der Vorgang bestimmt den Verbindungspfad",
+          body: [
+            "In der Fahrschule verbindet fahrstunden jede Unterrichtszeile mit fahrlehrer, fahrschueler und kfz. Ein Schüler kann Unterricht bei verschiedenen Lehrkräften erhalten. Verbinde deshalb über den konkreten Vorgang, nicht über einen vermeintlich dauerhaft zugeordneten Fahrlehrer.",
+            "In der Fahrradvermietung verbindet vermietungen Kunde und einzelnes Fahrrad. Die Modellbezeichnung und der Tagesmietpreis liegen dagegen in modelle; der Wohnort des Kunden liegt in orte. Schreibe vor der Abfrage auf, welche Tabellen du tatsächlich brauchst. Auch bei sieben gespeicherten Tabellen muss nicht jede Abfrage alle sieben verbinden."
+          ],
+          code: "-- Verbindungspfad zur Modellbezeichnung\nFROM vermietungen AS v\nJOIN fahrraeder AS f ON v.fahrradnr = f.fahrradnr\nJOIN modelle AS m ON f.modellnr = m.modellnr",
+          tip: "Das Modell aus L3.1 beantwortet eine andere Frage und fordert keinen Schülerbezug. Der vorgegebene Auswertungsbestand ergänzt ihn ausdrücklich um schuelernr. Prüfe das tatsächlich verwendete Schema, bevor du SQL schreibst."
+        },
+        {
+          title: "Zeilen, Stunden und verschiedene Tage sind nicht dasselbe",
+          body: [
+            "Eine Zeile in fahrstunden kann mehrere Stunden enthalten. COUNT(*) zählt Unterrichtszeilen; SUM(stundenzahl) zählt die erfassten Stunden. Wenn nach Tagen gefragt ist, können mehrere Unterrichtsvorgänge am selben Datum zu nur einem gewünschten Ausgabedatum gehören. Entscheide dann bewusst über DISTINCT.",
+            "Gruppiere Fahrzeuge und Personen nach ihrem Schlüssel und den ausgegebenen Merkmalen. Zwei Personen mit gleichem Nachnamen sind keine gemeinsame Gruppe. WHERE wählt einzelne Vorgänge, HAVING beispielsweise Schüler mit mehr als zwei aufsummierten Stunden. Genau zwei gehören nicht zu > 2.",
+            "F4 und R14 sollen ausdrücklich auch unbenutzte Fahrzeuge zeigen. Beginne dafür bei den Fahrzeugen mit LEFT JOIN. COUNT(v.vermietnr) zählt vorhandene Vermietungen; COUNT(*) zählt auch die erhaltene Zeile ohne Vermietung. Eine fehlende SUM kannst du mit COALESCE als null Stunden darstellen."
+          ]
+        },
+        {
+          title: "Mietdauer und Umsatz brauchen eine klare Vereinbarung",
+          body: [
+            "DATEDIFF(bis, von) liefert die Differenz der Kalendertage; Uhrzeiten spielen dabei keine Rolle. Für diese Übungsdaten gilt: von einschließlich, bis ausschließlich. Vom 1. bis 11. Januar sind das zehn Miettage. Für denselben Anfangs- und Endtag ergeben sich null Tage. Eine inklusive Tagesabrechnung wäre eine andere Geschäftsregel und müsste ausdrücklich + 1 vereinbaren.",
+            "Der Übungsumsatz ist Miettage mal Tagesmietpreis des Modells, in Euro. SUM dieser Vorgangsbeträge bildet den Gesamtumsatz. Die Beispieldaten nehmen während aller Verträge unveränderte Modellpreise an. In einem echten System müsste der vereinbarte Preis am Vertrag gespeichert werden, sonst würden spätere Preisänderungen alte Umsätze verfälschen.",
+            "Ein Durchschnitt je Vermietung gewichtet jeden Vertrag einmal. Ein Durchschnitt je Fahrradart in R15/R16 gewichtet jedes einzelne Fahrrad einmal, nicht jedes Modell oder jeden Mietvertrag. Ein JOIN mit Vermietungen würde häufig vermietete Fahrräder stärker gewichten und unvermietete ausschließen."
+          ],
+          code: "DATEDIFF(v.bis, v.von) AS miettage",
+          tip: "vermietnr identifiziert den Vorgang. Die höchste Nummer ist nicht automatisch der zeitlich neueste Mietbeginn; R5 verlangt ausdrücklich Nummer 133."
+        },
+        {
+          title: "Aus dem echten Schema ein EER-Diagramm erzeugen",
+          body: [
+            "Öffne in Workbench Database > Reverse Engineer. Wähle die Verbindung local und anschließend ausschließlich die Fahrschul-Übungsdatenbank dieser Einheit. Übernimm die fünf Tabellen und aktiviere Place imported objects on a diagram. Prüfe die Meldungen und beende den Assistenten mit Finish.",
+            "Ordne die Tabellen im EER-Diagramm an und kontrolliere die fünf Fremdschlüssel. Speichere mit File > Save als L3_2_fahrschule.mwb. Erzeuge in einem getrennten Modell entsprechend L3_2_fahrradvermietung.mwb mit sieben Tabellen und sechs Fremdschlüsseln. Öffne beide Dateien zur Kontrolle erneut.",
+            "Reverse Engineering liest die vorhandene Struktur in ein Modell; es importiert hier nicht die Datensätze als Schülerantworten. Forward Engineering wäre die umgekehrte Richtung und ist für diesen Auftrag nicht nötig. Verändere beim Zeichnen keine bestehenden Datenbanken über Synchronize Model."
+          ]
+        },
+        {
+          title: "Bestand, Bezugsjahr und Ergebnis prüfen",
+          body: [
+            "Der Download legt zwei voneinander getrennte Übungsdatenbanken mit ausschließlich fiktiven Daten an: workbenchlab_l3_2_fahrschule und workbenchlab_l3_2_fahrradvermietung. Die Tabellenstruktur orientiert sich an den fünf bzw. sieben Tabellen der Vorlagen; Namen und Ergebnismengen sind bewusst andere. Die Originaldatenbanken werden nicht verändert.",
+            "F8/F9 verwenden wie die Vorlage das feste Jahr 2019. Gemeint ist das Alter, das die Schüler im Kalenderjahr erreichen: 2019 minus Geburtsjahr. Das ist nicht das Alter am heutigen Tag. Gruppiere diese Alterswerte und zähle die Personen je Altersgruppe.",
+            "Kontrolliere jede Abfrage an mindestens einem einzelnen Vorgang und an einer passenden Grenzgruppe. Notiere SQL, Schema, Ergebniskontrolle und Einheit. Speichere deine Abfragen als .sql-Dateien; der Anfangsbestand wird nur einmal ausgeführt."
+          ]
+        }
+      ],
+      webWorksheet: {
+        title: "L3.2: Vorgänge und Mehrtabellen-Auswertungen",
+        intro: "Bearbeite F1–F10 in der Fahrschul-Datenbank, R1–R16 in der Fahrradvermietung. Teile die Arbeit auf mehrere Stunden auf. Fiktive Namen ersetzen die Namen aus den Originalaufträgen; Nummern 1, 100 und 133 sowie das Bezugsjahr 2019 bleiben erhalten.",
+        answerPlaceholder: "SQL-Befehl, Schema, Ergebnis und Kontrolle ...",
+        definitionGroups: [
+          { label: "Fahrschule · F1–F5", open: true, ids: ["f1", "f2", "f3", "f4", "f5"] },
+          { label: "Fahrschule · F6–F10", ids: ["f6", "f7", "f8", "f9", "f10"] },
+          { label: "Fahrradvermietung · R1–R8", ids: Array.from({ length: 8 }, (_, i) => `r${i + 1}`) },
+          { label: "Fahrradvermietung · R9–R16", ids: Array.from({ length: 8 }, (_, i) => `r${i + 9}`) }
+        ],
+        definitionTerms: [
+          { id: "f1", label: "F1 · Unterrichtstage", prompt: "An welchen unterschiedlichen Tagen hat die Fahrlehrkraft mit Nachname Probe Unterricht gegeben? Gib jeden Tag nur einmal aus und sortiere chronologisch." },
+          { id: "f2", label: "F2 · Mit Kennzeichen", prompt: "Ergänze F1 um die Kennzeichen der verwendeten Fahrzeuge. Gib jede Kombination aus Tag und Kennzeichen einmal aus. Erkläre, warum die Zeilenzahl gegenüber F1 steigen kann." },
+          { id: "f3", label: "F3 · Schüler, Lehrkraft und Stunden", prompt: "An welchen Tagen erhielt Andreas Probe wie viele Stunden bei welcher Lehrkraft? Gib die einzelnen Unterrichtsvorgänge mit Datum, stundenzahl und Lehrkraftnamen aus." },
+          { id: "f4", label: "F4 · Stunden je Fahrzeug", prompt: "Wie viele Stunden wurden insgesamt mit jedem Fahrzeug gegeben? Zeige Kennzeichen und Stundensumme, ausdrücklich auch das bisher unbenutzte Fahrzeug mit null Stunden." },
+          { id: "f5", label: "F5 · Mehr als zwei Stunden", prompt: "Welche Schüler haben insgesamt mehr als zwei Unterrichtsstunden erhalten? Zeige Schülernummer, Namen und Stundensumme. Prüfe den Schüler mit genau zwei Stunden." },
+          { id: "f6", label: "F6 · Unterrichtskosten", prompt: "Berechne die bisherigen Unterrichtskosten von Hakan Fiktiv bei 35,00 Euro je Stunde. Kontrolliere zuerst seine Stunden und gib den Kostenbetrag in Euro aus." },
+          { id: "f7", label: "F7 · Stunden je Monat", prompt: "Ermittle die Stundensumme je Kalenderjahr und Monat. Sortiere nach Jahr und Monat, damit derselbe Monatsname aus verschiedenen Jahren nicht zusammenfällt." },
+          { id: "f8", label: "F8 · Geburtstagsalter 2019", prompt: "Welche Alterswerte erreichen die Schüler im Kalenderjahr 2019 und wie viele Schüler gehören jeweils dazu? Gruppiere die Kalenderjahresalter und sortiere aufsteigend." },
+          { id: "f9", label: "F9 · Älter als 18", prompt: "Wie F8, aber nur Altersgruppen über 18. Erläutere, warum genau 18 nicht dazugehört und warum CURRENT_DATE hier nicht das Bezugsjahr ersetzt." },
+          { id: "f10", label: "F10 · Durchschnittsgehalt", prompt: "Ermittle das durchschnittliche Gehalt aller Fahrlehrer. Brauchst du dafür überhaupt einen JOIN? Vergleiche eine Handrechnung mit deiner Ausgabe." },
+          { id: "r1", label: "R1 · Vermietung 1", prompt: "Welches einzelne Fahrrad gehört zur Vermietung mit vermietnr 1? Zeige Vermietnummer, Fahrradnummer und Rahmennummer." },
+          { id: "r2", label: "R2 · Mit Modell", prompt: "Ergänze R1 um die Modellbezeichnung. Notiere den Verbindungspfad und die beiden Schlüsselbedingungen." },
+          { id: "r3", label: "R3 · Kunde und Wohnort", prompt: "Ergänze R2 um Kundennummer, Vorname, Nachname und Wohnort des Kunden. Qualifiziere mehrdeutige Spalten mit Aliasnamen." },
+          { id: "r4", label: "R4 · Miettage der Nummer 100", prompt: "Für wie viele Tage wurde welches Fahrrad in Vermietung 100 vermietet? Gib von, bis und DATEDIFF(bis, von) mit aus. In dieser Einheit zählt der Endtag nicht mit." },
+          { id: "r5", label: "R5 · Preis der Nummer 133", prompt: "Wie teuer war Vermietung 133? Berechne Miettage mal Tagesmietpreis des Modells. Zeige beide Faktoren und den Gesamtbetrag in Euro." },
+          { id: "r6", label: "R6 · Gesamtumsatz", prompt: "Wie hoch ist die Summe der vereinbarten Übungsbeträge aller Vermietungen? Prüfe, ob dein JOIN genau eine Zeile je vermietnr erzeugt, bevor du summierst." },
+          { id: "r7", label: "R7 · Mietdauer sortieren", prompt: "Liste für jede Vermietung die Vermietnummer, Fahrradnummer und Mietdauer in Tagen. Sortiere nach Mietdauer absteigend, bei Gleichstand nach Vermietnummer aufsteigend." },
+          { id: "r8", label: "R8 · Durchschnittliche Mietdauer", prompt: "Ermittle die durchschnittliche Mietdauer je Vermietung. Notiere Anzahl und Summe als Gegenprobe. Runde erst die Anzeige, nicht die einzelnen Dauern." },
+          { id: "r9", label: "R9 · Sämtliche Miettage", prompt: "Wie viele Miettage wurden über alle einzelnen Verträge insgesamt erfasst? Erläutere, warum gleichzeitig vermietete unterschiedliche Fahrräder ihre Tage jeweils beitragen." },
+          { id: "r10", label: "R10 · Fahrräder über 40 Tage", prompt: "Welche Fahrräder haben insgesamt mehr als 40 Miettage? Gib Fahrradnummer, Rahmennummer und Tagessumme aus. Prüfe die Gruppe mit genau 40 Tagen." },
+          { id: "r11", label: "R11 · Kunden über 30 Tage", prompt: "Welche Kunden haben insgesamt mehr als 30 Miettage? Zeige Kundennummer, Namen und Tagessumme, absteigend nach Tagessumme und bei Gleichstand nach Kundennummer." },
+          { id: "r12", label: "R12 · Mehr als fünf Verträge", prompt: "Welche Kunden haben mehr als fünfmal Fahrräder gemietet? Sortiere nach Vertragsanzahl absteigend und bei Gleichstand nach Kundennummer aufsteigend. Genau fünf reichen nicht." },
+          { id: "r13", label: "R13 · Freiburger Kunden", prompt: "Welche Kunden aus Freiburg haben mehr als fünf Vermietungen? Trenne den Wohnortfilter in WHERE vom Gruppenfilter in HAVING." },
+          { id: "r14", label: "R14 · Häufigkeit je Fahrrad", prompt: "Wie oft wurde jedes einzelne Fahrrad vermietet? Zeige ausdrücklich auch unvermietete Fahrräder mit null Vermietungen und erkläre COUNT(vermietnr) gegenüber COUNT(*)." },
+          { id: "r15", label: "R15 · Mietpreis je Fahrradart", prompt: "Ermittle für jede Fahrradart mit Fahrrädern den mittleren Tagesmietpreis über die einzelnen Fahrräder. Unvermietete Fahrräder zählen mit. Begründe, warum du nicht nach Vermietungen gewichtest und warum ein Mittelwert über Modelle anders ausfallen kann." },
+          { id: "r16", label: "R16 · Anschaffungskosten je Art", prompt: "Ermittle die durchschnittlichen Anschaffungswerte der einzelnen Fahrräder je Fahrradart mit Fahrrädern. Gib Fahrradart und Durchschnitt in Euro aus und prüfe die Bezugsmenge." }
+        ],
+        hint: "Die Originalaufträge bleiben F1–F10 und R1–R16 zugeordnet. F4/R14 präzisieren leere Fahrzeuggruppen; R15/R16 beziehen sich auf einzelne Fahrräder. Verwende die fiktiven Daten, nicht die abgebildeten Original-Ergebniszahlen."
+      },
+      notePrompts: ["Was zählt eine Unterrichtszeile und was zählt eine Stundensumme?", "Welche Vereinbarung steckt in DATEDIFF(bis, von)?", "Über welche Menge bilde ich den Durchschnitt?"],
+      quiz: {
+        question: "Eine Unterrichtszeile enthält stundenzahl = 3. Wie zählen wir die insgesamt erteilten Stunden?",
+        options: ["Mit SUM(stundenzahl)", "Mit COUNT(*) unabhängig vom Inhalt", "Mit DISTINCT auf dem Nachnamen"],
+        correct: 0,
+        explanation: "COUNT zählt Zeilen, SUM(stundenzahl) addiert die erfasste Dauer der einzelnen Vorgänge."
+      },
       classroomTask: {
         tool: "MySQL Workbench SQL Editor",
-        title: "Eine Beziehungsentität über drei Tabellen auswerten",
-        intro: "Beantworte eine fachliche Frage über zwei Parent-Tabellen und die verbindende Vorgangstabelle.",
+        title: "Fünf und sieben Tabellen in Workbench auswerten",
+        intro: "Führe den Download einmal aus. Er erzeugt zwei eigene Übungsdatenbanken, ohne frühere Bestände zu überschreiben. Wähle jeweils das passende Schema. Bearbeite die Aufgaben im SQL-Editor und halte hier deine Ergebniskontrollen fest.",
         steps: [
-          "Zeichne den Verbindungspfad von der ersten Parent-Tabelle über die Beziehungsentität zur zweiten Parent-Tabelle.",
-          "Formuliere die zwei JOIN-Bedingungen und ergänze die Ausgabespalten.",
-          "Berechne eine Kennzahl des Vorgangs, beispielsweise Dauer oder Summe.",
-          "Gruppiere nach einem Parent-Objekt und deute das Ergebnis in einem Satz."
+          "Kontrolliere mit SELECT DATABASE() das Schema. Prüfe fünf Fahrschultabellen mit acht Unterrichtsvorgängen bzw. sieben Fahrradtabellen mit siebzehn Vermietungen.",
+          "Erzeuge über Database > Reverse Engineer je ein EER-Diagramm des Übungsbestands. Markiere den Verbindungspfad für F3 und R3 und speichere beide Modelle als .mwb.",
+          "Bearbeite F1–F10 in workbenchlab_l3_2_fahrschule. Speichere SQL und Kontrollen als L3_2_fahrschule.sql.",
+          "Bearbeite R1–R16 in workbenchlab_l3_2_fahrradvermietung. Speichere als L3_2_fahrradvermietung.sql. Kontrolliere Miettage, Umsatz, Grenzgruppen und unvermietete Fahrräder."
         ],
-        evidence: "Drei-Tabellen-Abfrage mit fachlicher Deutung",
-        fileName: "L3_2_mn_auswertung.sql"
+        evidence: "Zwei SQL-Dateien mit 26 Auswertungen und zwei geprüfte EER-Diagramme",
+        download: { href: "assets/sql/l3-2-mehrtabellen-testdaten.sql", label: "Übungsdaten Fahrschule und Fahrradvermietung" },
+        fileName: "L3_2_fahrschule.sql"
       },
       completionChecks: [
-        "Ich kann den gesamten Verbindungspfad im Modell zeigen.",
-        "Meine Abfrage enthält zwei vollständige JOIN-Bedingungen.",
-        "Ich habe die Kennzahl fachlich und mit Einheit beschrieben."
+        "Ich habe beide EER-Diagramme aus dem tatsächlichen Übungsbestand erzeugt, gespeichert und die Verbindungspfade erklärt.",
+        "Ich habe F1–F10 und R1–R16 in getrennten SQL-Dateien mit Ergebniskontrollen dokumentiert.",
+        "Ich kann Mietdauer, Umsatz, Durchschnittsmenge, Grenzgruppen und die Behandlung unbenutzter Fahrzeuge begründen."
       ]
     },
     "redundanz-3nf": {
       courseCode: "L3.3",
       module: "lernfortschritt-3",
-      sourceMaterials: ["L3_3 Information 3NF", "L3_3.1 bis L3_3.5 Aufgaben zur Dritten Normalform"],
-      classroomTask: {
-        tool: "Heft und MySQL Workbench EER Diagram",
-        title: "Abhängigkeiten prüfen und ein Modell verbessern",
-        intro: "Begründe einen Modellfehler über funktionale Abhängigkeiten statt nur über sichtbar doppelte Werte.",
-        steps: [
-          "Notiere den Primärschlüssel der zu prüfenden Relation.",
-          "Formuliere, welche Attribute durch den Schlüssel und welche durch andere Nichtschlüsselattribute bestimmt werden.",
-          "Zeige je eine mögliche Änderungs-, Einfüge- oder Löschanomalie.",
-          "Zerlege die Relation und verbinde die neuen Tabellen über passende Schlüssel."
+      duration: 180,
+      subtitle: "Abhängigkeiten begründen, Anomalien erklären und eigene normalisierte Modelle mit SQL prüfen.",
+      workflow: ["Regeln prüfen", "Modell entwickeln", "Workbench prüfen", "Abschließen"],
+      workflowHints: ["Schlüssel und Annahmen", "Händler plus Transfer", "EER und JOIN-Kontrolle", "Lehrkraft bestätigt"],
+      sourceMaterials: ["L3_3 Information 3NF", "L3_3.1 Aufgabe 3. Normalform", "L3_3.2 Aufgabe Überführung 3NF Zusatzstoffe", "L3_3.3 Aufgabe Überführung 3NF Warenlieferungen", "L3_3.4 Aufgabe Überführung 3NF Projektverwaltung", "L3_3.5 Aufgabe Prüfen 3NF"],
+      objectives: [
+        "funktionale Abhängigkeiten aus Geschäftsregeln statt aus zufälligen Daten ableiten",
+        "partielle und transitive Abhängigkeiten unterscheiden",
+        "Stammdaten, Zuordnungen und historische Vorgangswerte begründet trennen",
+        "eine Zerlegung mit Primärschlüsseln, Fremdschlüsseln und vollständiger Rekonstruktion prüfen"
+      ],
+      sections: [
+        {
+          title: "Eine Abhängigkeit ist eine fachliche Regel",
+          body: [
+            "X → Y bedeutet: Zu denselben X-Werten dürfen in jeder zulässigen Belegung nur dieselben Y-Werte gehören. haendlernr → firma kann eine solche Geschäftsregel sein. Dass im kleinen Testbestand jedes Fahrzeug zufällig einen anderen Kaufpreis hat, macht kaufpreis nicht zu einem verlässlichen Schlüssel.",
+            "Ein Kandidatenschlüssel bestimmt alle Attribute und enthält keinen überflüssigen Teil. Aus den Kandidatenschlüsseln wählen wir einen Primärschlüssel. Namen, Modellbezeichnungen oder Postleitzahlen sind nicht allein deshalb eindeutig, weil sie im Ausschnitt einmal vorkommen.",
+            "Zwei Modelle mit unterschiedlichen Annahmen können beide begründet sein. Notiere beispielsweise, ob ein Artikel in einer Lieferung mehrfach als eigene Position erscheinen darf oder ob die Kombination aus liefnr und artnr eindeutig sein soll."
+          ],
+          code: "haendlernr → firma, telefon\nmodellnr → modellbezeichnung, marke\nkfznr → kennzeichen, kaufdatum, kaufpreis, haendlernr, modellnr"
+        },
+        {
+          title: "Von atomaren Werten zur Dritten Normalform",
+          body: [
+            "1NF: Für den betrachteten Zweck enthält ein Attribut genau einen Wert, keine Liste gleichartiger Werte. Werden Name und E-Mail getrennt gesucht oder verwaltet, gehören sie in getrennte Attribute. Atomarität hängt vom fachlichen Verwendungszweck ab; sie bedeutet nicht, jeden Text in einzelne Wörter zu zerlegen.",
+            "2NF: Nichtschlüsselattribute hängen vollständig von jedem Kandidatenschlüssel ab, nicht nur von einem echten Teil. Bei (speisenr, stoffnr) wird der Speisepreis bereits durch speisenr bestimmt. Eine zusätzliche künstliche Zeilennummer beseitigt diesen Sachverhalt nicht einfach.",
+            "3NF: Für jede nichttriviale Abhängigkeit X → A muss X ein Superschlüssel sein oder A zu einem Kandidatenschlüssel gehören. In unseren einfachen Modellen hilft die Schulregel: Nichtschlüsselattribute sollen nicht transitiv über andere Nichtschlüsselattribute vom Schlüssel abhängen. Der Merksatz ersetzt bei mehreren Kandidatenschlüsseln nicht die genaue Prüfung."
+          ],
+          visual: "normalform-flow",
+          tip: "Fremdschlüssel sichern gültige Verweise. Auch eine nicht normalisierte Tabelle kann Fremdschlüssel haben; 3NF ist keine Voraussetzung für referentielle Integrität."
+        },
+        {
+          title: "Anomalien und eine verlustfreie Zerlegung",
+          body: [
+            "Eine Händlertelefonnummer steht in mehreren Fahrzeugzeilen: Eine Änderung an nur einer Stelle kann widersprüchliche Nummern erzeugen. Ohne Fahrzeug lässt sich ein neuer Händler in dieser Ausgangstabelle nicht speichern. Beim Entfernen seines letzten Fahrzeugs verschwinden auch seine Kontaktdaten. Das sind Änderungs-, Einfüge- und Löschanomalien.",
+            "Zerlege nach den begründeten Abhängigkeiten und behalte die benötigten Schlüssel in den beteiligten Relationen. Ein wiederholter Markenname ist nicht automatisch ein mehrfach gespeichertes Faktum: Verschiedene Modelle dürfen derselben Marke angehören. Eine eigene Markenrelation ist besonders sinnvoll, wenn weitere Angaben zur Marke gespeichert werden müssen.",
+            "Verlustfrei heißt: Ein JOIN der Zerlegung liefert wieder genau die ursprünglichen Zuordnungen, ohne fehlende und ohne zusätzliche Kombinationen. Gleiche Zeilenzahlen allein beweisen das nicht. Vergleiche Schlüssel und alle fachlichen Attribute in beiden Richtungen. Ein passender Testbestand ergänzt die Begründung, ersetzt aber keinen allgemeinen Nachweis über die Abhängigkeiten."
+          ],
+          visual: "redundancy"
+        },
+        {
+          title: "Preis, Telefon und Mitarbeiterzahl haben einen Bezug",
+          body: [
+            "In den Lieferaufträgen bekommt derselbe Artikel je Lieferung unterschiedliche Preise. Der vereinbarte Stückpreis gehört deshalb zur Lieferposition, nicht als unveränderlicher Wert zum Artikel. Die Menge hängt ebenfalls vom konkreten Vorgang ab.",
+            "Die Vorlage zeigt denselben Lieferanten mit verschiedenen Telefonnummern. Das kann auf einen Fehler, mehrere Kontakte oder einen historischen Kontakt hinweisen. Im fiktiven Download gilt ausdrücklich: kontakttelefon ist die für diese Lieferung benutzte Nummer. Bewahre beide Werte auf; wähle nicht stillschweigend eine aktuelle Stammdatennummer aus.",
+            "Die Projektvorlage enthält nur einen Mitarbeiterausschnitt, aber eine Gesamtzahl je Abteilung. Im Download ist dies eine separat vorgegebene Zahl für den betrachteten Stand. COUNT auf den drei enthaltenen Mitarbeitern ersetzt sie nicht. Wenn stattdessen der vollständige aktuelle Personalbestand vorliegt, wäre die tatsächliche Zahl daraus berechenbar."
+          ]
+        },
+        {
+          title: "Eigene Modelle in Workbench umsetzen und kontrollieren",
+          body: [
+            "Der Download legt ausschließlich workbenchlab_l3_3 an. Vier roh-Tabellen enthalten bereits entnestete, atomare Datensätze, aber noch nicht die fertigen Zerlegungen. Die zehn pizza_-Tabellen stellen die beiden Pizzeria-Prüfmodelle nach. Personen, Kontakte und Zusatzstoffcodes sind fiktiv; daraus folgt keine Aussage über tatsächliche Lebensmittelzusatzstoffe.",
+            "Entwickle ein eigenes Modell über File > New Model und Add Diagram. Verwende ein neues Schema mit Präfix workbenchlab_l3_3_, etwa workbenchlab_l3_3_haendler. Trage passende Datentypen, Primärschlüssel, Pflichtattribute und Fremdschlüssel ein. Speichere die .mwb-Datei und öffne sie erneut.",
+            "Exportiere über File > Export > Forward Engineer SQL CREATE Script zunächst nur eine Datei. Prüfe Zielschemanamen, Tabellen und Verweise vor dem Ausführen. Führe keine DROP- oder ALTER-Anweisungen gegen bestehende Unterrichtsdaten aus und schalte Fremdschlüsselprüfungen nicht zur Fehlerumgehung ab.",
+            "Übertrage die Ausgangsdaten in dein getrenntes Zielschema. Nutze benannte Spalten und SELECT DISTINCT für echte Stammdaten, nicht zum Verdecken fehlerhafter JOINs. Prüfe anschließend jede Ausgangszeile über Schlüssel, teste eine ungültige Referenz und dokumentiere die erwartete Ablehnung."
+          ],
+          tip: "Für Händler und einen weiteren Fall sind Modell und SQL-Kontrolle Pflicht. Die übrigen Fälle werden nach Absprache vertieft. Bei Pizzeria Z1 kann ein bereits normalisiertes Modell auch ein begründetes positives Prüfergebnis erhalten."
+        }
+      ],
+      webWorksheet: {
+        title: "L3.3: 3NF analysieren und in Workbench prüfen",
+        intro: "Beginne mit G1–G3 und H1–H4. Wähle anschließend einen Transferfall nach Absprache. Die Gruppen decken alle fünf Vorlagenfälle ab. Dokumentiere Annahmen, Abhängigkeiten, EER-Modell und SQL-Kontrolle.",
+        answerPlaceholder: "Abhängigkeit, Modellentscheidung und Prüfergebnis ...",
+        definitionGroups: [
+          { label: "Grundlagen · G1–G3", open: true, ids: ["g1", "g2", "g3"] },
+          { label: "Kfz-Händler · H1–H4", ids: ["h1", "h2", "h3", "h4"] },
+          { label: "Speisen und Zusatzstoffe · S1–S3", ids: ["s1", "s2", "s3"] },
+          { label: "Warenlieferungen · W1–W3", ids: ["w1", "w2", "w3"] },
+          { label: "Projektverwaltung · P1–P3", ids: ["p1", "p2", "p3"] },
+          { label: "Pizzeria prüfen · Z1–Z3", ids: ["z1", "z2", "z3"] },
+          { label: "Gemeinsame Modellprüfung", ids: ["pruefung"] }
         ],
-        evidence: "Abhängigkeitsanalyse und verbessertes EER-/Relationenmodell",
-        fileName: "L3_3_modell_3nf.mwb"
+        definitionTerms: [
+          { id: "g1", label: "G1 · Normalformregeln", prompt: "Erkläre 1NF, 2NF und 3NF in eigenen Worten. Unterscheide Teilschlüsselabhängigkeit und transitive Abhängigkeit. Beziehe die Prüfung auf begründete Kandidatenschlüssel." },
+          { id: "g2", label: "G2 · Ziele und Anomalien", prompt: "Nenne die Ziele der Normalisierung und erläutere je eine Änderungs-, Einfüge- und Löschanomalie anhand der Kfz-Händlerdaten." },
+          { id: "g3", label: "G3 · Regeln statt Zufall", prompt: "Warum belegt ein momentan einmaliger Name noch keinen Schlüssel? Warum beweisen Fremdschlüssel oder nur gleiche Zeilenzahlen nach einem JOIN noch keine 3NF bzw. verlustfreie Zerlegung?" },
+          { id: "h1", label: "H1 · Händlerdaten lesen", prompt: "Untersuche haendler_roh. Ein Fahrzeug wird in diesem Übungsfall einmal gekauft, jeder Händler hat eine aktuelle Firma und Telefonnummer, jedes Modell eine Bezeichnung und Marke. Notiere Schlüssel und Abhängigkeiten. Kennzeichen werden im betrachteten Bestand eindeutig vergeben; ihre dauerhafte Eindeutigkeit außerhalb dieses Falls wird nicht angenommen." },
+          { id: "h2", label: "H2 · Abhängigkeiten unterscheiden", prompt: "Welche Händler- und Modellangaben hängen transitiv von kfznr ab? Zeige, an welchen Zeilen eine Telefonnummer mehrfach korrigiert werden müsste. Erkläre, weshalb mehrere Modelle denselben Markennamen tragen dürfen." },
+          { id: "h3", label: "H3 · Eigenes EER-Modell", prompt: "Entwickle in Workbench ein ER-/Relationenmodell in 3NF für Händler, Modelle und Fahrzeuge. Ordne Kaufdatum und individuellen Kaufpreis zu. Begründe jede Beziehung, ihre Mindestbeteiligung und die Schlüssel. Verlangt dieser Fall zwingend eine eigene Markenrelation?" },
+          { id: "h4", label: "H4 · Händlerdaten rekonstruieren", prompt: "Erzeuge dein getrenntes Zielschema, übertrage alle vier Fahrzeugdatensätze und rekonstruiere haendler_roh mit JOIN. Vergleiche kfznr und sämtliche Attribute in beiden Richtungen, nicht nur COUNT(*). Speichere Modell und Prüfabfragen." },
+          { id: "s1", label: "S1 · Speisen und Zuordnungen", prompt: "Untersuche speisen_roh mit Schlüssel (speisenr, stoffnr). Im Übungsfall hat jede Speise eine aktuelle Bezeichnung und einen Preis, jeder Stoff eine Bezeichnung und genau eine Kategorie, jedes Kategoriekürzel eine Kategoriebezeichnung. Welche Attribute werden bereits durch speisenr, welche durch stoffnr bestimmt? Ein Stoff kann zu mehreren Speisen gehören. Die Codes Z1 usw. sind reine fiktive Übungscodes." },
+          { id: "s2", label: "S2 · Kategorien und Preis", prompt: "Begründe den Ort von Speisenpreis, Stoffbezeichnung, Kategoriekürzel und Kategoriebezeichnung. Zeige eine transitive Abhängigkeit und eine mögliche Einfügeanomalie für eine neue Speise ohne Zusatzstoffzuordnung." },
+          { id: "s3", label: "S3 · Modell und Zuordnungsprüfung", prompt: "Erstelle das EER-/Relationenmodell mit Speisen, Stoffen, Kategorien und Zuordnungen. Dasselbe Paar darf in diesem Fall nur einmal vorkommen. Prüfe die fünf ursprünglichen Zuordnungen per JOIN, ohne neue Paare zu erzeugen." },
+          { id: "w1", label: "W1 · Preis je Lieferposition", prompt: "Untersuche lieferungen_roh mit Schlüssel (liefnr, artnr). Im Übungsfall kommt ein Artikel pro Lieferung höchstens einmal vor. Zeige mit zwei Zeilen, weshalb artnr den vereinbarten Stückpreis nicht bestimmt. Welche Attribute gehören zum Artikel, zur Lieferung und zur Position?" },
+          { id: "w2", label: "W2 · Unterschiedliche Telefonnummern", prompt: "Derselbe Lieferant hat verschiedene kontakttelefon-Werte. Diskutiere mögliche fachliche Ursachen. Für diesen Bestand gilt: Es ist der bei der jeweiligen Lieferung benutzte Kontakt. Wie erhält dein Modell beide Werte ohne stillschweigende Bereinigung?" },
+          { id: "w3", label: "W3 · Lieferung modellieren", prompt: "Entwickle das Modell für Lieferanten, Lieferungen, Artikel und Positionen. Ordne Datum, Kontakt, Menge und historischen Stückpreis zu. Übertrage die vier Positionen und rekonstruiere alle Ausgangsattribute einschließlich beider Kontaktwerte." },
+          { id: "p1", label: "P1 · Mitarbeit im Projekt", prompt: "Untersuche projekte_roh mit Schlüssel (mitarbeiternr, projektnr). Mitarbeiter können mehrere Projekte haben. Wem gehören Name, E-Mail, Projektstart und Anzahl der im Projekt geleisteten Arbeitstage? Begründe partielle Abhängigkeiten." },
+          { id: "p2", label: "P2 · Abteilung und Gesamtzahl", prompt: "Jeder Mitarbeiter gehört im betrachteten Stand genau einer Abteilung an. Die Gesamtmitarbeiterzahl ist eine separate Vorgabe, nicht die Anzahl der hier sichtbaren Personen. Zeige die transitive Abhängigkeit über abteilungsnr und erkläre, wann COUNT stattdessen die richtige Quelle wäre." },
+          { id: "p3", label: "P3 · Projekte verlustfrei zerlegen", prompt: "Entwickle das EER-/Relationenmodell und ordne Arbeitstage der konkreten Beteiligung zu. Rekonstruiere alle vier Beteiligungen. Prüfe besonders, dass die Person in zwei Projekten ihre beiden unterschiedlichen Arbeitstage behält." },
+          { id: "z1", label: "Z1 · Pizzeria-Grundmodell", prompt: "Prüfe pizza_kunden, pizza_bestellungen, pizza_bestellpositionen, pizza_pizzen, pizza_zutaten und pizza_zuordnungen auf 3NF. Unterstelle pro Identifikationsnummer eindeutige Stammdaten. Unterscheide einen Normalformverstoß von der noch nicht abgesicherten Regel, dass dasselbe Pizza-Zutaten-Paar höchstens einmal vorkommen darf." },
+          { id: "z2", label: "Z2 · Fahrzeuge und Händler", prompt: "Prüfe zusätzlich pizza_orte, pizza_fahrer, pizza_fahrzeuge und pizza_auslieferungen. Fahrzeuge enthalten haendlernr, Firma und Händleradresse. Welche Abhängigkeit verletzt bei diesen Annahmen 3NF? Verbessere das Workbench-Modell und erhalte jede Fahrzeug-Händler-Zuordnung." },
+          { id: "z3", label: "Z3 · Lieferfahrt und Annahmen", prompt: "Im Ausgangsmodell gehört eine Auslieferung zu genau einer Bestellung; eine Bestellung hat höchstens eine Auslieferung. Fahrer können verschiedene Fahrzeuge benutzen. Erkläre den Ort von Lieferdatum, Fahrer und Fahrzeug sowie die UNIQUE-Regel auf best_nr. Wie müsste sich das Modell bei mehreren Teillieferungen ändern? Erkläre außerdem, weshalb PLZ allein keinen verlässlichen Wohnortschlüssel garantiert." },
+          { id: "pruefung", label: "Prüfung · Modell und SQL-Nachweis", prompt: "Prüfe Händler und deinen gewählten Transferfall: Abhängigkeiten begründet, Kandidatenschlüssel berücksichtigt, Fremdschlüssel gesetzt, keine Ausgangszuordnung verloren oder ergänzt. Dokumentiere eine abgewiesene ungültige Referenz und öffne deine gespeicherten .mwb-Dateien erneut." }
+        ],
+        hint: "Fälle H, S, W, P und Z entsprechen den fünf Originalvorlagen. Die Testdaten sind entnestete Ausgangswerte, keine Musterzerlegung. Historische Kontakte und Preise dürfen bei der Normalisierung nicht verschwinden."
+      },
+      notePrompts: ["Welche Geschäftsregel rechtfertigt meine Abhängigkeit?", "Ist dieser Wert Stammdatum oder historischer Vorgangswert?", "Wie prüfe ich fehlende und zusätzliche Zuordnungen?"],
+      quiz: {
+        question: "Ein Händler hat eine aktuelle Telefonnummer. In fahrzeuge(kfznr, haendlernr, telefon) ist nur kfznr ein Kandidatenschlüssel. Welche Begründung passt zur 3NF-Prüfung?",
+        options: [
+          "haendlernr bestimmt telefon, ist aber kein Superschlüssel; telefon gehört zu keinem Kandidatenschlüssel. Die Händlerdaten werden getrennt modelliert.",
+          "Jede wiederholte Zahl verletzt automatisch 3NF, auch ein Fremdschlüssel.",
+          "Die Tabelle ist in 3NF, sobald sie irgendeinen Fremdschlüssel enthält."
+        ],
+        correct: 0,
+        explanation: "Der Verstoß folgt aus der fachlichen Abhängigkeit und den Kandidatenschlüsseln, nicht allein aus ähnlichen Zellwerten. Ein Fremdschlüssel kann die Zuordnung nach der Zerlegung sichern."
+      },
+      classroomTask: {
+        tool: "MySQL Workbench EER Diagram und SQL Editor",
+        title: "Eigene 3NF-Modelle mit SQL überprüfen",
+        intro: "Bearbeite Händler und einen Transferfall. Der einmalige Download erstellt nur den fiktiven Ausgangsbestand workbenchlab_l3_3. Entwickle deine Zielmodelle selbst in getrennten Schemas; andere Unterrichtsdaten bleiben unverändert.",
+        steps: [
+          "Lies die Ausgangstabellen im SQL-Editor und notiere Kandidatenschlüssel, Geschäftsregeln und funktionale Abhängigkeiten.",
+          "Erstelle für Händler und einen Transferfall eigene EER-Diagramme mit PK/FK, Datentypen und Pflichtbeteiligung. Speichere als L3_3_haendler.mwb und L3_3_transfer.mwb.",
+          "Exportiere die CREATE-Skripte und prüfe sie vor dem Ausführen in neuen Schemas mit Präfix workbenchlab_l3_3_. Übertrage die Ausgangsdaten, ohne die roh-Tabellen zu verändern.",
+          "Rekonstruiere jede Ausgangszuordnung per JOIN. Vergleiche sämtliche Attribute in beiden Richtungen und teste eine ungültige Referenz. Speichere die Prüfungen als L3_3_pruefung.sql und öffne beide Modelle erneut."
+        ],
+        evidence: "Zwei begründete EER-Modelle, CREATE-Skripte und SQL-Rekonstruktionsprüfung",
+        download: { href: "assets/sql/l3-3-normalisierung-ausgangsdaten.sql", label: "Fiktive 3NF-Ausgangsdaten" },
+        fileName: "L3_3_haendler.mwb"
       },
       completionChecks: [
-        "Ich habe die relevanten funktionalen Abhängigkeiten notiert.",
-        "Ich kann mindestens eine konkrete Anomalie erklären.",
-        "Meine Zerlegung bleibt über Schlüssel vollständig verbindbar."
+        "Ich habe Händler und einen Transferfall mit begründeten Schlüsseln, Abhängigkeiten und Annahmen modelliert.",
+        "Ich habe eigene Zielschemata angelegt und alle Ausgangszuordnungen ohne Verlust oder zusätzliche Kombinationen geprüft.",
+        "Ich habe die SQL-Kontrollen gespeichert, eine ungültige Referenz getestet und beide .mwb-Dateien erneut geöffnet."
       ]
     },
     "normalisierung": {
       courseCode: "L4.1",
       module: "lernfortschritt-4",
-      sourceMaterials: ["L4_3 Information Übersicht Normalformen", "L4_1 bis L4_3 Aufgaben Normalisierung"],
-      classroomTask: {
-        tool: "Heft und MySQL Workbench EER Diagram",
-        title: "Eine unstrukturierte Tabelle schrittweise bis 3NF zerlegen",
-        intro: "Dokumentiere jeden Normalisierungsschritt. Eine fertige Endlösung ohne Begründung reicht nicht aus.",
-        steps: [
-          "1NF: Löse Wiederholungsgruppen und mehrwertige Zellen in atomare Werte auf.",
-          "2NF: Prüfe bei zusammengesetzten Schlüsseln, ob Attribute nur von einem Schlüsselteil abhängen.",
-          "3NF: Entferne transitive Abhängigkeiten zwischen Nichtschlüsselattributen.",
-          "Lege Primär- und Fremdschlüssel fest und prüfe, ob sich die ursprünglichen Informationen wieder zusammensetzen lassen."
+      duration: 150,
+      subtitle: "Vom Listenfeld über nachvollziehbare Zwischenstufen zum eigenen EER-Modell und geprüften SQL-Ergebnis.",
+      workflow: ["Informieren", "Stufen entwickeln", "In Workbench umsetzen", "Abschließen"],
+      workflowHints: ["Anomalien und Regeln", "Filmstudio und Tanzschule", "Modelle und SQL-Nachweis", "Lehrkraft bestätigt"],
+      sourceMaterials: ["L4_1 Aufgabe Normalisierung_Grundlagen", "L4_2.1 Aufgabe 1NF", "L4_2.2 Aufgabe 2NF", "L4_2.3 Aufgabe 3NF", "L4_3 Vertiefungsaufgabe Normalisierung", "L4_3 Information Übersicht Normalformen"],
+      objectives: [
+        "Wiederholungsgruppen auflösen, ohne Rollen oder Teilnehmer falsch zu kombinieren",
+        "Kandidatenschlüssel, partielle und transitive Abhängigkeiten in jeder Stufe begründen",
+        "Zwischenmodelle und das 3NF-Modell getrennt in Workbench speichern",
+        "alle ursprünglichen Besetzungen und Kursanmeldungen mit SQL rekonstruieren"
+      ],
+      sections: [
+        {
+          title: "Ein nachvollziehbarer Weg statt nur einer Endlösung",
+          body: [
+            "Unnormalisierte Daten können Änderungs-, Einfüge- und Löschanomalien verursachen. In diesem Unterrichtsweg arbeiten wir drei Stufen durch: 1NF, 2NF und 3NF. Es gibt auch weitere Normalformen; drei ist hier der vereinbarte Zielumfang, nicht die Anzahl aller Normalformen.",
+            "Notiere vor jeder Zerlegung die Geschäftsregeln und Kandidatenschlüssel. 1NF verlangt für den Zweck atomare Werte. 2NF prüft vollständige Abhängigkeit der Nichtschlüsselattribute von allen Kandidatenschlüsseln. 3NF prüft jede nichttriviale Abhängigkeit X → A: X muss ein Superschlüssel sein oder A zu einem Kandidatenschlüssel gehören. Die einfachen Fälle hier verwenden die transitive Abhängigkeit als anschaulichen Verstoß."
+          ],
+          visual: "normalform-flow",
+          tip: "Jede Stufe erhält eigene Relationen, Schlüssel und eine kurze Begründung. Eine künstliche Zeilennummer beseitigt fachliche Abhängigkeiten nicht."
+        },
+        {
+          title: "Filmstudio: Listen in zusammengehörige Zeilen überführen",
+          body: [
+            "filmstudio_unf enthält drei Personen. In ihren Listenfeldern gehören die jeweils ersten, zweiten usw. Einträge zusammen: Rolle, Filmnummer, Filmtitel, Kategorienummer und Kategoriename bilden eine gemeinsame Besetzung. Der Download trennt Listeneinträge mit |. Das ist absichtlich ein unnormalisierter Ausgangszustand, keine Empfehlung für eine echte Datenbank.",
+            "Für diesen Fall spielt jede Person in einem Film höchstens eine Rolle. Schauspielernummer bestimmt Vor- und Nachname; Filmnummer bestimmt Titel und genau eine Kategorienummer; Kategorienummer bestimmt den Kategorienamen. Filmtitel und Namen gelten nicht als eindeutige Schlüssel.",
+            "Erzeuge in 1NF genau fünf Besetzungszeilen mit getrennten Attributen für Vor- und Nachname. Verwende (schauspielernr, filmnr) als Kandidatenschlüssel. Uwe Demo spielt in zwei verschiedenen Filmen zwei verschiedene Rollen. Ein Kreuzprodukt seiner zwei Filme mit seinen zwei Rollen würde vier falsche Kombinationen erzeugen."
+          ],
+          code: "SELECT schauspielernr, name, rollen, filmnummern\nFROM workbenchlab_l4.filmstudio_unf\nORDER BY schauspielernr;",
+          warning: "Die Vorlage verwendet für dieselbe Person in verschiedenen Stufen unterschiedliche Vornamen. Im fiktiven Bestand bleibt die Identität je schauspielernr unverändert. Bereinige Widersprüche nur mit einer ausdrücklich dokumentierten fachlichen Entscheidung."
+        },
+        {
+          title: "Filmstudio: erst Teilschlüssel, dann Kategorie prüfen",
+          body: [
+            "In deiner 1NF hängt der Personenname nur von schauspielernr ab, die Filmangaben nur von filmnr. Die Rolle gehört zur gesamten Besetzung. Trenne für 2NF Personen, Filme und Besetzungen. Lasse in der Filmrelation zunächst Kategorienummer und Kategoriename zusammen stehen, damit der nächste Schritt sichtbar bleibt.",
+            "filmnr → kategorienr → kategoriename ist eine transitive Abhängigkeit. Trenne diese Angabe für 3NF in eine eigene Kategorienrelation und verknüpfe über den Schlüssel. Bewahre die Rolle bei der Besetzung. Ein Film mit demselben Kategorienamen ist kein Duplikat eines anderen Films.",
+            "Prüfe die Variante: Falls eine Person in einem Film mehrere Rollen spielen darf, reicht das Paar aus Person und Film nicht mehr als Schlüssel. Begründe dann einen zusätzlichen Rollen- oder Besetzungsschlüssel und passe die Eindeutigkeitsregel an."
+          ]
+        },
+        {
+          title: "Tanzschule: Kursname ist nicht Kursangebot",
+          body: [
+            "tanzschule_unf enthält sieben Kursangebote, drei Lehrkräfte und Listen mit insgesamt 28 Anmeldungen von 16 fiktiven Personen. Wiederkehrende Schülernummern beziehen sich auf dieselbe Person. In 1NF ordnest du die Schülernummern, Vornamen, Nachnamen und Telefone jeweils nach ihrer Listenposition zu und löst Kursbeschreibung, Preis sowie Beginn und Ende in eigene Attribute auf.",
+            "Im Übungsfall hat jedes Angebot eine eigene kursnr, genau eine Lehrkraft, einen angebotsspezifischen Preis und feste Termine. Ein Schüler meldet sich je Angebot höchstens einmal an. Derselbe Tanzstil kann zu unterschiedlichen Zeiten, bei unterschiedlichen Lehrkräften und mit unterschiedlichen Preisen angeboten werden. Aus zufällig gleichen Preisen folgt keine Abhängigkeit tanzstil → preis.",
+            "Verwende für eine Anmeldung (kursnr, schuelernr). Untersuche in 2NF Angaben, die nur vom Kurs oder nur von der Person abhängen. Prüfe in 3NF die Lehrkraftangaben über lehrernr. Modellvarianten mit einer eigenen Tanzstilrelation sind möglich, wenn du zusätzliche Stilinformationen oder entsprechende Regeln begründest."
+          ],
+          tip: "Zwei Foxtrott-Angebote müssen erhalten bleiben. Eine Person in mehreren Kursen ist ebenfalls keine doppelte Anmeldung, solange das Kurs-Person-Paar verschieden ist."
+        },
+        {
+          title: "Zwischenstände in Workbench sichern und nachweisen",
+          body: [
+            "Lade den Ausgangsbestand herunter, prüfe das Schema workbenchlab_l4 und führe die Einrichtung einmal aus. Die beiden unf-Tabellen bleiben unverändert. Entwickle für Filmstudio und Tanzschule eigene Stufen in neuen Schemas mit Präfix workbenchlab_l4_.",
+            "Erstelle die Tabellen und Beziehungen mit File > New Model und Add Diagram. Speichere je Fall eigene 1NF-, 2NF- und 3NF-Modelldateien. Markiere Primärschlüssel und passende Pflichtfelder; sichere Verweise durch Fremdschlüssel. Exportiere die CREATE-Skripte über File > Export > Forward Engineer SQL CREATE Script und prüfe vor dem Ausführen die Zielnamen. Bestätige keine Löschanweisungen gegen vorhandene Unterrichtsschemas.",
+            "Übertrage die atomaren Ausgangszeilen mit benannten Spalten. Füge zuerst Stammdaten und danach Zuordnungen ein. Rekonstruiere die fünf Besetzungen beziehungsweise 28 Anmeldungen durch JOIN; vergleiche alle Schlüssel und Werte, nicht nur COUNT. Prüfe zusätzlich eine ungültige Referenz und eine doppelte Zuordnung. Beide müssen bei deinem gewählten Modell abgewiesen werden."
+          ],
+          tip: "Ein erfolgreicher Test belegt diesen Bestand. Der allgemeine Nachweis der Zerlegung benötigt weiterhin deine begründeten Abhängigkeiten. Speichere die SQL-Prüfungen und öffne die .mwb-Dateien erneut."
+        }
+      ],
+      webWorksheet: {
+        title: "L4.1: Filmstudio und Tanzschule schrittweise normalisieren",
+        intro: "Bearbeite zuerst die Grundlagen und Filmstudio-Stufen, anschließend die Tanzschule als Transfer. Halte jede Zwischenstufe mit Attributen, Schlüsseln und Begründung fest. Die fertigen Modelle erstellst du selbst in Workbench.",
+        answerPlaceholder: "Relationen, Schlüssel, Abhängigkeit und Prüfergebnis ...",
+        definitionGroups: [
+          { label: "Grundlagen · G1–G2", open: true, ids: ["g1", "g2"] },
+          { label: "Filmstudio · 1NF", ids: ["f1", "f2"] },
+          { label: "Filmstudio · 2NF und 3NF", ids: ["f3", "f4", "f5", "f6"] },
+          { label: "Tanzschule · Transfer", ids: ["t1", "t2", "t3", "t4"] },
+          { label: "Workbench-Nachweis", ids: ["pruefung"] }
         ],
-        evidence: "Ausgangstabelle, Zwischenschritte 1NF/2NF und Endmodell in 3NF",
-        fileName: "L4_1_normalisierung_3nf.mwb"
+        definitionTerms: [
+          { id: "g1", label: "G1 · Nachteile erläutern", prompt: "Erkläre Änderungs-, Einfüge- und Löschanomalien anhand des Filmstudios. Welche Informationen würden beim Löschen der letzten Besetzung eines Films verloren gehen?" },
+          { id: "g2", label: "G2 · Schritte begründen", prompt: "Welche drei Normalformen behandeln wir hier? Notiere die jeweilige Prüfregel und erkläre, weshalb es weitere Normalformen geben kann und eine zusätzliche Zeilennummer nicht automatisch alle Probleme löst." },
+          { id: "f1", label: "F1 · Zusammengehörige Listen", prompt: "Lies filmstudio_unf in Workbench. Notiere die fünf korrekten Person-Film-Rollen-Zuordnungen. Warum dürfen die Listen einer Person nicht unabhängig miteinander kombiniert werden?" },
+          { id: "f2", label: "F2 · Erste Normalform", prompt: "Schreibe die atomare Relation mit fünf Zeilen, getrennten Namen und Schlüssel (schauspielernr, filmnr). Begründe den Schlüssel mit der Regel höchstens eine Rolle pro Person und Film." },
+          { id: "f3", label: "F3 · Zweite Normalform", prompt: "Notiere alle partiellen Abhängigkeiten und die Relationen der 2NF mit ihren Schlüsseln. Wem gehört die Rolle? Warum bleiben Kategorienummer und Kategoriename in dieser Zwischenstufe zunächst beim Film?" },
+          { id: "f4", label: "F4 · Dritte Normalform", prompt: "Zeige filmnr → kategorienr → kategoriename. Notiere die 3NF-Relationen, Fremdschlüssel und die vermiedene Anomalie. Begründe, weshalb mehrere Filme dieselbe Kategorie haben dürfen." },
+          { id: "f5", label: "F5 · Stufen in Workbench", prompt: "Erstelle und speichere getrennte EER-Modelle für 1NF, 2NF und 3NF. Erzeuge deine eigenen Schemas und rekonstruiere alle fünf Besetzungen per JOIN. Vergleiche sämtliche Attribute mit den atomaren Ausgangszeilen." },
+          { id: "f6", label: "F6 · Andere Geschäftsregel", prompt: "Eine Person darf nun in einem Film mehrere Rollen spielen. Welche Schlüssel- und Eindeutigkeitsregel ändert sich? Erkläre, weshalb die ursprüngliche Paarregel nicht mehr passt." },
+          { id: "t1", label: "T1 · Tanzschule in 1NF", prompt: "Löse Kursbeschreibung und Teilnehmerlisten in atomare Attribute auf. Notiere den Schlüssel jeder Anmeldung. Prüfe 28 Anmeldungen, sieben Angebote und 16 verschiedene Personen. Halte die Reihenfolge der zusammengehörigen Listeneinträge ein." },
+          { id: "t2", label: "T2 · Tanzschule in 2NF", prompt: "Unterscheide Kurs-, Personen- und Anmeldungsangaben. Notiere die partiellen Abhängigkeiten und Zwischenrelationen. Warum dürfen zwei Foxtrott-Angebote mit unterschiedlichen Terminen und Preisen nicht zu einem Angebot verschmolzen werden?" },
+          { id: "t3", label: "T3 · Tanzschule in 3NF", prompt: "Prüfe die transitive Abhängigkeit über lehrernr. Zeichne das eigene EER-Modell mit Kursen, Lehrkräften, Personen und Anmeldungen und begründe PK, FK und Pflichtbeteiligung. Ist tanzstil → preis wirklich eine Regel dieses Bestands?" },
+          { id: "t4", label: "T4 · Tanzschule nachweisen", prompt: "Erzeuge dein 3NF-Schema und rekonstruiere alle 28 Anmeldungen samt Namen, Telefonen, Lehrkraft, Kursstil, Preis und Terminen. Prüfe auch eine Person mit mehreren Kursen, ein Angebot ohne Anmeldung und eine abgewiesene doppelte Anmeldung." },
+          { id: "pruefung", label: "Prüfung · Stufen und Dateien", prompt: "Dokumentiere für beide Fälle gespeicherte 1NF-, 2NF- und 3NF-Modelle, die erneut geöffneten Dateien, CREATE- und Prüfscripte sowie die Ergebnisse ungültiger Verweise. Begründe die Verlustfreiheit über Abhängigkeiten und ergänze den Vergleich aller Ausgangsattribute." }
+        ],
+        hint: "Listenpositionen erhalten Zuordnungen. Nummern sind Identifikatoren; gleiche Namen, Stile oder Preise sind allein noch keine Abhängigkeiten."
+      },
+      notePrompts: ["Welcher konkrete Verstoß wird in dieser Stufe beseitigt?", "Welche Zuordnung muss unverändert erhalten bleiben?", "Welche Annahme bestimmt meinen Kandidatenschlüssel?"],
+      classroomTask: {
+        tool: "MySQL Workbench · EER und SQL",
+        title: "Filmstudio und Tanzschule mit prüfbaren Zwischenstufen umsetzen",
+        intro: "Erstelle eigene Stufenmodelle für beide Vorlagenfälle. Der Download enthält nur den fiktiven Listen-Ausgangsbestand, nicht die fertige Zerlegung.",
+        steps: [
+          "Öffne und prüfe den Download, richte workbenchlab_l4 einmal ein und lies die beiden Ausgangstabellen. Löse ihre Listen mit erhaltener Zuordnung zu atomaren Zeilen auf.",
+          "Erstelle je Fall in Workbench getrennte 1NF-, 2NF- und 3NF-Modelle. Dokumentiere in jeder Stufe Kandidatenschlüssel, Abhängigkeiten und PK/FK. Speichere die sechs Modelldateien.",
+          "Exportiere und kontrolliere CREATE-Skripte für eigene Zielschemata mit Präfix workbenchlab_l4_. Übertrage die atomaren Daten, zuerst Stammdaten und dann Zuordnungen. Verändere die Ausgangstabellen nicht.",
+          "Prüfe fünf Besetzungen und 28 Anmeldungen auf alle Ausgangsattribute. Teste eine ungültige Referenz und doppelte Paare. Zeige bei der Tanzschule auch ein neu angelegtes Angebot ohne Anmeldung.",
+          "Speichere deine Nachweise als L4_1_pruefung.sql. Öffne die Modelldateien erneut und erläutere der Lehrkraft für jede Stufe den beseitigten Verstoß."
+        ],
+        evidence: "Sechs Stufenmodelle, atomare Ausgangszeilen und gespeicherte CREATE-/SQL-Prüfscripte",
+        download: { href: "assets/sql/l4-1-normalisierung-listendaten.sql", label: "Filmstudio und Tanzschule herunterladen" },
+        fileName: "L4_1_film_1nf.mwb / L4_1_film_2nf.mwb / L4_1_film_3nf.mwb; entsprechend tanz"
       },
       completionChecks: [
-        "Jeder Normalisierungsschritt ist getrennt dokumentiert.",
-        "Primär- und Fremdschlüssel sind in jeder Stufe erkennbar.",
-        "Ich kann begründen, welche Anomalie durch die Zerlegung vermieden wird."
-      ]
+        "Ich habe für Filmstudio und Tanzschule 1NF, 2NF und 3NF getrennt begründet und als Modelle gespeichert.",
+        "Ich habe alle fünf Besetzungen und 28 Anmeldungen ohne veränderte oder zusätzliche Zuordnungen rekonstruiert.",
+        "Meine Schlüsselregeln weisen ungültige Referenzen und doppelte Paare ab; die .mwb-Dateien lassen sich erneut öffnen."
+      ],
+      quiz: {
+        question: "Warum darf die Rolle nicht allein bei schauspieler gespeichert werden?",
+        options: ["Die Rolle hängt von der konkreten Person-Film-Besetzung ab; dieselbe Person spielt in verschiedenen Filmen verschiedene Rollen.", "Weil Textspalten grundsätzlich nicht erlaubt sind.", "Weil jede Tabelle genau drei Spalten benötigt."],
+        correct: 0,
+        explanation: "Die Geschäftsregel bestimmt den Bezug: Personenname gehört zur Person, Filmtitel zum Film und Rolle zur Besetzung."
+      }
     },
     "big-data": {
       courseCode: "L5.2",
       module: "lernfortschritt-5",
+      duration: 60,
       sourceMaterials: ["L5_2 Information Definition Big Data", "L5_2 Aufgabe Definition Big Data", "L5_3 und L5_5 Aufgaben zu Gefahren und Nutzen"],
-      classroomTask: {
-        tool: "Browser und Heft",
-        title: "Einen Big-Data-Fall mit dem 3V-Modell untersuchen",
-        intro: "Untersuche einen fiktiven Mobilitätsdienst. Personenbezogene Daten werden nur beschrieben, nicht aus echten Konten oder Geräten erhoben.",
-        steps: [
-          "Ordne Datenmenge, Vielfalt und Entstehungsgeschwindigkeit den Begriffen Volume, Variety und Velocity zu.",
-          "Benenne Beteiligte, möglichen Nutzen und mögliche Schäden.",
-          "Prüfe Datenqualität, Zweckbindung, Transparenz und Datensparsamkeit.",
-          "Formuliere ein vorläufiges Urteil mit mindestens einer Bedingung."
+      sections: [
+        {
+          title: "Drei Perspektiven auf Big Data",
+          body: ["Volume bezeichnet den Umfang, Variety unterschiedliche Quellen und Formate, Velocity die Geschwindigkeit der Entstehung beziehungsweise nötigen Verarbeitung. Das 3V-Modell ist ein Einstieg; es gibt weitere Merkmale. Entscheidend ist auch, ob Speicherung und Analyse skalierbare Verfahren benötigen.", "Der Download enthält nur wenige Zeilen. Er ist kein echtes Big-Data-System und kein Beweis dafür, dass Workbench beliebige Massendaten ohne weiteres verarbeiten kann. Wir verwenden ihn, um Analysefragen im Kleinen nachvollziehbar zu prüfen."],
+          tip: "Anzahlen von Zeilen sind nicht automatisch Datenvolumen in Byte. Zeitstempel messen nicht die Ausführungsleistung des Servers."
+        },
+        {
+          title: "Datenrate und Vielfalt selbst untersuchen",
+          body: ["Nutze workbenchlab_l5 aus L5.1 weiter. Zähle die Aktivitätsereignisse und gruppiere sie pro Kalenderminute. DATE_FORMAT(zeitpunkt, '%Y-%m-%d %H:%i') bildet einen Minutenschlüssel. Diese Abfrage misst die beobachtete Ereignisrate im Ausschnitt, nicht eine dauerhafte Echtzeitleistung.", "Vergleiche Aktivitäts-, Standort-, Miet- und Wetterdaten. Verschiedene Tabellen sind hier unterschiedliche fachliche Quellen, aber noch kein vollständiges Beispiel für Variety mit Bildern, Freitext und Sensordatenströmen. Erkläre, welche zusätzlichen Formate in einem realen Fall denkbar wären, ohne sie selbst zu sammeln."],
+          code: "SELECT zeitpunkt, aktion\nFROM workbenchlab_l5.aktivitaeten\nORDER BY zeitpunkt, ereignisnr;"
+        },
+        {
+          title: "Datenqualität verändert Kennzahlen",
+          body: ["In mieten fehlt eine Dauer; eine weitere hat den Wert 0 und muss geprüft werden. Vergleiche COUNT(*), COUNT(dauer_min) und AVG(dauer_min). NULL wird bei den letzten beiden nicht als Messwert berücksichtigt; 0 ist hingegen ein numerischer Wert und wird mitgerechnet.", "Berechne zusätzlich den Mittelwert ausschließlich für positive Dauern. Dokumentiere, welche Fälle du ausschließt und weshalb. Ersetze fehlende Werte nicht ungeprüft durch 0. Ein bereinigter Wert ohne offengelegte Regel kann ebenfalls irreführend sein."],
+          tip: "Drei Tage und zehn Mieten reichen nicht aus, um eine allgemeine Prognose oder einen Ursache-Wirkungs-Zusammenhang zu belegen."
+        }
+      ],
+      webWorksheet: {
+        title: "L5.2: 3V und Datenqualität mit SQL prüfen",
+        intro: "Erkläre zuerst das 3V-Modell, prüfe anschließend den kleinen Bestand in Workbench und begrenze deine Aussagen auf diesen Ausschnitt.",
+        definitionTerms: [
+          { id: "begriffe", label: "1 · Big Data und 3V", prompt: "Erkläre Big Data, Volume, Variety und Velocity. Warum ist dieser kleine SQL-Download noch kein echter Big-Data-Betrieb?" },
+          { id: "rate", label: "2 · Ereignisse pro Minute", prompt: "Zähle Aktivitätsereignisse insgesamt und gruppiere pro Kalenderminute. Notiere SQL und Ergebnis. Unterscheide Ereignisrate und Verarbeitungsgeschwindigkeit." },
+          { id: "vielfalt", label: "3 · Quellen und Formate", prompt: "Vergleiche die vier fachlichen Datenquellen. Welche Formate fehlen im Beispiel? Leite einen möglichen Nutzen und eine Gefahr ihrer Verknüpfung ab." },
+          { id: "qualitaet", label: "4 · Fehlende und fragliche Werte", prompt: "Vergleiche COUNT(*), COUNT(dauer_min), AVG(dauer_min) und den Mittelwert für dauer_min > 0. Dokumentiere die ausgeschlossenen Datensätze und erkläre den Unterschied zwischen NULL und 0." },
+          { id: "grenze", label: "5 · Aussagegrenze", prompt: "Welche weitergehenden Daten und Qualitätsprüfungen wären für eine belastbare Mobilitätsprognose erforderlich? Formuliere eine Aussage, die diese zehn Mieten nicht belegen." }
         ],
-        evidence: "3V-Analyse und begründetes Kurzurteil"
+        hint: "Nutze denselben Ausgangsbestand wie L5.1. Eine erneute Einrichtung ist nicht nötig; arbeite mit SELECT und ändere die Rohdaten nicht."
+      },
+      classroomTask: {
+        tool: "MySQL Workbench · SQL-Analyse",
+        title: "Datenrate und Datenqualität mit eigenen Abfragen prüfen",
+        intro: "Verwende den fiktiven Bestand aus L5.1. Der Download ist derselbe und wird nicht erneut eingerichtet, wenn die Tabellen bereits vorhanden sind.",
+        steps: [
+          "Öffne workbenchlab_l5 in Workbench und führe eigene Zählungen sowie die Minutengruppierung der Aktivitätsereignisse aus.",
+          "Untersuche die Mietdauern mit COUNT und AVG. Vergleiche alle numerischen Werte mit dem Teilbestand dauer_min > 0; dokumentiere beide Ergebnisse und den Ausschlussgrund.",
+          "Ordne deine Beobachtungen dem 3V-Modell zu und beschreibe einen möglichen Nutzen, eine Gefahr und die Grenzen des Beispiels.",
+          "Speichere die Abfragen als L5_2_datenqualitaet.sql und halte die Ergebnisse im Aufgabenblatt fest."
+        ],
+        download: { href: "assets/sql/l5-datenanalyse-testdaten.sql", label: "Fiktive L5-Testdaten" },
+        fileName: "L5_2_datenqualitaet.sql",
+        evidence: "Eigenes SQL-Skript, überprüfte Kennzahlen und begründete 3V-Analyse"
       },
       completionChecks: [
         "Ich kann Volume, Variety und Velocity am Fall erklären.",
         "Meine Analyse berücksichtigt mehrere betroffene Perspektiven.",
+        "Ich habe Datenrate und Kennzahlen in Workbench geprüft und den Umgang mit NULL und 0 begründet.",
         "Mein Urteil nennt nachvollziehbare Bedingungen."
       ]
     }
@@ -1622,7 +1986,7 @@
       courseCode: "L5.1",
       title: "Digitale Spuren und Datenflüsse",
       subtitle: "Online-Handlungen erzeugen Daten, die gespeichert, verknüpft und für weitere Zwecke ausgewertet werden können.",
-      duration: 35,
+      duration: 60,
       xp: 35,
       difficulty: "medium",
       practiceId: "digital-trace-choice",
@@ -1648,24 +2012,45 @@
             "Ein Datenfluss nennt Erhebung, Übertragung, Speicherung, Verknüpfung, Auswertung und mögliche Entscheidung. An jeder Stelle können andere Chancen und Risiken entstehen."
           ],
           tip: "Frage immer: Welche Daten? Von wem? Für wen? Zu welchem Zweck? Wie lange?"
+        },
+        {
+          title: "Verknüpfung in Workbench beobachten",
+          body: ["Der Download erstellt workbenchlab_l5 mit sechs fiktiven Profilen, zwölf Aktivitäten und acht Standortmeldungen. Gerätearten und grobe Zonen sind erfunden. Profilnummern sind nur Zuordnungsschlüssel; in einem echten System wäre eine Nummer allein kein Beweis für Anonymität.", "Zähle zuerst Aktivitäten je Profil mit LEFT JOIN, damit auch ein Profil ohne Ereignisse sichtbar bleibt. Verknüpfe dann Aktivitäten und Standortmeldungen über profilnr. Diese Tabellen enthalten unabhängig mehrere Zeilen je Profil: Der JOIN bildet Kombinationen, nicht automatisch zeitlich passende Beobachtungen. Zähle daher keine Lernaktivität allein anhand dieser vervielfachten Zeilen.", "Erstelle über Database > Reverse Engineer ein EER-Modell des Ausgangsschemas. Prüfe besonders die beiden 1:N-Beziehungen am Profil. Ein EER-Diagramm zeigt Tabellenbeziehungen, nicht den gesamten organisatorischen Datenfluss; diesen zeichnest du zusätzlich."],
+          code: "SELECT profilnr, geraeteart\nFROM workbenchlab_l5.profile\nORDER BY profilnr;",
+          warning: "Keine echten Konten öffnen und keine privaten Standortverläufe importieren. Klickanzahl beweist weder Motivation noch Lernerfolg."
         }
       ],
-      classroomTask: {
-        tool: "Browser und Heft",
-        title: "Datenfluss eines fiktiven Schulportals analysieren",
-        intro: "Ein fiktives Portal speichert Anmeldezeit, bearbeitete Aufgaben, Geräteart und Ergebnisse. Analysiere ausschließlich diese vorgegebenen Daten.",
-        steps: [
-          "Kennzeichne aktive und passive digitale Spuren.",
-          "Zeichne den Datenfluss von der Erhebung bis zu einer möglichen Auswertung.",
-          "Leite zwei sinnvolle und zwei problematische Nutzungsmöglichkeiten ab.",
-          "Formuliere drei Regeln für einen datensparsamen Einsatz."
+      webWorksheet: {
+        title: "L5.1: Digitale Spuren selbst untersuchen",
+        intro: "Bearbeite die Fragen zunächst fachlich und ergänze danach deine eigenen Workbench-Abfragen und Beobachtungen.",
+        definitionTerms: [
+          { id: "spuren", label: "1 · Spuren und Zwecke", prompt: "Ordne Anmeldung, gelesene Seite, Aufgabenabgabe, Geräteart und Standortmeldung als aktiv/passiv oder begründet mehrdeutig ein. Beschreibe Erhebung, Speicherung, Verknüpfung und möglichen Zweck." },
+          { id: "zaehlung", label: "2 · Alle Profile berücksichtigen", prompt: "Zähle Aktivitäten je Profil mit LEFT JOIN und COUNT der Ereignisnummer. Notiere SQL und Ergebnisse, einschließlich des Profils ohne Ereignis. Warum ist COUNT(*) beim LEFT JOIN hier ungeeignet?" },
+          { id: "verknuepfung", label: "3 · Mehr Daten, neue Rückschlüsse", prompt: "Verbinde Aktivitäten und Standortmeldungen über profilnr. Vergleiche Zeilenzahl und COUNT(DISTINCT ereignisnr) mit den Einzelbeständen. Warum entstehen zusätzliche Kombinationen und keine belegten zeitgleichen Handlungen?" },
+          { id: "modell", label: "4 · Modell und Datenfluss", prompt: "Erstelle und speichere das EER-Modell durch Reverse Engineering. Erläutere PK/FK und die 1:N-Beziehungen; zeichne zusätzlich den Datenfluss. Was zeigt das EER-Modell nicht?" },
+          { id: "schutz", label: "5 · Nutzen und Grenzen", prompt: "Nenne zwei sinnvolle und zwei problematische Zwecke sowie drei Schutzregeln. Warum belegen Klickzahlen keinen Lernerfolg und Profilnummern allein keine Anonymität?" }
         ],
-        evidence: "Datenflussdiagramm und drei Schutzregeln"
+        hint: "Alle Profile sind erfunden. Standort- und Aktivitätsmeldungen sind keine 1:1-Paare; ein JOIN auf profilnr allein ordnet keine Zeitpunkte einander zu."
+      },
+      classroomTask: {
+        tool: "MySQL Workbench · EER und SQL",
+        title: "Fiktive Datenspuren modellieren und verknüpfen",
+        intro: "Analysiere ausschließlich den bereitgestellten Bestand. Importiere keine realen Konten, Profile oder Standortdaten.",
+        steps: [
+          "Prüfe und führe den Download einmal in Workbench aus. Er legt ausschließlich workbenchlab_l5 an. In L5.2 und L5.3 verwendest du diese Tabellen weiter.",
+          "Zähle Aktivitäten je Profil und prüfe den JOIN mit Standortmeldungen. Vergleiche Anzahl der Zeilen und eindeutigen Ereignisse; dokumentiere die zusätzliche Information und die Mehrfachzählung.",
+          "Erstelle mit Database > Reverse Engineer das EER-Modell, kontrolliere Schlüssel und Beziehungen und speichere L5_1_datenspuren.mwb. Zeichne zusätzlich den organisatorischen Datenfluss.",
+          "Speichere eigene Abfragen als L5_1_datenspuren.sql, öffne das Modell erneut und begründe drei Schutzregeln im Aufgabenblatt."
+        ],
+        download: { href: "assets/sql/l5-datenanalyse-testdaten.sql", label: "Fiktive L5-Testdaten" },
+        fileName: "L5_1_datenspuren.mwb und L5_1_datenspuren.sql",
+        evidence: "Gespeichertes EER-Modell, Datenflussdiagramm und SQL-Nachweis mit Schutzregeln"
       },
       completionChecks: [
         "Ich kann aktive und passive Spuren unterscheiden.",
         "Mein Datenfluss benennt Erhebung, Speicherung und Nutzung.",
-        "Meine Schutzregeln sind am Fall konkret begründet."
+        "Meine Schutzregeln sind am Fall konkret begründet.",
+        "Ich habe Mehrfachzählungen mit SQL geprüft und das EER-Modell gespeichert und erneut geöffnet."
       ],
       quiz: {
         question: "Warum kann die Verknüpfung mehrerer scheinbar harmloser Angaben problematisch sein?",
@@ -1685,7 +2070,7 @@
       courseCode: "L5.3",
       title: "Big Data begründet beurteilen",
       subtitle: "Ein tragfähiges Urteil verbindet Behauptung, Kriterien, Fallbezug, Gegenargument und klare Bedingungen.",
-      duration: 45,
+      duration: 70,
       xp: 45,
       difficulty: "plus",
       practiceId: "bigdata-judgement-choice",
@@ -1711,24 +2096,48 @@
             "Ein gutes Gegenargument schwächt deine Position nicht. Es zeigt, dass du den Zielkonflikt verstanden hast und deine Bedingungen bewusst setzt."
           ],
           warning: "Nutze für die Aufgabe keine realen Schülerprofile oder privaten Kontodaten."
+        },
+        {
+          title: "Mobilitätsanalyse: nützlich, aber begrenzt",
+          body: ["Nutze stationen, mieten und wetter aus workbenchlab_l5. Zähle Abfahrten je Station einschließlich der Station ohne Miete. Eine hohe Abfahrtszahl belegt allein keinen Engpass: Anfangsbestand, Rückgaben, Uhrzeiten und Kapazität müssten mitgeprüft werden.", "Gruppiere Mieten zunächst pro Tag und verknüpfe erst dieses Ergebnis mit dem einen Wetterwert je Datum. Drei Tage können weder eine stabile Prognose noch die Behauptung belegen, Temperatur verursache die Nachfrage. Benenne fehlende Einflussgrößen und einen möglichen Auswahlfehler.", "Vergleiche alle Stationszahlen mit einer Ausgabe, die nur Gruppen mit mindestens drei Mieten zeigt. Diese Schwelle ist eine didaktische Beispielregel, keine allgemeine Garantie für Anonymität. Die Tabellen enthalten absichtlich keinen Bezug zu den Portalprofilen. Eine persönliche Tarifentscheidung lässt sich aus diesen Daten nicht rechtfertigen."],
+          tip: "Trenne beobachteten Wert, Vermutung und begründetes Urteil. Aggregierte Nachfrageplanung und persönliches Profiling sind verschiedene Zwecke."
+        },
+        {
+          title: "Historische Fallberichte kritisch einordnen",
+          body: ["Die ursprünglichen Vorlagen behandeln auch Überwachung, Cambridge Analytica und Nutzenprojekte. Achte auf das Erscheinungsjahr und unterscheide Bericht, behauptete Wirkung und belegten Befund; ältere Berichte sind keine ungeprüfte Beschreibung der heutigen Lage.", "Die FTC stellte 2019 im Fall Cambridge Analytica täuschende Praktiken bei der Beschaffung von Facebook-Daten für Profilbildung und gezielte Ansprache fest. Daraus folgt nicht, dass ein bestimmter Wahlausgang durch eine einzelne Analyse verursacht wurde. Vergleiche Zweck, Datenzugang und Schutzmöglichkeiten mit dem fiktiven Mobilitätsfall; entwickle selbst kein Persönlichkeitsprofil einzelner Personen."]
         }
       ],
-      classroomTask: {
-        tool: "Heft oder Textverarbeitung",
-        title: "Über eine datenbasierte Prognose entscheiden",
-        intro: "Eine fiktive Verkehrs-App möchte Bewegungs- und Mietdaten verwenden, um Engpässe vorherzusagen und personalisierte Tarife anzubieten.",
-        steps: [
-          "Formuliere die konkrete Entscheidung, über die du urteilst.",
-          "Vergleiche Nutzen und Risiken aus Sicht von Nutzenden, Anbieter und Öffentlichkeit.",
-          "Nenne mindestens ein Gegenargument zu deiner eigenen Position.",
-          "Schreibe ein Urteil mit drei überprüfbaren Bedingungen."
+      webWorksheet: {
+        title: "L5.3: SQL-Befund und Urteil auseinanderhalten",
+        intro: "Ermittle die Mobilitätskennzahlen und nutze sie für ein begründetes Urteil. Verwechsle einen kleinen Ausschnitt nicht mit einer validierten Prognose.",
+        definitionTerms: [
+          { id: "stationen", label: "1 · Nachfrage und Nullgruppe", prompt: "Zähle Abfahrten je Station, einschließlich Station D ohne Miete. Notiere SQL und Ergebnis. Welche zusätzlichen Angaben wären nötig, um einen tatsächlichen Engpass zu belegen?" },
+          { id: "wetter", label: "2 · Muster ist keine Ursache", prompt: "Fasse Mieten pro Tag zusammen und verbinde die Tageswerte mit wetter. Notiere die drei Tagesbefunde. Welche Ursachen und Prognosen sind damit nicht belegt?" },
+          { id: "gruppen", label: "3 · Kleine Gruppen", prompt: "Vergleiche alle Stationszahlen mit einer Ausgabe für COUNT(mietnr) >= 3. Welche Stationen verschwinden? Warum garantiert die Beispielschwelle allein keine Anonymität?" },
+          { id: "fallbezug", label: "4 · Historischer Vergleich", prompt: "Vergleiche die FTC-Feststellung von 2019 zu Datenzugang und Profiling mit der fiktiven Nachfrageplanung. Unterscheide belegten Datenmissbrauch von einer nicht automatisch belegten Ursache eines Wahlausgangs. Nenne eine Aussage aus einem älteren Vorlagenbericht, die eine aktuelle Quellenprüfung bräuchte." },
+          { id: "urteil", maxLength: 4000, label: "5 · Begründetes Urteil", prompt: "Schreibe 180 bis 250 Wörter zur Nachfrageplanung und zu persönlichen Tarifen. Beziehe mindestens zwei SQL-Befunde ein, berücksichtige ein Gegenargument und formuliere drei überprüfbare Bedingungen. Welche Entscheidung können unsere Daten nicht tragen?" }
         ],
-        evidence: "Begründete Stellungnahme mit 180 bis 250 Wörtern"
+        hint: "Der Bestand enthält keine Miet-Person-Zuordnung. Keine Profilnummer hinzufügen und keine private Identität ergänzen."
+      },
+      classroomTask: {
+        tool: "MySQL Workbench · SQL und Fallbewertung",
+        title: "Nachfrage auswerten und die Aussagekraft begründen",
+        intro: "Die fiktive Verkehrs-App möchte Engpässe vorhersagen und persönliche Tarife anbieten. Prüfe, was der gemeinsame L5-Bestand tatsächlich hergibt.",
+        steps: [
+          "Öffne den vorhandenen Bestand workbenchlab_l5; richte den Download nicht erneut ein. Prüfe Abfahrtszahlen einschließlich Nullgruppen sowie Tageszahlen zusammen mit Wetterdaten.",
+          "Vergleiche alle Stationsgruppen mit der Beispielschwelle von drei Mieten. Begründe die ausgelassenen Gruppen und Grenzen der Auswertung.",
+          "Speichere L5_3_nachfrage.sql und nutze mindestens zwei überprüfte Ergebnisse für deine Stellungnahme. Unterscheide Nachfrageplanung von persönlichen Tarifentscheidungen.",
+          "Vergleiche Nutzen und Risiken aus mehreren Perspektiven, ergänze ein Gegenargument und drei überprüfbare Bedingungen. Bewerte einen historischen Vorlagenfall quellenkritisch."
+        ],
+        download: { href: "assets/sql/l5-datenanalyse-testdaten.sql", label: "Fiktive L5-Testdaten" },
+        fileName: "L5_3_nachfrage.sql",
+        evidence: "Eigenes SQL-Skript und Stellungnahme mit 180 bis 250 Wörtern und zwei überprüften Befunden"
       },
       completionChecks: [
         "Mein Urteil bezieht sich auf eine klar benannte Entscheidung.",
         "Ich habe ein ernstzunehmendes Gegenargument berücksichtigt.",
-        "Meine Bedingungen sind konkret und überprüfbar formuliert."
+        "Meine Bedingungen sind konkret und überprüfbar formuliert.",
+        "Ich habe zwei SQL-Befunde geprüft und ihre Grenzen gegenüber Prognose, Ursache und persönlichen Tarifen erklärt."
       ],
       quiz: {
         question: "Welche Aussage ist für eine begründete Big-Data-Bewertung am stärksten?",

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorkbenchLab · Informatik-Stick und Workbench starten</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #090b0e; color: #f5f7fa; font: 16px Segoe UI, sans-serif; }
+    main { max-width: 1600px; margin: auto; }
+    canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+    .controls { display: flex; align-items: center; gap: 14px; padding: 14px 20px; }
+    button { display: grid; place-items: center; flex: 0 0 44px; height: 44px; border: 1px solid #79868c; border-radius: 6px; color: inherit; background: #22262a; cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 2px solid #8adccb; outline-offset: 3px; }
+    input { min-width: 0; width: 100%; accent-color: #8adccb; }
+    output { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    @media (prefers-reduced-motion: reduce) { canvas { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <main>
+    <canvas id="film" width="1920" height="1080" role="img" aria-label="Animierter Startablauf: Informatik-Stick, MySQL, offenes CMD-Fenster, Workbench und lokale Verbindung."></canvas>
+    <div class="controls">
+      <button id="play" type="button" title="Wiedergabe" aria-label="Wiedergabe"><i data-lucide="play"></i></button>
+      <button id="restart" type="button" title="Von vorn" aria-label="Von vorn"><i data-lucide="rotate-ccw"></i></button>
+      <input id="position" type="range" min="0" max="102" step="0.1" value="0" aria-label="Videoposition">
+      <output id="time">0:00 / 1:42</output>
+    </div>
+  </main>
+  <script src="../../vendor/lucide/lucide.min.js"></script>
+  <script src="workbench-start-animation.js"></script>
+</body>
+</html>

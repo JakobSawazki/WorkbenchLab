@@ -1,0 +1,62 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const { chromium } = require("playwright");
+const root = path.resolve(__dirname, "..");
+const qa = path.join(root, ".tmp/l3-2");
+(async () => {
+  fs.mkdirSync(qa, { recursive: true });
+  const browser = await chromium.launch({ channel: "msedge", headless: true });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.goto("http://127.0.0.1:4174/?v=0.22.0-local#home");
+    await page.locator("#profileDialog[open]").waitFor();
+    await page.keyboard.press("Control+Alt+s");
+    await page.locator("#developerModeButton").click();
+    await page.locator("#profileName").fill("TES.TIA");
+    await page.locator("#profileClass").fill("TEST");
+    await page.locator("#profileForm button[type=submit]").click();
+    await page.goto("http://127.0.0.1:4174/?v=0.22.0-local#lesson/mn-beziehungen");
+    await page.locator("#arbeitsblatt").waitFor();
+    assert.equal(await page.locator("[data-worksheet-definition]").count(), 26);
+    assert.equal(await page.locator(".worksheet-group").count(), 4);
+    assert.equal(await page.locator(".worksheet-group[open]").count(), 1);
+    assert.ok((await page.locator("#mainContent").innerText()).includes("Reverse Engineer"));
+    const f1 = page.locator('[data-worksheet-definition="f1"]');
+    const r16 = page.locator('[data-worksheet-definition="r16"]');
+    await f1.fill("SELECT DISTINCT datum; Testantwort F1");
+    await page.locator(".worksheet-group").nth(3).locator("summary").click();
+    await r16.fill("AVG(anschaffungswert); Testantwort R16");
+    await page.reload();
+    await page.locator("#arbeitsblatt").waitFor();
+    assert.equal(await f1.inputValue(), "SELECT DISTINCT datum; Testantwort F1");
+    assert.equal(await r16.inputValue(), "AVG(anschaffungswert); Testantwort R16");
+    const response = await page.request.get("http://127.0.0.1:4174/assets/sql/l3-2-mehrtabellen-testdaten.sql");
+    assert.equal(response.status(), 200);
+    assert.equal((await response.text()).match(/CREATE TABLE /g).length, 12);
+    await page.locator("#backupButton").click();
+    const downloadReady = page.waitForEvent("download");
+    await page.locator("#exportProgressButton").click();
+    const download = await downloadReady;
+    const filename = path.join(qa, "test-backup.json");
+    await download.saveAs(filename);
+    const data = JSON.parse(fs.readFileSync(filename, "utf8"));
+    const backupText = JSON.stringify(data);
+    assert.ok(backupText.includes("Testantwort F1"));
+    assert.ok(backupText.includes("Testantwort R16"));
+    await page.locator("#backupCloseButton").click();
+    for (const [name, width, height] of [["desktop", 1440, 1000], ["mobile", 390, 844]]) {
+      await page.setViewportSize({ width, height });
+      await page.waitForTimeout(400);
+      await f1.scrollIntoViewIfNeeded();
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), name);
+      const box = await f1.boundingBox();
+      assert.ok(box.x >= 0 && box.x + box.width <= width + 1, name);
+      await page.screenshot({ path: path.join(qa, `${name}.png`) });
+    }
+    assert.deepEqual(errors, []);
+    console.log("PASS: L3.2 26 fields, 4 groups, fixture download, reload persistence, JSON export and desktop/mobile layout.");
+  } finally { await browser.close(); }
+})().catch((error) => { console.error(error); process.exitCode = 1; });

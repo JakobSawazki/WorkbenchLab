@@ -1,0 +1,48 @@
+WEBVTT
+
+00:00.000 --> 00:04.000
+Die richtige Reihenfolge: Informatik-Stick, MySQL, Workbench, Verbindung.
+
+00:04.000 --> 00:11.000
+Schule: Desktop-Verknüpfung doppelklicken.
+Laptop: im Startmenü „Start“ öffnen.
+
+00:11.000 --> 00:19.000
+Kurz warten. Zum Ordner „Datenbank MariaDB …“ scrollen.
+
+00:19.000 --> 00:25.000
+Zuerst „MySQL starten“ doppelklicken.
+
+00:25.000 --> 00:37.000
+CMD NICHT schließen. Auf „ready for connections“ warten.
+
+00:37.000 --> 00:41.000
+Minimieren ist erlaubt. CMD muss geöffnet bleiben.
+
+00:41.000 --> 00:49.000
+Jetzt Workbench starten: Schule 6.3.10, Laptop der Lehrkraft 8.0.21.
+
+00:49.000 --> 00:55.000
+Beim ersten Mal das Plus bei „MySQL Connections“ anklicken.
+
+00:55.000 --> 01:00.000
+Connection Name: local. Connection Method: Standard (TCP/IP).
+
+01:00.000 --> 01:07.000
+Hostname: 127.0.0.1.
+
+01:07.000 --> 01:15.000
+Port: 3306. Username: root.
+
+01:15.000 --> 01:23.000
+„Test Connection“ anklicken. Erfolg ist hier als Beispiel dargestellt.
+Passwort nur nach Vorgabe der Lehrkraft, falls abgefragt.
+
+01:23.000 --> 01:28.000
+Nach erfolgreichem Test: Bestätigung schließen und mit „OK“ speichern.
+
+01:28.000 --> 01:35.000
+Die neue Verbindung „local“ doppelklicken.
+
+01:35.000 --> 01:42.000
+Bereit für SQL und Modelle. CMD bleibt offen oder minimiert.

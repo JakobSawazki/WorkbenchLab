@@ -25,6 +25,8 @@ const modules = contentContext.window.WORKBENCH_CONTENT.modules;
       const map = page.locator(".relief-map");
       await map.scrollIntoViewIfNeeded();
       await page.waitForFunction(() => document.querySelector(".relief-map img")?.naturalWidth === 1672);
+      assert.ok((await map.locator("img").getAttribute("src")).endsWith("bpe6-alpine-learning-path.webp"));
+      assert.ok((await map.locator("img").getAttribute("alt")).includes("Lernweg"));
       const pins = page.locator(".map-pin");
       assert.equal(await pins.count(), 5);
       assert.equal(await page.locator(".map-pin.is-locked").count(), 4);

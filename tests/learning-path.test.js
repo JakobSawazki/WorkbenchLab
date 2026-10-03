@@ -62,11 +62,13 @@ test("jede Starteinheit hat Quellen, Aufgabenblatt, Praxisauftrag und gültige C
   }
 });
 
-test("L1.2 trennt fachliches ERD und Relationenschema vor der Workbench", () => {
+test("L1.2 trennt fachliches ERD und Relationenschema und setzt den Entwurf in Workbench um", () => {
   const item = lesson("L1.2");
   assert.equal(item.webWorksheet.definitionTerms.length, 4);
   assert.equal(item.webWorksheet.columnCount || 0, 0);
-  assert.ok(!item.workflow.some((step) => step.includes("Workbench")));
+  assert.ok(item.workflow.some((step) => step.includes("Workbench")));
+  assert.equal(item.classroomTask.fileName, "L1_2_entwurf.mwb");
+  assert.ok(item.classroomTask.steps.some((step) => step.includes("erneut")));
   assert.ok(item.sections.some((section) => section.visual === "single-table-model"));
   assert.equal(practice(item).questions.length, 3);
 });
@@ -176,13 +178,13 @@ test("L1.7 bildet die vier DISTINCT-Auftraege aus dem Material ab", () => {
 
 test("L2.1 erklaert Speicherredundanz und das fachliche Zwei-Tabellen-Modell", () => {
   const item = lesson("L2.1");
-  assert.equal(item.webWorksheet.definitionTerms.length, 5);
+  assert.equal(item.webWorksheet.definitionTerms.length, 6);
   assert.ok(item.sections.some((section) => section.visual === "redundancy"));
   assert.ok(item.sections.some((section) => section.visual === "two-table-concept"));
   assert.ok(item.sections.some((section) => section.code?.includes("ortnr FK")));
   assert.ok(item.sections.some((section) => section.body?.some((paragraph) => paragraph.includes("DISTINCT"))));
   assert.equal(practice(item).questions.length, 4);
-  assert.equal(item.classroomTask.steps.length, 4);
+  assert.equal(item.classroomTask.steps.length, 7);
 });
 
 test("L2.2 laesst eine 1:N-Beziehung in Workbench und im Browser pruefen", () => {

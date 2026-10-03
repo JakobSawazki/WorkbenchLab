@@ -1847,20 +1847,50 @@ INSERT INTO mietvertraege VALUES
       id: "normalform-choice",
       lessonId: "redundanz-3nf",
       type: "choice",
-      title: "Redundanz erkennen",
-      description: "Erkenne die Modellierungsentscheidung, die Redundanz vermeidet.",
+      title: "Abhängigkeiten und verlustfreie Modelle prüfen",
+      description: "Ordne Stammdaten, Vorgangswerte und Modellregeln vor deiner Workbench-Zerlegung zu.",
       difficulty: "plus",
       xp: 35,
       questions: [
         {
-          question: "In vielen Fahrschüler-Zeilen stehen dieselbe PLZ und derselbe Ort. Welche Zerlegung ist sinnvoll?",
+          question: "Ein Händler hat eine aktuelle Telefonnummer, mehrere Fahrzeuge gehören zu ihm. Wo wird die Telefonnummer gespeichert?",
           options: [
-            "Eine eigene Tabelle orte und in fahrschueler nur den Fremdschlüssel ortnr speichern.",
-            "Die Spalten plz und ort zusätzlich noch zweimal kopieren.",
-            "Alle Werte in eine einzige Textspalte schreiben."
+            "Beim Händler; die Fahrzeuge verweisen über haendlernr auf ihn.",
+            "Unabhängig in jeder Fahrzeugzeile, damit man nur eine Zeile ändern muss.",
+            "Als Teil des Fahrzeugprimärschlüssels, auch wenn die Nummer sich ändert."
           ],
           correct: 0,
-          feedback: "So wird das Faktum Ort nur einmal gespeichert und über einen Fremdschlüssel referenziert."
+          feedback: "Die Geschäftsregel haendlernr → telefon begründet die Trennung der Händlerdaten von den Fahrzeugen."
+        },
+        {
+          question: "Derselbe Artikel kostet in Lieferung 1 0,90 und in Lieferung 2 0,85. Wo gehört dieser vereinbarte Stückpreis hin?",
+          options: [
+            "Zur jeweiligen Lieferposition, zusammen mit ihrer Menge.",
+            "Als ein einziger unveränderlicher Preis zum Artikel.",
+            "Zur Lieferantenadresse."
+          ],
+          correct: 0,
+          feedback: "Der historische Preis ist ein Faktum der konkreten Position. Unterschiedliche Preise desselben Artikels müssen erhalten bleiben."
+        },
+        {
+          question: "Nach einer Zerlegung liefert dein JOIN genau so viele Zeilen wie zuvor. Was prüfst du zusätzlich?",
+          options: [
+            "Alle Schlüssel und fachlichen Attribute in beiden Richtungen; gleiche Zeilenzahlen allein reichen nicht.",
+            "Nichts: Die gleiche Zeilenzahl beweist eine verlustfreie Zerlegung für alle möglichen Daten.",
+            "Nur, ob der JOIN ohne Syntaxfehler ausgeführt wird."
+          ],
+          correct: 0,
+          feedback: "Ein JOIN kann trotz gleicher Anzahl andere Zuordnungen liefern. Datenkontrolle ergänzt den allgemeinen Nachweis aus Abhängigkeiten."
+        },
+        {
+          question: "Ein Pizza-Zutaten-Paar kann mit verschiedenen pz_nr-Werten doppelt gespeichert werden. Unter den gegebenen Regeln hängen alle Attribute ausschließlich von Kandidatenschlüsseln ab. Was folgt?",
+          options: [
+            "Die gewünschte Paar-Eindeutigkeit ist noch nicht abgesichert; allein das beweist keinen 3NF-Verstoß.",
+            "Jede Tabelle mit einer künstlichen Nummer verletzt 3NF.",
+            "Ein Fremdschlüssel garantiert automatisch die Eindeutigkeit jedes Paares."
+          ],
+          correct: 0,
+          feedback: "Normalform und zusätzliche Geschäftsregeln sind getrennt zu prüfen. Eine UNIQUE-Regel kann das doppelte Paar verhindern."
         }
       ]
     },
@@ -1872,23 +1902,23 @@ INSERT INTO mietvertraege VALUES
       description: "Ordne die typischen Verstöße der passenden Normalform zu.",
       difficulty: "plus",
       xp: 40,
-      prompt: "Eine Tabelle enthält mehrere Telefonnummern in einer Zelle, eine Bestellposition hängt nur teilweise vom zusammengesetzten Schlüssel ab und eine PLZ bestimmt den Ort.",
+      prompt: "Prüfe Filmstudio-Besetzungen: mehrere Rollen in einer Zelle, Personenname abhängig nur von schauspielernr und kategorienr als Bestimmungsgröße für den Kategorienamen. Es gelten die Geschäftsregeln aus L4.1.",
       slots: [
         {
           id: "nf1",
-          label: "Mehrere Telefonnummern in einer Zelle",
+          label: "Mehrere Rollen als Liste in einer Zelle",
           options: ["Verstoß gegen 1NF", "Verstoß gegen 2NF", "Verstoß gegen 3NF"],
           answer: "Verstoß gegen 1NF"
         },
         {
           id: "nf2",
-          label: "Attribut hängt nur von einem Teil eines zusammengesetzten Schlüssels ab",
+          label: "Personenname hängt nur von schauspielernr ab, nicht vom gesamten Schlüssel (schauspielernr, filmnr)",
           options: ["Verstoß gegen 1NF", "Verstoß gegen 2NF", "Verstoß gegen 3NF"],
           answer: "Verstoß gegen 2NF"
         },
         {
           id: "nf3",
-          label: "PLZ bestimmt Ort, obwohl beide Nicht-Schlüsselattribute sind",
+          label: "filmnr bestimmt kategorienr, kategorienr bestimmt kategoriename; kategorienr ist in der Filmrelation kein Superschlüssel",
           options: ["Verstoß gegen 1NF", "Verstoß gegen 2NF", "Verstoß gegen 3NF"],
           answer: "Verstoß gegen 3NF"
         }

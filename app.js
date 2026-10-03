@@ -338,7 +338,7 @@
       const definitions = {};
       Object.entries(value.definitions || {}).forEach(([term, answer]) => {
         if (/^[a-z0-9-]{1,40}$/.test(term) && typeof answer === "string") {
-          definitions[term] = answer.slice(0, 1200);
+          definitions[term] = answer.slice(0, worksheetAnswerLimit(lessonById(id), term));
         }
       });
       const rows = Array.isArray(value.rows)
@@ -1092,11 +1092,11 @@
         </div>
       </div>
       <div class="relief-map">
-        <img src="assets/bpe6-settlement-map.webp" alt="Fotorealistische Relief-Landkarte: Ein einziger Weg führt vom kleinen blauen Dorf L1 über das grüne Dorf L2, die goldene Kleinstadt L3 und die violette Stadt L4 zur großen korallfarbenen Stadt L5." width="1672" height="941" loading="lazy">
+        <img src="assets/bpe6-alpine-learning-path.webp" alt="Fotorealistische Berglandschaft mit einem gewundenen Lernweg: vom blauen Dorf L1 über das mintgrüne Dorf L2, die goldene Kleinstadt L3 und die violette Hochschulstadt L4 zur korallfarbenen Stadt L5." width="1672" height="941" loading="lazy">
         <nav class="map-pins" aria-label="Stationen der BPE6-Landkarte">
           ${content.modules.map((module, index) => {
             const unlocked = isLessonUnlocked(lessonById(module.lessonIds[0]));
-            const positions = [[12, 72], [33, 41], [50, 82], [68, 43], [89, 82]];
+            const positions = [[12, 72], [30, 37], [50, 67], [67, 39], [89, 78]];
             return `<div class="map-stop ${index === 4 ? "align-right" : ""}" data-module-color="${escapeHtml(module.code)}" style="--pin-x:${positions[index][0]}%;--pin-y:${positions[index][1]}%">
               <button class="map-pin ${unlocked ? "" : "is-locked"}" type="button" data-map-menu="${escapeHtml(module.id)}" aria-expanded="false" aria-controls="map-menu-${escapeHtml(module.id)}" title="Lernfortschritt ${Number(module.number)}" aria-label="Lernfortschritt ${Number(module.number)}: Lerneinheiten">${escapeHtml(module.code)}<i data-lucide="${unlocked ? "chevron-up" : "lock-keyhole"}" aria-hidden="true"></i></button>
               <div class="map-lesson-menu" id="map-menu-${escapeHtml(module.id)}" hidden>
@@ -1196,6 +1196,11 @@
       </section>`;
   }
 
+  function worksheetAnswerLimit(lesson, term) {
+    const item = lesson?.webWorksheet?.definitionTerms?.find((entry) => entry.id === term);
+    return Number.isInteger(item?.maxLength) ? Math.min(12000, Math.max(1200, item.maxLength)) : 1200;
+  }
+
   function lessonWorksheetRecord(lesson) {
     const saved = state.lessonWorksheets?.[lesson.id] || {};
     const rowCount = lesson.webWorksheet?.columnCount || 0;
@@ -1221,7 +1226,7 @@
       <label>
         <span>${escapeHtml(item.label)}</span>
         <small>${escapeHtml(item.prompt)}</small>
-        <textarea rows="3" maxlength="1200" data-worksheet-definition="${escapeHtml(item.id)}" placeholder="${escapeHtml(worksheet.answerPlaceholder || "In eigenen Worten ...")}">${escapeHtml(record.definitions[item.id] || "")}</textarea>
+        <textarea rows="${worksheetAnswerLimit(lesson, item.id) > 1200 ? 8 : 3}" maxlength="${worksheetAnswerLimit(lesson, item.id)}" data-worksheet-definition="${escapeHtml(item.id)}" placeholder="${escapeHtml(worksheet.answerPlaceholder || "In eigenen Worten ...")}">${escapeHtml(record.definitions[item.id] || "")}</textarea>
       </label>`).join("")}</div>`;
     const terms = worksheet.definitionTerms || [];
     return `
@@ -1528,7 +1533,6 @@
     if (!task) {
       return "";
     }
-    const relatedPractices = content.practices.filter((practice) => practice.lessonId === lesson.id);
     return `
       <section class="classroom-task" id="praxisauftrag">
         <div class="classroom-task-heading">
@@ -1547,11 +1551,18 @@
           ${task.fileName ? `<div><dt>Dateiname</dt><dd><code>${escapeHtml(task.fileName)}</code></dd></div>` : ""}
         </dl>
         ${task.download ? `<a class="button button-secondary task-download" href="${escapeHtml(task.download.href)}" download><i data-lucide="download" aria-hidden="true"></i>${escapeHtml(task.download.label)}</a>` : ""}
-        ${relatedPractices.length ? `
-          <div class="task-practice-links" aria-label="Passende Browserübungen">
-            ${relatedPractices.map((practice) => `<button class="button button-secondary" type="button" data-practice="${escapeHtml(practice.id)}"><i data-lucide="flask-conical"></i>${escapeHtml(practice.title)}</button>`).join("")}
-          </div>` : ""}
       </section>`;
+  }
+
+  function renderLessonExercises(lesson) {
+    const practices = content.practices.filter((practice) => practice.lessonId === lesson.id);
+    return `${renderLessonQuiz(lesson)}${practices.length ? `
+      <section class="lesson-exercises" aria-label="Übungsaufgaben">
+        <h3>Übungsaufgaben</h3>
+        <div class="task-practice-links">
+          ${practices.map((practice) => `<button class="button button-secondary" type="button" data-practice="${escapeHtml(practice.id)}"><i data-lucide="flask-conical" aria-hidden="true"></i>${escapeHtml(practice.title)}</button>`).join("")}
+        </div>
+      </section>` : ""}`;
   }
 
   function renderLessonSources(lesson) {
@@ -1690,9 +1701,9 @@
           ${lesson.sections.map(renderLessonSection).join("")}
           </div>
           ${renderLessonWorksheet(lesson)}
+          ${renderLessonExercises(lesson)}
           ${renderClassroomTask(lesson)}
           ${renderLessonNotes(lesson)}
-          ${renderLessonQuiz(lesson)}
           ${renderLessonSources(lesson)}
           ${renderLessonCompletion(lesson)}
         </div>
@@ -2230,6 +2241,14 @@
           <p>In der Schule arbeiten wir mit MySQL Workbench 6.3.10. Zu Hause kann der Informatikstick eine andere Workbench-Version anbieten; die Schritte bleiben grundsätzlich gleich.</p>
         </div>
       </div>
+      <section class="workbench-start-film" aria-labelledby="workbench-start-film-title">
+        <h3 id="workbench-start-film-title">Workbench starten und verbinden</h3>
+        <video controls playsinline preload="none" poster="assets/tutorials/workbench-start-poster.png" aria-label="Animierte Startanleitung für Informatik-Stick und MySQL Workbench">
+          <source src="assets/tutorials/workbench-start.mp4" type="video/mp4">
+          <track kind="captions" src="assets/tutorials/workbench-start.de.vtt" srclang="de" label="Deutsch">
+          <a href="assets/tutorials/workbench-start.mp4">Startanleitung ansehen</a>
+        </video>
+      </section>
       <section class="start-sequence" aria-label="Startreihenfolge für den Unterricht">
         <div class="start-sequence-head">
           <i data-lucide="route"></i>
@@ -2262,8 +2281,8 @@
           <h2 id="connection-guide-title">Lokale Verbindung einrichten</h2>
           <p>Warte im Konsolenfenster des Sticks auf „ready for connections“. Das Fenster bleibt geöffnet. In Workbench kannst du eine vorhandene Verbindung <strong>local</strong> öffnen oder über das Pluszeichen bei <strong>MySQL Connections</strong> eine neue anlegen.</p>
           <ol>
-            <li>Wähle <strong>Standard (TCP/IP)</strong>. Für die gezeigte lokale Stick-Umgebung sind <code>127.0.0.1</code> und Port <code>3306</code> die Ausgangswerte; prüfe sie am Schul-PC mit der Lehrkraft.</li>
-            <li>Trage den für die lokale Datenbank vorgesehenen Benutzernamen ein. Auf dem Beispielbild ist das <code>root</code>. Verwende hierfür <strong>nicht</strong> dein Windows- oder Microsoft-365-Passwort.</li>
+            <li>Nenne die Verbindung <strong>local</strong> und wähle <strong>Standard (TCP/IP)</strong>. Für unseren Informatik-Stick: Hostname <code>127.0.0.1</code>, Port <code>3306</code>.</li>
+            <li>Trage als Benutzer <code>root</code> ein. Ein gegebenenfalls abgefragtes Datenbank-Passwort erhältst du von der Lehrkraft. Verwende hierfür <strong>nicht</strong> dein Windows- oder Microsoft-365-Passwort.</li>
             <li>Klicke <strong>Test Connection</strong>, speichere eine funktionierende Verbindung und öffne sie. Prüfe im SQL-Editor mit <code>SELECT VERSION();</code>, ob der Server antwortet.</li>
           </ol>
           <p class="connection-guide-note"><i data-lucide="info"></i><span>Der Stick kann intern MariaDB starten, obwohl der Menüpunkt „MySQL starten“ heißt. Eine Versions- oder Kompatibilitätswarnung in Workbench 8 ist nicht dasselbe wie eine fehlgeschlagene Verbindung. Bei Fehlern zuerst Dienst, Adresse, Port und Zugangsdaten mit der Lehrkraft prüfen.</span></p>
@@ -2274,7 +2293,7 @@
             <div><dt>Verfahren</dt><dd>Standard (TCP/IP)</dd></div>
             <div><dt>Hostname</dt><dd><code>127.0.0.1</code></dd></div>
             <div><dt>Port</dt><dd><code>3306</code></dd></div>
-            <div><dt>Benutzer</dt><dd><code>root</code> <small>nur Beispiel</small></dd></div>
+            <div><dt>Benutzer</dt><dd><code>root</code></dd></div>
           </dl>
           <div class="connection-example-query"><i data-lucide="square-terminal"></i><code>SELECT VERSION();</code><i data-lucide="check-circle-2"></i></div>
         </div>
@@ -3106,7 +3125,7 @@
     if (control.matches("[data-worksheet-table-name]")) {
       record.tableName = control.value.slice(0, 40);
     } else if (control.matches("[data-worksheet-definition]")) {
-      record.definitions[control.dataset.worksheetDefinition] = control.value.slice(0, 1200);
+      record.definitions[control.dataset.worksheetDefinition] = control.value.slice(0, worksheetAnswerLimit(lesson, control.dataset.worksheetDefinition));
     } else if (control.matches("[data-worksheet-field]")) {
       const rowIndex = Number(control.dataset.worksheetRow);
       const field = control.dataset.worksheetField;

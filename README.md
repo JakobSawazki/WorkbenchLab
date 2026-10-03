@@ -1,10 +1,10 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.21.0
+**Aktueller Release:** 0.22.0
 
 **Veröffentlichung:** GitHub Pages, ausgelöst durch Push auf `main`.
 
-**Dokumentationsstand:** 1. Oktober 2026
+**Dokumentationsstand:** 3. Oktober 2026
 
 **Live:** <https://jakobsawazki.github.io/WorkbenchLab/>
 
@@ -23,14 +23,19 @@ Die Oberfläche orientiert sich bewusst an PythonLab: Lernpfad, Übungen, XP,
 Erfolge, Nachschlagebereich, lokale Lernstandsicherung und GitHub-Pages-fähige
 statische Architektur.
 
-**Unterrichtsstart:** L1.1 bis L3.1 sind mit Erklärungen, direkt ausfüllbaren
-Aufgaben und Praxisaufträgen vertieft. Ergänzende SQL-Downloads enthalten nur
-fiktive Übungsdaten. Eine fotorealistische Landkarte zeigt den Lernweg vom
+**Unterrichtsablauf:** Alle 21 Einheiten enthalten Informationen, ausfüllbare
+Aufgaben, Browserübungen und anschließend einen eigenen Praxisauftrag in
+MySQL Workbench. SQL und ER-/EER-Modelle werden bereits in L1.1 und L1.2
+praktisch eingesetzt. Ergänzende SQL-Downloads enthalten nur fiktive
+Übungsdaten. Eine neue fotorealistische Alpenkarte zeigt den Lernweg vom
 Dorf zur Stadt; Markierungen, Notizen und Zeichnungen begleiten die Einheiten.
 Der Lernstand lässt sich über das Diskettensymbol als JSON sichern und laden.
 Ein Aufruf von `127.0.0.1` funktioniert nur auf dem jeweiligen Rechner. Vor
 dem Einsatz an Schüler-PCs ist ein Test mit dem Informatik-Stick nötig. Die
-Schüleroberfläche zeigt im SQL-Labor keine Musterlösung an.
+Schüleroberfläche zeigt im SQL-Labor keine Musterlösung an. Alle zwölf
+SQL-Downloads wurden in einer isolierten MariaDB-10.4.13-Instanz geprüft.
+Die Bedienung der Workbench-Versionen auf den Schul-PCs ist damit noch nicht
+nativ geprüft. [Prüfumfang und Release-Nachweise](documentation/RELEASE_0_22_0.md).
 
 ![WorkbenchLab Übersicht mit neuer Bildsprache](documentation/screenshots/workbenchlab-visuals-desktop.png)
 
@@ -61,7 +66,7 @@ Die vollständigen lokalen Unterrichtsmaterialien liegen unter:
 Diese Originalmaterialien dienen als fachliche Referenz und werden durch
 `.gitignore` nicht in ein öffentliches Repository übernommen.
 
-## Neuer lokaler Lernpfad in Version 0.7.0-local
+## Historischer Ausbau in Version 0.7.0-local
 
 - fünf Lernfortschritte entsprechend dem lokalen Kompetenzraster
 - 21 Lerneinheiten mit durchgehendem Ablauf **Informieren, Planen, in
@@ -85,15 +90,15 @@ Diese Originalmaterialien dienen als fachliche Referenz und werden durch
   SHA-256-Integritätsprüfung
 - kompatible Übernahme bisheriger lokaler Lernstände aus Version 0.5.0
 
-Dieser Stand ist bewusst noch nicht auf GitHub veröffentlicht. Die bestehende
-Live-Seite zeigt weiterhin Version 0.5.0, bis der neue Unterrichtsablauf lokal
-geprüft und ausdrücklich freigegeben wurde.
+Diese Liste dokumentiert den damaligen lokalen Ausbau. Der Lernpfad ist
+inzwischen Teil der veröffentlichten Anwendung und wurde bis Version 0.22.0
+um durchgängige praktische Workbench-Phasen erweitert.
 
 ![Lokaler Lernpfad 0.6.0 mit fünf Lernfortschritten](documentation/screenshots/learning-path-0.6-desktop.png)
 
 ![Lokale mobile Lektionsansicht mit Workbench-Auftrag](documentation/screenshots/lesson-workflow-0.6-mobile.png)
 
-## Funktionsumfang des veröffentlichten Stands 0.5.0
+## Historischer Funktionsumfang in Version 0.5.0
 
 - 19 Lektionen in sechs Modulen entlang der BPE6-Kompetenzspur
 - 22 prüfbare Übungen mit XP
