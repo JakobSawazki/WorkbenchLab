@@ -6,7 +6,7 @@
     return;
   }
 
-  content.version = "0.22.2";
+  content.version = "0.22.3";
   content.updated = "2026-10-03";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
@@ -2237,6 +2237,7 @@
   content.lessons.forEach((lesson) => {
     if (lesson.classroomTask && taskStepTitles[lesson.courseCode]) {
       lesson.classroomTask.stepTitles = taskStepTitles[lesson.courseCode];
+      lesson.classroomTask.startupGuide = ["L1.1", "L1.2", "L1.3", "L1.4"].includes(lesson.courseCode);
     }
   });
 

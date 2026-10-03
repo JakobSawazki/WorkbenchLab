@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.22.2
+**Aktueller Release:** 0.22.3
 
 **Veröffentlichung:** GitHub Pages, ausgelöst durch Push auf `main`.
 
@@ -47,6 +47,10 @@ Aufgabenblätter in aufklappbare Abschnitte mit höchstens fünf Fragen gegliede
 Nur der erste Abschnitt ist anfangs geöffnet. Alle 164 Antwortfelder bleiben
 erhalten, einschließlich Speicherung und JSON-Sicherung. Zusatzaufgaben sind
 gesondert gekennzeichnet.
+
+**Direkter Workbench-Einstieg:** Die Praxisaufträge L1.1 bis L1.4 verlinken die
+animierte Startanleitung. Die Rückkehr erhält die geöffneten Arbeitsschritte
+und die Scrollposition. Das Video startet weiterhin nur auf Wunsch.
 
 ![WorkbenchLab Übersicht mit neuer Bildsprache](documentation/screenshots/workbenchlab-visuals-desktop.png)
 

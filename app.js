@@ -94,6 +94,8 @@
   let renderedRoute = null;
   let notesReturn = null;
   let pendingNotesReturn = null;
+  let startupReturn = null;
+  let pendingStartupReturn = null;
   let notebookTab = "text";
   const compactNav = window.matchMedia("(max-width: 1080px)");
 
@@ -1541,7 +1543,7 @@
             <h3>${escapeHtml(task.title)}</h3>
             <p>${escapeHtml(task.intro)}</p>
           </div>
-          <i data-lucide="monitor-cog" aria-hidden="true"></i>
+          ${task.startupGuide ? '<button class="icon-button" type="button" data-route="reference/workbench-start" title="Workbench-Startanleitung öffnen" aria-label="Workbench-Startanleitung öffnen"><i data-lucide="monitor-play" aria-hidden="true"></i></button>' : '<i data-lucide="monitor-cog" aria-hidden="true"></i>'}
         </div>
         <ol class="classroom-task-steps">
           ${(task.steps || []).map((step, index) => task.stepTitles?.[index] ? `
@@ -2245,7 +2247,8 @@
           <p>In der Schule arbeiten wir mit MySQL Workbench 6.3.10. Zu Hause kann der Informatikstick eine andere Workbench-Version anbieten; die Schritte bleiben grundsätzlich gleich.</p>
         </div>
       </div>
-      <section class="workbench-start-film" aria-labelledby="workbench-start-film-title">
+      <section class="workbench-start-film" id="workbench-start" tabindex="-1" aria-labelledby="workbench-start-film-title">
+        ${startupReturn ? '<button class="button button-secondary" type="button" data-startup-return><i data-lucide="arrow-left" aria-hidden="true"></i>Zurück zum Praxisauftrag</button>' : ''}
         <h3 id="workbench-start-film-title">Workbench starten und verbinden</h3>
         <video controls playsinline preload="none" poster="assets/tutorials/workbench-start-poster.png" aria-label="Animierte Startanleitung für Informatik-Stick und MySQL Workbench">
           <source src="assets/tutorials/workbench-start.mp4" type="video/mp4">
@@ -3058,6 +3061,10 @@
     if (route.name === "notes" && renderedRoute && renderedRoute.name !== "notes") {
       notesReturn = { route: `${renderedRoute.name}${renderedRoute.id ? `/${renderedRoute.id}` : ""}`, top: window.scrollY };
     }
+    if (route.name !== "reference" || route.id !== "workbench-start") {
+      if (startupReturn?.route === `${route.name}/${route.id}`) pendingStartupReturn = startupReturn;
+      startupReturn = null;
+    }
     renderedRoute = route;
     if (route.name === "home") {
       renderHome();
@@ -3087,6 +3094,17 @@
     }
     updateChrome();
     renderIcons();
+    if (pendingStartupReturn) {
+      const destination = pendingStartupReturn;
+      pendingStartupReturn = null;
+      if (`${route.name}/${route.id}` === destination.route) {
+        document.querySelectorAll(".task-step").forEach((step, index) => { step.open = Boolean(destination.steps[index]); });
+        window.requestAnimationFrame(() => {
+          window.scrollTo({ top: destination.top, behavior: "instant" });
+          document.querySelector('[data-route="reference/workbench-start"]')?.focus({ preventScroll: true });
+        });
+      }
+    }
     if (!profileDialog.open) {
       main.focus({ preventScroll: true });
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -3114,6 +3132,13 @@
     if (route.name === "reference" && content.tutorials.some((item) => item.id === route.id)) {
       window.requestAnimationFrame(() => {
         const target = document.getElementById(`tutorial-${route.id}`);
+        target?.scrollIntoView({ block: "start" });
+        target?.focus({ preventScroll: true });
+      });
+    }
+    if (route.name === "reference" && route.id === "workbench-start") {
+      window.requestAnimationFrame(() => {
+        const target = document.getElementById("workbench-start");
         target?.scrollIntoView({ block: "start" });
         target?.focus({ preventScroll: true });
       });
@@ -3203,6 +3228,17 @@
       }
     }
     const routeButton = event.target.closest("[data-route]");
+    if (routeButton?.dataset.route === "reference/workbench-start" && parseRoute().name === "lesson") {
+      startupReturn = {
+        route: `lesson/${parseRoute().id}`,
+        top: window.scrollY,
+        steps: Array.from(document.querySelectorAll(".task-step"), (step) => step.open)
+      };
+    }
+    if (event.target.closest("[data-startup-return]") && startupReturn) {
+      pendingStartupReturn = startupReturn;
+      go(startupReturn.route);
+    }
     const lessonButton = event.target.closest("[data-lesson]");
     const practiceButton = event.target.closest("[data-practice]");
     const commandButton = event.target.closest("[data-command]");

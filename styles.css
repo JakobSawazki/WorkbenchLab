@@ -2794,6 +2794,7 @@ main {
 
 .workbench-start-film {
   margin-block: 0 2rem;
+  scroll-margin-top: calc(var(--topbar-height, 82px) + 1rem);
 }
 
 .workbench-start-film h3 {
