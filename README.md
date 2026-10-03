@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.22.0
+**Aktueller Release:** 0.22.1
 
 **Veröffentlichung:** GitHub Pages, ausgelöst durch Push auf `main`.
 
@@ -36,6 +36,11 @@ Schüleroberfläche zeigt im SQL-Labor keine Musterlösung an. Alle zwölf
 SQL-Downloads wurden in einer isolierten MariaDB-10.4.13-Instanz geprüft.
 Die Bedienung der Workbench-Versionen auf den Schul-PCs ist damit noch nicht
 nativ geprüft. [Prüfumfang und Release-Nachweise](documentation/RELEASE_0_22_0.md).
+
+**Übersichtliche Praxisaufträge:** Seit 0.22.1 zeigen alle Arbeitsschritte eine
+kurze Überschrift und eine aufklappbare vollständige Anleitung. Der erste
+Schritt ist geöffnet. Details können unabhängig geöffnet und geschlossen
+werden; Aufgaben und Sicherheitsregeln bleiben erhalten.
 
 ![WorkbenchLab Übersicht mit neuer Bildsprache](documentation/screenshots/workbenchlab-visuals-desktop.png)
 

@@ -31,6 +31,22 @@ const output = path.resolve(__dirname, "..", ".tmp", "curriculum-audit");
       await page.locator(`#mainContent [data-lesson="${lesson.id}"]`).first().click();
       await page.locator("#praxisauftrag").waitFor();
       assert.match(await page.locator("#praxisauftrag").innerText(), /Workbench/i);
+      const steps = page.locator(".task-step");
+      assert.equal(await steps.count(), lesson.classroomTask.steps.length, lesson.courseCode);
+      assert.equal(await page.locator(".task-step[open]").count(), 1, lesson.courseCode);
+      for (let index = 0; index < lesson.classroomTask.steps.length; index++) {
+        const step = steps.nth(index);
+        assert.equal(await step.locator("summary > span:nth-child(2)").innerText(), lesson.classroomTask.stepTitles[index]);
+        if (index !== 0) await step.locator("summary").click();
+        assert.equal(await step.locator("p").innerText(), lesson.classroomTask.steps[index].replace(/`([^`]+)`/g, "$1"));
+        await step.locator("summary").click();
+      }
+      const firstSummary = steps.first().locator("summary");
+      await firstSummary.focus();
+      await page.keyboard.press("Enter");
+      assert.ok(await steps.first().getAttribute("open") !== null);
+      await page.keyboard.press("Space");
+      assert.equal(await steps.first().getAttribute("open"), null);
       if (lesson.classroomTask.download) {
         const response = await page.request.get(new URL(lesson.classroomTask.download.href, base).href);
         assert.equal(response.status(), 200, lesson.courseCode);
@@ -44,11 +60,15 @@ const output = path.resolve(__dirname, "..", ".tmp", "curriculum-audit");
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${lesson.courseCode}/${theme}/${width}`);
         assert.ok(await page.locator("#praxisauftrag").isVisible());
         await page.screenshot({ path: path.join(output, `${lesson.courseCode}-${theme}-${width}.png`) });
+        await steps.evaluateAll((elements) => elements.forEach((element) => { element.open = true; }));
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${lesson.courseCode}/expanded/${theme}/${width}`);
+        await page.screenshot({ path: path.join(output, `${lesson.courseCode}-${theme}-${width}-expanded.png`) });
+        await steps.evaluateAll((elements) => elements.forEach((element) => { element.open = false; }));
       }
-      report.push({ code: lesson.courseCode, exerciseReturn: true, download: lesson.classroomTask.download?.href || null, views: 4 });
+      report.push({ code: lesson.courseCode, exerciseReturn: true, fullStepText: true, keyboard: true, download: lesson.classroomTask.download?.href || null, views: 8 });
     }
     assert.deepEqual(errors, []);
     fs.writeFileSync(path.join(output, "result.json"), JSON.stringify(report, null, 2));
-    console.log("PASS: 21 real lesson/exercise return paths, all SQL links, 84 desktop/mobile dark/light views, no horizontal overflow or JavaScript errors.");
+    console.log("PASS: 21 lesson/exercise return paths, all SQL links, complete step text and keyboard toggles, 168 compact/expanded desktop/mobile dark/light views, no overflow or JavaScript errors.");
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

@@ -6,7 +6,7 @@
     return;
   }
 
-  content.version = "0.22.0";
+  content.version = "0.22.1";
   content.updated = "2026-10-03";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
@@ -366,7 +366,7 @@
           "Öffne das Play-Symbol `Start`, doppelklicke `MySQL starten` und warte auf `ready for connections`. Lasse das Konsolenfenster geöffnet.",
           "Starte in der Schule MySQL Workbench 6.3.10. Öffne oder teste die lokale Verbindung und führe `SELECT VERSION();` aus.",
           "Öffne L1_2_entwurf.mwb aus L1.2 und prüfe Schema fahrschule und das EER-Diagramm. Fehlt die Datei, erstelle das Modell mit Add Diagram neu.",
-          "Füge eine Tabelle `fahrschueler` ein; übernimm Attribute, Datentypen, PK und passende NN-Markierungen aus L1.2.",
+          "Prüfe die vorhandene Tabelle fahrschueler aus L1.2 und ergänze nur fehlende Attribute. Lege die Tabelle nur an, wenn sie im Modell fehlt. Vergleiche alle elf Attribute, Datentypen, PK und fachlich passende NN-Markierungen mit deinem Relationenschema; keine zweite fahrschueler-Tabelle anlegen.",
           "Speichere als `L1_2 Lösung fahrschule.mwb`, öffne die Datei erneut und überprüfe Schema, Tabelle und Schlüssel mit der Lehrkraft."
         ],
         evidence: "Gespeicherte und erneut geöffnete `.mwb`-Modelldatei plus ausgefülltes digitales Prüfblatt",
@@ -2171,6 +2171,35 @@
         lesson.module = module.id;
       }
     });
+  });
+
+  const taskStepTitles = {
+    "L1.1": ["Fachbegriffe vergleichen", "Tabellenentwurf prüfen", "Primärschlüssel begründen", "MySQL starten und Fenster offen lassen", "Lokale Verbindung einrichten", "Zielschema prüfen, Skript einmal ausführen", "Ergebnis lesen und nur SELECT wiederholen", "SQL-Datei speichern und erneut öffnen"],
+    "L1.2": ["Fachliches ER-Diagramm zeichnen", "Entität und Entitätstyp unterscheiden", "Relationenschema festlegen", "Neues Workbench-Modell anlegen", "Elf Attribute und Schlüssel eintragen", "Modell speichern und vergleichen"],
+    "L1.3": ["MySQL starten und Fenster offen lassen", "Workbench-Verbindung testen", "Entwurf aus L1.2 öffnen", "Vorhandene Tabelle prüfen, nicht doppelt anlegen", "Modell speichern und erneut prüfen"],
+    "L1.4": ["MySQL starten und verbinden", "SQL-Vorschau prüfen, dann Schema erzeugen", "Tabelle und Primärschlüssel kontrollieren", "Testdaten genau einmal importieren", "Zeilen und Anzahl mit SELECT prüfen"],
+    "L1.5": ["Schülerliste nach Nachname sortieren", "Ort ergänzen und absteigend sortieren", "Gleiche Nachnamen nach Vorname ordnen", "Drei Ergebnisse vergleichen und speichern"],
+    "L1.6": ["Ort und Nachname filtern", "Zahlen und Geburtsdaten vergleichen", "LIKE, AND und BETWEEN einsetzen", "Ausschlüsse mit OR und NOT formulieren"],
+    "L1.7": ["Ort-PLZ-Paare ohne Wiederholung", "Vornamen ohne Wiederholung", "Nachnamen ohne Wiederholung", "Fahrstunden vergleichen und DISTINCT erklären"],
+    "L1.8": ["Bestand prüfen, Testfälle einmal ergänzen", "Sechs Funktionsaufträge lösen", "Acht Gruppenaufträge lösen", "Grenzgruppen von Hand kontrollieren"],
+    "L1.9": ["Drei Datumsaufträge bearbeiten", "Zielschema und Fahrradattribute prüfen", "Acht Transferaufträge lösen und nachrechnen", "Bezugsdatum dokumentieren; D4 als Zusatz"],
+    "L1.10": ["Anfangsbestand einmal anlegen und prüfen", "Personen erfassen, ändern und löschen", "Fahrradaufträge in Reihenfolge ausführen", "Schutzregeln erklären und Browserübungen prüfen"],
+    "L2.1": ["Wiederholte Ortsdaten erkennen", "Änderungsproblem beschreiben", "Fachliches ER-Diagramm zeichnen", "Zwei Relationen mit PK und geplantem FK", "L1-Modell als neue L2.1-Datei kopieren", "Ortstabelle anlegen, L1-Attribute erhalten", "Entwurf speichern; Server noch nicht ändern"],
+    "L2.2": ["L2.1-Entwurf als neue Datei weiterführen", "Tabellen und genau eine Ortsnummer prüfen", "1:N-Beziehung und FK-Zuordnung einrichten", "Datei erneut öffnen und Modell zeigen", "Nach Freigabe übertragen und JOIN prüfen"],
+    "L2.3": ["Schema und Fremdschlüssel prüfen", "Blockierte Änderungen untersuchen", "Ort, Lehrkraft und Schüler geordnet erfassen", "Nur die neu angelegten Personen entfernen"],
+    "L2.4": ["Schema und Verbindungspfade prüfen", "T1–T5: zwei Tabellen verbinden", "M1–M15: weitere Tabellen auswerten", "Zusatzaufgaben nach Absprache bearbeiten"],
+    "L3.1": ["M:N in zwei 1:N-Beziehungen auflösen", "Schlüssel für wiederholte Vorgänge begründen", "Attribute und Geschäftsregeln zuordnen", "Beide Modelle speichern und erneut öffnen"],
+    "L3.2": ["Beide Ausgangsbestände kontrollieren", "Zwei EER-Diagramme aus den Daten erzeugen", "F1–F10: Fahrschule auswerten und speichern", "R1–R16: Vermietung auswerten und prüfen"],
+    "L3.3": ["Schlüssel und Abhängigkeiten bestimmen", "Zwei eigene EER-Modelle erstellen", "CREATE-Skripte prüfen, neue Schemas nutzen", "Alle Ausgangsdaten per JOIN rekonstruieren"],
+    "L4.1": ["Listen in atomare Zeilen überführen", "Sechs Modelle für 1NF, 2NF und 3NF", "Neue Zielschemata prüfen und befüllen", "Zuordnungen, Fremdschlüssel und Paare prüfen", "Nachweise speichern und Stufen erklären"],
+    "L5.1": ["Fiktiven L5-Bestand genau einmal anlegen", "Aktivitäten zählen und JOIN-Fallen prüfen", "EER-Modell und Datenfluss zeichnen", "SQL sichern und drei Schutzregeln begründen"],
+    "L5.2": ["Ereignisse zählen und nach Minuten gruppieren", "Fehlende Werte und Mietdauer 0 prüfen", "3V, Nutzen, Risiken und Grenzen einordnen", "SQL-Datei und Ergebnisse speichern"],
+    "L5.3": ["Vorhandenen L5-Bestand nutzen und auswerten", "Kleine Gruppen und Aussagegrenzen prüfen", "Zwei SQL-Befunde für das Urteil sichern", "Gegenargument und Bedingungen formulieren"]
+  };
+  content.lessons.forEach((lesson) => {
+    if (lesson.classroomTask && taskStepTitles[lesson.courseCode]) {
+      lesson.classroomTask.stepTitles = taskStepTitles[lesson.courseCode];
+    }
   });
 
   const extraPractices = [

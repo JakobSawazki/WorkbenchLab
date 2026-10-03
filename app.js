@@ -1544,7 +1544,11 @@
           <i data-lucide="monitor-cog" aria-hidden="true"></i>
         </div>
         <ol class="classroom-task-steps">
-          ${(task.steps || []).map((step, index) => `<li><span>${index + 1}</span><p>${inlineCode(step)}</p></li>`).join("")}
+          ${(task.steps || []).map((step, index) => task.stepTitles?.[index] ? `
+            <li class="task-step-item"><details class="task-step" ${index === 0 ? "open" : ""}>
+              <summary><span class="task-step-number">${index + 1}</span><span>${escapeHtml(task.stepTitles[index])}</span><i data-lucide="chevron-down" aria-hidden="true"></i></summary>
+              <p>${inlineCode(step)}</p>
+            </details></li>` : `<li><span>${index + 1}</span><p>${inlineCode(step)}</p></li>`).join("")}
         </ol>
         <dl class="task-deliverable">
           <div><dt>Lernprodukt</dt><dd>${escapeHtml(task.evidence)}</dd></div>

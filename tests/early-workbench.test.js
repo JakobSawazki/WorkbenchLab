@@ -27,6 +27,8 @@ test("L1.1 and L1.2 provide real SQL and EER work before L1.3", () => {
   assert.match(second.classroomTask.steps.join(" "), /New Model.*Add Diagram/);
   assert.match(second.classroomTask.steps.join(" "), /elf Attribute.*PK und NN/);
   assert.match(lesson("L1.3").classroomTask.steps.join(" "), /L1_2_entwurf\.mwb/);
+  assert.match(lesson("L1.3").classroomTask.steps[3], /vorhandene Tabelle.*nur fehlende Attribute/);
+  assert.match(lesson("L1.3").classroomTask.steps[3], /keine zweite fahrschueler-Tabelle/);
 });
 
 test("SQL introduction preserves its two records and rejects duplicate primary keys", async () => {
@@ -83,6 +85,8 @@ test("every learning unit contains its own real Workbench task and evidence", ()
     assert.ok(exercises.some((practice) => practice.id === item.practiceId), item.courseCode);
     assert.match(item.classroomTask?.tool || "", /Workbench/, item.courseCode);
     assert.ok(item.classroomTask.steps.length >= 3, item.courseCode);
+    assert.equal(item.classroomTask.stepTitles.length, item.classroomTask.steps.length, item.courseCode);
+    for (const title of item.classroomTask.stepTitles) assert.ok(title.length >= 10 && title.length <= 70, `${item.courseCode}: ${title}`);
     assert.ok(item.classroomTask.evidence.length > 30, item.courseCode);
     assert.ok(item.webWorksheet?.definitionTerms.length >= 4, item.courseCode);
     assert.ok(item.quiz && item.completionChecks.length >= 3, item.courseCode);
