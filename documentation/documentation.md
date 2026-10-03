@@ -1,6 +1,6 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 1. Oktober 2026, 23:34 Uhr (Europe/Berlin)
+Stand: 3. Oktober 2026 (Europe/Berlin)
 
 Aktueller Release-Stand: **0.21.0**
 
@@ -9,6 +9,9 @@ Veröffentlichter Stand: **0.21.0**, Deployment und öffentliche Seite geprüft.
 Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 
 Live-Seite: `https://jakobsawazki.github.io/WorkbenchLab/`
+
+Abschlussprüfung der bisherigen konkreten Änderungswünsche:
+[Abnahme vom 3. Oktober 2026](ABNAHME_2026-10-03.md).
 
 ## 1. Projektziel
 
@@ -36,7 +39,7 @@ eigenständig und webgerecht aufbereitet.
   Einheit; der nächste Lernfortschritt folgt erst nach dem vorherigen
 - zweistufiges Lernpfad-Menü in der Seitenleiste für Desktop und Tastatur
 - anklickbarer Breadcrumb nach dem Muster `Lernfortschritt 1 > L1.1`
-- Profilbearbeitung über das anklickbare Avatar-Icon
+- Profilbearbeitung über das gesamte anklickbare Profilfeld mit Hover-Rahmen
 - Entwicklerschalter ausschließlich im geöffneten Profilfenster mit `AltGr + S`
   ein- und ausblendbar; der Schalter öffnet oder sperrt alle Einheiten nur
   für die aktuelle Browsersitzung und vergibt keine XP
@@ -52,7 +55,8 @@ eigenständig und webgerecht aufbereitet.
   Sprunglinks aus den passenden L1-/L2-Einheiten
 - ausblendbare Navigation; Lernfortschritte und Arbeitsreihenfolge anfangs
   zugeklappt; farbliche Unterscheidung der Arbeitsbereiche
-- lokal gespeicherte Textmarker in Gelb, Mint und Koralle, mit Radierer
+- lokal gespeicherte, fett dargestellte Textmarker in Gelb, Mint, Koralle
+  und Grün, mit Radierer
 - eingebettetes Lernheft unter „Meine Notizen“ mit allgemeinen Notizen und
   den bereits bestehenden Lektionszusammenfassungen
 - persönliche Zeichnungen je Notiz mit Stift, Radierer, Farben, Strichstärke,
@@ -1047,20 +1051,24 @@ auf Erreichbarkeit geprüft.
 - [x] SQL-Labor und eERM-Übungen integriert
 - [x] Dark Mode als Standard
 - [x] Profil mit Kürzel und Klasse
-- [x] nachvollziehbares JSON-Format 3
+- [x] nachvollziehbares JSON-Format 6 mit Import älterer Formate
 - [x] sequenzielle Freischaltung und Entwicklermodus
 - [x] Lernpfad-Schnellmenü und Breadcrumbs
 - [x] L1.1 inhaltlich und interaktiv vollständig integriert
-- [x] L1.2 bis L1.6 quellennah für den Unterrichtsstart vertieft
+- [x] L1.2 bis L3.1 quellennah für den Unterricht vertieft
 - [x] Inhaltstests für L1.1 bis L1.10 ergänzt
 - [x] L2.1 und L2.2 samt interaktivem 1:N-Diagramm und fiktiven
   Zwei-Tabellen-Testdaten ergänzt
 - [x] sichtbaren Musterlösungs-Reiter aus der Schüleransicht entfernt
 - [x] automatische Notiz- und Arbeitsblattspeicherung
 - [x] Desktop- und Mobilprüfung des Stands 0.7.0-local
-- [x] keine Veröffentlichung des lokalen Stands vorgenommen
+- [x] beauftragte Veröffentlichung von 0.21.0 auf GitHub Pages geprüft
 
-## 9. Offene Aufgaben, priorisiert
+## 9. Offene Vor-Ort-Prüfungen und weitere Ausbauideen
+
+Die folgenden Punkte sind nicht Teil der erledigten konkreten Design- und
+Bedienungswünsche. Vor-Ort-Prüfungen bleiben unbestätigt; weitere Ausbauten
+bleiben offen und werden durch die Abschlussprüfung nicht als fertig erklärt.
 
 1. Den vollständigen Ablauf an einem Schul-PC mit Informatik-Stick,
    `MySQL starten`, Workbench 6.3.10 und den dortigen Connection-Daten
