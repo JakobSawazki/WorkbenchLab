@@ -3,15 +3,16 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
 const root = path.resolve(__dirname, "..");
-const url = "http://127.0.0.1:4174";
+const url = (process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174").replace(/\/$/, "");
 const qa = path.join(root, ".tmp/workbench-start-video");
 (async () => {
+  fs.mkdirSync(qa, { recursive: true });
   const browser = await chromium.launch({ channel: "msedge", headless: true });
   try {
     const page = await browser.newPage();
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    await page.goto(`${url}/?v=0.22.0-local#reference`);
+    await page.goto(`${url}/#reference`);
     await page.waitForTimeout(500);
     if (await page.locator("#profileDialog").evaluate((dialog) => dialog.open)) {
       await page.locator("#profileName").fill("TES.TIA");
@@ -61,8 +62,15 @@ const qa = path.join(root, ".tmp/workbench-start-video");
         samples.push({ time, actual: element.currentTime, brightness, hash });
       }
       element.currentTime = 35;
+      const captionTrack = element.querySelector("track");
+      const captionsReady = new Promise((resolve, reject) => {
+        if (captionTrack.readyState === 2) return resolve();
+        const timeout = setTimeout(() => reject(new Error("Caption loading timed out")), 20000);
+        captionTrack.addEventListener("load", () => { clearTimeout(timeout); resolve(); }, { once: true });
+        captionTrack.addEventListener("error", () => { clearTimeout(timeout); reject(new Error("Caption loading failed")); }, { once: true });
+      });
       element.textTracks[0].mode = "hidden";
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await captionsReady;
       return { width: element.videoWidth, height: element.videoHeight, duration: element.duration,
         samples, captions: element.textTracks[0].cues?.length || 0, error: element.error?.code || 0 };
     });

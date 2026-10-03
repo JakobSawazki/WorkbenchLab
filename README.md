@@ -2,6 +2,8 @@
 
 **Aktueller Release:** 0.22.3
 
+**Abnahme:** [Aktueller Funktions- und Pruefnachweis](documentation/ABNAHME_0_22_3.md).
+
 **Veröffentlichung:** GitHub Pages, ausgelöst durch Push auf `main`.
 
 **Dokumentationsstand:** 3. Oktober 2026
