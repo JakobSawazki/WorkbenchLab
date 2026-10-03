@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const net = require("node:net");
+const vm = require("node:vm");
 const { spawn, spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, "..");
 const base = process.env.WORKBENCH_MARIADB_HOME || "C:/Informatik-Stick/Programme/Xampp_7.4.7/mysql";
@@ -60,7 +61,27 @@ async function portAvailable() {
     const invalid = spawnSync(bin("mysql"), [...connection, "--batch"], { input: "UPDATE workbenchlab_l2_3.fahrschueler SET ortnr=999 WHERE schuelernr=1;", encoding: "utf8", windowsHide: true });
     assert.notEqual(invalid.status, 0);
     assert.match(invalid.stderr, /1452/);
-    fs.writeFileSync(path.join(output, "result.json"), JSON.stringify({ version, port, files, passed: true, scope: "SQL imports and representative native checks; no Workbench GUI verification" }, null, 2));
+    const context = vm.createContext({ window: {} });
+    for (const file of ["content.js", "learning-path.js", "practical-exercises.js"]) vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context);
+    const content = context.window.WORKBENCH_CONTENT;
+    for (const id of ["sql-create-course", "sql-students-without-hours", "sql-repeat-rentals"]) {
+      const exercise = content.practices.find((item) => item.id === id);
+      const database = id.replaceAll("-", "_");
+      const seed = content.schemas[exercise.schema].seed.replace("PRAGMA foreign_keys = ON;", "");
+      query(`CREATE DATABASE ${database}; USE ${database}; ${seed}`);
+      const result = query(`USE ${database}; ${exercise.solution}`);
+      if (id === "sql-create-course") {
+        assert.equal(query(`SELECT COLUMN_NAME,DATA_TYPE,IS_NULLABLE,COLUMN_KEY FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='${database}' AND TABLE_NAME='kurse' ORDER BY ORDINAL_POSITION;`), "kursnr\tint\tNO\tPRI\ntitel\tvarchar\tNO\t\nstartdatum\tdate\tNO");
+        assert.equal(query(`SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='${database}' AND TABLE_NAME='kurse' AND COLUMN_NAME='titel';`), "60");
+      } else if (id === "sql-students-without-hours") {
+        assert.equal(result.split("\n").length, 11);
+        assert.ok(result.endsWith("11\tMuster\t0"));
+      } else {
+        assert.equal(result, "1\tKaya\t2\n2\tLorenz\t2");
+      }
+      console.log(`PASS native practice: ${id}`);
+    }
+    fs.writeFileSync(path.join(output, "result.json"), JSON.stringify({ version, port, files, practiceIds: ["sql-create-course", "sql-students-without-hours", "sql-repeat-rentals"], passed: true, scope: "SQL imports, three new practical exercises and representative native checks; no Workbench GUI verification" }, null, 2));
     console.log(`PASS: ${version}; isolated data directory; ${files.length} imports; native DATE_FORMAT, JOIN and FK enforcement.`);
   } finally {
     if (!exited) {

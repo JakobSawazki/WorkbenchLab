@@ -1,8 +1,13 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.22.3
+**Aktueller Release:** 0.23.0
 
-**Abnahme:** [Aktueller Funktions- und Pruefnachweis](documentation/ABNAHME_0_22_3.md).
+**Grundfunktionen:** [Abnahme des bisherigen Stands](documentation/ABNAHME_0_22_3.md).
+
+**Neue praktische Übungen:** [Release 0.23.0](documentation/RELEASE_0_23_0.md)
+ergänzt drei SQL-Aufgaben und zwei Diagrammaufgaben. Eigene SQL-Entwürfe können
+direkt als Datei für Workbench heruntergeladen werden. INSERT, UPDATE und
+DELETE prüfen zusätzlich, dass unbeteiligte Datensätze erhalten bleiben.
 
 **Veröffentlichung:** GitHub Pages, ausgelöst durch Push auf `main`.
 

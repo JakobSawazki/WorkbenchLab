@@ -1947,6 +1947,7 @@
                 <i data-lucide="rotate-ccw"></i>
                 Zurücksetzen
               </button>
+              <button class="icon-button" type="button" id="downloadSqlButton" title="SQL-Datei herunterladen" aria-label="SQL-Datei herunterladen"><i data-lucide="download" aria-hidden="true"></i></button>
             </div>
             <div class="runner-tabs">
               <button class="runner-tab is-active" type="button" data-runner-tab="result">Ergebnis</button>
@@ -2700,7 +2701,13 @@
         expected = tableFromResult(expectedDb.exec(practice.check.expectedSql));
         passed = passed && sameTable(table, expected, practice.check.orderSensitive);
       } else {
-        expected = practice.check.expected;
+        if (practice.check.referenceSql) {
+          expectedDb = await createDatabase(practice.schema);
+          expectedDb.run(practice.check.referenceSql);
+          expected = tableFromResult(expectedDb.exec(practice.check.verifySql));
+        } else {
+          expected = practice.check.expected;
+        }
         passed = passed && sameTable(table, expected, true);
       }
 
@@ -3388,6 +3395,15 @@
         saveState();
         setSqlOutput(`<div class="console-output">Die Aufgabe wurde zurückgesetzt.</div>`);
         document.querySelector("#practiceResult").className = "result-banner";
+      }
+    }
+    if (event.target.closest("#downloadSqlButton")) {
+      const practice = practiceById(parseRoute().id);
+      const editor = document.querySelector("#sqlEditor");
+      if (practice?.type === "sql" && editor?.value.trim()) {
+        downloadBlob(new Blob([editor.value], { type: "text/plain;charset=utf-8" }), `workbenchlab-${safeFilePart(practice.id)}.sql`);
+      } else {
+        toast("Schreibe zuerst einen SQL-Entwurf.", "error");
       }
     }
   });

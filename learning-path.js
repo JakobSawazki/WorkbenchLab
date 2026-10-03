@@ -6,7 +6,7 @@
     return;
   }
 
-  content.version = "0.22.3";
+  content.version = "0.23.0";
   content.updated = "2026-10-03";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
@@ -2358,6 +2358,10 @@
   ];
 
   extraPractices.forEach((practice) => {
+    if (["sql-update-hours", "sql-delete-student"].includes(practice.id)) {
+      practice.check.verifySql = "SELECT * FROM fahrschueler ORDER BY schuelernr;";
+      practice.check.referenceSql = practice.solution;
+    }
     if (!content.practices.some((item) => item.id === practice.id)) {
       content.practices.push(practice);
     }
