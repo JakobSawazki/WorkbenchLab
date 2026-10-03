@@ -13,6 +13,13 @@ Live-Seite: `https://jakobsawazki.github.io/WorkbenchLab/`
 Abschlussprüfung der bisherigen konkreten Änderungswünsche:
 [Abnahme vom 3. Oktober 2026](ABNAHME_2026-10-03.md).
 
+Auf erneuten ausdrücklichen Auftrag werden nun auch die sieben eigenständigen
+Lehrbuch-Manuskriptdateien und vier ergänzenden Projekttexte veröffentlicht.
+Das Lehrbuch bleibt ein gekennzeichneter Entwurf; Originalmaterialien und
+lokale Testexporte bleiben ausgeschlossen. Die Abnahme dokumentiert den
+vorherigen Veröffentlichungsstand; dieser Nachtrag erweitert den Dateiumfang,
+nicht die Funktionen der App.
+
 ## 1. Projektziel
 
 WorkbenchLab ist ein öffentliches Lernportal für die

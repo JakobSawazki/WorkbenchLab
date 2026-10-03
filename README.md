@@ -10,6 +10,10 @@
 
 **Repository:** <https://github.com/JakobSawazki/WorkbenchLab>
 
+**Lehrbuch-Manuskript:** [Entwurf und Kapitelplanung](Lehrbuch/README.md).
+Die Markdown-Dateien sind öffentlich; eine integrierte Leseausgabe ist noch
+nicht umgesetzt.
+
 WorkbenchLab ist eine browserbasierte Lernumgebung für Jahrgangsstufe 1 im
 Fach Informatik an nichtgewerblichen beruflichen Gymnasien. Inhaltlicher Kern
 ist BPE6 **Relationale Datenbanken**: eERM, Relationenmodell, SQL,
