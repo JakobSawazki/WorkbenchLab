@@ -35,6 +35,13 @@ test("Import akzeptiert nur passende Textanker, gültige Offsets und erlaubte Fa
   assert.deepEqual(plain(result), { lesson: [valid] });
 });
 
+test("Bildeinstiegs-Anker bleiben erhalten, unbekannte Einstiegs-Anker werden verworfen", () => {
+  const blocks = ["opening-scenario", "opening-question-0", "opening-question-2", "opening-answer-1", "opening-takeaway", "opening-bridge"];
+  const valid = blocks.map(block => ({ ...anchor, block, color: "green" }));
+  const invalid = ["opening-question-3", "opening-answer-999", "opening-image", "opening-script"].map(block => ({ ...anchor, block, color: "green" }));
+  assert.deepEqual(plain(study.normalizeHighlights({ lesson: [...valid, ...invalid] }, new Set(["lesson"]))), { lesson: valid });
+});
+
 test("Speicherbedarf bleibt als Text erhalten; VARCHAR erhält nur Zeichenzahlen", () => {
   assert.equal(study.worksheetLength("INT", "4 Byte"), "4 Byte");
   assert.equal(study.worksheetLength("DATE", "3 Byte"), "3 Byte");

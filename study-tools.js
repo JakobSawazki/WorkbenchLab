@@ -10,7 +10,7 @@
       if (!allowedLessons.has(id) || !Array.isArray(entries)) continue;
       result[id] = entries.slice(0, 400).filter((item) => item
         && typeof item.block === "string"
-        && /^(section-\d+-(heading|paragraph-\d+|rule-\d+|definition-\d+|term-\d+|datatype-\d+-\d+|code|tip|warning)|objective-\d+)$/.test(item.block)
+        && /^(section-\d+-(heading|paragraph-\d+|rule-\d+|definition-\d+|term-\d+|datatype-\d+-\d+|code|tip|warning)|objective-\d+|opening-(scenario|question-[0-2]|answer-[0-2]|takeaway|bridge))$/.test(item.block)
         && Number.isInteger(item.start) && Number.isInteger(item.end)
         && item.start >= 0 && item.end > item.start && item.end <= 20000
         && typeof item.quote === "string" && item.quote.length === item.end - item.start

@@ -1628,7 +1628,7 @@
           ? `<button class="button button-primary" type="button" data-next-lesson data-lesson="${escapeHtml(following.id)}"><i data-lucide="arrow-right"></i>Weiter zu ${escapeHtml(following.courseCode || `Lektion ${following.index}`)}</button>`
           : '<button class="button button-secondary" type="button" data-route="path"><i data-lucide="route"></i>Lernpfad</button>' : ""}
         </div>
-        <p class="completion-note">${state.name ? `Lernprofil ${escapeHtml(state.name)} · lokal auf diesem Browser gespeichert` : "Lege zuerst dein anonymisiertes Lernprofil im Seitenmenü an."}</p>
+        <p class="completion-note">${state.name ? `Lernprofil ${escapeHtml(state.name)} · lokal auf diesem Browser gespeichert` : "Lege zuerst dein anonymisiertes Lernprofil über den Profilbutton oben rechts an."}</p>
       </section>`;
   }
 
@@ -1637,6 +1637,29 @@
     if (!target) return;
     target.focus({ preventScroll: true });
     (target.closest(".quiz-panel") || target.closest("label, form"))?.scrollIntoView({ block: "center" });
+  }
+
+  function renderLessonOpening(lesson) {
+    const opening = lesson.opening;
+    if (!opening) return "";
+    return `<section class="lesson-opening" aria-labelledby="lessonOpeningTitle">
+      <figure>
+        <img src="${escapeHtml(opening.image)}" alt="${escapeHtml(opening.alt)}" width="1600" height="900" decoding="async">
+        <figcaption>KI-generiertes Fallbild · fiktive Szene</figcaption>
+      </figure>
+      <div>
+        <p class="eyebrow">Zum Einstieg</p>
+        <h3 id="lessonOpeningTitle">${escapeHtml(opening.title)}</h3>
+        <p data-highlight-block="opening-scenario">${escapeHtml(opening.scenario)}</p>
+        <ol class="opening-questions">${opening.questions.map((item, index) => `<li data-highlight-block="opening-question-${index}">${escapeHtml(item.question)}</li>`).join("")}</ol>
+      </div>
+      <details class="opening-comparison">
+        <summary>Überlegungen vergleichen</summary>
+        <ol>${opening.questions.map((item, index) => `<li><p data-highlight-block="opening-answer-${index}">${escapeHtml(item.answer)}</p></li>`).join("")}</ol>
+        <p class="opening-takeaway" data-highlight-block="opening-takeaway">${escapeHtml(opening.takeaway)}</p>
+        <p data-highlight-block="opening-bridge">${escapeHtml(opening.bridge)}</p>
+      </details>
+    </section>`;
   }
 
   function renderLesson(id) {
@@ -1693,6 +1716,7 @@
           ${["L1.3", "L2.1", "L2.2"].includes(lesson.courseCode) ? renderModelGlossary(lesson.courseCode === "L1.3") : ""}
           <div class="lesson-reading" data-lesson-reading="${lesson.id}">
           ${renderHighlighter()}
+          ${renderLessonOpening(lesson)}
           <section class="content-section">
             <div>
               <h3>Das kannst du danach</h3>
