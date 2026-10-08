@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.25.1
+**Aktueller Release:** 0.25.2
 
 **Schmalere Profilanzeige:** [Release 0.25.1](documentation/RELEASE_0_25_1.md) reduziert die Mindestbreite des Profilbuttons; Name, Klasse und XP bleiben erhalten.
 
