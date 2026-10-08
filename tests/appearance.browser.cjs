@@ -24,6 +24,7 @@ async function checkWidth(page, selector = "html") {
     await page.goto(`${base}?screenshot=1#home`);
     await page.locator("#runtimeChip.is-ready").waitFor();
     assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
+    assert.equal(await page.locator("html").evaluate(el => el.style.getPropertyValue("--bg")), "#08182f");
     assert.ok(await page.locator(".brand-mark").evaluate((img) => img.complete && img.naturalWidth === 192));
     await checkWidth(page);
     await page.screenshot({ path: path.join(output, "dark-desktop.png"), animations: "disabled" });

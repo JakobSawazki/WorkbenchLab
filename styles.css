@@ -1,8 +1,8 @@
 :root {
   color-scheme: dark;
-  --bg: #0c1622;
-  --panel: #19232e;
-  --panel-strong: #222b36;
+  --bg: #08182f;
+  --panel: #162539;
+  --panel-strong: #1e2d42;
   --text: #f5f7fa;
   --muted: #c4c8ce;
   --line: #344449;
@@ -4482,12 +4482,12 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 #xpLevelProgress::-moz-progress-bar { background: var(--brand-2); }
 #xpNextLevel { margin: 0.8rem 0 0; }
 .drawing-toolbar button:disabled { opacity: 0.45; cursor: default; }
-.topbar-actions .profile-trigger { display: grid; gap: 3px; justify-items: start; min-width: 170px; max-width: min(300px, 100%); min-height: 60px; padding: .45rem .7rem; font-size: .85rem; text-align: left; }
+.topbar-actions .profile-trigger { display: grid; grid-template-rows: repeat(2, minmax(0, 1fr)); align-items: center; gap: 0; justify-items: start; min-width: 170px; max-width: min(300px, 100%); height: 42px; min-height: 42px; padding: 2px .7rem; font-size: .8rem; line-height: 1; text-align: left; }
 .profile-trigger-identity { display: flex; align-items: baseline; gap: .65rem; min-width: 0; max-width: 100%; }
 .profile-trigger-identity strong { white-space: nowrap; }
 .profile-trigger-identity > span { color: var(--muted); font-size: .9em; font-weight: 500; max-width: 14ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .profile-trigger-xp { display: flex; align-items: center; gap: .4rem; color: var(--brand-2); font-size: .9em; font-variant-numeric: tabular-nums; }
-.profile-trigger-xp svg { width: 17px; height: 17px; }
+.profile-trigger-xp svg { width: 15px; height: 15px; }
 .profile-trigger:hover { border-color: var(--brand-2); }
 #profileDialog .dialog-heading { grid-template-columns: 44px minmax(0, 1fr) auto; }
 #profileDialog .profile-fields label { display: flex; align-items: center; min-height: 32px; margin: .7rem 0 .35rem; }
@@ -4499,6 +4499,9 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 .profile-progress { border-top: 1px solid var(--line); margin-top: 1rem; padding-top: .25rem; }
 #profileNameError:empty { display: none; }
 #profileDialog .dialog-actions { justify-content: flex-end; }
+@media (max-width: 640px) {
+  .topbar-actions .profile-trigger { height: 40px; min-height: 40px; }
+}
 @media (max-width: 520px) {
   #profileDialog .dialog-icon { display: none; }
   #profileDialog .dialog-heading { grid-template-columns: minmax(0, 1fr) auto; }

@@ -11,7 +11,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
-    await page.goto(base + "?v=0.24.0#home");
+    await page.goto(base + "?v=0.24.1#home");
     await page.locator("#runtimeChip.is-ready").waitFor();
     const profile = page.locator("#editProfileButton"), dialog = page.locator("#profileDialog");
     assert.equal(await page.locator("#sidebar .profile-summary, #xpButton, #xpDialog").count(), 0);
@@ -21,6 +21,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       if (await page.locator("html").getAttribute("data-theme") !== theme) await page.locator("#themeToggleButton").click();
       const name = await page.locator("#topProfileName").boundingBox(), cls = await page.locator("#topProfileClass").boundingBox(), xp = await page.locator("#topXp").boundingBox();
       assert.ok(cls.x > name.x + name.width && xp.y > name.y);
+      assert.equal((await profile.boundingBox()).height, (await page.locator("#appearanceButton").boundingBox()).height);
       for (const selector of ["#topProfileName", "#topProfileClass", "#topXp"]) {
         await page.locator(selector).click();
         assert.ok(await dialog.isVisible());
@@ -71,6 +72,12 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await page.locator("#appearanceButton").click();
       await page.locator('[data-font-size="20"]').click();
       await page.locator("#appearanceDoneButton").click();
+      const profileBox = await profile.boundingBox();
+      assert.equal(profileBox.height, (await page.locator("#appearanceButton").boundingBox()).height);
+      for (const selector of ["#topProfileName", "#topProfileClass", "#topXp"]) {
+        const box = await page.locator(selector).boundingBox();
+        assert.ok(box.y >= profileBox.y && box.y + box.height <= profileBox.y + profileBox.height);
+      }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
       await page.screenshot({ path: ".tmp/profile-header-" + width + ".png", animations: "disabled" });
       await profile.click();
@@ -85,7 +92,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
     assert.deepEqual(errors, []);
     const fresh = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     const firstVisit = await fresh.newPage();
-    await firstVisit.goto(base + "?v=0.24.0#home");
+    await firstVisit.goto(base + "?v=0.24.1#home");
     await firstVisit.locator("#profileDialog").waitFor();
     assert.ok(await firstVisit.locator("#profileHelp").isHidden());
     await firstVisit.locator("#profileInfoButton").click();

@@ -1,13 +1,13 @@
 (() => {
   "use strict";
   const defaults = {
-    dark: { text: "#f5f7fa", background: "#0c1622", accent: "#9fc8ff" },
+    dark: { text: "#f5f7fa", background: "#08182f", accent: "#9fc8ff" },
     light: { text: "#17212b", background: "#f2f4f7", accent: "#15635b" }
   };
   const choices = {
     dark: {
       text: ["#f5f7fa", "#e3edf9", "#fff1d8", "#e8f3ed", "#f3e8ef"],
-      background: ["#0c1622", "#11151c", "#131817", "#171419", "#090b0e", "#141414"],
+      background: ["#08182f", "#11151c", "#131817", "#171419", "#090b0e", "#141414"],
       accent: ["#9fc8ff", "#8adccb", "#f1c785", "#deb9ec", "#edaeae", "#b9c6d5"]
     },
     light: {
@@ -62,7 +62,7 @@
   }
   function normalize(value) {
     const previous = value?.palettes?.dark;
-    if (previous?.text === "#f5f7fa" && previous.background === "#090b0e" && previous.accent === "#8adccb") {
+    if (previous?.text === "#f5f7fa" && ((previous.background === "#090b0e" && previous.accent === "#8adccb") || (previous.background === "#0c1622" && previous.accent === "#9fc8ff"))) {
       value = { ...value, palettes: { ...value.palettes, dark: defaults.dark } };
     }
     const result = { fontSize: [16, 18, 20].includes(value?.fontSize) ? value.fontSize : 16, palettes: {} };

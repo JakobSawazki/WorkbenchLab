@@ -10,9 +10,11 @@ const appearance = context.window.WORKBENCH_APPEARANCE;
 test("Der alte Standard wird blau; individuelle Paletten bleiben erhalten", () => {
   const old = { text: "#f5f7fa", background: "#090b0e", accent: "#8adccb" };
   const migrated = appearance.normalize({ fontSize: 18, palettes: { dark: old } });
-  assert.equal(migrated.palettes.dark.background, "#0c1622");
+  assert.equal(migrated.palettes.dark.background, "#08182f");
   assert.equal(migrated.palettes.dark.accent, "#9fc8ff");
   assert.equal(migrated.fontSize, 18);
+  const recent = appearance.normalize({ palettes: { dark: { text: "#f5f7fa", background: "#0c1622", accent: "#9fc8ff" } } });
+  assert.equal(recent.palettes.dark.background, "#08182f");
   const custom = { ...old, background: "#11151c" };
   assert.equal(JSON.stringify(appearance.normalize({ palettes: { dark: custom } }).palettes.dark), JSON.stringify(custom));
 });
