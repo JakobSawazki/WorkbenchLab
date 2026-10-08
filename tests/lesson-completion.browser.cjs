@@ -72,11 +72,11 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
         await page.waitForURL(new RegExp(`#lesson/${ordered[index + 1].id}$`));
       } else assert.equal(await page.locator("[data-next-lesson]").count(), 0);
     }
-    const xp = await page.locator("#xpButton").innerText();
+    const xp = await page.locator("#topXp").innerText();
     assert.equal(Number(xp.replace(/\D/g, "")), ordered.reduce((sum, lesson) => sum + lesson.xp, 0));
     await page.goto(`${base}?screenshot=1#lesson/warum-datenbanken`);
     assert.ok(await page.locator("[data-complete-lesson]").isDisabled());
-    assert.equal(await page.locator("#xpButton").innerText(), xp);
+    assert.equal(await page.locator("#topXp").innerText(), xp);
     assert.equal((await state()).completedLessons.length, ordered.length);
     assert.deepEqual(errors, []);
     console.log(`PASS: incomplete gates and focus, wrong/correct quiz, persistence, all ${ordered.length} sequential completions and module transitions, next-unit focus, final unit, no duplicate XP, mobile large font.`);

@@ -16,7 +16,7 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.23.4">
+  <link rel="stylesheet" href="styles.css?v=0.24.0">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -68,16 +68,6 @@
 
       <div class="sidebar-spacer"></div>
 
-      <button class="profile-summary" id="editProfileButton" type="button" title="Lernprofil öffnen" aria-label="Lernprofil öffnen" aria-haspopup="dialog" aria-controls="profileDialog">
-        <span class="profile-row">
-          <span class="avatar profile-avatar-button" aria-hidden="true"><span id="sidebarAvatar">G</span></span>
-          <span>
-            <strong id="sidebarName">Gast</strong>
-            <small id="sidebarClass">Klasse noch offen</small>
-            <small id="sidebarLevel">Level 1 · Tabellenstarter</small>
-          </span>
-        </span>
-      </button>
     </aside>
 
     <div class="page-column">
@@ -105,9 +95,9 @@
             <i data-lucide="database"></i><span class="status-dot" aria-hidden="true"></span>
             <span class="sr-only" id="runtimeText">SQL wird vorbereitet</span>
           </button>
-          <button class="points-chip metal-points" id="xpButton" type="button" title="Level-Fortschritt öffnen" aria-label="Level-Fortschritt öffnen" aria-haspopup="dialog" aria-controls="xpDialog">
-            <i data-lucide="sparkles"></i>
-            <strong id="topXp">0 XP</strong>
+          <button class="button button-secondary profile-trigger" id="editProfileButton" type="button" title="Profil und Lernfortschritt öffnen" aria-label="Profil und Lernfortschritt öffnen" aria-haspopup="dialog" aria-controls="profileDialog">
+            <span class="profile-trigger-identity"><strong id="topProfileName">Gast</strong><span id="topProfileClass">Klasse offen</span></span>
+            <span class="profile-trigger-xp"><i data-lucide="sparkles" aria-hidden="true"></i><strong id="topXp">0 XP</strong></span>
           </button>
         </div>
       </header>
@@ -125,53 +115,50 @@
 
   <div class="mobile-backdrop" id="mobileBackdrop"></div>
 
-  <dialog class="profile-dialog" id="profileDialog">
+  <dialog class="profile-dialog" id="profileDialog" aria-labelledby="profileTitle">
     <form method="dialog" id="profileForm" novalidate>
       <div class="dialog-heading">
         <span class="dialog-icon"><i data-lucide="user-round"></i></span>
         <div>
-          <p class="eyebrow">Anonym und eindeutig</p>
-          <h2>Dein Lernprofil</h2>
+          <p class="eyebrow">Profil und Fortschritt</p>
+          <h2 id="profileTitle">Dein Lernprofil</h2>
         </div>
-      </div>
-      <p>Verwende drei Buchstaben deines Vornamens, einen Punkt und drei Buchstaben deines Nachnamens. Gib außerdem deine Klasse an. So kann deine Lehrkraft den exportierten Lernstand zuordnen, ohne deinen vollständigen Namen zu speichern.</p>
-      <div class="profile-example" aria-label="Beispiel für ein Schülerkürzel">
-        <code>MIA.MUE</code>
-        <span>z. B. Mia Müller</span>
+        <button class="icon-button" id="profileCancelButton" type="button" title="Schließen" aria-label="Profil schließen"><i data-lucide="x"></i></button>
       </div>
       <div class="profile-fields">
         <div>
-          <label for="profileName">Schülerkürzel</label>
+          <div class="profile-label-row"><label for="profileName">Schülerkürzel</label><button class="icon-button" id="profileInfoButton" type="button" title="Info zum Schülerkürzel" aria-label="Info zum Schülerkürzel" aria-expanded="false" aria-controls="profileHelp"><i data-lucide="info"></i></button></div>
           <input id="profileName" name="profileName" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC.DEF" pattern="[A-Za-z]{3}\.[A-Za-z]{3}" aria-describedby="profileNameHint profileNameError" required>
-          <small class="field-hint" id="profileNameHint">Umlaute werden automatisch umgeschrieben: Ä → AE, Ö → OE, Ü → UE, ß → SS.</small>
         </div>
         <div>
           <label for="profileClass">Klasse</label>
           <input id="profileClass" name="profileClass" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="z. B. J1-1" aria-describedby="profileClassHint profileNameError" required>
-          <small class="field-hint" id="profileClassHint">Verwende die offizielle Kurzform deiner Klasse, zum Beispiel WGJ1/1.</small>
         </div>
       </div>
+      <div class="profile-help" id="profileHelp" hidden>
+        <p>Verwende drei Buchstaben deines Vornamens, einen Punkt und drei Buchstaben deines Nachnamens. Gib außerdem deine Klasse an. So kann deine Lehrkraft den exportierten Lernstand zuordnen, ohne deinen vollständigen Namen zu speichern.</p>
+        <div class="profile-example" aria-label="Beispiel für ein Schülerkürzel"><code>MIA.MUE</code><span>z. B. Mia Müller</span></div>
+        <p class="field-hint" id="profileNameHint">Umlaute werden automatisch umgeschrieben: Ä → AE, Ö → OE, Ü → UE, ß → SS.</p>
+        <p class="field-hint" id="profileClassHint">Verwende die offizielle Kurzform deiner Klasse, zum Beispiel WGJ1/1.</p>
+      </div>
       <p class="field-error" id="profileNameError" aria-live="polite"></p>
+      <section class="profile-progress" aria-label="Dein Lernfortschritt">
+        <div class="level-summary"><strong id="xpLevelName"></strong><span id="xpTotal"></span></div>
+        <label for="xpLevelProgress" id="xpProgressLabel"></label>
+        <progress id="xpLevelProgress" max="120" value="0"></progress>
+        <p id="xpNextLevel"></p>
+      </section>
       <button class="button button-secondary developer-mode-button" id="developerModeButton" type="button" hidden
         title="Entwicklermodus: alle Einheiten freischalten" aria-label="Entwicklermodus aktivieren" aria-pressed="false">
         <i data-lucide="code-2"></i><span id="developerModeLabel">Entwicklermodus einschalten</span>
       </button>
       <div class="dialog-actions">
-        <button class="button button-secondary" value="cancel" type="button" id="profileCancelButton">Abbrechen</button>
         <button class="button button-primary" value="save" type="submit">
           <i data-lucide="check"></i>
           Speichern
         </button>
       </div>
     </form>
-  </dialog>
-
-  <dialog class="profile-dialog xp-dialog" id="xpDialog" aria-labelledby="xpTitle">
-    <div class="dialog-heading"><span class="dialog-icon"><i data-lucide="sparkles"></i></span><div><p class="eyebrow">Dein Lernfortschritt</p><h2 id="xpTitle">Dein Level</h2></div><button class="icon-button" id="xpCloseButton" type="button" title="Schließen" aria-label="Level-Fortschritt schließen"><i data-lucide="x"></i></button></div>
-    <div class="level-summary"><strong id="xpLevelName"></strong><span id="xpTotal"></span></div>
-    <label for="xpLevelProgress" id="xpProgressLabel"></label>
-    <progress id="xpLevelProgress" max="120" value="0"></progress>
-    <p id="xpNextLevel"></p>
   </dialog>
 
   <dialog class="profile-dialog appearance-dialog" id="appearanceDialog" aria-labelledby="appearanceTitle">
@@ -223,13 +210,13 @@
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
   <script src="content.js?v=0.16.1"></script>
-  <script src="learning-path.js?v=0.23.4"></script>
+  <script src="learning-path.js?v=0.24.0"></script>
   <script src="practical-exercises.js?v=0.23.0"></script>
   <script src="study-tools.js?v=0.21.0"></script>
   <script src="appearance.js?v=0.23.1"></script>
   <script src="drawing.js?v=0.21.0"></script>
   <script src="command-search.js?v=0.23.4"></script>
   <script src="reference-search.js?v=0.23.4"></script>
-  <script src="app.js?v=0.23.4"></script>
+  <script src="app.js?v=0.24.0"></script>
 </body>
 </html>

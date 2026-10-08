@@ -62,12 +62,12 @@ const output = path.resolve(__dirname, "..", ".tmp", "practical-exercises");
         await page.locator('#diagramPracticeForm button[type="submit"]').click();
         assert.ok((await completed()).includes(item.id));
       }
-      const xp = await page.locator("#xpButton").innerText();
+      const xp = await page.locator("#topXp").innerText();
       if (item.type === "sql") {
         await page.locator("#checkSqlButton").click();
         await page.waitForFunction(() => !document.querySelector("#checkSqlButton").disabled);
       } else await page.locator('#diagramPracticeForm button[type="submit"]').click();
-      assert.equal(await page.locator("#xpButton").innerText(), xp);
+      assert.equal(await page.locator("#topXp").innerText(), xp);
       for (const [width, theme] of [[1440, "dark"], [390, "dark"], [390, "light"]]) {
         await page.setViewportSize({ width, height: 1000 });
         if (await page.locator("html").getAttribute("data-theme") !== theme) await page.locator("#themeToggleButton").click();

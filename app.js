@@ -745,10 +745,10 @@
     const xp = stateXp();
     const level = currentLevel();
     const displayName = state.name || "Gast";
-    document.querySelector("#sidebarName").textContent = displayName;
-    document.querySelector("#sidebarAvatar").textContent = displayName.slice(0, 1).toUpperCase();
-    document.querySelector("#sidebarClass").textContent = state.className || "Klasse noch offen";
-    document.querySelector("#sidebarLevel").textContent = `Level ${level.number} · ${level.title}`;
+    document.querySelector("#topProfileName").textContent = displayName;
+    document.querySelector("#topProfileClass").textContent = state.className || "Klasse offen";
+    document.querySelector("#editProfileButton").title = `${displayName} · ${state.className || "Klasse offen"} · Level ${level.number} · ${xp} XP · Profil öffnen`;
+    document.querySelector("#editProfileButton").setAttribute("aria-label", `${displayName}, ${state.className || "Klasse offen"}, ${xp} XP: Profil und Lernfortschritt öffnen`);
     document.querySelector("#topXp").textContent = `${xp} XP`;
     updateLevelDialog();
     renderPathQuickMenu();
@@ -3676,6 +3676,9 @@
   });
 
   function openProfileDialog(message = "") {
+    document.querySelector("#profileHelp").hidden = true;
+    document.querySelector("#profileInfoButton").setAttribute("aria-expanded", "false");
+    updateLevelDialog();
     profileName.value = state.name;
     profileClass.value = state.className;
     profileNameError.textContent = message;
@@ -3695,6 +3698,11 @@
     openProfileDialog();
   });
   document.querySelector("#profileCancelButton").addEventListener("click", () => profileDialog.close());
+  document.querySelector("#profileInfoButton").addEventListener("click", () => {
+    const help = document.querySelector("#profileHelp");
+    help.hidden = !help.hidden;
+    document.querySelector("#profileInfoButton").setAttribute("aria-expanded", String(!help.hidden));
+  });
   profileDialog.addEventListener("close", () => {
     developerControlRevealed = false;
     updateDeveloperControl();
@@ -3755,12 +3763,6 @@
   document.querySelector("#importProgressButton").addEventListener("click", () => progressFileInput.click());
   progressFileInput.addEventListener("change", () => importProgressFile(progressFileInput.files?.[0]));
   themeToggleButton?.addEventListener("click", toggleTheme);
-  const xpDialog = document.querySelector("#xpDialog");
-  document.querySelector("#xpButton").addEventListener("click", () => {
-    updateLevelDialog();
-    xpDialog.showModal();
-  });
-  document.querySelector("#xpCloseButton").addEventListener("click", () => xpDialog.close());
   const appearanceDialog = document.querySelector("#appearanceDialog");
   document.querySelector("#appearanceButton").addEventListener("click", () => {
     renderAppearanceOptions();
