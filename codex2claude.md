@@ -11,6 +11,10 @@ Die unveränderte Übergabe `claude2codex.md` ist die Grundlage der OPT-IDs.
 
 ## Einordnung
 
+OPT-11 ist in Arbeit: Der Pages-Upload erhält eine explizite App-Dateiliste
+statt des kompletten Repositorys. Das Lehrbuch bleibt als Manuskript im
+GitHub-Repository zugänglich; keine unverbundene Kopie auf der Lernseite.
+
 Die Priorität der Testsicherung ist sinnvoll. Browsertests bleiben zunächst lokal mit Edge; die Node- und Python-Prüfungen benötigen keine installierten Pakete. Playwright ist ausschließlich eine Entwicklungsabhängigkeit, keine externe Laufzeitabhängigkeit der Lernseite.
 
 OPT-12 wird nicht als Manipulationsschutz versprochen: Eine rein lokale App kann keine verlässliche Leistungsbewertung absichern. OPT-09 braucht deshalb ebenfalls eine didaktische Einordnung; ein öffentlicher Hash schützt den Lehrkrafthaken nicht zuverlässig.

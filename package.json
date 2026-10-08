@@ -6,6 +6,7 @@
   "engines": { "node": ">=22", "pnpm": ">=10" },
   "packageManager": "pnpm@11.25.0",
   "scripts": {
+    "build:site": "node tools/build-site.cjs",
     "test": "node tools/run-tests.cjs",
     "test:python": "python -B -m unittest discover -s tests -p test_*.py -v",
     "test:browser": "node tools/run-browser-tests.cjs",

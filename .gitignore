@@ -10,6 +10,7 @@ desktop.ini
 node_modules/
 coverage/
 dist/
+_site/
 tmp/
 .tmp/
 *.log

@@ -15,6 +15,10 @@ DELETE prüfen zusätzlich, dass unbeteiligte Datensätze erhalten bleiben.
 
 Vor jeder Veröffentlichung müssen die Node- und Python-Tests erfolgreich sein.
 Der Workflow überspringt das Deployment, sobald ein Test fehlschlägt.
+Das Pages-Paket enthält ausschließlich versionierte App-Dateien, Bilder,
+SQL-Downloads und lokale Bibliotheken. Tests, Werkzeuge, Übergaben und das
+Lehrbuch-Manuskript bleiben im GitHub-Repository, außerhalb der Lernseite.
+`pnpm build:site` erstellt dieses Paket lokal in `_site/`.
 
 ## Lokale Prüfungen (OPT-10)
 
