@@ -7,7 +7,7 @@ Die unveränderte Übergabe `claude2codex.md` ist die Grundlage der OPT-IDs.
 
 | ID | Status | Ergebnis |
 | --- | --- | --- |
-| OPT-10 | in Arbeit | Node- und Python-Tests vor jedem Pages-Deployment; Paketmanifest mit lokaler Browserprüfung. Positiv- und Negativprüfung des CI-Gates folgen. |
+| OPT-10 | erledigt (c27998d) | 106 Node- und 2 Python-Tests lokal und in CI bestanden. Positivlauf 37845045379 erfolgreich veröffentlicht. Negativlauf 37845070105: absichtlicher Testfehler, Deployment übersprungen. Prüfbranch anschließend entfernt. |
 
 ## Einordnung
 
