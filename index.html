@@ -16,7 +16,7 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.22.3">
+  <link rel="stylesheet" href="styles.css?v=0.23.1">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -202,25 +202,23 @@
           <p class="eyebrow">Dein Fortschritt</p>
           <h2 id="backupTitle">Speichern &amp; Laden</h2>
         </div>
+        <button class="icon-button" id="backupCloseButton" type="button" title="Schließen" aria-label="Speichern und Laden schließen"><i data-lucide="x"></i></button>
       </div>
       <div class="backup-summary" id="backupSummary"></div>
-      <p class="field-hint" id="backupStorageHint">Hier automatisch gespeichert. Für einen anderen PC: Datei herunterladen und dort laden.</p>
+      <p class="field-hint" id="backupStorageHint" hidden></p>
       <div class="backup-actions">
         <button class="backup-action" id="exportProgressButton" type="button">
           <span class="backup-action-icon"><i data-lucide="download"></i></span>
-          <span><strong>JSON herunterladen</strong><small>Vollständigen Lernstand als Datei sichern</small></span>
+          <span><strong>Speichern</strong></span>
         </button>
         <button class="backup-action" id="importProgressButton" type="button">
           <span class="backup-action-icon"><i data-lucide="upload"></i></span>
-          <span><strong>Datei laden</strong><small>Gesicherten Lernstand wiederherstellen</small></span>
+          <span><strong>Laden</strong></span>
         </button>
         <input class="sr-only" id="progressFileInput" type="file" accept=".json,application/json">
       </div>
       <label class="auto-download-option"><input id="autoDownloadBackup" type="checkbox"><span>Nach jeder Einheit automatisch herunterladen</span></label>
       <p id="backupStatus" class="backup-status" role="status" aria-live="polite" aria-atomic="true" hidden></p>
-      <div class="dialog-actions">
-        <button class="button button-secondary" value="cancel" type="button" id="backupCloseButton">Schließen</button>
-      </div>
     </form>
   </dialog>
 
@@ -229,11 +227,11 @@
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
   <script src="content.js?v=0.16.1"></script>
-  <script src="learning-path.js?v=0.23.0"></script>
+  <script src="learning-path.js?v=0.23.1"></script>
   <script src="practical-exercises.js?v=0.23.0"></script>
   <script src="study-tools.js?v=0.21.0"></script>
-  <script src="appearance.js?v=0.21.0"></script>
+  <script src="appearance.js?v=0.23.1"></script>
   <script src="drawing.js?v=0.21.0"></script>
-  <script src="app.js?v=0.23.0"></script>
+  <script src="app.js?v=0.23.1"></script>
 </body>
 </html>

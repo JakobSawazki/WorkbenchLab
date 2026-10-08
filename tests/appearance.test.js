@@ -7,6 +7,16 @@ const context = vm.createContext({ window: {} });
 vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "appearance.js"), "utf8"), context);
 const appearance = context.window.WORKBENCH_APPEARANCE;
 
+test("Der alte Standard wird blau; individuelle Paletten bleiben erhalten", () => {
+  const old = { text: "#f5f7fa", background: "#090b0e", accent: "#8adccb" };
+  const migrated = appearance.normalize({ fontSize: 18, palettes: { dark: old } });
+  assert.equal(migrated.palettes.dark.background, "#0c1622");
+  assert.equal(migrated.palettes.dark.accent, "#9fc8ff");
+  assert.equal(migrated.fontSize, 18);
+  const custom = { ...old, background: "#11151c" };
+  assert.equal(JSON.stringify(appearance.normalize({ palettes: { dark: custom } }).palettes.dark), JSON.stringify(custom));
+});
+
 test("Standardpaletten und sämtliche vorgegebenen Text/Hintergrund-Kombinationen sind kontrastreich", () => {
   for (const theme of ["dark", "light"]) {
     for (const text of appearance.choices[theme].text) {
@@ -33,7 +43,7 @@ test("Akzentfarben bleiben als Links und Primärbuttons gut lesbar", () => {
 
 test("Ungültige gespeicherte Farben, Schriftgrößen und kontrastarme Paletten werden verworfen", () => {
   const defaults = appearance.normalize(null);
-  const invalid = appearance.normalize({ fontSize: 200, palettes: { dark: { text: "#090b0e", background: "#090b0e", accent: "url(secret)" } } });
+  const invalid = appearance.normalize({ fontSize: 200, palettes: { dark: { text: "#090b0e", background: "url(secret)", accent: "url(secret)" } } });
   assert.equal(JSON.stringify(invalid), JSON.stringify(defaults));
   const custom = appearance.normalize({ fontSize: 20, palettes: { dark: { ...appearance.defaults.dark, background: "#101018" } } });
   assert.equal(custom.fontSize, 20);

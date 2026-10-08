@@ -433,7 +433,8 @@
 
   function updateStorageStatus() {
     const hint = document.querySelector("#backupStorageHint");
-    hint.textContent = storageAvailable ? "Hier automatisch gespeichert. Für einen anderen PC: Datei herunterladen und dort laden." : "Browserspeicher nicht verfügbar. Bitte deinen Lernstand als Datei herunterladen.";
+    hint.hidden = storageAvailable;
+    hint.textContent = storageAvailable ? "" : "Browserspeicher nicht verfügbar. Bitte über Speichern sichern.";
     document.querySelector("#backupButton").classList.toggle("has-storage-error", !storageAvailable);
     document.querySelector("#backupButton").title = storageAvailable ? "Lernstand sichern oder laden" : "Speicherung nicht verfügbar · Lernstand als Datei sichern";
   }
