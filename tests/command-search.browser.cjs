@@ -14,6 +14,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       for (const theme of ["dark", "light"]) {
         await page.goto(`${base}?v=0.23.3#commands`);
         await page.locator("#runtimeChip.is-ready").waitFor();
+        assert.equal(await page.locator('#sidebar [data-route="commands"] span').innerText(), "SQL-Befehle");
         if (await page.locator("html").getAttribute("data-theme") !== theme) await page.locator("#themeToggleButton").click();
         const input = page.locator("#commandSearch");
         for (const [query, id] of [["Filtern", "cmd-where"], ["Tabellen verbinden", "cmd-join"], ["Durchschnitt", "cmd-functions"]]) {
