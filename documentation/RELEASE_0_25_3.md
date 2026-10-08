@@ -7,3 +7,5 @@ Das Info-Symbol neben dem Schülerkürzel ist jetzt ein kleiner, unaufdringliche
 Texte und Beispiele sind unverändert. CSS und App-Cache auf 0.25.3 gesetzt.
 
 Prüfung: JavaScript-Syntax und Git-Diff fehlerfrei. Im Browser öffnen per Enter, schließen per Escape und Schließen-Button sowie Fokus-Rückkehr geprüft. Ungespeicherte Klasseneingabe bleibt erhalten. Mobile Ansicht bei 390 × 844 ohne horizontalen Überlauf; dunkles und helles Design geprüft.
+
+Onlineprüfung: GitHub-Pages-Deployment 37844576776 erfolgreich. Veröffentlichung 5abe1ee im Live-Browser geprüft: Infofenster öffnet über dem Profil, eigener Schließen-Button schließt nur die Informationen und gibt den Fokus zurück.
