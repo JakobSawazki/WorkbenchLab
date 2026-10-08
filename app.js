@@ -2109,6 +2109,17 @@
       </article>`;
   }
 
+  let commandSearchQuery = "";
+
+  function updateCommandResults() {
+    const results = window.WORKBENCH_COMMAND_SEARCH.search(content.commands, commandSearchQuery);
+    document.querySelector("#commandResults").innerHTML = results.map(commandCard).join("");
+    document.querySelector("#commandSearchCount").textContent = `${results.length} ${results.length === 1 ? "Befehl" : "Befehle"}`;
+    document.querySelector("#commandSearchEmpty").hidden = results.length > 0;
+    document.querySelector("#commandSearchClear").hidden = !commandSearchQuery;
+    renderIcons();
+  }
+
   function renderCommands() {
     setHeading("SQL-Befehle schnell nachschlagen", "Befehle");
     activateNav("commands");
@@ -2126,9 +2137,17 @@
           </div>
         </div>
       </section>
-      <div class="card-grid">
-        ${content.commands.map(commandCard).join("")}
-      </div>`;
+      <div class="command-search-bar" role="search" aria-label="Befehle suchen">
+        <div class="command-search-field">
+          <i data-lucide="search" aria-hidden="true"></i>
+          <input id="commandSearch" type="search" aria-label="Befehle suchen" placeholder="Befehle suchen" autocomplete="off" maxlength="200" value="${escapeHtml(commandSearchQuery)}">
+          <button id="commandSearchClear" class="icon-button" type="button" title="Suche leeren" aria-label="Suche leeren"><i data-lucide="x"></i></button>
+        </div>
+        <span id="commandSearchCount" role="status" aria-live="polite" aria-atomic="true"></span>
+      </div>
+      <p id="commandSearchEmpty" hidden>Keine passenden Befehle gefunden.</p>
+      <div class="card-grid" id="commandResults"></div>`;
+    updateCommandResults();
   }
 
   function renderCommandDetail(id) {
@@ -3194,6 +3213,12 @@
   }
 
   document.addEventListener("click", (event) => {
+    if (event.target.closest("#commandSearchClear")) {
+      commandSearchQuery = "";
+      document.querySelector("#commandSearch").value = "";
+      updateCommandResults();
+      document.querySelector("#commandSearch").focus();
+    }
     if (event.target.closest("[data-close-notes]")) {
       closeNotes();
       return;
@@ -3453,6 +3478,10 @@
   });
 
   document.addEventListener("input", (event) => {
+    if (event.target.id === "commandSearch") {
+      commandSearchQuery = event.target.value;
+      updateCommandResults();
+    }
     if (event.target.id === "notebookEditor") {
       const entryId = event.target.dataset.notebookEntry;
       if (entryId === "general") state.generalNotes = event.target.value.slice(0, 12000);

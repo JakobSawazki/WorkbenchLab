@@ -3399,6 +3399,16 @@ main {
   margin: 0.9rem 0;
 }
 
+.command-search-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin: 1.25rem 0; }
+.command-search-field { display: flex; align-items: center; gap: .65rem; flex: 1 1 260px; min-width: 0; max-width: 640px; min-height: 48px; padding: .4rem .75rem; border: 1px solid var(--metal-rim); border-radius: 6px; background: var(--panel); }
+.command-search-field > svg { width: 20px; height: 20px; flex: 0 0 20px; color: var(--muted); }
+.command-search-field input { width: 100%; min-width: 0; padding: .3rem 0; border: 0; background: transparent; color: var(--text); }
+.command-search-field input::placeholder { color: var(--muted); }
+.command-search-field input::-webkit-search-cancel-button { display: none; }
+.command-search-field .icon-button { width: 32px; height: 32px; flex: 0 0 32px; }
+.command-search-field .icon-button[hidden] { display: none; }
+#commandSearchCount { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+
 .backup-dialog .dialog-heading { grid-template-columns: 44px minmax(0, 1fr) auto; }
 @media (max-width: 520px) {
   .backup-dialog .dialog-icon { display: none; }
