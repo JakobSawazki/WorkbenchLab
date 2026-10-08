@@ -11,7 +11,7 @@ Die unveränderte Übergabe `claude2codex.md` ist die Grundlage der OPT-IDs.
 
 ## Einordnung
 
-OPT-11 ist in Arbeit: Der Pages-Upload erhält eine explizite App-Dateiliste
+OPT-11 ist erledigt (4c01fb4, Deployment 37845559494): Der Pages-Upload erhält eine explizite App-Dateiliste
 statt des kompletten Repositorys. Das Lehrbuch bleibt als Manuskript im
 GitHub-Repository zugänglich; keine unverbundene Kopie auf der Lernseite.
 

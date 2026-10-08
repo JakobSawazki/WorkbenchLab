@@ -19,3 +19,5 @@ Port 4180 war durch einen Service Worker eines anderen Lernprojekts belegt;
 der unveränderte Test wurde deshalb auf einem frischen lokalen Ursprung geprüft.
 
 Deployment- und Live-Nachweis folgen.
+
+Online bestätigt: Implementierung 4c01fb4, CI-Lauf 37845559494 erfolgreich. index.html, SQL-WASM und SQL-Download liefern HTTP 200. tools/build-site.cjs, tests/learning-path.test.js, documentation/RELEASE_0_25_3.md, Lehrbuch/README.md und claude2codex.md liefern HTTP 404. Live-App mit allen drei sichtbaren Bildern und ohne JavaScript-Fehler geprüft.
