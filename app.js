@@ -26,6 +26,8 @@
   const sidebar = document.querySelector("#sidebar");
   const backdrop = document.querySelector("#mobileBackdrop");
   const profileDialog = document.querySelector("#profileDialog");
+  const profileHelpDialog = document.querySelector("#profileHelpDialog");
+  const profileInfoButton = document.querySelector("#profileInfoButton");
   const profileForm = document.querySelector("#profileForm");
   const profileName = document.querySelector("#profileName");
   const profileClass = document.querySelector("#profileClass");
@@ -3700,8 +3702,7 @@
   });
 
   function openProfileDialog(message = "") {
-    document.querySelector("#profileHelp").hidden = true;
-    document.querySelector("#profileInfoButton").setAttribute("aria-expanded", "false");
+    if (profileHelpDialog.open) profileHelpDialog.close();
     updateLevelDialog();
     profileName.value = state.name;
     profileClass.value = state.className;
@@ -3722,12 +3723,15 @@
     openProfileDialog();
   });
   document.querySelector("#profileCancelButton").addEventListener("click", () => profileDialog.close());
-  document.querySelector("#profileInfoButton").addEventListener("click", () => {
-    const help = document.querySelector("#profileHelp");
-    help.hidden = !help.hidden;
-    document.querySelector("#profileInfoButton").setAttribute("aria-expanded", String(!help.hidden));
+  profileInfoButton.addEventListener("click", () => {
+    if (!profileHelpDialog.open) profileHelpDialog.showModal();
+  });
+  document.querySelector("#profileHelpCloseButton").addEventListener("click", () => profileHelpDialog.close());
+  profileHelpDialog.addEventListener("close", () => {
+    if (profileDialog.open) profileInfoButton.focus();
   });
   profileDialog.addEventListener("close", () => {
+    if (profileHelpDialog.open) profileHelpDialog.close();
     developerControlRevealed = false;
     updateDeveloperControl();
   });

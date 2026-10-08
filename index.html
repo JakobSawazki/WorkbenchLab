@@ -16,7 +16,7 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.25.1">
+  <link rel="stylesheet" href="styles.css?v=0.25.3">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -127,19 +127,13 @@
       </div>
       <div class="profile-fields">
         <div>
-          <div class="profile-label-row"><label for="profileName">Schülerkürzel</label><button class="icon-button" id="profileInfoButton" type="button" title="Info zum Schülerkürzel" aria-label="Info zum Schülerkürzel" aria-expanded="false" aria-controls="profileHelp"><i data-lucide="info"></i></button></div>
+          <div class="profile-label-row"><label for="profileName">Schülerkürzel</label><button class="profile-info-trigger" id="profileInfoButton" type="button" title="Info zum Schülerkürzel" aria-label="Info zum Schülerkürzel" aria-haspopup="dialog" aria-controls="profileHelpDialog"><i data-lucide="info"></i></button></div>
           <input id="profileName" name="profileName" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC.DEF" pattern="[A-Za-z]{3}\.[A-Za-z]{3}" aria-describedby="profileNameHint profileNameError" required>
         </div>
         <div>
           <label for="profileClass">Klasse</label>
           <input id="profileClass" name="profileClass" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="z. B. J1-1" aria-describedby="profileClassHint profileNameError" required>
         </div>
-      </div>
-      <div class="profile-help" id="profileHelp" hidden>
-        <p>Verwende drei Buchstaben deines Vornamens, einen Punkt und drei Buchstaben deines Nachnamens. Gib außerdem deine Klasse an. So kann deine Lehrkraft den exportierten Lernstand zuordnen, ohne deinen vollständigen Namen zu speichern.</p>
-        <div class="profile-example" aria-label="Beispiel für ein Schülerkürzel"><code>MIA.MUE</code><span>z. B. Mia Müller</span></div>
-        <p class="field-hint" id="profileNameHint">Umlaute werden automatisch umgeschrieben: Ä → AE, Ö → OE, Ü → UE, ß → SS.</p>
-        <p class="field-hint" id="profileClassHint">Verwende die offizielle Kurzform deiner Klasse, zum Beispiel WGJ1/1.</p>
       </div>
       <p class="field-error" id="profileNameError" aria-live="polite"></p>
       <section class="profile-progress" aria-label="Dein Lernfortschritt">
@@ -159,6 +153,16 @@
         </button>
       </div>
     </form>
+  </dialog>
+
+  <dialog class="profile-dialog profile-help-dialog" id="profileHelpDialog" aria-labelledby="profileHelpTitle">
+    <div class="dialog-heading"><h2 id="profileHelpTitle">Schülerkürzel &amp; Klasse</h2><button class="icon-button" id="profileHelpCloseButton" type="button" title="Schließen" aria-label="Informationen zum Schülerkürzel schließen" autofocus><i data-lucide="x"></i></button></div>
+    <div class="profile-help-content">
+        <p>Verwende drei Buchstaben deines Vornamens, einen Punkt und drei Buchstaben deines Nachnamens. Gib außerdem deine Klasse an. So kann deine Lehrkraft den exportierten Lernstand zuordnen, ohne deinen vollständigen Namen zu speichern.</p>
+        <div class="profile-example" aria-label="Beispiel für ein Schülerkürzel"><code>MIA.MUE</code><span>z. B. Mia Müller</span></div>
+        <p class="field-hint" id="profileNameHint">Umlaute werden automatisch umgeschrieben: Ä → AE, Ö → OE, Ü → UE, ß → SS.</p>
+        <p class="field-hint" id="profileClassHint">Verwende die offizielle Kurzform deiner Klasse, zum Beispiel WGJ1/1.</p>
+      </div>
   </dialog>
 
   <dialog class="profile-dialog appearance-dialog" id="appearanceDialog" aria-labelledby="appearanceTitle">
@@ -218,6 +222,6 @@
   <script src="drawing.js?v=0.21.0"></script>
   <script src="command-search.js?v=0.23.4"></script>
   <script src="reference-search.js?v=0.23.4"></script>
-  <script src="app.js?v=0.25.0"></script>
+  <script src="app.js?v=0.25.3"></script>
 </body>
 </html>
