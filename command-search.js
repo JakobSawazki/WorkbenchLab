@@ -43,8 +43,8 @@
     return commands.map((command, index) => {
       const fields = [
         [normalize(command.title), 12],
-        [normalize(concepts[command.id]), 8],
-        [normalize(command.short), 5],
+        [normalize([concepts[command.id] || "", command.searchTerms || ""].join(" ")), 8],
+        [normalize(command.short || command.description), 5],
         [normalize([command.category, ...(command.details || [])].join(" ")), 2]
       ];
       let score = normalize(command.title) === normalized ? 30 : 0;

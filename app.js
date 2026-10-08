@@ -2257,10 +2257,47 @@
       </div>`;
   }
 
+  let referenceSearchQuery = "";
+
+  function updateReferenceResults() {
+    const matches = window.WORKBENCH_REFERENCE_SEARCH.search(content, referenceSearchQuery);
+    const ids = new Set(matches.map(item => item.id));
+    main.querySelectorAll("[data-reference-entry]").forEach(element => {
+      element.hidden = !ids.has(element.dataset.referenceEntry);
+      if (element.hidden) {
+        const video = element.querySelector("video");
+        if (video && !video.paused) video.pause();
+        const stage = element.querySelector("[data-video-stage]");
+        if (stage?.querySelector("iframe")) {
+          const tutorial = content.tutorials.find(item => item.id === stage.dataset.videoStage);
+          if (tutorial) stage.innerHTML = renderTutorialPreview(tutorial);
+        }
+      }
+    });
+    main.querySelectorAll("[data-reference-group]").forEach(group => {
+      group.hidden = !group.querySelector("[data-reference-entry]:not([hidden])");
+    });
+    document.querySelector("#referenceSearchCount").textContent = `${matches.length} ${matches.length === 1 ? "Eintrag" : "Einträge"}`;
+    document.querySelector("#referenceSearchEmpty").hidden = matches.length > 0;
+    document.querySelector("#referenceSearchClear").hidden = !referenceSearchQuery;
+    renderIcons();
+  }
+
   function renderReference() {
+    if (parseRoute().id) referenceSearchQuery = "";
     setHeading("Quellen, Werkzeuge und Kurzbegriffe", "Nachschlagen");
     activateNav("reference");
     main.innerHTML = `
+      <div class="command-search-bar" role="search" aria-label="Nachschlagen durchsuchen">
+        <div class="command-search-field">
+          <i data-lucide="search" aria-hidden="true"></i>
+          <input id="referenceSearch" type="search" aria-label="Nachschlagen durchsuchen" placeholder="Nachschlagen durchsuchen" autocomplete="off" maxlength="200" value="${escapeHtml(referenceSearchQuery)}">
+          <button id="referenceSearchClear" class="icon-button" type="button" title="Suche leeren" aria-label="Suche leeren"><i data-lucide="x"></i></button>
+        </div>
+        <span id="referenceSearchCount" role="status" aria-live="polite" aria-atomic="true"></span>
+      </div>
+      <p id="referenceSearchEmpty" hidden>Keine passenden Einträge gefunden.</p>
+      <section data-reference-group>
       <div class="section-heading">
         <div>
           <p class="eyebrow">Unterrichtswerkzeuge</p>
@@ -2268,7 +2305,7 @@
           <p>In der Schule arbeiten wir mit MySQL Workbench 6.3.10. Zu Hause kann der Informatikstick eine andere Workbench-Version anbieten; die Schritte bleiben grundsätzlich gleich.</p>
         </div>
       </div>
-      <section class="workbench-start-film" id="workbench-start" tabindex="-1" aria-labelledby="workbench-start-film-title">
+      <section class="workbench-start-film" id="workbench-start" data-reference-entry="start-guide" tabindex="-1" aria-labelledby="workbench-start-film-title">
         ${startupReturn ? '<button class="button button-secondary" type="button" data-startup-return><i data-lucide="arrow-left" aria-hidden="true"></i>Zurück zum Praxisauftrag</button>' : ''}
         <h3 id="workbench-start-film-title">Workbench starten und verbinden</h3>
         <video controls playsinline preload="none" poster="assets/tutorials/workbench-start-poster.png" aria-label="Animierte Startanleitung für Informatik-Stick und MySQL Workbench">
@@ -2277,7 +2314,7 @@
           <a href="assets/tutorials/workbench-start.mp4">Startanleitung ansehen</a>
         </video>
       </section>
-      <section class="start-sequence" aria-label="Startreihenfolge für den Unterricht">
+      <section class="start-sequence" data-reference-entry="start-guide" aria-label="Startreihenfolge für den Unterricht">
         <div class="start-sequence-head">
           <i data-lucide="route"></i>
           <div><span>Sicherer Start</span><strong>Vom Stick zur ersten Abfrage</strong></div>
@@ -2290,8 +2327,8 @@
         </ol>
       </section>
       <div class="card-grid">
-        ${content.tools.map((tool) => `
-          <article class="tool-card">
+        ${content.tools.map((tool, index) => `
+          <article class="tool-card" data-reference-entry="tool-${index}">
             <div class="tool-icon"><i data-lucide="${escapeHtml(tool.icon)}"></i></div>
             <div>
               <h3>${escapeHtml(tool.title)}</h3>
@@ -2303,7 +2340,7 @@
           </article>`).join("")}
       </div>
 
-      <section class="connection-guide" aria-labelledby="connection-guide-title">
+      <section class="connection-guide" data-reference-entry="connection-guide" aria-labelledby="connection-guide-title">
         <div>
           <p class="eyebrow">Erste Sitzung in MySQL Workbench</p>
           <h2 id="connection-guide-title">Lokale Verbindung einrichten</h2>
@@ -2327,7 +2364,8 @@
         </div>
       </section>
 
-      <section class="video-library" aria-labelledby="video-library-title">
+      </section>
+      <section class="video-library" data-reference-group aria-labelledby="video-library-title">
         <div class="section-heading">
           <div>
             <p class="eyebrow">Ergänzende Tutorials</p>
@@ -2338,7 +2376,7 @@
         <p class="video-privacy"><i data-lucide="shield-check" aria-hidden="true"></i>Erst beim Laden eines Videos verbindet sich dein Browser mit YouTube. Falls die Einbettung gesperrt ist, nutze „Auf YouTube öffnen“.</p>
         <div class="video-grid">
           ${content.tutorials.map((tutorial) => `
-            <article class="video-card" id="tutorial-${escapeHtml(tutorial.id)}" tabindex="-1">
+            <article class="video-card" id="tutorial-${escapeHtml(tutorial.id)}" data-reference-entry="tutorial-${escapeHtml(tutorial.id)}" tabindex="-1">
               <div class="video-stage" data-video-stage="${escapeHtml(tutorial.id)}">${renderTutorialPreview(tutorial)}</div>
               <div class="video-body">
                 <div class="video-meta"><span>${escapeHtml(tutorial.lesson)}</span><span>${escapeHtml(tutorial.topic)}</span></div>
@@ -2353,6 +2391,7 @@
         </div>
       </section>
 
+      <section data-reference-group>
       <div class="section-heading">
         <div>
           <p class="eyebrow">Transparenz</p>
@@ -2361,14 +2400,16 @@
         </div>
       </div>
       <div class="card-grid">
-        ${content.sources.map((source) => `
-          <article class="source-card">
+        ${content.sources.map((source, index) => `
+          <article class="source-card" data-reference-entry="source-${index}">
             <h3>${escapeHtml(source.title)}</h3>
             <p>${escapeHtml(source.description)}</p>
             <a class="button button-secondary" href="${escapeHtml(source.url)}" target="_blank" rel="noopener">${escapeHtml(source.linkLabel)}</a>
           </article>`).join("")}
       </div>
 
+      </section>
+      <section data-reference-group>
       <div class="section-heading">
         <div>
           <p class="eyebrow">Kurzreferenz</p>
@@ -2376,13 +2417,15 @@
         </div>
       </div>
       <div class="definition-grid">
-        ${content.reference.map((item) => `
-          <article class="definition-card">
+        ${content.reference.map((item, index) => `
+          <article class="definition-card" data-reference-entry="term-${index}">
             <h3>${escapeHtml(item.title)}</h3>
             <p>${escapeHtml(item.description)}</p>
             <pre>${escapeHtml(item.code)}</pre>
           </article>`).join("")}
-      </div>`;
+      </div>
+      </section>`;
+    updateReferenceResults();
   }
 
   function setRuntime(status, text) {
@@ -3213,6 +3256,12 @@
   }
 
   document.addEventListener("click", (event) => {
+    if (event.target.closest("#referenceSearchClear")) {
+      referenceSearchQuery = "";
+      document.querySelector("#referenceSearch").value = "";
+      updateReferenceResults();
+      document.querySelector("#referenceSearch").focus();
+    }
     if (event.target.closest("#commandSearchClear")) {
       commandSearchQuery = "";
       document.querySelector("#commandSearch").value = "";
@@ -3478,6 +3527,10 @@
   });
 
   document.addEventListener("input", (event) => {
+    if (event.target.id === "referenceSearch") {
+      referenceSearchQuery = event.target.value;
+      updateReferenceResults();
+    }
     if (event.target.id === "commandSearch") {
       commandSearchQuery = event.target.value;
       updateCommandResults();

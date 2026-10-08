@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.23.3
+**Aktueller Release:** 0.23.4
 
 **Grundfunktionen:** [Abnahme des bisherigen Stands](documentation/ABNAHME_0_22_3.md).
 

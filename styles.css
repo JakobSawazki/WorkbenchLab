@@ -3408,6 +3408,8 @@ main {
 .command-search-field .icon-button { width: 32px; height: 32px; flex: 0 0 32px; }
 .command-search-field .icon-button[hidden] { display: none; }
 #commandSearchCount { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+#referenceSearchCount { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+[data-reference-entry][hidden], [data-reference-group][hidden] { display: none; }
 
 .backup-dialog .dialog-heading { grid-template-columns: 44px minmax(0, 1fr) auto; }
 @media (max-width: 520px) {
