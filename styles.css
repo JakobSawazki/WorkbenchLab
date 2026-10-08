@@ -4508,8 +4508,8 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 #xpLevelProgress::-moz-progress-bar { background: var(--brand-2); }
 #xpNextLevel { margin: 0.8rem 0 0; }
 .drawing-toolbar button:disabled { opacity: 0.45; cursor: default; }
-.topbar-actions .profile-trigger { display: grid; grid-template-rows: repeat(2, minmax(0, 1fr)); align-items: center; gap: 0; justify-items: start; min-width: 170px; max-width: min(300px, 100%); height: 42px; min-height: 42px; padding: 2px .7rem; font-size: .8rem; line-height: 1; text-align: left; }
-.profile-trigger-identity { display: flex; align-items: baseline; gap: .65rem; min-width: 0; max-width: 100%; }
+.topbar-actions .profile-trigger { display: grid; grid-template-rows: repeat(2, minmax(0, 1fr)); align-items: center; gap: 0; justify-items: start; min-width: 140px; max-width: min(300px, 100%); height: 42px; min-height: 42px; padding: 2px .55rem; font-size: .8rem; line-height: 1; text-align: left; }
+.profile-trigger-identity { display: flex; align-items: baseline; gap: .45rem; min-width: 0; max-width: 100%; }
 .profile-trigger-identity strong { white-space: nowrap; }
 .profile-trigger-identity > span { color: var(--muted); font-size: .9em; font-weight: 500; max-width: 14ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .profile-trigger-xp { display: flex; align-items: center; gap: .4rem; color: var(--brand-2); font-size: .9em; font-variant-numeric: tabular-nums; }
@@ -4532,7 +4532,7 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
   #profileDialog .dialog-icon { display: none; }
   #profileDialog .dialog-heading { grid-template-columns: minmax(0, 1fr) auto; }
   #profileDialog h2 { font-size: 1.35rem; }
-  .topbar-actions .profile-trigger { min-width: 155px; margin-left: auto; }
+  .topbar-actions .profile-trigger { min-width: 140px; margin-left: auto; }
 }
 @media (max-width: 900px) { .map-legend { grid-template-columns: 1fr; } .map-legend > button { border-right: 0; border-bottom: 1px solid var(--line); } }
 @media (max-width: 640px) { .map-pin { min-width: 42px; padding: 0.2rem; font-size: 0.7rem; gap: 0.2rem; } .map-pin svg { width: 10px; height: 10px; } .model-glossary > summary { grid-template-columns: 18px minmax(0, 1fr) 16px; gap: 0.5rem; } .model-glossary > p { margin-left: 0; } .portal-footer { font-size: 0.68rem; } }

@@ -1,6 +1,8 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.25.0
+**Aktueller Release:** 0.25.1
+
+**Schmalere Profilanzeige:** [Release 0.25.1](documentation/RELEASE_0_25_1.md) reduziert die Mindestbreite des Profilbuttons; Name, Klasse und XP bleiben erhalten.
 
 **Grundfunktionen:** [Abnahme des bisherigen Stands](documentation/ABNAHME_0_22_3.md).
 
@@ -11,7 +13,7 @@ DELETE prüfen zusätzlich, dass unbeteiligte Datensätze erhalten bleiben.
 
 **Veröffentlichung:** GitHub Pages, ausgelöst durch Push auf `main`.
 
-**Dokumentationsstand:** 3. Oktober 2026
+**Dokumentationsstand:** 8. Oktober 2026
 
 **Live:** <https://jakobsawazki.github.io/WorkbenchLab/>
 
