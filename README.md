@@ -13,6 +13,29 @@ DELETE prüfen zusätzlich, dass unbeteiligte Datensätze erhalten bleiben.
 
 **Veröffentlichung:** GitHub Pages, ausgelöst durch Push auf `main`.
 
+Vor jeder Veröffentlichung müssen die Node- und Python-Tests erfolgreich sein.
+Der Workflow überspringt das Deployment, sobald ein Test fehlschlägt.
+
+## Lokale Prüfungen (OPT-10)
+
+Voraussetzungen: Node.js ab 22, Python 3, pnpm ab 10. Für Browserprüfungen
+zusätzlich Microsoft Edge. Die Anwendung selbst bleibt ohne Paketabhängigkeiten.
+
+```sh
+pnpm install --frozen-lockfile --ignore-scripts
+pnpm test
+pnpm test:python
+pnpm serve
+# In einem zweiten Terminal, während der Server läuft:
+pnpm test:browser
+```
+
+Browserprüfungen verwenden `http://127.0.0.1:4174/`; eine abweichende lokale
+Adresse lässt sich mit `WORKBENCH_TEST_URL` setzen. Node- und Python-Tests
+benötigen keinen Server. Alternativ lassen sie sich direkt mit
+`node tools/run-tests.cjs` und `python -B -m unittest discover -s tests -p 'test_*.py' -v`
+starten. Historische Einzelprüfungen bleiben unverändert erhalten.
+
 **Dokumentationsstand:** 8. Oktober 2026
 
 **Live:** <https://jakobsawazki.github.io/WorkbenchLab/>
