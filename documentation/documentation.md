@@ -1370,6 +1370,38 @@ Bedienattribute.
   Node-Tests), heller Modus der neuen Bedienelemente, Schul-PCs.
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.31.
 
+### 0.31 Veröffentlichung 0.35.0 geprüft; Stand aller Punkte [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 166 | Commit `e1daeb0` gepusht; GitHub-Actions-Lauf 37901111155 | Job `test` und Job `deploy` erfolgreich |
+| 167 | Live-Seite im Browser geprüft: Version `0.35.0`, der Modell-Editor zeigt vier Aufgaben und „Automatisch anordnen“, keine Konsolenfehler | nur lesend |
+| 168 | Tag `v0.35.0` gesetzt und gepusht | Sicherungspunkt `e1daeb0` |
+| 169 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 170 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Sicherungspunkte:** `codex-stand-2026-10-08` (`4dedae1`) sowie `v0.26.0` bis
+`v0.35.0` (zuletzt `v0.33.0` `b1b2b80`, `v0.34.0` `f262a72`, `v0.35.0`
+`e1daeb0`). Wiederherstellung wie in Abschnitt 0.1.
+
+**Testumfang:** 149 Node-Tests, 2 Python-Tests, 30 Browsertests.
+
+**Stand der Punkte aus `claude2codex.md`**
+
+| Status | Punkte |
+| --- | --- |
+| erledigt (Claude) | OPT-01, OPT-02, OPT-03, OPT-07, OPT-08, OPT-13, OPT-19, OPT-21, OPT-22; OPT-04 bis auf die Optionalität |
+| erledigt (Codex) | OPT-10, OPT-11 |
+| teilweise | OPT-15 (Checkliste), OPT-20 (Hinweis und zwei MySQL-Befehle) |
+| braucht eine Vorgabe oder Entscheidung von Jakob | OPT-06, OPT-09, OPT-12, OPT-17, OPT-18; Notation der Optionalität (OPT-04); Durchführung der Checkliste 0.16 (OPT-15) |
+| braucht Abstimmung mit Codex | OPT-05, OPT-14 (Rest), OPT-16 |
+| braucht eine echte MySQL-/MariaDB-Instanz zum Nachprüfen | OPT-20 (Rest) |
+
+Damit ist kein Punkt mehr offen, den Claude ohne Vorgabe, Abstimmung oder
+Prüfmöglichkeit umsetzen kann.
+
+Nächste Handlungsnummer: 171.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
