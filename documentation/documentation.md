@@ -1996,6 +1996,34 @@ ein Verschieben.
   unverändert; zuletzt bei 0.38.1 mit 49 Prüfungen bestanden).
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.43.
 
+### 0.43 Veröffentlichung 0.38.2 geprüft; Stand aller Punkte [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 247 | Commit `423de85` gepusht; GitHub-Actions-Lauf 37917998270 | Job `test` und Job `deploy` erfolgreich |
+| 248 | Live-Seite im Browser geprüft: Version `0.38.2`, `sql-check.js` geladen, eine Abfrage mit `YEAR()` läuft im freien Labor, 59 Übungen, keine Lösungsangaben in den geladenen Daten, keine Konsolenfehler | nur lesend |
+| 249 | Tag `v0.38.2` gesetzt und gepusht; eigenen Testserver auf Port 4199 beendet; Claudes Merkzettel um `v0.38.2` ergänzt | Sicherungspunkt `423de85` |
+| 250 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Sicherungspunkte:** `codex-stand-2026-10-08` (`4dedae1`) sowie `v0.26.0` bis
+`v0.38.2` (`423de85`). Wiederherstellung wie in Abschnitt 0.1.
+
+**Testumfang:** 161 Node-Tests, 2 Python-Tests, 31 Browsertests; zusätzlich von
+Hand 49 Prüfungen gegen MariaDB.
+
+**Stand der Punkte**
+
+| Status | Punkte |
+| --- | --- |
+| erledigt (Claude) | OPT-01, -02, -03, -04, -06, -07, -08, -12 (veröffentlichte Fassung), -13, -19, -20, -21, -22, -24 |
+| erledigt (Codex) | OPT-10, OPT-11 |
+| verworfen durch Jakob | OPT-05, OPT-18 |
+| begonnen | OPT-16 (Schritt 1 von mehreren), OPT-14 (bis auf das Auslagern der alten Abschnitte dieser Datei) |
+| wartet auf Jakob im Unterricht | OPT-15 (Checkliste), Durchsicht der neuen Aufgaben |
+| offen | OPT-09 (Lehrkraft-Bestätigung absichern), OPT-23 (Lösungen im Entwicklermodus) |
+
+Nächste Handlungsnummer: 251.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
