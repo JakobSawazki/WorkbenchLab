@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.38.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.38.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,12 +40,12 @@ dieser Abschnitt und Abschnitt 0.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.38.0)**
+**Aktueller Stand (Release 0.38.1)**
 
 | Thema | Stand |
 | --- | --- |
 | Lerneinheiten | 21 in fünf Lernfortschritten; in fester Reihenfolge freigeschaltet; Abschluss nach Selbstkontrolle, Verständnischeck und Bestätigung durch die Lehrkraft |
-| Übungen | 58, alle frei zugänglich: 25 SQL-Schreibaufgaben, 6 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
+| Übungen | 59, alle frei zugänglich: 25 SQL-Schreibaufgaben, 7 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
 | Zusätzliche Übungsformen | freies SQL-Labor, Wiederholungsrunde, Klausurtraining, Modell-Editor |
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S` |
@@ -1885,12 +1885,50 @@ ablegen oder, einfacher, als Zeile in `CHANGELOG.md` mit einem Abschnitt in
 dieser Datei.
 
 **Offen aus OPT-14:** die alten Abschnitte dieser Datei in ein eigenes
-Archivdokument auslagern. Das würde die Datei von über 4000 auf wenige hundert
+Archivdokument auslagern. Das würde die Datei von rund 4000 auf wenige hundert
 Zeilen kürzen, verschiebt aber Codex' Text; Claude macht es erst nach einem
 kurzen Zeichen von Codex oder Jakob, weil Codex' Arbeitsweise auf diese
 Abschnitte verweist.
 
 Nächste Handlungsnummer: 231.
+
+### 0.40 Release 0.38.1: Fehlersuche nach Abiturmuster [Claude, 2026-10-09]
+
+Bezug: OPT-24.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 231 | Commit `28f022b` (Dokumentation aufgeräumt) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 232 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 233 | Siebte Fehlersuche-Aufgabe `debug-and-or-klammern` in `debug-exercises.js` ergänzt; `node tools/build-expected.cjs` ausgeführt (30 Sollergebnisse); Versionsangaben auf `0.38.1`; README, `CHANGELOG.md` und Wegweiser auf 59 Übungen | |
+| 234 | Tests angepasst (`debug-exercises.test.js` jetzt 6 Tests, `debug-exercises.browser.cjs`) | |
+| 235 | Testserver auf Port 4199 und eigene MariaDB-Instanz auf Port 33399 gestartet; alle Tests ausgeführt; MariaDB-Instanz beendet | siehe Prüfung |
+
+**Die Aufgabe:** Zu L2.4. Gewünscht sind die Fahrschüler aus Esslingen oder
+Tuebingen. Die vorgegebene Abfrage verbindet zwei Tabellen über die
+`WHERE`-Bedingung und hängt die beiden Ortsbedingungen ohne Klammern mit `AND`
+und `OR` an. Weil `AND` vor `OR` ausgewertet wird, erscheinen zwölf statt vier
+Zeilen. Die Korrektur setzt eine Klammer; eine Lösung mit `JOIN … ON` und `IN`
+wird ebenfalls akzeptiert. 20 XP, drei gestufte Hinweise.
+
+Das Muster stammt aus dem Abitur-Haupttermin 2025 (fehlerhafte Anweisung
+erläutern und korrigieren, Tabellenverbund über `WHERE`). Beispiel, Daten und
+Wortlaut sind eigene; aus der Prüfungsaufgabe ist nichts übernommen.
+
+**Prüfung**
+
+- 156 Node-Tests (1 neu) und 2 Python-Tests bestanden. Der neue Test hält fest:
+  ohne Klammern zwölf Zeilen, mit Klammern vier; eine gleichwertige Lösung mit
+  `JOIN` und `IN` liefert dasselbe und erfüllt die Aufbauprüfung.
+- Alle 31 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199),
+  jeder beim ersten Versuch.
+- `tools/verify-claude-native.cjs`: 49 Prüfungen gegen MariaDB 10.4.13
+  bestanden; die neue Aufgabe zeigt dort dasselbe falsche und dasselbe
+  korrigierte Ergebnis wie im Browser.
+- Nicht geprüft: Schul-PCs; die Aufgabe im Browser bis zur Lösung (der
+  Browsertest prüft Anzahl und Kennzeichnung, gelöst werden dort zwei andere
+  Fehlersuche-Aufgaben).
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.41.
 
 <!-- CLAUDE:END -->
 

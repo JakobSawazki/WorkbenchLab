@@ -31,8 +31,8 @@ async function run(schemaKey, sql) {
   }
 }
 
-test("sechs Fehlersuche-Aufgaben sind eindeutig, vollständig und gültigen Einheiten zugeordnet", () => {
-  assert.equal(debug.length, 6);
+test("sieben Fehlersuche-Aufgaben sind eindeutig, vollständig und gültigen Einheiten zugeordnet", () => {
+  assert.equal(debug.length, 7);
   assert.equal(new Set(content.practices.map((item) => item.id)).size, content.practices.length);
   for (const item of debug) {
     assert.match(item.id, /^debug-[a-z-]+$/);
@@ -81,6 +81,18 @@ test("typische Symptome stimmen fachlich", async () => {
   assert.equal(fixed.table.values.length, students.table.values[0][0]);
   const having = await run("fahrschule-basic", byId("debug-where-statt-having").starter);
   assert.match(feedback.explain(having.error, content.schemas["fahrschule-basic"]).text, /HAVING/);
+});
+
+test("Abiturmuster: ohne Klammern zwölf Zeilen, mit Klammern vier", async () => {
+  const item = debug.find((entry) => entry.id === "debug-and-or-klammern");
+  const start = await run(item.schema, item.starter);
+  const fixed = await run(item.schema, item.check.expectedSql);
+  assert.equal(start.table.values.length, 12);
+  assert.equal(fixed.table.values.length, 4);
+  assert.deepEqual([...new Set(fixed.table.values.map((row) => row[2]))].sort(), ["Esslingen", "Tuebingen"]);
+  const alternative = await run(item.schema, "SELECT f.nachname, f.vorname, o.ort FROM fahrschueler AS f JOIN orte AS o ON f.ortnr = o.ortnr WHERE o.ort IN ('Esslingen', 'Tuebingen') ORDER BY f.nachname, f.vorname, o.ort;");
+  assert.deepEqual(alternative.table.values, fixed.table.values);
+  for (const pattern of item.check.required) assert.match("SELECT x FROM a JOIN b ON a.i = b.i WHERE o.ort IN ('a') ORDER BY x;", new RegExp(pattern, "i"));
 });
 
 test("gleichwertige Korrekturen werden ebenfalls akzeptiert", async () => {

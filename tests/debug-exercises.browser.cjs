@@ -28,8 +28,8 @@ const firstLessons = ["warum-datenbanken", "relation-und-schluessel", "eerm-grun
       // Filter zeigt genau die sechs Fehlersuche-Aufgaben mit eigener Kennzeichnung.
       await page.locator('[data-filter="debug"]').click();
       const cards = page.locator("main .practice-card");
-      assert.equal(await cards.count(), 6);
-      assert.equal(await page.locator("main .practice-kind", { hasText: "Fehlersuche" }).count(), 6);
+      assert.equal(await cards.count(), 7);
+      assert.equal(await page.locator("main .practice-kind", { hasText: "Fehlersuche" }).count(), 7);
 
       // Symptom „falsches Ergebnis“: Startcode läuft, besteht aber nicht.
       await page.locator('[data-practice="debug-fehlendes-komma"]').click();
@@ -92,7 +92,7 @@ const firstLessons = ["warum-datenbanken", "relation-und-schluessel", "eerm-grun
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: six debug exercises, filter and label, wrong-result and error symptoms, fix earns XP once, MySQL difference note on run, reset restores bug, locking unchanged, desktop/mobile.");
+    console.log("PASS: seven debug exercises, filter and label, wrong-result and error symptoms, fix earns XP once, MySQL difference note on run, reset restores bug, locking unchanged, desktop/mobile.");
   } finally {
     await browser.close();
   }

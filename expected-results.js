@@ -1,6 +1,7 @@
 // Erzeugt von tools/build-expected.cjs – nicht von Hand ändern.
 // Sollergebnisse der SQL-Aufgaben; die Lösungsanweisungen werden nicht veröffentlicht.
 window.WORKBENCH_EXPECTED = {
+  "debug-and-or-klammern": {"columns":["nachname","vorname","ort"],"values":[["Roth","Emma","Tuebingen"],["Schmid","Amir","Esslingen"],["Wagner","Ben","Tuebingen"],["Yilmaz","Cem","Esslingen"]]},
   "debug-and-statt-or": {"columns":["nachname","vorname","ort"],"values":[["Keller","Aaron","Stuttgart"],["Keller","Mia","Stuttgart"],["Klein","Sara","Stuttgart"],["Novak","Lea","Stuttgart"],["Roth","Emma","Tuebingen"],["Wagner","Ben","Tuebingen"]]},
   "debug-fehlendes-komma": {"columns":["vorname","nachname","ort"],"values":[["Nele","Bauer","Ludwigsburg"],["Jonas","Fischer","Waiblingen"],["Aaron","Keller","Stuttgart"],["Mia","Keller","Stuttgart"],["Sara","Klein","Stuttgart"],["Lea","Novak","Stuttgart"],["Emma","Roth","Tuebingen"],["Amir","Schmid","Esslingen"],["Ben","Wagner","Tuebingen"],["Noah","Weber","Waiblingen"],["Cem","Yilmaz","Esslingen"]]},
   "debug-join-ohne-bedingung": {"columns":["nachname","vorname","ort"],"values":[["Bauer","Nele","Ludwigsburg"],["Fischer","Jonas","Waiblingen"],["Keller","Mia","Stuttgart"],["Klein","Sara","Stuttgart"],["Novak","Lea","Stuttgart"],["Roth","Emma","Tuebingen"],["Schmid","Amir","Esslingen"],["Wagner","Ben","Tuebingen"],["Weber","Noah","Waiblingen"],["Yilmaz","Cem","Esslingen"]]},

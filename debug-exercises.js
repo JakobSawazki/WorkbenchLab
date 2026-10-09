@@ -106,6 +106,23 @@
         "Ergänze nach dem JOIN die Schlüsselzuordnung: ON f.ortnr = o.ortnr."
       ],
       required: ["join", "\\bon\\b", "order\\s+by"]
+    },
+    {
+      id: "debug-and-or-klammern",
+      lessonId: "joins",
+      schema: "fahrschule",
+      title: "Fehlersuche: AND bindet stärker als OR",
+      description: "Gewünscht sind nachname, vorname und ort aller Fahrschüler, die in Esslingen oder in Tuebingen wohnen, sortiert nach nachname, vorname und ort. Die beiden Tabellen sind hier über die WHERE-Bedingung verbunden. Die Abfrage läuft, zeigt aber zwölf statt vier Zeilen.",
+      difficulty: "plus",
+      starter: "SELECT f.nachname, f.vorname, o.ort\nFROM fahrschueler AS f, orte AS o\nWHERE f.ortnr = o.ortnr\nAND o.ort = 'Esslingen'\nOR o.ort = 'Tuebingen'\nORDER BY f.nachname, f.vorname, o.ort;",
+      fixed: "SELECT f.nachname, f.vorname, o.ort\nFROM fahrschueler AS f, orte AS o\nWHERE f.ortnr = o.ortnr\nAND (o.ort = 'Esslingen' OR o.ort = 'Tuebingen')\nORDER BY f.nachname, f.vorname, o.ort;",
+      symptom: "wrong",
+      hints: [
+        "Sieh dir an, welche Fahrschüler zusammen mit Tuebingen erscheinen. Wohnen sie alle dort?",
+        "SQL wertet AND vor OR aus. Die Verbindung der Tabellen gilt deshalb nur für Esslingen; für Tuebingen wird jeder Fahrschüler mit dem Ort kombiniert.",
+        "Setze die beiden Ortsbedingungen in eine gemeinsame Klammer: AND (… OR …)."
+      ],
+      required: ["where", "\\bor\\b|\\bin\\b", "order\\s+by"]
     }
   ];
 

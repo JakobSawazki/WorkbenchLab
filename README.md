@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.38.0 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
+**Aktueller Release:** 0.38.1 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
 **Repository:** <https://github.com/JakobSawazki/WorkbenchLab>
 
 WorkbenchLab ist eine browserbasierte Lernumgebung für Jahrgangsstufe 1 im
@@ -27,7 +27,7 @@ Entwickelt von Jakob Sawazki gemeinsam mit zwei KI-Agenten (Codex und Claude).
 | Bereich | Inhalt |
 | --- | --- |
 | Lernpfad | 21 Lerneinheiten in fünf Lernfortschritten (L1 bis L5), jeweils mit Information, Aufgabenblatt, Browserübungen, Praxisauftrag in MySQL Workbench und Abschluss; Einheiten in fester Reihenfolge |
-| SQL-Labor | 58 Übungen, frei zugänglich: Abfragen schreiben, Fehlersuche, Vorhersage, Klauseln ordnen; freies SQL-Labor; Wiederholungsrunde; Klausurtraining; deutsche Fehlermeldungen; Hinweise auf Unterschiede zu MySQL |
+| SQL-Labor | 59 Übungen, frei zugänglich: Abfragen schreiben, Fehlersuche, Vorhersage, Klauseln ordnen; freies SQL-Labor; Wiederholungsrunde; Klausurtraining; deutsche Fehlermeldungen; Hinweise auf Unterschiede zu MySQL |
 | Modellieren | Modell- und Begriffsaufgaben; Modell-Editor mit Diagramm, drei geprüften Aufgaben, SQL- und Bildexport |
 | Nachschlagen | SQL-Befehle mit Suche, Startanleitung für Informatik-Stick und Workbench, Videos, Quellen |
 | Lernstand | lokal im Browser; Sicherung und Übertragung als JSON-Datei; Notizen, Markierungen, Zeichnungen; Druckansicht |

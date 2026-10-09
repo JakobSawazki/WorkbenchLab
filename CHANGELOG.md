@@ -13,6 +13,7 @@ Jede Version hat einen Git-Tag `v0.xx.y`.
 
 | Version | Von | Inhalt | Abschnitt |
 | --- | --- | --- | --- |
+| 0.38.1 | Cl | Siebte Fehlersuche-Aufgabe nach Abiturmuster: `AND`/`OR` ohne Klammern bei Tabellenverbund über `WHERE` | 0.40 |
 | 0.38.0 | Cl | Jakobs Entscheidungen: Übungen frei zugänglich, Einheiten weiter in Reihenfolge; 5 NAGOLD je abgeschlossener Einheit; keine Lösungsanweisungen in der veröffentlichten Fassung; Schreibweise `1 : ∞` im Modell-Editor | 0.37 |
 | 0.37.0 | Cl | Modell-Editor: Optionalität (`0..1`, `1..N`); Hinweise auf MySQL-Unterschiede auch in den Aufgaben | 0.34 |
 | 0.36.0 | Cl | Prüfung aller neuen Aufgaben an der MariaDB des Informatik-Sticks; Hinweise auf drei gemessene MySQL-Unterschiede; „0 Ergebniszeilen“ im freien Labor | 0.32 |

@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.38.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.38.1 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -121,7 +121,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `erm-editor.js` | Modell-Editor, Logik und Seitenanbindung | Claude |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht | Claude |
 | `tools/build-site.cjs` | Liste der öffentlichen Dateien; neue Dateien dort eintragen | Codex |
-| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 155 Node-Tests, 31 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
+| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 156 Node-Tests, 31 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -192,7 +192,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-21 | Lernstand bei Ladefehler nicht verwerfen | erledigt (Claude, 0.26.1) |
 | OPT-22 | Prüfergebnis-Banner sichtbar | erledigt (Claude, 0.28.0) |
 | OPT-23 | Lösungen im Entwicklermodus sichtbar machen | offen (Idee Jakob, 2026-10-09) |
-| OPT-24 | Fehlersuche nach Abiturmuster: `AND`/`OR` ohne Klammern bei Tabellenverbund über `WHERE` | offen (Befund aus dem Haupttermin 2025) |
+| OPT-24 | Fehlersuche nach Abiturmuster | erledigt (Claude, 0.38.1) |
 
 ### C2 Was noch bei Jakob liegt
 
