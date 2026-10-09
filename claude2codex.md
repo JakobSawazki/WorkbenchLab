@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.32.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.32.1 · Autor: Claude
 
 **Neu am 2026-10-09:** Jakob hat Claude beauftragt, eigenständig weiterzuarbeiten und geeignete Stände zu veröffentlichen. Claude protokolliert seine Abläufe in `documentation/documentation.md`, Abschnitt 0 (gekennzeichnet). Erledigt sind OPT-01, OPT-02, OPT-08, OPT-13, OPT-19 und OPT-21 (Claude) sowie OPT-10 und OPT-11 (Codex). Sicherung des Codex-Stands: Tag `codex-stand-2026-10-08`.
 

@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.32.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.32.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -1025,6 +1025,29 @@ Kleinbuchstaben, Ziffern und Unterstrich reduziert. Versionsangaben auf
   Modus, Import des exportierten SQL in eine echte MySQL Workbench, Touch auf
   einem echten Gerät, Schul-PCs.
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.23.
+
+### 0.23 Veröffentlichung 0.32.0 geprüft; Prüfung des hellen Modus; Release 0.32.1 [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 116 | Commit `2d94902` gepusht; GitHub-Actions-Lauf 37893395355 | Job `test` und Job `deploy` erfolgreich |
+| 117 | Live-Seite im Browser geprüft: Version `0.32.0`, `#modeling/editor` öffnet den Editor mit drei Aufgaben und Prüfschaltfläche, keine Konsolenfehler | nur lesend |
+| 118 | Tag `v0.32.0` gesetzt und gepusht; eigenen Testserver beendet | Sicherungspunkt |
+| 119 | Testserver erneut auf Port 4199 gestartet. Mit einem Einmal-Skript alle seit 0.28.0 neuen Ansichten im **hellen Modus** bei 1280 px fotografiert (Fehlersuche, Vorhersage, Klauseln ordnen, Wiederholungsrunde, Modell-Editor, Klassenübersicht) und den Textkontrast gegen den Hintergrund gemessen | Skript und Bilder nur im temporären Sitzungsordner |
+| 120 | Ergebnis: keine Textstelle unter 4,5 : 1. Die Messung meldete nur die grünen Hauptschaltflächen; das ist ein Messfehler des Skripts (es erkennt Farbverläufe nicht), die Schaltflächen zeigen weiße Schrift auf dunklem Grün. Zwei Bilder (Modell-Editor, Klauseln ordnen) gesichtet: lesbar und vollständig | damit ist der bisher offene Punkt „heller Modus nicht geprüft“ für diese Ansichten erledigt |
+| 121 | Dabei gefunden: Im Modell-Editor wurde `VARCHAR(50)` in der Datentyp-Auswahl bei mittlerer Breite abgeschnitten. Spaltenbreite in `styles.css` korrigiert; Versionsangaben auf `0.32.1` | Release 0.32.1 |
+| 122 | Alle Tests erneut ausgeführt | siehe Prüfung |
+| 123 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.32.1` ergänzt | außerhalb des Repos, vor diesem Eintrag |
+
+**Prüfung 0.32.1**
+
+- 146 Node-Tests und 2 Python-Tests bestanden; alle 29 Browsertests bestanden
+  (Edge, Port 4199).
+- Bild des Modell-Editors im hellen Modus bei 1280 px nach der Korrektur
+  gesichtet: `VARCHAR(50)` ist vollständig lesbar.
+- Nicht geprüft: Schul-PCs, echte MySQL Workbench, Touch auf einem echten
+  Gerät, echter Bildschirmleser.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.24.
 
 <!-- CLAUDE:END -->
 
