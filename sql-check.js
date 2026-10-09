@@ -15,7 +15,8 @@
     }
     db.create_function("YEAR", (value) => parseDateParts(value)?.year ?? null);
     db.create_function("MONTH", (value) => parseDateParts(value)?.month ?? null);
-    db.create_function("NOW", () => new Date().toISOString().replace("T", " ").slice(0, 19));
+    // Ortszeit wie beim MySQL-Server; bis 0.40.1 lieferte NOW() Weltzeit und lag damit 1 bis 2 Stunden daneben (Claude).
+    db.create_function("NOW", () => localDateTime());
     db.create_function("DATEDIFF", (a, b) => {
       const left = Date.parse(String(a));
       const right = Date.parse(String(b));
@@ -24,6 +25,124 @@
       }
       return Math.round((left - right) / 86400000);
     });
+    registerMysqlFunctions(db);
+  }
+
+  // ---- MySQL-Nähe des Browser-Labors (Claude, 0.41.0) ----
+  // Funktionen, die SQLite fehlen oder anders rechnen als MySQL. Jede ist an der MariaDB 10.4.13 des
+  // Informatik-Sticks nachgemessen: tools/verify-claude-native.cjs, Abschnitt 6. Nur Gemessenes aufnehmen.
+  const pad = (value, length = 2) => String(value).padStart(length, "0");
+  const isNull = (value) => value === null || value === undefined;
+  const characters = (value) => Array.from(String(value));
+  const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+  function localDate(now = new Date()) {
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  }
+
+  function localDateTime(now = new Date()) {
+    return `${localDate(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  }
+
+  // Datum mit optionaler Uhrzeit; ungültige Daten wie 2026-02-31 ergeben wie in MySQL NULL.
+  function parseDateTime(value) {
+    const match = String(value ?? "").match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+    if (!match) return null;
+    const [year, month, day, hour, minute, second] = match.slice(1).map((part) => Number(part || 0));
+    const date = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+    return { year, month, day, hour, minute, second, date };
+  }
+
+  function dateFormat(value, format) {
+    const d = parseDateTime(value);
+    if (!d || isNull(format)) return null;
+    const hour12 = d.hour % 12 || 12;
+    const parts = {
+      Y: pad(d.year, 4), y: pad(d.year % 100), m: pad(d.month), c: String(d.month), d: pad(d.day), e: String(d.day),
+      H: pad(d.hour), k: String(d.hour), h: pad(hour12), I: pad(hour12), l: String(hour12), i: pad(d.minute), s: pad(d.second), S: pad(d.second),
+      p: d.hour < 12 ? "AM" : "PM", M: MONTH_NAMES[d.month - 1], b: MONTH_NAMES[d.month - 1].slice(0, 3),
+      W: DAY_NAMES[d.date.getUTCDay()], a: DAY_NAMES[d.date.getUTCDay()].slice(0, 3),
+      T: `${pad(d.hour)}:${pad(d.minute)}:${pad(d.second)}`, "%": "%"
+    };
+    return String(format).replace(/%(.)/g, (_, key) => (Object.prototype.hasOwnProperty.call(parts, key) ? parts[key] : key));
+  }
+
+  // Ganze Einheiten zwischen zwei Zeitpunkten (bis - von), wie TIMESTAMPDIFF in MySQL.
+  function timestampDiff(unit, from, to) {
+    const a = parseDateTime(from);
+    const b = parseDateTime(to);
+    if (!a || !b) return null;
+    const name = String(unit ?? "").toUpperCase();
+    const fixed = { SECOND: 1000, MINUTE: 60000, HOUR: 3600000, DAY: 86400000, WEEK: 604800000 }[name];
+    if (fixed) return Math.trunc((b.date - a.date) / fixed);
+    if (!["MONTH", "QUARTER", "YEAR"].includes(name)) return null;
+    let months = (b.year - a.year) * 12 + (b.month - a.month);
+    const rest = (d) => ((d.day * 24 + d.hour) * 60 + d.minute) * 60 + d.second;
+    if (months > 0 && rest(b) < rest(a)) months -= 1;
+    if (months < 0 && rest(b) > rest(a)) months += 1;
+    return Math.trunc(months / { MONTH: 1, QUARTER: 3, YEAR: 12 }[name]);
+  }
+
+  function mysqlFormat(value, decimals) {
+    if (isNull(value) || isNull(decimals)) return null;
+    const number = Number(value);
+    const places = Math.min(20, Math.max(0, Math.round(Number(decimals)) || 0));
+    return Number.isFinite(number) ? number.toLocaleString("en-US", { minimumFractionDigits: places, maximumFractionDigits: places }) : null;
+  }
+
+  function truncate(value, decimals) {
+    if (isNull(value) || isNull(decimals)) return null;
+    const factor = 10 ** Math.trunc(Number(decimals));
+    const result = Math.trunc(Number((Number(value) * factor).toPrecision(15))) / factor;
+    return Number.isFinite(result) ? result : null;
+  }
+
+  // sql.js liest die Zahl der Argumente aus der Länge der Funktion; deshalb je eine feste Fassung.
+  const finite = (result) => (Number.isFinite(result) ? result : null);
+  const numeric1 = (fn) => (a) => (isNull(a) ? null : finite(fn(Number(a))));
+  const numeric2 = (fn) => (a, b) => (isNull(a) || isNull(b) ? null : finite(fn(Number(a), Number(b))));
+
+  const mysqlFunctions = {
+    DAY: (value) => parseDateParts(value)?.day ?? null,
+    DAYOFMONTH: (value) => parseDateParts(value)?.day ?? null,
+    CURDATE: () => localDate(),
+    DATE_FORMAT: dateFormat,
+    // Erstes Argument ist in MySQL ein Schlüsselwort (YEAR, MONTH, DAY ...); rewriteMysql in
+    // sql-feedback.js setzt es für das freie SQL-Labor in Anführungszeichen.
+    TIMESTAMPDIFF: timestampDiff,
+    CHAR_LENGTH: (value) => (isNull(value) ? null : characters(value).length),
+    CHARACTER_LENGTH: (value) => (isNull(value) ? null : characters(value).length),
+    LEFT: (value, count) => (isNull(value) || isNull(count) ? null : characters(value).slice(0, Math.max(0, Math.trunc(Number(count)) || 0)).join("")),
+    RIGHT: (value, count) => {
+      if (isNull(value) || isNull(count)) return null;
+      const length = Math.max(0, Math.trunc(Number(count)) || 0);
+      return length ? characters(value).slice(-length).join("") : "";
+    },
+    // Die eingebauten SQLite-Fassungen lassen Umlaute unverändert bzw. behandeln NULL und FORMAT anders.
+    UPPER: (value) => (isNull(value) ? null : characters(value).map((char) => (char === "ß" ? char : char.toUpperCase())).join("")),
+    LOWER: (value) => (isNull(value) ? null : String(value).toLowerCase()),
+    FORMAT: mysqlFormat,
+    MOD: numeric2((a, b) => (b === 0 ? NaN : a % b)),
+    TRUNCATE: truncate,
+    CEILING: numeric1(Math.ceil),
+    CEIL: numeric1(Math.ceil),
+    FLOOR: numeric1(Math.floor),
+    POWER: numeric2(Math.pow),
+    POW: numeric2(Math.pow),
+    SQRT: numeric1(Math.sqrt)
+  };
+
+  function registerMysqlFunctions(db) {
+    Object.entries(mysqlFunctions).forEach(([name, fn]) => db.create_function(name, fn));
+    // CONCAT nimmt beliebig viele Werte; sql.js liest die Stelligkeit aus der Länge der Funktion (-1 = beliebig).
+    const concat = (...parts) => (parts.some(isNull) ? null : parts.join(""));
+    Object.defineProperty(concat, "length", { value: -1 });
+    db.create_function("CONCAT", concat);
+    let version = "";
+    try { version = String(db.exec("SELECT sqlite_version();")[0].values[0][0]); } catch {}
+    db.create_function("VERSION", () => `SQLite ${version} (Browser-Labor, nicht MySQL)`);
   }
 
   function tableFromResult(resultSets) {
@@ -123,5 +242,5 @@
     return problems;
   }
 
-  window.WORKBENCH_SQL_CHECK = { parseDateParts, registerSqlFunctions, tableFromResult, normalizeCell, normalizedRows, sameTable, sqlCoachPatterns, sqlPatternInfo, checkSqlPatterns };
+  window.WORKBENCH_SQL_CHECK = { parseDateParts, parseDateTime, localDate, localDateTime, dateFormat, timestampDiff, mysqlFunctions, registerSqlFunctions, tableFromResult, normalizeCell, normalizedRows, sameTable, sqlCoachPatterns, sqlPatternInfo, checkSqlPatterns };
 })();

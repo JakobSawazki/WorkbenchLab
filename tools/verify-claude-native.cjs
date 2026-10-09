@@ -21,6 +21,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const connection = ["--no-defaults", "--protocol=TCP", "--host=127.0.0.1", `--port=${port}`, "--user=root"];
 
 function mysql(sql, expectFailure = false) {
+  // Liefert die Ausgabe; mit expectFailure stattdessen, ob die Anweisung scheiterte.
   const result = spawnSync(bin("mysql"), [...connection, "--batch", "--skip-column-names", "--default-character-set=utf8mb4"], { input: sql, encoding: "utf8", windowsHide: true, timeout: 90000 });
   if (result.error) throw result.error;
   if (expectFailure) return { failed: result.status !== 0, message: result.stderr.trim() };
@@ -34,11 +35,13 @@ const same = (a, b) => a.length === b.length && a.every((row, i) => row.length =
 }));
 
 const context = vm.createContext({ window: {} });
-for (const file of ["content.js", "learning-path.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "erm-editor.js"]) {
+for (const file of ["content.js", "learning-path.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "erm-editor.js", "sql-check.js", "sql-feedback.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });
 }
 const content = context.window.WORKBENCH_CONTENT;
 const erm = context.window.WORKBENCH_ERM;
+const sqlCheck = context.window.WORKBENCH_SQL_CHECK;
+const feedback = context.window.WORKBENCH_SQL_FEEDBACK;
 
 (async () => {
   const SQL = await initSqlJs({ locateFile: (file) => path.join(root, "vendor/sql.js", file) });
@@ -168,6 +171,108 @@ const erm = context.window.WORKBENCH_ERM;
     pair("LIMIT", "fahrschule-basic", "SELECT nachname FROM fahrschueler ORDER BY schuelernr LIMIT 2;");
     pair("Tabellenname Gross", "fahrschule-basic", "SELECT COUNT(*) FROM FAHRSCHUELER;");
     pair("Fremdschluessel verletzen", "fahrschule", "INSERT INTO fahrschueler VALUES (99, 'Test', 'Tina', '2008-01-01', 999);");
+
+    // 7. MySQL-Nähe des Browser-Labors (0.41.0): nachgebildete Funktionen und Umschreibungen liefern
+    //    dasselbe wie MariaDB. „lab“ entspricht dem freien SQL-Labor (mit rewriteMysql), „exercise“
+    //    einer Übungsaufgabe (nur die Funktionen).
+    const runLab = (sql, rewrite) => {
+      const db = new SQL.Database();
+      try {
+        sqlCheck.registerSqlFunctions(db);
+        db.run(content.schemas.fahrschule.seed);
+        const result = db.exec(rewrite ? feedback.rewriteMysql(sql) : sql);
+        return { ok: true, text: (result.at(-1)?.values || []).map((row) => row.map((cell) => (cell === null ? "NULL" : String(cell))).join("\t")).join("\n") };
+      } catch (error) {
+        return { ok: false, error };
+      } finally {
+        db.close();
+      }
+    };
+    mysql(`CREATE DATABASE wbl_lab CHARACTER SET utf8mb4; USE wbl_lab; ${content.schemas.fahrschule.seed.replace(/PRAGMA foreign_keys = ON;/g, "")}`);
+    const labNative = (sql) => mysql(`USE wbl_lab; ${sql}`);
+    const labEqual = [
+      "SELECT schuelernr, DAY(geburtsdatum), DAYOFMONTH(geburtsdatum) FROM fahrschueler ORDER BY schuelernr;",
+      "SELECT DAY('2026-10-09 14:05:09'), DAY(NULL), DAY('kein Datum');",
+      "SELECT LENGTH(CURDATE()), LENGTH(NOW()), YEAR(CURDATE()) = YEAR(NOW()), CURDATE() = LEFT(NOW(), 10);",
+      "SELECT schuelernr, DATE_FORMAT(geburtsdatum, '%d.%m.%Y') FROM fahrschueler ORDER BY schuelernr;",
+      "SELECT DATE_FORMAT('2026-10-09 14:05:09', '%Y-%m-%d %H:%i:%s'), DATE_FORMAT('2026-10-09 14:05:09', '%e.%c.%y %k:%i');",
+      "SELECT DATE_FORMAT('2026-03-05 00:07:00', '%h %I %l %p %T'), DATE_FORMAT('2026-03-05 12:07:00', '%h %p'), DATE_FORMAT('2026-03-05 23:07:00', '%h %l %p');",
+      "SELECT DATE_FORMAT('2026-10-09', '%W, %d. %M %Y'), DATE_FORMAT('2026-10-09', '%a %b'), DATE_FORMAT('2026-10-09', '100%% %Q %S');",
+      "SELECT DATE_FORMAT(NULL, '%Y'), DATE_FORMAT('2026-10-09', NULL), DATE_FORMAT('2026-02-31', '%d'), DATE_FORMAT('unsinn', '%d');",
+      "SELECT fahrstundennr, DATE_FORMAT(datum, '%Y-%m') FROM fahrstunden ORDER BY fahrstundennr LIMIT 4;",
+      "SELECT kfznr, FORMAT(anschaffungspreis, 2), FORMAT(anschaffungspreis, 0) FROM kfz ORDER BY kfznr;",
+      "SELECT FORMAT(1234567.891, 2), FORMAT(0.5, 0), FORMAT(1.5, 0), FORMAT(-1234.5, 1), FORMAT(12, 3), FORMAT(NULL, 2);",
+      "SELECT MOD(5, 2), MOD(-5, 2), MOD(5, -2), MOD(5, 0), MOD(NULL, 2), MOD(5.5, 2);",
+      "SELECT TRUNCATE(3.14159, 2), TRUNCATE(-3.999, 1), TRUNCATE(1234.5, -2), TRUNCATE(1.15, 2), TRUNCATE(NULL, 1), TRUNCATE(5, 0);",
+      "SELECT CEILING(2.1), CEIL(-2.1), FLOOR(2.9), FLOOR(-2.1), CEILING(3), CEILING(NULL);",
+      "SELECT POWER(2, 3), POW(2, 10), SQRT(16), SQRT(-1), POWER(NULL, 2);",
+      "SELECT ROUND(2.5), ROUND(3.5), ROUND(-2.5), ROUND(3.14159, 2), ROUND(AVG(anschaffungspreis), 2) FROM kfz;",
+      "SELECT UPPER('müller'), LOWER('MÜLLER'), UPPER('Straße'), LOWER('STRASSE'), UPPER('äöü éà'), UPPER(NULL), LOWER(NULL);",
+      "SELECT schuelernr, UPPER(nachname), LOWER(vorname) FROM fahrschueler ORDER BY schuelernr;",
+      "SELECT CHAR_LENGTH('Müller'), CHARACTER_LENGTH('Straße'), CHAR_LENGTH(''), CHAR_LENGTH(NULL), CHAR_LENGTH(12345);",
+      "SELECT LEFT('Stuttgart', 3), RIGHT('Stuttgart', 4), LEFT('Müller', 2), RIGHT('Müller', 20), LEFT('abc', 0), RIGHT('abc', 0), LEFT('abc', -1), LEFT(NULL, 2), LEFT('abc', NULL);",
+      "SELECT schuelernr, CONCAT(vorname, ' ', nachname), CONCAT(LEFT(vorname, 1), '. ', nachname) FROM fahrschueler ORDER BY schuelernr;",
+      "SELECT CONCAT('a', NULL, 'b'), CONCAT('a'), CONCAT('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'), CONCAT(1, 2), CONCAT('Nr. ', 5), CONCAT(schuelernr, '-', ortnr) FROM fahrschueler WHERE schuelernr = 1;",
+      "SELECT kfznr, CONCAT(kennzeichen, ': ', FORMAT(anschaffungspreis, 2), ' EUR') FROM kfz ORDER BY kfznr;",
+      "SELECT nachname FROM fahrschueler WHERE UPPER(nachname) = 'MAIER' ORDER BY schuelernr;",
+      "SELECT nachname FROM fahrschueler WHERE LEFT(nachname, 1) = 'M' ORDER BY schuelernr;",
+      "SELECT ortnr, COUNT(*) FROM fahrschueler GROUP BY ortnr HAVING MOD(COUNT(*), 2) = 0 ORDER BY ortnr;",
+      "SELECT schuelernr, TIMESTAMPDIFF(YEAR, geburtsdatum, '2026-10-09') FROM fahrschueler ORDER BY schuelernr;",
+      "SELECT TIMESTAMPDIFF(YEAR, '2008-10-09', '2026-10-09'), TIMESTAMPDIFF(YEAR, '2008-10-10', '2026-10-09'), TIMESTAMPDIFF(YEAR, '2026-10-09', '2008-10-10'), TIMESTAMPDIFF(YEAR, '2004-02-29', '2026-02-28');",
+      "SELECT TIMESTAMPDIFF(MONTH, '2026-01-31', '2026-02-28'), TIMESTAMPDIFF(MONTH, '2026-01-15', '2026-10-09'), TIMESTAMPDIFF(MONTH, '2026-10-09', '2026-01-15'), TIMESTAMPDIFF(QUARTER, '2025-01-01', '2026-10-09');",
+      "SELECT TIMESTAMPDIFF(DAY, '2026-10-01', '2026-10-09'), TIMESTAMPDIFF(DAY, '2026-10-09', '2026-10-01'), TIMESTAMPDIFF(WEEK, '2026-09-01', '2026-10-09'), TIMESTAMPDIFF(DAY, '2026-10-01 12:00:00', '2026-10-09 11:59:59');",
+      "SELECT TIMESTAMPDIFF(HOUR, '2026-10-09 08:00:00', '2026-10-09 13:45:00'), TIMESTAMPDIFF(MINUTE, '2026-10-09 08:00:00', '2026-10-09 13:45:00'), TIMESTAMPDIFF(SECOND, '2026-10-09 08:00:00', '2026-10-09 08:01:01');",
+      "SELECT TIMESTAMPDIFF(YEAR, NULL, '2026-10-09'), TIMESTAMPDIFF(DAY, 'unsinn', '2026-10-09');",
+      "select timestampdiff( year , geburtsdatum, '2026-10-09') from fahrschueler order by schuelernr limit 2;",
+      "SELECT schuelernr, YEAR(geburtsdatum), MONTH(geburtsdatum), DATEDIFF('2026-10-09', geburtsdatum) FROM fahrschueler ORDER BY schuelernr;",
+      "SELECT COUNT(*), SUM(stundenzahl), MIN(datum), MAX(datum) FROM fahrstunden;",
+      "CREATE TABLE kurse (kursnr INT AUTO_INCREMENT PRIMARY KEY, titel VARCHAR(50) NOT NULL); INSERT INTO kurse (titel) VALUES ('A'), ('B'); SELECT kursnr, titel FROM kurse ORDER BY kursnr;",
+      "CREATE TABLE kurse2 (kursnr INT NOT NULL AUTO_INCREMENT, titel VARCHAR(50), PRIMARY KEY (kursnr)); INSERT INTO kurse2 (titel) VALUES ('A'), ('B'); SELECT kursnr FROM kurse2 ORDER BY kursnr;",
+      "CREATE TABLE kurse3 (kursnr INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT, preis DECIMAL(6,2), start DATE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; INSERT INTO kurse3 (preis, start) VALUES (12.5, '2026-10-09'); SELECT kursnr, start FROM kurse3;",
+      "CREATE TABLE `kurse4` (`kursnr` INTEGER AUTO_INCREMENT PRIMARY KEY, `titel` VARCHAR(50) DEFAULT 'INT AUTO_INCREMENT') ENGINE = InnoDB; INSERT INTO kurse4 (kursnr) VALUES (7); SELECT kursnr, titel FROM kurse4;"
+    ];
+    for (const sql of labEqual) {
+      const browser = runLab(sql, true);
+      check(`Browser-Labor wie MariaDB: ${sql.slice(0, 90)}`, browser.ok && browser.text === labNative(sql));
+    }
+    // Gültiges MySQL, das im Browser nicht läuft: MariaDB führt es aus, der Browser erklärt es.
+    const mysqlOnly = [
+      ["SELECT TIMESTAMPDIFF(YEAR, '2008-03-12', '2026-10-09');", /TIMESTAMPDIFF ist gültiges MySQL/, false],
+      ["SELECT DATE_ADD('2026-10-09', INTERVAL 7 DAY);", /Datumsrechnung mit INTERVAL/, true],
+      ["SELECT '2026-10-09' + INTERVAL 1 MONTH;", /Datumsrechnung mit INTERVAL/, true],
+      ["INSERT INTO orte SET ortnr = 93, plz = '70003', ort = 'Mit SET';", /INSERT … SET ist eine MySQL-Kurzform/, true],
+      ["ALTER TABLE kfz MODIFY kennzeichen VARCHAR(80);", /MODIFY und … CHANGE gibt es nur in MySQL/, true],
+      ["CREATE TABLE nur_mysql_a (nr INT NOT NULL AUTO_INCREMENT, PRIMARY KEY (nr));", /AUTO_INCREMENT ist gültiges MySQL/, false],
+      ["CREATE TABLE nur_mysql_b (nr INT PRIMARY KEY) ENGINE=InnoDB;", /ENGINE=InnoDB gibt es nur in MySQL/, false],
+      ["SELECT 5 DIV 2;", /DIV \(ganzzahlige Division\)/, true]
+    ];
+    for (const [sql, hint, rewrite] of mysqlOnly) {
+      const browser = runLab(sql, rewrite);
+      check(`nur MySQL, läuft in MariaDB: ${sql}`, !mysql(`USE wbl_lab; ${sql}`, true).failed);
+      check(`nur MySQL, Browser erklärt es: ${sql}`, !browser.ok && hint.test(feedback.explain(browser.error, content.schemas.fahrschule, sql).text));
+    }
+    const elsewhere = {
+      DATABASE: "DATABASE()", USER: "USER()", MONTHNAME: "MONTHNAME('2026-10-09')", DAYNAME: "DAYNAME('2026-10-09')", WEEKDAY: "WEEKDAY('2026-10-09')",
+      DAYOFWEEK: "DAYOFWEEK('2026-10-09')", DAYOFYEAR: "DAYOFYEAR('2026-10-09')", WEEK: "WEEK('2026-10-09')", QUARTER: "QUARTER('2026-10-09')",
+      HOUR: "HOUR('12:34:56')", MINUTE: "MINUTE('12:34:56')", SECOND: "SECOND('12:34:56')", CURTIME: "CURTIME()", STR_TO_DATE: "STR_TO_DATE('09.10.2026', '%d.%m.%Y')",
+      LAST_DAY: "LAST_DAY('2026-10-09')", IF: "IF(1 = 1, 'a', 'b')", LPAD: "LPAD('a', 3, 'x')", RPAD: "RPAD('a', 3, 'x')",
+      REPEAT: "REPEAT('a', 2)", LOCATE: "LOCATE('b', 'abc')", RAND: "RAND()"
+    };
+    for (const [name, call] of Object.entries(elsewhere)) {
+      const browser = runLab(`SELECT ${call};`, true);
+      check(`${name}: in MariaDB vorhanden`, !mysql(`USE wbl_lab; SELECT ${call};`, true).failed);
+      check(`${name}: im Browser nicht nachgebildet und so erklärt`, !browser.ok && /gibt es in MySQL; das Browser-Labor bildet sie nicht nach/.test(feedback.explain(browser.error, content.schemas.fahrschule, `SELECT ${call};`).text));
+    }
+    check("Liste der nicht nachgebildeten Funktionen ist vollständig gemessen", JSON.stringify(Object.keys(elsewhere).sort()) === JSON.stringify(Array.from(feedback.MYSQL_FUNCTIONS_ELSEWHERE).sort()));
+    // Gemessene Unterschiede, auf die das Labor hinweist.
+    const aliasWhere = "SELECT nachname AS name FROM fahrschueler WHERE name = 'Maier';";
+    check("Alias in WHERE: MariaDB lehnt ab, Browser nimmt an, Hinweis erscheint", mysql(`USE wbl_lab; ${aliasWhere}`, true).failed && runLab(aliasWhere, true).ok && feedback.mysqlNotes(aliasWhere, 0).includes("alias-where"));
+    const aliasHaving = "SELECT ortnr, COUNT(*) AS anzahl FROM fahrschueler GROUP BY ortnr HAVING anzahl > 1 ORDER BY ortnr;";
+    check("Alias in HAVING: in beiden gleich, kein Hinweis", runLab(aliasHaving, true).text === labNative(aliasHaving) && !feedback.mysqlNotes(aliasHaving, 3).includes("alias-where"));
+    const average = "SELECT AVG(stundenzahl) FROM fahrstunden;";
+    check("AVG: unterschiedliche Stellenzahl, Hinweis erscheint", runLab(average, true).text !== labNative(average) && Math.abs(Number(runLab(average, true).text) - Number(labNative(average))) < 0.0001 && feedback.mysqlNotes(average, 1).includes("avg-stellen"));
+    const rounded = "SELECT ROUND(AVG(stundenzahl), 2) FROM fahrstunden;";
+    check("ROUND(AVG): in beiden gleich, kein Hinweis", runLab(rounded, true).text === labNative(rounded) && !feedback.mysqlNotes(rounded, 1).includes("avg-stellen"));
     console.log(JSON.stringify(report, null, 1));
     console.log(`PASS: ${report.checks} native Prüfungen gegen ${version}`);
   } finally {

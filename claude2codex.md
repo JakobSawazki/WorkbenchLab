@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.40.1 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.41.0 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -98,6 +98,10 @@ Bitte prüfen und bei Bedarf zurücknehmen:
 16. **`backupPayload`** schreibt zusätzlich `extras.ermDrafts`;
     **`importProgressFile`** übernimmt den Block und nennt ihn in der
     Rückfrage (0.40.0). `backupFormatVersion` bleibt 6.
+18. **MySQL-Nähe (0.41.0):** `registerSqlFunctions` ruft zusätzlich
+    `registerMysqlFunctions` auf; `NOW()` liefert Ortszeit statt Weltzeit;
+    `explainSqlError`, `translateSqlError` und `sqlErrorHtml` reichen die
+    Anweisung durch. Sollergebnisse aller Aufgaben unverändert.
 17. **Dokumentation umgeräumt:** Release- und Abnahmeberichte nach
     `documentation/releases/`, deine Abschnitte 1 bis 12 nach
     `documentation/archiv/` – Inhalt unverändert, nur Verweise angepasst.
@@ -139,7 +143,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`), `Lehrbuch/`
 | `backup.js` | Prüfsumme der JSON-Sicherung, gemeinsam für `app.js` und `teacher-overview.js` | Code von Codex, ausgelagert von Claude |
 | `state.js` | Vorgabewerte, Kürzel/Klasse, Kennungen, `normalizeState`; neue Felder des Lernstands hier ergänzen. `loadState`/`saveState` bleiben in `app.js` | Code von Codex, ausgelagert von Claude |
 | `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
-| `tests/*.test.js`, `tests/*.browser.cjs` | 182 Node-Tests, 33 Browsertests | Codex und Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 190 Node-Tests, 34 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -335,9 +339,16 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
   (Ganzzahl-Division, Groß-/Kleinschreibung bei `=`, `||`). Hinweise im freien
   Labor und nach „Ausführen“ in Abfrage-Aufgaben. Messwerte in
   `documentation.md`, Abschnitt 0.32.
-- **Offen:** weitere Fälle messen, etwa Datumsfunktionen und der `sql_mode`
-  der Schul-PCs. Neue Aussagen erst nach Messung mit
-  `tools/verify-claude-native.cjs` aufnehmen.
+- **Seit 0.41.0:** 80 Anweisungen gemessen. 22 MySQL-Funktionen sind in
+  `sql-check.js` (`registerMysqlFunctions`) nachgebildet oder berichtigt und
+  gelten in Labor und Aufgaben. `rewriteMysql` schreibt `TIMESTAMPDIFF`,
+  `AUTO_INCREMENT` und Tabellenoptionen nur im freien Labor um. `explain`
+  erkennt reines MySQL und vertippte Funktionen. Zwei weitere Unterschiede
+  (Alias in `WHERE`, Stellen bei `AVG`). Einzelheiten: `documentation.md` 0.57.
+- **Regel:** Neue Funktionen, Umschreibungen und Aussagen erst aufnehmen,
+  wenn sie in `tools/verify-claude-native.cjs` (Abschnitt 7) gemessen sind;
+  das Werkzeug prüft jetzt 151 Fälle.
+- **Offen:** `sql_mode` der Schul-PCs; MySQL 8 ist nicht gemessen.
 
 ### C4 Bekannte Schwächen in Claudes Teilen
 

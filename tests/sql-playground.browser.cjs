@@ -51,7 +51,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await page.getByText("11 Ergebniszeilen").waitFor();
 
       // Gemessene Unterschiede zu MySQL: Hinweis nur dort, wo er zutrifft (OPT-20).
-      assert.equal(await page.locator(".mysql-differences dt").count(), 3);
+      assert.equal(await page.locator(".mysql-differences dt").count(), 5);
       assert.equal(await page.locator("#sqlOutput .mysql-note").count(), 0);
       await editor.fill("SELECT 7 / 2;");
       await page.locator("#playgroundRunButton").click();

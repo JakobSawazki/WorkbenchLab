@@ -2061,11 +2061,11 @@
             <p class="field-hint">Tipp: <kbd>Strg</kbd> + <kbd>Enter</kbd> führt aus. <code>SHOW TABLES;</code> und <code>DESCRIBE tabelle;</code> funktionieren wie in MySQL Workbench.</p>
             <div id="sqlOutput" class="console-output" aria-live="polite">Noch keine Abfrage ausgeführt.</div>
             <details class="mysql-differences">
-              <summary>Drei Unterschiede zu MySQL Workbench, die du kennen solltest</summary>
+              <summary>Unterschiede zu MySQL Workbench, die du kennen solltest</summary>
               <dl>
-                ${window.WORKBENCH_SQL_FEEDBACK.MYSQL_DIFFERENCES.map((item) => `<dt>${escapeHtml(item.title)}</dt><dd>${escapeHtml(item.text)}</dd>`).join("")}
+                ${window.WORKBENCH_SQL_FEEDBACK.MYSQL_DIFFERENCES.filter((item) => item.listed !== false).map((item) => `<dt>${escapeHtml(item.title)}</dt><dd>${escapeHtml(item.text)}</dd>`).join("")}
               </dl>
-              <p class="field-hint">Nachgemessen an der MariaDB 10.4.13 des Informatik-Sticks.</p>
+              <p class="field-hint">Nachgemessen an der MariaDB 10.4.13 des Informatik-Sticks. Das Browser-Labor bildet diese MySQL-Funktionen nach: <code>YEAR</code>, <code>MONTH</code>, <code>DAY</code>, <code>NOW</code>, <code>CURDATE</code>, <code>DATEDIFF</code>, <code>TIMESTAMPDIFF</code>, <code>DATE_FORMAT</code>, <code>CONCAT</code>, <code>UPPER</code>, <code>LOWER</code>, <code>LEFT</code>, <code>RIGHT</code>, <code>CHAR_LENGTH</code>, <code>FORMAT</code>, <code>MOD</code>, <code>TRUNCATE</code>, <code>CEILING</code>, <code>FLOOR</code>, <code>POWER</code>, <code>SQRT</code>.</p>
             </details>
             <div class="callout playground-note">
               <i data-lucide="info"></i>
@@ -2121,10 +2121,11 @@
         renderIcons();
       } else {
         const changed = playgroundDb.getRowsModified();
-        setSqlOutput(`<div class="console-output">Befehl ausgeführt. ${changed === 1 ? "1 Datensatz" : `${changed} Datensätze`} betroffen. Kontrolliere das Ergebnis mit SELECT oder „Inhalt anzeigen“.</div>`);
+        setSqlOutput(`<div class="console-output">Befehl ausgeführt. ${changed === 1 ? "1 Datensatz" : `${changed} Datensätze`} betroffen. Kontrolliere das Ergebnis mit SELECT oder „Inhalt anzeigen“.</div>${mysqlNotesHtml(sql)}`);
+        renderIcons();
       }
     } catch (error) {
-      setSqlOutput(sqlErrorHtml(error, playgroundSchemaKey));
+      setSqlOutput(sqlErrorHtml(error, playgroundSchemaKey, editor.value));
     } finally {
       runButton.disabled = false;
     }
@@ -2968,12 +2969,12 @@
     return db;
   }
 
-  function explainSqlError(error, schemaKey) {
-    return window.WORKBENCH_SQL_FEEDBACK.explain(error, content.schemas[schemaKey]);
+  function explainSqlError(error, schemaKey, sql) {
+    return window.WORKBENCH_SQL_FEEDBACK.explain(error, content.schemas[schemaKey], sql);
   }
 
-  function translateSqlError(error, schemaKey) {
-    return explainSqlError(error, schemaKey).text;
+  function translateSqlError(error, schemaKey, sql) {
+    return explainSqlError(error, schemaKey, sql).text;
   }
 
   // Hinweise auf an MariaDB gemessene Unterschiede (Claude, OPT-20).
@@ -2984,8 +2985,8 @@
       .join("");
   }
 
-  function sqlErrorHtml(error, schemaKey) {
-    const info = explainSqlError(error, schemaKey);
+  function sqlErrorHtml(error, schemaKey, sql) {
+    const info = explainSqlError(error, schemaKey, sql);
     return `<div class="console-output sql-error" role="alert"><strong>SQL-Meldung</strong><p>${escapeHtml(info.text)}</p>${info.original ? `<small>Originalmeldung der Datenbank: <code>${escapeHtml(info.original)}</code></small>` : ""}</div>`;
   }
 
@@ -3172,8 +3173,8 @@
         showBanner("#practiceResult", false, "Noch nicht ganz", patternProblems[0]?.hint || "Öffne den SQL-Coach für den nächsten gezielten Prüfschritt.");
       }
     } catch (error) {
-      const translated = translateSqlError(error, practice.schema);
-      setSqlOutput(sqlErrorHtml(error, practice.schema));
+      const translated = translateSqlError(error, practice.schema, editor.value);
+      setSqlOutput(sqlErrorHtml(error, practice.schema, editor.value));
       if (useCoach) {
         const sql = editor.value.trim();
         const patternProblems = sql ? checkSqlPatterns(sql, practice.check) : [];

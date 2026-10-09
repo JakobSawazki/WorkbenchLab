@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.40.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.41.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,17 +40,18 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.40.1)**
+**Aktueller Stand (Release 0.41.0)**
 
 | Thema | Stand |
 | --- | --- |
 | Lerneinheiten | 21 in fünf Lernfortschritten; in fester Reihenfolge freigeschaltet; Abschluss nach Selbstkontrolle, Verständnischeck und Bestätigung durch die Lehrkraft |
 | Übungen | 59, alle frei zugänglich: 25 SQL-Schreibaufgaben, 7 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
 | Zusätzliche Übungsformen | freies SQL-Labor, Wiederholungsrunde, Klausurtraining, Modell-Editor |
+| Nähe zu MySQL | 26 MySQL-Funktionen nachgebildet und an MariaDB gemessen (4 von Codex, 22 seit 0.41.0); 5 bekannte Unterschiede werden im Labor erklärt (Abschnitt 0.57) |
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` (mit nachgeprüften Modellaufgaben); Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 182 Node-Tests, 2 Python-Tests, 33 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
+| Tests | 190 Node-Tests, 2 Python-Tests, 34 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2410,6 +2411,63 @@ je Lauf rund 46 MB nach `.tmp/`; drei ungenutzte PNG-Dateien (8,8 MB) unter
 `assets/` werden mitveröffentlicht.
 
 Nächste Handlungsnummer: 342.
+
+### 0.57 Release 0.41.0: Browser-Labor näher an MySQL [Claude, 2026-10-09]
+
+Bezug: OPT-20 („weitere Fälle messen“). Anlass: Wer im Browser übt und in
+MySQL Workbench arbeitet, soll möglichst dasselbe Ergebnis sehen. Gültiges
+MySQL soll im Browser nicht mit einer unverständlichen Meldung abbrechen.
+
+**Messung vorab.** 80 gängige Anweisungen im Browser-Labor (SQLite 3.45.2 mit
+den Hilfsfunktionen der App) und in einer eigenen Instanz der MariaDB 10.4.13
+des Informatik-Sticks ausgeführt. Ergebnis: 29 wichen ab (drei weitere nur
+scheinbar, weil die Messung Tabellenänderungen nicht zurücknahm).
+
+| Art | Beispiele | Folge |
+| --- | --- | --- |
+| Funktion fehlte im Browser | `DAY`, `CURDATE`, `DATE_FORMAT`, `CHAR_LENGTH`, `LEFT`, `RIGHT`, `MOD`, `TRUNCATE`, `CEILING`, `FLOOR`, `POWER`, `SQRT`, `VERSION` | nachgebildet |
+| Funktion rechnete anders | `UPPER('müller')` ergab `MüLLER`; `CONCAT('a', NULL)` ergab `a` statt `NULL`; `FORMAT(24800, 2)` ergab `24800.0` statt `24,800.00` | berichtigt |
+| `NOW()` | lieferte Weltzeit statt Ortszeit (1 bis 2 Stunden daneben, nach Mitternacht falsches Datum) | berichtigt |
+| Schreibweise nur in MySQL | `TIMESTAMPDIFF(YEAR, …)`, `AUTO_INCREMENT`, `ENGINE=InnoDB` | im freien SQL-Labor umgeschrieben |
+| Schreibweise nur in MySQL, nicht nachbildbar | `DATE_ADD … INTERVAL`, `DIV`, `INSERT … SET`, `ALTER TABLE … MODIFY`, 21 weitere Funktionen | deutscher Hinweis statt bloßer Fehlermeldung |
+| Browser nimmt an, MySQL lehnt ab | Name aus `AS` in `WHERE` | Hinweis nach dem Ausführen |
+| nur Darstellung | `AVG` mit 16 statt 4 Nachkommastellen | Hinweis nach dem Ausführen |
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 342 | Hilfsskript `probe.cjs` geschrieben (eigene MariaDB-Instanz auf Port 33397, Datenverzeichnis im Temp-Ordner, danach beendet und gelöscht) und zwei Messreihen gefahren | nur im Arbeitsordner außerhalb des Repositorys |
+| 343 | `sql-check.js`: `registerMysqlFunctions` mit 20 Funktionen, dazu `CONCAT` und `VERSION` (zusammen 22); `NOW()` auf Ortszeit umgestellt (Codex' Zeile) | gilt im freien Labor und in allen Übungsaufgaben |
+| 344 | `sql-feedback.js`, `rewriteMysql`: `TIMESTAMPDIFF(EINHEIT, …)`, `AUTO_INCREMENT` (drei Schreibweisen) und Tabellenoptionen werden außerhalb von Textwerten und Kommentaren umgeschrieben | nur im freien SQL-Labor |
+| 345 | `sql-feedback.js`, `explain`: erhält zusätzlich die Anweisung; erkennt sieben Schreibweisen als „gültiges MySQL, hier nicht möglich“, 21 Funktionen als „in MySQL vorhanden“, und schlägt bei vertippten Funktionen die richtige vor (`COUT` → `COUNT`) | die Originalmeldung bleibt sichtbar |
+| 346 | `sql-feedback.js`: zwei neue gemessene Unterschiede (Alias in `WHERE`, Stellen bei `AVG`) und ein Hinweis zu `AUTO_INCREMENT` | Liste im freien Labor: 5 statt 3 Einträge; Überschrift ohne Zahl |
+| 347 | `app.js`: Anweisung an `explain` durchgereicht (freies Labor und `runSqlPractice`); Hinweise auch nach Befehlen ohne Ergebnistabelle; Liste der nachgebildeten Funktionen im freien Labor | drei Stellen in Codex' Funktionen |
+| 348 | Fehlgriffe: (a) Zahlenfunktionen zuerst mit beliebig vielen Argumenten angelegt – sql.js liest die Stelligkeit aus der Funktionslänge und meldete „wrong number of arguments“; (b) `TIMEDIFF` und `REVERSE` standen auf der Liste „nur MySQL“, das Browser-Labor kennt beide; (c) ein Befehl mit langen Textblöcken scheiterte in der Shell, bevor er etwas änderte | (a) feste Stelligkeit; (b) aus der Liste genommen; (c) Texte als Dateien angelegt. Alle drei durch die Messung bzw. vor dem Commit bemerkt |
+| 349 | `tools/verify-claude-native.cjs`, neuer Abschnitt 7: 39 Anweisungen müssen im Browser dasselbe liefern wie MariaDB; 8 reine MySQL-Anweisungen müssen in MariaDB laufen und im Browser erklärt werden; alle 21 „nur MySQL“-Funktionen einzeln; vier Prüfungen zu den neuen Hinweisen | 151 statt 49 Prüfungen, alle bestanden |
+| 350 | Tests: `tests/sql-check.test.js` (+4), `tests/sql-feedback.test.js` (+4), `tests/mysql-lab.browser.cjs` neu; `tests/sql-playground.browser.cjs`: Zahl der Listeneinträge 3 → 5 | erwartete Werte stammen aus der Messung |
+| 351 | `node tools/build-expected.cjs`: Sollergebnisse aller 30 Abfrage-Aufgaben unverändert | die Änderung berührt keine vorhandene Aufgabe |
+| 352 | Versionsangaben auf `0.41.0`; `CHANGELOG.md`, `README.md`, Wegweiser, `claude2codex.md` (OPT-20, A2 Punkt 18), Merkzettel | |
+| 353 | Eigenen Testserver auf Port 4199 gestartet, nach den Tests beendet | keine fremden Prozesse berührt |
+
+**Prüfung**
+
+- 151 Prüfungen gegen MariaDB 10.4.13 bestanden (`node tools/verify-claude-native.cjs`).
+- 190 Node-Tests (8 neu) und 2 Python-Tests bestanden.
+- Alle 34 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199).
+
+**Nicht geprüft:** MySQL 8 (gemessen ist die MariaDB 10.4.13 des Sticks, die
+auf den Schul-PCs läuft); andere Zeitzonen als die dieses Rechners; `FORMAT`
+mit sehr großen Zahlen.
+
+**Bewusst nicht geändert**
+
+- `LENGTH('Müller')` ergibt im Browser 6, in MySQL 7 (Bytes). Nicht angepasst;
+  `CHAR_LENGTH` liefert in beiden 6.
+- `5.0 / 2` zeigt im Browser `2.5`, in MySQL `2.50000` (nur Darstellung).
+- `TIMESTAMPDIFF` und `AUTO_INCREMENT` laufen nur im freien SQL-Labor. In den
+  Übungsaufgaben wird die Anweisung nicht umgeschrieben; dort erscheint der
+  erklärende Hinweis.
+
+Nächste Handlungsnummer: 354.
 
 <!-- CLAUDE:END -->
 
