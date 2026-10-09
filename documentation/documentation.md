@@ -1146,6 +1146,22 @@ des gerade aktiven Farbmodus; für Ausdrucke empfiehlt sich der helle Modus.
   eine echte MySQL Workbench, Schul-PCs.
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.26.
 
+### 0.26 Veröffentlichung 0.33.0 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 135 | Commit `b1b2b80` gepusht; GitHub-Actions-Lauf 37894735612 | Job `test` und Job `deploy` erfolgreich |
+| 136 | Live geprüft: alle Dateien mit `?v=0.33.0`, `erm-editor.js` enthält den Bildexport | per Abruf |
+| 137 | Tag `v0.33.0` gesetzt und gepusht | Sicherungspunkt `b1b2b80` |
+| 138 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 139 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+Sicherungspunkte, Übersicht der Versionen und der Stand der offenen Punkte
+stehen in Abschnitt 0.24; hinzugekommen ist `v0.33.0`. Testumfang unverändert:
+146 Node-Tests, 2 Python-Tests, 29 Browsertests.
+
+Nächste Handlungsnummer: 140.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
