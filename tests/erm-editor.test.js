@@ -159,7 +159,7 @@ test("der Editor wird vor der App geladen und veröffentlicht; Aufgaben sind vol
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   assert.ok(html.indexOf('src="erm-editor.js') < html.indexOf('src="app.js'));
   assert.equal(require("../tools/build-site.cjs").isPublicFile("erm-editor.js"), true);
-  assert.equal(erm.TASKS.length, 3);
+  assert.equal(erm.TASKS.length, 4);
   assert.equal(task("frei").target, null);
   for (const item of erm.TASKS.filter((entry) => entry.target)) {
     for (const wanted of item.target.entities) {
@@ -169,4 +169,44 @@ test("der Editor wird vor der App geladen und veröffentlicht; Aufgaben sind vol
       assert.ok(item.target.entities.some((entry) => entry.key === wanted.one) && item.target.entities.some((entry) => entry.key === wanted.many));
     }
   }
+});
+
+test("Transferaufgabe Schulbibliothek: vier Entitätstypen mit drei 1:N-Beziehungen bestehen", () => {
+  const target = task("schulbibliothek").target;
+  const verlag = entity("Verlag", [attribute("verlagnr", { pk: true }), attribute("name", { type: "VARCHAR(50)" })]);
+  const buch = entity("Bücher", [attribute("buchnr", { pk: true }), attribute("titel", { type: "VARCHAR(50)" }), attribute("verlagnr", { fk: true })]);
+  const leser = entity("Leser", [attribute("lesernr", { pk: true }), attribute("nachname", { type: "VARCHAR(50)" })]);
+  const ausleihe = entity("Ausleihe", [attribute("ausleihnr", { pk: true }), attribute("von", { type: "DATE" }), attribute("bis", { type: "DATE" }), attribute("buchnr", { fk: true }), attribute("lesernr", { fk: true })]);
+  const model = { entities: [verlag, buch, leser, ausleihe], relations: [relation(verlag, buch, "1:N"), relation(ausleihe, buch, "N:1"), relation(leser, ausleihe, "1:N")] };
+  assert.equal(erm.checkModel(model, target).passed, true);
+
+  const direct = { entities: [verlag, buch, leser], relations: [relation(verlag, buch, "1:N"), relation(leser, buch, "M:N")] };
+  const result = erm.checkModel(direct, target);
+  assert.equal(result.passed, false);
+  assert.match(messages(result), /„Ausleihe“ fehlt noch/);
+  assert.match(messages(result), /Beziehungsentität/);
+
+  buch.attributes[2].fk = false;
+  assert.match(messages(erm.checkModel(model, target)), /„Bücher“ steht auf der N-Seite und braucht einen Fremdschlüssel/);
+});
+
+test("von Hand verschobene Kästen behalten ihren Platz; Positionen werden begrenzt gespeichert", () => {
+  const a = entity("A", [attribute("id", { pk: true })]);
+  const b = entity("B", [attribute("id", { pk: true })]);
+  b.x = 900;
+  b.y = 500;
+  const plan = plain(erm.layout({ entities: [a, b], relations: [] }));
+  assert.equal(plan.boxes[0].placed, false);
+  assert.deepEqual([plan.boxes[1].x, plan.boxes[1].y, plan.boxes[1].placed], [900, 500, true]);
+  assert.ok(plan.width >= 900 + plan.boxes[1].width && plan.height >= 500 + plan.boxes[1].height);
+  const empty = plain(erm.layout({ entities: [], relations: [] }));
+  assert.deepEqual([empty.width, empty.height], [erm.CANVAS.minWidth, erm.CANVAS.minHeight]);
+
+  const stored = plain(erm.sanitize({ entities: [
+    { id: 1, name: "ok", x: 120.6, y: 80.2 }, { id: 2, name: "zu weit", x: 99999, y: -50 },
+    { id: 3, name: "nur x", x: 10 }, { id: 4, name: "kaputt", x: "12", y: null }
+  ] })).entities;
+  assert.deepEqual([stored[0].x, stored[0].y], [121, 80]);
+  assert.deepEqual([stored[1].x, stored[1].y], [erm.CANVAS.maxX, 0]);
+  assert.ok(!("x" in stored[2]) && !("y" in stored[2]) && !("x" in stored[3]));
 });

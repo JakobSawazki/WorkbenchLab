@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.34.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.35.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -1304,6 +1304,71 @@ Hindernis. Claude hat deshalb weitergearbeitet.
 | braucht Abstimmung mit Codex | OPT-05, OPT-14 (Rest), OPT-16 |
 
 Nächste Handlungsnummer: 159.
+
+### 0.30 Release 0.35.0: Modell-Editor, zweite Stufe [Claude, 2026-10-09]
+
+Bezug: OPT-04, zweite Stufe.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 159 | Commit `88390c7` (Eintrag 0.29, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 160 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 161 | `erm-editor.js`: Kästen verschieben (Zeiger und Tastatur), „Automatisch anordnen“, dritte geprüfte Aufgabe „Schulbibliothek“; `styles.css`; Versionsangaben auf `0.35.0`; README-Tabelle | siehe unten |
+| 162 | `tests/erm-editor.test.js` um zwei Tests erweitert (jetzt 9); `tests/erm-editor.browser.cjs` um das Verschieben erweitert | |
+| 163 | Ein Fehlversuch im Browsertest: Der Test erwartete ein Prüfergebnis, das ein früherer Testschritt bereits geleert hatte | nur Testcode |
+| 164 | Testserver auf Port 4199 gestartet; alle Node-, Python- und alle 30 Browsertests auf dem endgültigen Stand ausgeführt | siehe Prüfung; schließt die in 0.28 offen gebliebene Lücke |
+| 165 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.35.0` ergänzt | außerhalb des Repos, vor diesem Eintrag |
+
+**Neu für Schülerinnen und Schüler**
+
+- **Kästen verschieben:** Jeder Kasten im Diagramm lässt sich mit Maus oder
+  Finger ziehen. Mit der Tastatur: Kasten ansteuern, dann Pfeiltasten (10
+  Einheiten, mit Umschalttaste 50). Linien und Kardinalitäten folgen. Die
+  Anordnung bleibt je Aufgabe gespeichert und geht in den Bildexport ein.
+- **„Automatisch anordnen“** stellt das Raster wieder her.
+- Ein Prüfergebnis bleibt beim Verschieben stehen, weil die Anordnung das
+  Modell nicht ändert.
+- **Dritte geprüfte Aufgabe „Schulbibliothek (Transfer)“**: vier
+  Entitätstypen (Verlag, Buch, Leser, Ausleihe) mit drei 1:N-Beziehungen, davon
+  eine aufgelöste M:N-Beziehung.
+
+**Grenzen**
+
+- Die Zeichenfläche ist mindestens 700 × 340 Einheiten groß und wächst mit den
+  Kästen bis höchstens 1400 × 1000. Beim Ziehen mit der Maus bleibt ein Kasten
+  innerhalb der aktuellen Fläche; mit den Pfeiltasten lässt sie sich
+  vergrößern.
+- Auf schmalen Bildschirmen wird das Diagramm verkleinert dargestellt; die
+  Schrift im Diagramm ist dort entsprechend klein.
+- Weiterhin offen: Optionalität (0 oder 1). Claude hat sie bewusst nicht
+  umgesetzt, weil die Schreibweise zur Notation in den Unterrichtsmaterialien
+  passen muss; das sollte Jakob vorgeben.
+- Weiterhin nicht Teil der JSON-Sicherung; keine XP.
+
+**Technik:** `layout()` übernimmt gespeicherte Positionen `x`/`y` eines
+Entitätstyps und ordnet die übrigen im Raster an; `sanitize()` rundet und
+begrenzt sie. Das Ziehen nutzt `pointerdown`/`pointermove`/`pointerup` auf
+Dokumentebene; während des Ziehens bleibt die Größe der Zeichenfläche fest,
+damit sich der Maßstab nicht ändert. Die exportierte SVG-Datei enthält keine
+Bedienattribute.
+
+**Prüfung**
+
+- 149 Node-Tests (2 neu) und 2 Python-Tests bestanden.
+- **Alle 30 Browsertests auf dem endgültigen Stand bestanden** (Edge, Port
+  4199), jeder beim ersten Versuch. Damit sind auch die zwölf Tests erneut
+  gelaufen, die bei 0.34.0 nach der letzten Korrektur nicht wiederholt worden
+  waren.
+- Der erweiterte `erm-editor.browser.cjs` prüft bei 1440 und 390 px: Ziehen mit
+  der Maus, Linie folgt, Fokus bleibt auf dem Kasten, Prüfergebnis bleibt
+  stehen, Pfeiltasten mit und ohne Umschalttaste, Bestand nach Neuladen,
+  „Automatisch anordnen“, kein Überlauf, Bildexport ohne Bedienattribute.
+- Nicht geprüft: Ziehen mit dem Finger auf einem echten Touch-Gerät (nur
+  Mausereignisse im Test), die Aufgabe „Schulbibliothek“ im Browser (nur in den
+  Node-Tests), heller Modus der neuen Bedienelemente, Schul-PCs.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.31.
 
 <!-- CLAUDE:END -->
 

@@ -4721,3 +4721,11 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 .teacher-like-table-wrap { overflow-x: auto; margin-bottom: 0.6rem; }
 .exam-table th[scope="row"] { text-align: left; font-weight: 700; }
 .exam-table td, .exam-table th { vertical-align: middle; }
+
+/* Modell-Editor, zweite Stufe: Kästen verschieben (Claude, OPT-04) */
+.erm-entity-box { cursor: grab; touch-action: none; }
+.erm-entity-box:active { cursor: grabbing; }
+.erm-entity-box:focus { outline: none; }
+.erm-entity-box:focus-visible .erm-box { stroke: var(--amber); stroke-width: 3; }
+.erm-svg text { user-select: none; pointer-events: none; }
+.erm-drag-hint { margin: -0.4rem 0 0.8rem; }

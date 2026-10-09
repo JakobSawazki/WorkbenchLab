@@ -7,6 +7,7 @@
   const TYPES = ["INT", "VARCHAR(50)", "DATE", "DOUBLE", "BOOLEAN"];
   const CARDS = ["1:N", "N:1", "1:1", "M:N"];
   const LIMITS = { entities: 8, attributes: 12, relations: 12, name: 40 };
+  const CANVAS = { minWidth: 700, minHeight: 340, maxX: 1400, maxY: 1000, step: 10 };
 
   function norm(value) {
     return String(value ?? "").toLowerCase()
@@ -42,7 +43,10 @@
         if (!attributeId) return;
         attributes.push({ id: attributeId, name: text(attribute.name), type: TYPES.includes(attribute.type) ? attribute.type : "INT", pk: Boolean(attribute.pk), fk: Boolean(attribute.fk) });
       });
-      model.entities.push({ id, name: text(entity.name), attributes });
+      const place = (value, max) => (Number.isFinite(value) ? Math.min(max, Math.max(0, Math.round(value))) : null);
+      const x = place(entity.x, CANVAS.maxX);
+      const y = place(entity.y, CANVAS.maxY);
+      model.entities.push({ id, name: text(entity.name), attributes, ...(x !== null && y !== null ? { x, y } : {}) });
     });
     const entityIds = new Set(model.entities.map((entity) => entity.id));
     (Array.isArray(candidate?.relations) ? candidate.relations : []).slice(0, LIMITS.relations).forEach((relation) => {
@@ -167,6 +171,7 @@
     return `-- Erzeugt im WorkbenchLab-Modell-Editor. Vor dem Ausführen in MySQL Workbench Zielschema prüfen.\n${statements.join("\n\n")}\n`;
   }
 
+  // Automatische Anordnung im Raster; ein von Hand verschobener Kasten behält seinen Platz.
   function layout(model) {
     const columns = model.entities.length <= 4 ? Math.max(1, Math.min(model.entities.length, 2)) : 3;
     const width = 210;
@@ -181,14 +186,17 @@
     });
     const rowTop = [];
     rowHeights.reduce((top, height, row) => { rowTop[row] = top; return top + height + gapY; }, 20);
-    boxes.forEach((box) => {
-      box.x = 20 + box.column * (width + gapX);
-      box.y = rowTop[box.row];
+    boxes.forEach((box, index) => {
+      const entity = model.entities[index];
+      const placed = Number.isFinite(entity.x) && Number.isFinite(entity.y);
+      box.x = placed ? Math.max(0, entity.x) : 20 + box.column * (width + gapX);
+      box.y = placed ? Math.max(0, entity.y) : rowTop[box.row];
+      box.placed = placed;
     });
     return {
       boxes,
-      width: 40 + columns * width + (columns - 1) * gapX,
-      height: boxes.length ? Math.max(...boxes.map((box) => box.y + box.height)) + 20 : 120
+      width: Math.max(CANVAS.minWidth, ...boxes.map((box) => box.x + box.width + 20)),
+      height: Math.max(CANVAS.minHeight, ...boxes.map((box) => box.y + box.height + 20))
     };
   }
 
@@ -228,7 +236,23 @@
     }
   ];
 
-  window.WORKBENCH_ERM = { TYPES, CARDS, TASKS, LIMITS, norm, identifier, emptyModel, sanitize, checkModel, toSql, layout, oneToMany };
+  TASKS.push({
+    id: "schulbibliothek",
+    title: "Schulbibliothek (Transfer)",
+    lesson: "L3.1",
+    text: "Eine Schulbibliothek verwaltet Bücher. Jedes Buch stammt von genau einem Verlag; ein Verlag hat viele Bücher. Leserinnen und Leser leihen Bücher aus: Eine Person kann viele Bücher ausleihen, und ein Buch wird im Lauf der Zeit von vielen Personen ausgeliehen. Zu jeder Ausleihe gehören ein Ausleih- und ein Rückgabedatum. Modelliere vier Entitätstypen so, dass sich das in Tabellen umsetzen lässt.",
+    target: {
+      entities: [
+        { key: "verlag", label: "Verlag", names: ["verlag", "verlage"], foreignKeys: 0 },
+        { key: "buch", label: "Buch", names: ["buch", "buecher"], foreignKeys: 1 },
+        { key: "leser", label: "Leser", names: ["leser", "leserin", "leserinnen", "person", "personen", "schueler", "mitglied", "mitglieder", "nutzer", "benutzer"], foreignKeys: 0 },
+        { key: "ausleihe", label: "Ausleihe", names: ["ausleihe", "ausleihen", "leihe", "leihen", "ausleihvorgang", "ausleihvorgaenge", "verleih"], foreignKeys: 2, minAttributes: 4 }
+      ],
+      relations: [{ one: "verlag", many: "buch" }, { one: "buch", many: "ausleihe" }, { one: "leser", many: "ausleihe" }]
+    }
+  });
+
+  window.WORKBENCH_ERM = { TYPES, CARDS, TASKS, LIMITS, CANVAS, norm, identifier, emptyModel, sanitize, checkModel, toSql, layout, oneToMany };
 
   if (typeof document === "undefined") return;
 
@@ -281,7 +305,7 @@
     const boxes = current.entities.map((entity) => {
       const rect = box(entity.id);
       const rows = entity.attributes.map((attribute, index) => `<text class="erm-attribute${attribute.pk ? " is-pk" : ""}" x="${rect.x + 12}" y="${rect.y + 56 + index * 20}">${escapeHtml(attribute.name || "…")}${attribute.pk ? " (PK)" : ""}${attribute.fk ? " (FK)" : ""}</text>`).join("");
-      return `<g><rect class="erm-box" x="${rect.x}" y="${rect.y}" width="${rect.width}" height="${rect.height}" rx="8"></rect><rect class="erm-box-head" x="${rect.x}" y="${rect.y}" width="${rect.width}" height="32" rx="8"></rect><text class="erm-title" x="${rect.x + rect.width / 2}" y="${rect.y + 21}" text-anchor="middle">${escapeHtml(entity.name || "ohne Namen")}</text>${rows}</g>`;
+      return `<g class="erm-entity-box" data-box="${entity.id}" tabindex="0" role="group" aria-label="Kasten ${escapeHtml(entity.name || "ohne Namen")}: mit der Maus ziehen oder mit den Pfeiltasten verschieben"><rect class="erm-box" x="${rect.x}" y="${rect.y}" width="${rect.width}" height="${rect.height}" rx="8"></rect><rect class="erm-box-head" x="${rect.x}" y="${rect.y}" width="${rect.width}" height="32" rx="8"></rect><text class="erm-title" x="${rect.x + rect.width / 2}" y="${rect.y + 21}" text-anchor="middle">${escapeHtml(entity.name || "ohne Namen")}</text>${rows}</g>`;
     }).join("");
     const summary = `${current.entities.length} Entitätstyp${current.entities.length === 1 ? "" : "en"}, ${current.relations.length} Beziehung${current.relations.length === 1 ? "" : "en"}`;
     return `<svg class="erm-svg" viewBox="0 0 ${plan.width} ${plan.height}" role="img" aria-label="Diagramm: ${summary}" style="max-width:${plan.width}px">${lines}${boxes}</svg>`;
@@ -345,10 +369,12 @@
         <section class="erm-preview" aria-label="Diagramm und Prüfung">
           <h3>Diagramm</h3>
           <div class="erm-diagram" id="ermDiagram">${diagramSvg(current, escapeHtml)}</div>
+          <p class="field-hint erm-drag-hint">Kästen lassen sich ziehen. Mit der Tastatur: Kasten ansteuern, dann Pfeiltasten.</p>
           <div class="runner-actions">
             ${task.target ? `<button class="button button-primary" type="button" id="ermCheck"><i data-lucide="check"></i>Modell prüfen</button>` : ""}
             <button class="button button-secondary" type="button" id="ermSql"><i data-lucide="download"></i>SQL für Workbench</button>
             <button class="button button-secondary" type="button" id="ermImage"><i data-lucide="image-down"></i>Diagramm als Bild</button>
+            <button class="button button-secondary" type="button" id="ermArrange"><i data-lucide="layout-grid"></i>Automatisch anordnen</button>
             <button class="button button-secondary" type="button" id="ermReset"><i data-lucide="rotate-ccw"></i>Leeren</button>
           </div>
           <div id="ermResult" role="status" aria-live="polite">${lastCheck ? resultHtml(lastCheck, escapeHtml) : ""}</div>
@@ -373,7 +399,7 @@
       const style = getComputedStyle(originals[index]);
       const keep = ["fill", "stroke", "stroke-width", "opacity", "font-family", "font-size", "font-weight", "text-decoration", "paint-order"];
       element.setAttribute("style", keep.map((name) => `${name}:${style.getPropertyValue(name)}`).join(";"));
-      element.removeAttribute("class");
+      ["class", "tabindex", "role", "data-box", "aria-label"].forEach((name) => element.removeAttribute(name));
     });
     const [, , width, height] = source.getAttribute("viewBox").split(" ").map(Number);
     copy.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -502,6 +528,11 @@ ${new XMLSerializer().serializeToString(copy)}
       } else {
         helpers.downloadBlob(new Blob([toSql(current)], { type: "text/plain;charset=utf-8" }), `workbenchlab-modell-${store.task}.sql`);
       }
+    } else if (target.id === "ermArrange") {
+      current.entities.forEach((entity) => { delete entity.x; delete entity.y; });
+      save();
+      refreshDiagram();
+      target.focus();
     } else if (target.id === "ermImage") {
       const file = diagramFile();
       if (!file) {
@@ -513,6 +544,74 @@ ${new XMLSerializer().serializeToString(copy)}
       store.models[store.task] = emptyModel();
       changed(true, "#ermAddEntity");
     }
+  });
+
+  // Kästen verschieben. Das Prüfergebnis bleibt stehen: Die Anordnung ändert das Modell nicht.
+  let drag = null;
+
+  function moveBox(entityId, x, y, bounds) {
+    const entity = model().entities.find((item) => item.id === entityId);
+    const box = layout(model()).boxes.find((item) => item.id === entityId);
+    if (!entity || !box) return;
+    const maxX = bounds ? bounds.width - box.width - 20 : CANVAS.maxX;
+    const maxY = bounds ? bounds.height - box.height - 20 : CANVAS.maxY;
+    entity.x = Math.min(Math.max(0, maxX), Math.max(0, Math.round(x)));
+    entity.y = Math.min(Math.max(0, maxY), Math.max(0, Math.round(y)));
+    refreshDiagram();
+  }
+
+  function svgPoint(svg, event) {
+    const matrix = svg.getScreenCTM();
+    if (!matrix) return null;
+    const point = svg.createSVGPoint();
+    point.x = event.clientX;
+    point.y = event.clientY;
+    return point.matrixTransform(matrix.inverse());
+  }
+
+  document.addEventListener("pointerdown", (event) => {
+    const group = event.target.closest?.("#ermDiagram .erm-entity-box");
+    if (!group || event.button > 0) return;
+    const svg = group.ownerSVGElement;
+    const point = svgPoint(svg, event);
+    const plan = layout(model());
+    const box = plan.boxes.find((item) => item.id === Number(group.dataset.box));
+    if (!point || !box) return;
+    // Während des Ziehens bleibt die Zeichenfläche gleich groß, damit sich der Maßstab nicht ändert.
+    drag = { id: box.id, dx: point.x - box.x, dy: point.y - box.y, bounds: { width: plan.width, height: plan.height }, moved: false };
+    event.preventDefault();
+  });
+
+  document.addEventListener("pointermove", (event) => {
+    if (!drag) return;
+    const svg = document.querySelector("#ermDiagram svg");
+    const point = svg && svgPoint(svg, event);
+    if (!point) return;
+    drag.moved = true;
+    moveBox(drag.id, point.x - drag.dx, point.y - drag.dy, drag.bounds);
+  });
+
+  const endDrag = () => {
+    if (!drag) return;
+    const { id, moved } = drag;
+    drag = null;
+    if (moved) save();
+    document.querySelector(`#ermDiagram .erm-entity-box[data-box="${id}"]`)?.focus();
+  };
+  document.addEventListener("pointerup", endDrag);
+  document.addEventListener("pointercancel", endDrag);
+
+  document.addEventListener("keydown", (event) => {
+    const group = event.target.closest?.("#ermDiagram .erm-entity-box");
+    const steps = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
+    if (!group || !steps) return;
+    event.preventDefault();
+    const id = Number(group.dataset.box);
+    const box = layout(model()).boxes.find((item) => item.id === id);
+    const distance = CANVAS.step * (event.shiftKey ? 5 : 1);
+    moveBox(id, box.x + steps[0] * distance, box.y + steps[1] * distance, null);
+    save();
+    document.querySelector(`#ermDiagram .erm-entity-box[data-box="${id}"]`)?.focus();
   });
 
   window.WORKBENCH_ERM.mount = (container, pageHelpers) => {

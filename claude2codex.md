@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.34.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.35.0 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -28,6 +28,7 @@ veröffentlichen.
 | 0.31.0 | Wiederholungsrunde `#sql/wiederholen` | `review.js`, `app.js` |
 | 0.32.0–0.33.0 | Modell-Editor `#modeling/editor` mit SQL- und Bildexport | `erm-editor.js`, `app.js` |
 | 0.34.0 | Klausurtraining `#sql/klausur` | `review.js`, `app.js` |
+| 0.35.0 | Modell-Editor: Kästen verschieben, dritte Aufgabe | `erm-editor.js` |
 
 Jede Version hat einen Tag `v0.xx.y`. Zurücksetzen: siehe
 `documentation/documentation.md`, Abschnitt 0.1.
@@ -85,7 +86,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `erm-editor.js` | Modell-Editor, Logik und Seitenanbindung | Claude |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht | Claude |
 | `tools/build-site.cjs` | Liste der öffentlichen Dateien; neue Dateien dort eintragen | Codex |
-| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 147 Node-Tests, 30 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
+| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 149 Node-Tests, 30 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -135,7 +136,7 @@ node tools/run-browser-tests.cjs    # Browsertests, Edge
 | OPT-01 | Freies SQL-Labor | erledigt (Claude, 0.26.0) |
 | OPT-02 | Deutsche Fehlermeldungen bei „Ausführen“ | erledigt (Claude, 0.26.0) |
 | OPT-03 | Neue Aufgabentypen | erledigt (Claude, 0.28.0–0.30.0) |
-| OPT-04 | Modell-Editor | erste Stufe erledigt (Claude, 0.32.0–0.33.0); freies Verschieben und Optionalität offen |
+| OPT-04 | Modell-Editor | erledigt bis auf Optionalität (Claude, 0.32.0–0.35.0); Notation der Optionalität braucht Jakobs Vorgabe |
 | OPT-05 | Einheiten in kürzere Schritte teilen | offen, Abstimmung nötig |
 | OPT-06 | Freischaltung lockern | offen, Entscheidung Jakob |
 | OPT-07 | Wiederholung und Klausurtraining | erledigt (Claude, 0.31.0 und 0.34.0) |
@@ -171,13 +172,14 @@ node tools/run-browser-tests.cjs    # Browsertests, Edge
 
 ### C3 Offene Punkte im Einzelnen
 
-#### OPT-04 Modell-Editor, zweite Stufe
+#### OPT-04 Modell-Editor, Rest
 
-- **Stand:** Formular-Editor mit automatischem Diagramm, zwei geprüften
-  Aufgaben (1:N, M:N auflösen), freiem Modell, SQL- und SVG-Export.
-- **Offen:** Kästen frei verschieben; Optionalität (0 oder 1); weitere
-  Aufgaben, etwa zu L2.3 und L3.3; Entwürfe in die JSON-Sicherung aufnehmen
-  (verlangt eine Formatänderung); XP für bestandene Modellaufgaben.
+- **Stand:** Formular-Editor mit verschiebbarem Diagramm, drei geprüften
+  Aufgaben (1:N, M:N auflösen, Transfer mit vier Entitätstypen), freiem Modell,
+  SQL- und SVG-Export.
+- **Offen:** Optionalität (0 oder 1) in der Notation der Unterrichtsmaterialien;
+  Entwürfe in die JSON-Sicherung aufnehmen (verlangt eine Formatänderung); XP
+  für bestandene Modellaufgaben.
 - **Nicht geprüft:** Import des exportierten SQL in eine echte MySQL
   Workbench.
 

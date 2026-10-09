@@ -114,6 +114,35 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.equal(await page.locator(".erm-entity").count(), 2);
       assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1").includes("Fahrschüler")), false);
 
+      // Kästen verschieben: mit der Maus, mit der Tastatur, dauerhaft; „Automatisch anordnen“ setzt zurück.
+      await page.locator("#ermCheck").click();
+      const boxAt = (index) => page.locator("#ermDiagram .erm-entity-box").nth(index);
+      const place = async (index) => { const rect = boxAt(index).locator(".erm-box"); return [Number(await rect.getAttribute("x")), Number(await rect.getAttribute("y"))]; };
+      const startPlace = await place(0);
+      const screen = await boxAt(0).locator(".erm-box").boundingBox();
+      await page.mouse.move(screen.x + screen.width / 2, screen.y + 10);
+      await page.mouse.down();
+      await page.mouse.move(screen.x + screen.width / 2 + 12, screen.y + 10 + screen.height * 1.5, { steps: 6 });
+      await page.mouse.up();
+      const dragged = await place(0);
+      assert.ok(dragged[1] > startPlace[1] + 30, `Kasten wurde nicht nach unten gezogen: ${startPlace} -> ${dragged}`);
+      assert.equal(await page.locator("#ermDiagram .erm-line").count(), 1);
+      assert.ok(await boxAt(0).evaluate((group) => group === document.activeElement));
+      assert.match(await page.locator("#ermResult").innerText(), /Modell stimmt/);
+      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("Shift+ArrowUp");
+      const keyed = await place(0);
+      assert.deepEqual(keyed, [dragged[0] + 10, Math.max(0, dragged[1] - 50)]);
+      assert.ok(await boxAt(0).evaluate((group) => group === document.activeElement));
+      assert.match(await boxAt(0).getAttribute("aria-label"), /Kasten Ort: mit der Maus ziehen oder mit den Pfeiltasten verschieben/);
+      await page.reload();
+      await page.locator("#ermDiagram .erm-entity-box").first().waitFor();
+      assert.deepEqual(await place(0), keyed);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
+      await page.locator("#ermArrange").click();
+      assert.deepEqual(await place(0), startPlace);
+      await page.locator("#ermCheck").click();
+
       // Diagramm als eigenständige Bilddatei.
       const [image] = await Promise.all([page.waitForEvent("download"), page.locator("#ermImage").click()]);
       assert.equal(image.suggestedFilename(), "workbenchlab-modell-fahrschule-ort.svg");
@@ -124,7 +153,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.match(svg, /<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
       assert.match(svg, />Fahrschüler</);
       assert.match(svg, />ortnr \(FK\)</);
-      assert.doesNotMatch(svg, /var\(|class=/);
+      assert.doesNotMatch(svg, /var\(|class=|tabindex|data-box/);
       const imagePage = await context.newPage();
       await imagePage.setContent(`<img id="i" src="data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}">`);
       assert.ok(await imagePage.locator("#i").evaluate((img) => img.decode().then(() => img.naturalWidth > 300 && img.naturalHeight > 80)));
@@ -170,7 +199,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass, self-relation rejected, SQL export, persistence per task, not in progress data, image export, M:N task, removal and reset, desktop/mobile.");
+    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass, self-relation rejected, SQL export, persistence per task, not in progress data, moving boxes by mouse and keyboard, image export, M:N task, removal and reset, desktop/mobile.");
   } finally {
     await browser.close();
   }
