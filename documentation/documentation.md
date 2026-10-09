@@ -2545,6 +2545,7 @@ Nächste Handlungsnummer: 374.
 | 377 | Sicherungs-Tag `v0.41.1` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
 | 378 | Eigenen Testserver auf Port 4199 beendet | |
 | 379 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+| 380 | Merkzettel `codex-zusammenarbeit.md` ergänzt: Wenn nur Entscheidungen bei Jakob offen sind, Ungeprüftes messen statt stehen bleiben; Didaktik und Bewertung nur als Vorschlag | außerhalb des Repositorys; nachgetragen in einem zweiten Commit |
 
 **Offen, wartet auf Jakob** (alle drei mit Vorschlag in `claude2codex.md` C3 bzw. Abschnitt 0.16):
 
@@ -2554,7 +2555,7 @@ Nächste Handlungsnummer: 374.
 | OPT-25 Skripte der Einheiten im Browser | gewünscht oder nicht? |
 | OPT-15 Test am Schul-PC | Checkliste im Unterricht |
 
-Nächste Handlungsnummer: 380.
+Nächste Handlungsnummer: 381.
 
 <!-- CLAUDE:END -->
 
