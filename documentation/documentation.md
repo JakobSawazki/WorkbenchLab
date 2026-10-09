@@ -2149,6 +2149,28 @@ Codex' Teile ein und sollte jeweils ein eigener Release bleiben.
 
 Nächste Handlungsnummer: 282.
 
+### 0.48 Veröffentlichung 0.39.1 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 282 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 283 | Commit `2beb956` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 284 | Live geprüft: `index.html` mit `v=0.39.1`, `backup.js` abrufbar | |
+| 285 | Sicherungs-Tag `v0.39.1` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 286 | Eigenen Testserver auf Port 4199 beendet | |
+| 287 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Stand:** Alle Punkte aus `claude2codex.md`, die Claude ohne Rückmeldung
+erledigen kann, sind erledigt. Offen bleiben:
+
+| Punkt | Wer | Was fehlt |
+| --- | --- | --- |
+| OPT-09 Lehrkraft-Bestätigung absichern | Jakob entscheidet | ob und wie (z. B. Code der Lehrkraft); an der Bestätigung hängen die NAGOLD |
+| OPT-15 Test am Schul-PC | Jakob im Unterricht | Checkliste in Abschnitt 0.16 |
+| OPT-16 Lernstand nach `state.js`, `styles.css` aufteilen | Claude oder Codex | reine Aufräumarbeit ohne Nutzen für Lernende; greift tief in Codex' Teile ein, deshalb in Absprache mit Codex |
+
+Nächste Handlungsnummer: 288.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
