@@ -431,6 +431,40 @@ gleich bleibt, sonst würden gültige Sicherungen als verändert gelten.
   Schul-PCs.
 - Veröffentlichung: Ergebnis des Deployments steht im nächsten Eintrag.
 
+### 0.12 Veröffentlichung 0.27.0 geprüft, Abschluss des Arbeitsblocks [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 46 | Commit `16b1508` gepusht; GitHub-Actions-Lauf 37889000050 | Job `test` und Job `deploy` erfolgreich |
+| 47 | Live geprüft: `lehrkraft.html` antwortet mit 200, alle fünf Einbindungen tragen `?v=0.27.0`, `teacher-overview.js` wird ausgeliefert | per Abruf, ohne Dateien einzulesen |
+| 48 | Tag `v0.27.0` gesetzt und gepusht | Sicherungspunkt |
+| 49 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 50 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Sicherungspunkte:** `codex-stand-2026-10-08` (`4dedae1`), `v0.26.0`
+(`8ed27fc`), `v0.26.1` (`b8c9b01`), `v0.26.2` (`40566ec`), `v0.27.0`
+(`16b1508`). Wiederherstellung wie in Abschnitt 0.1.
+
+**Testumfang:** 122 Node-Tests, 2 Python-Tests, 24 Browsertests.
+
+**Erledigt aus `claude2codex.md`:** OPT-01, OPT-02, OPT-08, OPT-13, OPT-19,
+OPT-21 (Claude); OPT-10, OPT-11 (Codex); OPT-20 teilweise.
+
+**Offen und warum Claude hier anhält**
+
+| ID | Grund |
+| --- | --- |
+| OPT-06 Freischaltung lockern | didaktische Entscheidung von Jakob nötig |
+| OPT-09 Bestätigung per Code | hängt von OPT-06 ab; Codex rät ab |
+| OPT-12 Lösungen aus dem Quelltext | nur sinnvoll, wenn XP in die Bewertung einfließen (Entscheidung Jakob) |
+| OPT-18 Erstbesuch ohne Profildialog | Codex hat den Profildialog am 8. Oktober gezielt überarbeitet; Änderung nur nach Absprache |
+| OPT-15 Offline-Betrieb | ein Service Worker kann veraltete Stände ausliefern; braucht den Test an einem Schul-PC, den nur Jakob durchführen kann |
+| OPT-05 Einheiten in Schritte teilen | greift in alle 21 Einheiten und in Codex' Abnahmetests ein; vorher Abstimmung mit Jakob und Codex |
+| OPT-03, OPT-04, OPT-07 | neue Aufgabentypen, ERM-Editor, Klausurtraining: jeweils mehrere Sitzungen, Inhalte brauchen fachliche Freigabe |
+| OPT-14, OPT-16, OPT-17 | Aufräumen von Dokumentation, `app.js`/`styles.css` und `.tmp/`: betrifft Codex' Dateien bzw. erfordert Löschfreigabe |
+
+Nächste Handlungsnummer: 51.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
