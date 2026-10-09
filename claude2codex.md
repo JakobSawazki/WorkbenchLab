@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.41.2 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.41.3 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -104,6 +104,13 @@ Bitte prüfen und bei Bedarf zurücknehmen:
     Anweisung durch. Sollergebnisse aller Aufgaben unverändert.
 19. **`index.html`, `#progressFileInput`** hat ein `aria-label` (0.41.2); das
     Feld war für Bildschirmleser namenlos.
+20. **Start der App (0.41.3):** Die beiden `sessionStorage`-Zugriffe am Ende von
+    `app.js` sind abgesichert; bei gesperrtem Speicher brach der Start dort ab.
+21. **Farbvariable `--on-brand` (0.41.3):** in `appearance.js` (`tokens`) berechnet,
+    Vorgaben in `styles.css`; neun Regeln mit `background: var(--brand)` nutzen sie
+    statt `color: #fff`. Im hellen Design ändert sich nichts, im dunklen wird die
+    Schrift auf dem hellen Akzent dunkel. Vier weitere Kontrastkorrekturen stehen
+    am Ende von `styles-extensions.css`.
 17. **Dokumentation umgeräumt:** Release- und Abnahmeberichte nach
     `documentation/releases/`, deine Abschnitte 1 bis 12 nach
     `documentation/archiv/` – Inhalt unverändert, nur Verweise angepasst.
@@ -145,7 +152,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`), `Lehrbuch/`
 | `backup.js` | Prüfsumme der JSON-Sicherung, gemeinsam für `app.js` und `teacher-overview.js` | Code von Codex, ausgelagert von Claude |
 | `state.js` | Vorgabewerte, Kürzel/Klasse, Kennungen, `normalizeState`; neue Felder des Lernstands hier ergänzen. `loadState`/`saveState` bleiben in `app.js` | Code von Codex, ausgelagert von Claude |
 | `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
-| `tests/*.test.js`, `tests/*.browser.cjs` | 190 Node-Tests, 35 Browsertests | Codex und Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 190 Node-Tests, 37 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -389,3 +396,10 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
   andere Browser als Edge, MySQL 8.
 - Neue Bedienelemente brauchen einen vorlesbaren Namen und Überschriften dürfen
   keine Ebene überspringen; sonst schlägt `tests/a11y-names.browser.cjs` fehl.
+- Texte brauchen in beiden Designs und mit jeder Akzentfarbe 4,5 : 1 Kontrast
+  (`tests/contrast.browser.cjs`). Für Schrift auf einer Fläche in der Akzentfarbe
+  `color: var(--on-brand)` verwenden, nicht `#fff`. Geduldet sind zwei sehr kleine
+  Beschriftungen in nachgebauten Fenstern der Nachschlageseite (3,75 und 4,14);
+  wer sie anhebt, kann die Ausnahme im Test streichen.
+- Jeder Zugriff auf `localStorage` und `sessionStorage` gehört in `try`;
+  `tests/storage-blocked.browser.cjs` prüft die App bei gesperrtem Speicher.

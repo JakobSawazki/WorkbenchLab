@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.41.2** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.41.3** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.41.2)**
+**Aktueller Stand (Release 0.41.3)**
 
 | Thema | Stand |
 | --- | --- |
@@ -51,7 +51,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` (mit nachgeprüften Modellaufgaben); Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 190 Node-Tests, 2 Python-Tests, 35 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
+| Tests | 190 Node-Tests, 2 Python-Tests, 37 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2611,6 +2611,47 @@ zwei Stellen für Bildschirmleser. Drei blieben ohne Befund: Wiederholungsrunde
 über Mitternacht, Zeitzonen, neue Sicherung im älteren App-Stand.
 
 Nächste Handlungsnummer: 399.
+
+### 0.64 Release 0.41.3: gesperrter Browserspeicher, Kontrast im dunklen Design [Claude, 2026-10-09]
+
+Zwei weitere Messungen zu dem, was auf Schul-PCs und am Beamer schiefgehen
+kann. Beide deckten Mängel auf.
+
+**A. Browserspeicher gesperrt, voll oder bei jedem Start leer**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 399 | Hilfsskript `storage.cjs`: drei Zustände nachgestellt (Speichern wirft „Kontingent überschritten“; jeder Zugriff wirft „unsicher“; Speicher wird bei jedem Start geleert) und je zehn Schritte ausgeführt | Aufgabe lösen, freies Labor, Modell-Editor, Wiederholung, Klausurtraining, Einheit und Sicherungsdatei funktionieren in allen drei Zuständen; der Dialog „Speichern & Laden“ nennt den fehlenden Speicher |
+| 400 | **Befund:** Bei gesperrtem oder vollem Speicher brach der Start mit einem Skriptfehler ab; der Profil-Dialog des ersten Besuchs erschien nicht | `app.js`, letzte Zeilen (Codex, seit 0.25.x): Zugriff auf `sessionStorage` ohne Absicherung. Alle anderen 40 Speicherzugriffe waren abgesichert |
+| 401 | `app.js`: beide Zugriffe abgesichert | Dialog erscheint, kein Skriptfehler |
+| 402 | `tests/storage-blocked.browser.cjs` neu: alle drei Zustände, dazu die Klassenübersicht bei gesperrtem Speicher | Gegenprobe: ohne 401 schlägt der Test fehl (Dialog erscheint nicht) |
+
+**B. Farbkontrast der Texte (WCAG 2.1 AA: 4,5 : 1, große Schrift 3 : 1)**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 403 | Hilfsskript `contrast.cjs`: alle sichtbaren Texte auf 96 Routen, drei Dialogen und der Klassenübersicht, hell und dunkel; Farbe gegen den tatsächlichen Hintergrund gerechnet | dunkel 7, hell 19 Stellen unter der Schwelle; davon 12 Scheinbefunde (weiße Schrift auf Verlaufsknöpfen – die Messung sah den Verlauf nicht) |
+| 404 | **Befund 1 (dunkles Design, Standard):** weiße Schrift auf der hellblauen Akzentfarbe, Verhältnis 1,72. Betroffen: aktiver Reiter „Ergebnis/SQL-Coach/Hinweise“ in jeder SQL-Aufgabe, Schrittnummern der Arbeitsaufträge, der Sprunglink „Zum Inhalt springen“ | Ursache: neun Regeln mit `background: var(--brand); color: #fff` – passend für das helle Design, im dunklen ist der Akzent hell. Mit Bildausschnitt bestätigt |
+| 405 | Neue Farbvariable `--on-brand` (Schrift auf der Akzentfarbe): `appearance.js` berechnet sie für jede wählbare Akzentfarbe als die lesbarere von Weiß und Fast-Schwarz; Vorgaben in `styles.css`; die neun Regeln in `styles.css`, `styles-lesson.css`, `styles-practice.css` nutzen sie | Codex' Dateien; im hellen Design unverändert weiß, im dunklen dunkle Schrift |
+| 406 | **Befund 2 (dunkel):** Titel im nachgebauten Workbench-Fenster der Einheit L2.1 fast unsichtbar (1,03) – heller Balken, Schrift erbte Weiß | `styles-extensions.css`: feste dunkle Schrift für `.mock-window-bar` |
+| 407 | **Befund 3 (hell):** aktiver Filter „Alle“ im SQL-Labor dunkel auf dunkelgrün (2,3) | `styles-extensions.css`: Akzentfläche mit `--on-brand`, in beiden Designs gleich hervorgehoben |
+| 408 | **Befund 4:** gesperrte Erfolge (hell 3,04, dunkel 4,18) und Fußzeile (hell 4,4) knapp bis deutlich unter der Schwelle | `styles-extensions.css`: Deckkraft 0,62 → 0,8 bzw. 0,8 → 0,92 |
+| 409 | `tests/contrast.browser.cjs` neu: dieselbe Messung fest eingebaut, Verläufe werden an ihrer ungünstigsten Stelle bewertet, Texte auf Fotos nicht; vollständig für die Standardfarben, Stichprobe von neun Seiten für jede der zwölf wählbaren Akzentfarben | 288 Ansichten, 0 Befunde. Gegenprobe: mit den alten Regeln meldet der Test 55 Stellen |
+| 410 | Zwei Stellen bewusst geduldet (im Test benannt): sehr kleine Beschriftungen in zwei nachgebauten Fenstern der Nachschlageseite (3,75 und 4,14; Schmuck, kein Inhalt; Verfasser Codex) | Hinweis für Codex in `claude2codex.md` |
+| 411 | Sichtprüfung der korrigierten Stellen in beiden Designs (Bildausschnitte) | lesbar, Hervorhebung erhalten |
+| 412 | Versionsangaben auf `0.41.3`; `CHANGELOG.md`, `README.md`, Wegweiser, `claude2codex.md` (A2 Punkte 20 und 21, C4), Merkzettel | |
+| 413 | Eigenen Testserver auf Port 4199 gestartet, nach den Tests beendet | keine fremden Prozesse berührt |
+
+**Prüfung**
+
+- 190 Node-Tests und 2 Python-Tests bestanden (darunter Codex' Tests zur Darstellung).
+- Alle 37 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199).
+
+**Nicht geprüft:** Darstellung auf einem echten Beamer; Kontrast von Texten
+auf Fotos und in Grafiken; die übrigen wählbaren Schrift- und Hintergrundfarben
+(geprüft sind alle Akzentfarben mit den Standardfarben für Schrift und Grund).
+
+Nächste Handlungsnummer: 414.
 
 <!-- CLAUDE:END -->
 

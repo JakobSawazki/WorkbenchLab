@@ -56,7 +56,9 @@
         "--metal-bottom": panel, "--metal-rim": mix(strong, palette.text, 0.42),
         "--metal-primary-top": mix(primary, "#ffffff", 0.035),
         "--metal-primary-mid": primary, "--metal-primary-bottom": mix(primary, "#000000", 0.12),
-        "--on-accent": contrast("#ffffff", mix(primary, "#ffffff", 0.035)) >= 4.5 ? "#ffffff" : "#101214"
+        "--on-accent": contrast("#ffffff", mix(primary, "#ffffff", 0.035)) >= 4.5 ? "#ffffff" : "#101214",
+        // Schrift auf Flächen in der Akzentfarbe (--brand): die lesbarere von Weiß und Fast-Schwarz (Claude, 0.41.3).
+        "--on-brand": contrast("#ffffff", accent) >= contrast("#101214", accent) ? "#ffffff" : "#101214"
       }
     };
   }

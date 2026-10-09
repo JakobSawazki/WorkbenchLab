@@ -4317,8 +4317,12 @@
   updateStorageStatus();
   if (stateLoadFailed) showLoadFailureNotice();
   const suppressProfilePrompt = new URLSearchParams(window.location.search).has("screenshot");
-  if (!suppressProfilePrompt && !stateLoadFailed && (!state.name || !state.className) && !sessionStorage.getItem("workbenchlab-profile-seen")) {
-    sessionStorage.setItem("workbenchlab-profile-seen", "1");
+  // Der Zugriff auf den Sitzungsspeicher kann scheitern (gesperrt oder voll). Ohne Absicherung brach
+  // der Start hier ab und der Profil-Dialog des ersten Besuchs erschien nicht (Claude, 0.41.3).
+  let profilePromptSeen = false;
+  try { profilePromptSeen = Boolean(sessionStorage.getItem("workbenchlab-profile-seen")); } catch {}
+  if (!suppressProfilePrompt && !stateLoadFailed && (!state.name || !state.className) && !profilePromptSeen) {
+    try { sessionStorage.setItem("workbenchlab-profile-seen", "1"); } catch {}
     window.setTimeout(() => openProfileDialog(), 350);
   }
 })();

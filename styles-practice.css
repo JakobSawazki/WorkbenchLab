@@ -38,7 +38,7 @@
 .filter-row .button.is-active {
   border-color: var(--brand);
   background: var(--brand);
-  color: #fff;
+  color: var(--on-brand);
 }
 
 .practice-kind {
@@ -123,7 +123,7 @@
 .runner-tab.is-active {
   border-color: var(--brand);
   background: var(--brand);
-  color: #fff;
+  color: var(--on-brand);
 }
 
 .runner-panel {

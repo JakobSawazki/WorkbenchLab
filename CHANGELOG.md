@@ -13,6 +13,7 @@ Jede Version hat einen Git-Tag `v0.xx.y`.
 
 | Version | Von | Inhalt | Abschnitt |
 | --- | --- | --- | --- |
+| 0.41.3 | Cl | Lesbarkeit: Schrift auf der Akzentfarbe im dunklen Design (u. a. aktiver Reiter jeder SQL-Aufgabe); Start bei gesperrtem Browserspeicher; Tests für Kontrast und Speicher | 0.64 |
 | 0.41.2 | Cl | Modell-Editor: Kästen lassen sich per Finger ziehen; zwei Korrekturen für Bildschirmleser; neuer Test zur Bedienbarkeit über 242 Ansichten | 0.62 |
 | 0.41.1 | Cl | Ausdruck der Klassenübersicht passt aufs Papier (Querformat, Umbruch); vorher fehlten rechts Spalten | 0.60 |
 | 0.41.0 | Cl | Browser-Labor näher an MySQL: 22 Funktionen nachgebildet oder berichtigt, `AUTO_INCREMENT` und `TIMESTAMPDIFF` im freien Labor, deutsche Hinweise zu reinem MySQL, zwei weitere gemessene Unterschiede | 0.57 |

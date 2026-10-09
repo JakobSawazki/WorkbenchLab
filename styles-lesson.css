@@ -62,7 +62,7 @@
 
 .lesson-workflow li.is-active > span {
   background: var(--brand);
-  color: #fff;
+  color: var(--on-brand);
 }
 
 .lesson-workflow strong,
@@ -96,7 +96,7 @@
   height: 48px;
   border-radius: var(--radius);
   background: var(--brand);
-  color: #fff;
+  color: var(--on-brand);
   font-weight: 850;
 }
 
@@ -573,7 +573,7 @@
   height: 32px;
   border-radius: 999px;
   background: var(--brand);
-  color: #fff;
+  color: var(--on-brand);
   font-weight: 800;
 }
 
@@ -607,7 +607,7 @@
   height: 32px;
   border-radius: 50%;
   background: var(--brand);
-  color: #fff;
+  color: var(--on-brand);
   font-weight: 800;
 }
 
