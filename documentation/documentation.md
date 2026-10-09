@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.30.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.31.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -842,6 +842,78 @@ ausführbar ist und dass anfangs keine Zeile richtig steht. In `app.js`:
 | offen | OPT-04, OPT-05, OPT-07, OPT-14, OPT-16, OPT-18 |
 
 Nächste Handlungsnummer: 93.
+
+### 0.20 Release 0.31.0: Wiederholungsrunde [Claude, 2026-10-09]
+
+Bezug: OPT-07 aus `claude2codex.md`, erster Teil (tägliche Wiederholung). Der
+dort ebenfalls genannte Klausurmodus mit Zeitanzeige ist nicht umgesetzt.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 93 | Commit `1670774` (Eintrag 0.19, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 94 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 95 | `award`, `todayKey`, `markActivity` und den Einstiegsbereich des SQL-Labors gelesen | nur lesend |
+| 96 | `review.js` angelegt; `app.js`, `styles.css`, `index.html`, `tools/build-site.cjs`, Versionsangaben, README angepasst | siehe unten |
+| 97 | Entwurfsfehler vor dem ersten Test bemerkt und behoben: Die Tagesauswahl hing von der Menge der gelösten Aufgaben ab und hätte sich geändert, sobald am selben Tag eine neue Aufgabe gelöst wird. Die Auswahl wird jetzt beim ersten Aufruf des Tages festgehalten | `readReviewDay`, `writeReviewDay`, `reviewPicks` |
+| 98 | `tests/review.test.js` (5 Node-Tests) und `tests/review.browser.cjs` angelegt | |
+| 99 | Ein Fehlversuch im Browsertest: Der Test fügte selbst eine gelöste Aufgabe ein und verglich danach mit dem alten XP-Stand; Vergleichswert wird jetzt danach gelesen | nur Testcode |
+| 100 | Testserver auf Port 4199 gestartet; alle Tests ausgeführt; Bildschirmfoto bei 1440 px gesichtet | siehe Prüfung |
+| 101 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.31.0` ergänzt | außerhalb des Repos, vor diesem Eintrag |
+
+**Neu für Schülerinnen und Schüler**
+
+- Im SQL-Labor erscheint unter dem freien Labor der Abschnitt
+  „Wiederholungsrunde“, sobald mindestens eine SQL-Aufgabe gelöst ist.
+- Die Runde stellt je Tag bis zu fünf **bereits gelöste** Aufgaben zusammen,
+  bevorzugt aus verschiedenen Einheiten. Die Auswahl ist für den Tag fest und
+  wechselt am nächsten Tag.
+- Wer eine Aufgabe der Runde erneut besteht, sieht sie als „heute wiederholt“.
+  Aus der Aufgabe führt eine Schaltfläche zurück in die Runde.
+- Es gibt keine XP. Jede Wiederholung zählt als Aktivität für den Tag und
+  erhält damit die Aktivitätsserie.
+- Sind alle Aufgaben wiederholt, erscheint „Runde geschafft“.
+- In die Runde kommen Schreibaufgaben, Fehlersuche, Vorhersage und Klauseln
+  ordnen. Modell- und Begriffsaufgaben sind nicht enthalten.
+
+**Speicherung und Grenzen**
+
+- Tagesauswahl und Tagesfortschritt liegen unter dem eigenen Schlüssel
+  `workbenchlab-review-v1` im Browserspeicher. Sie sind **nicht** Teil des
+  Lernstands und der JSON-Sicherung; nach einem Gerätewechsel beginnt die Runde
+  des Tages neu. Die Aktivitätstage selbst stehen im Lernstand.
+- Die Runde merkt sich nicht, wann eine Aufgabe zuletzt wiederholt wurde. Die
+  Auswahl ist zufällig je Tag, nicht nach Vergessenskurve gewichtet.
+- Bei Aufgaben ohne Editor (Vorhersage, Klauseln ordnen) lässt sich die
+  Wiederholung durch erneutes Anklicken der bekannten Antwort schnell
+  erledigen; das ist als Auffrischung gedacht, nicht als Leistungsnachweis.
+
+**Technik:** `review.js` enthält nur `pick(candidates, seedText, count)`:
+Zufall aus einem festen Startwert (Tag und Profil-ID), ohne `Math.random` und
+ohne Uhrzeit, damit die Auswahl prüfbar ist. In `app.js`: `readReviewDay`,
+`writeReviewDay`, `reviewPicks`, `reviewedToday`, `markReviewed`,
+`reviewTeaserHtml`, `renderReview`, Route `sql/wiederholen`, ein Aufruf in
+`award` (nur bei bereits gelösten Aufgaben) und die Rücksprung-Schaltfläche in
+`renderPracticeHeader`. Versionsangaben auf `0.31.0`. `lehrkraft.html` lädt
+`review.js` nicht.
+
+**Prüfung**
+
+- 139 Node-Tests (5 neu) und 2 Python-Tests bestanden. Die Node-Tests prüfen:
+  gleiche Auswahl für gleichen Tag und gleiches Profil, wechselnde Auswahl an
+  14 Folgetagen, Bevorzugung verschiedener Einheiten, kleine und leere Mengen,
+  und dass über 40 Tage jede Aufgabe einmal vorkommt.
+- Alle 28 Browsertests bestanden (Edge, Port 4199). Der neue
+  `review.browser.cjs` prüft bei 1440 und 390 px: Einstieg, fünf feste
+  Tagesaufgaben auch nach Neuladen und neu gelöster Aufgabe, Rückweg, Zählung je
+  wiederholter Aufgabe für alle vier SQL-Aufgabentypen, keine XP,
+  Aktivitätstag, Bestand nach Neuladen, kein Eintrag im Lernstand, Leerzustand.
+- Bildschirmfoto bei 1440 px im dunklen Modus gesichtet.
+- Nicht geprüft: Tageswechsel um Mitternacht in einem geöffneten Fenster (die
+  Logik liest das Datum bei jedem Aufruf neu, ein Test dazu fehlt), heller
+  Modus, Schul-PCs.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.21.
 
 <!-- CLAUDE:END -->
 

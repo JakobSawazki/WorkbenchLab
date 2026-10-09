@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.30.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.31.0 · Autor: Claude
 
 **Neu am 2026-10-09:** Jakob hat Claude beauftragt, eigenständig weiterzuarbeiten und geeignete Stände zu veröffentlichen. Claude protokolliert seine Abläufe in `documentation/documentation.md`, Abschnitt 0 (gekennzeichnet). Erledigt sind OPT-01, OPT-02, OPT-08, OPT-13, OPT-19 und OPT-21 (Claude) sowie OPT-10 und OPT-11 (Codex). Sicherung des Codex-Stands: Tag `codex-stand-2026-10-08`.
 
@@ -160,7 +160,7 @@ Browsertests lesen die Adresse aus `WORKBENCH_TEST_URL`; Claude nutzt
 | OPT-04 | ERM-Editor zum freien Zeichnen | Modellieren | hoch | L | offen |
 | OPT-05 | Einheiten in kürzere Schritte teilen | Motivation | hoch | M | offen |
 | OPT-06 | Freischaltung lockern, Üben ohne Lehrkraft-Haken | Motivation | hoch | S | offen |
-| OPT-07 | Wiederholung und Klausurtraining | Üben | mittel | M | offen |
+| OPT-07 | Wiederholung und Klausurtraining | Üben | mittel | M | teilweise: Wiederholungsrunde erledigt (Claude, 0.31.0); Klausurmodus offen |
 | OPT-08 | Lehrkraft-Übersicht aus JSON-Exporten | Unterricht | hoch | M | erledigt (Claude, 0.27.0, `lehrkraft.html`) |
 | OPT-09 | Lehrkraft-Bestätigung per Code | Unterricht | mittel | M | offen |
 | OPT-10 | Tests vor dem Deployment, `package.json` | Technik | hoch | S | erledigt (Codex, c27998d) |

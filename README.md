@@ -1,6 +1,8 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.30.0
+**Aktueller Release:** 0.31.0
+
+**Wiederholungsrunde:** Im SQL-Labor stellt die App täglich bis zu fünf bereits gelöste Aufgaben aus verschiedenen Einheiten zum Auffrischen zusammen (ohne XP).
 
 **Klauseln ordnen:** Vier Aufgaben, in denen die durcheinandergeratenen Zeilen einer Abfrage per Pfeilschaltflächen in die richtige Reihenfolge gebracht werden.
 

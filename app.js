@@ -533,7 +533,69 @@
     return total ? Math.round((done / total) * 100) : 0;
   }
 
+  // Wiederholungsrunde (Claude, OPT-07): täglich bis zu fünf bereits gelöste SQL-Aufgaben.
+  // Der Tagesstand liegt getrennt vom Lernstand und ist nicht Teil der JSON-Sicherung.
+  const reviewStorageKey = "workbenchlab-review-v1";
+  const reviewSize = 5;
+  let reviewOrigin = false;
+
+  function readReviewDay() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(reviewStorageKey) || "null");
+      if (stored?.day === todayKey()) {
+        const strings = (value) => (Array.isArray(value) ? value.filter((id) => typeof id === "string") : []);
+        return { day: stored.day, picks: strings(stored.picks), ids: strings(stored.ids) };
+      }
+    } catch {}
+    return { day: todayKey(), picks: [], ids: [] };
+  }
+
+  function writeReviewDay(record) {
+    try {
+      localStorage.setItem(reviewStorageKey, JSON.stringify(record));
+    } catch {}
+  }
+
+  // Die Auswahl eines Tages bleibt stehen, auch wenn im Lauf des Tages neue Aufgaben
+  // gelöst werden; sie wird nur aufgefüllt, solange weniger als fünf zusammenkommen.
+  function reviewPicks() {
+    const solved = content.practices.filter((practice) => isSqlTopic(practice) && state.completedPractices.includes(practice.id));
+    const record = readReviewDay();
+    const kept = record.picks.filter((id) => solved.some((practice) => practice.id === id));
+    if (kept.length >= Math.min(reviewSize, solved.length)) {
+      return kept;
+    }
+    const fresh = window.WORKBENCH_REVIEW.pick(
+      solved.filter((practice) => !kept.includes(practice.id)).map((practice) => ({ id: practice.id, lessonId: practice.lessonId })),
+      `${todayKey()}|${state.profileId}`,
+      reviewSize - kept.length
+    );
+    const picks = [...kept, ...fresh];
+    if (picks.length) {
+      writeReviewDay({ ...record, picks });
+    }
+    return picks;
+  }
+
+  function reviewedToday() {
+    return readReviewDay().ids;
+  }
+
+  function markReviewed(id) {
+    const picks = reviewPicks();
+    const record = readReviewDay();
+    if (record.ids.includes(id) || !picks.includes(id)) {
+      return;
+    }
+    writeReviewDay({ ...record, picks, ids: [...record.ids, id] });
+    markActivity();
+    saveState();
+  }
+
   function award(kind, id, xp) {
+    if (kind === "practice" && state.completedPractices.includes(id)) {
+      markReviewed(id);
+    }
     const keyByKind = {
       lesson: "completedLessons",
       practice: "completedPractices",
@@ -1862,6 +1924,7 @@
         </div>
         <button class="button button-primary" type="button" data-route="sql/frei"><i data-lucide="flask-conical"></i>Frei ausprobieren</button>
       </section>
+      ${reviewTeaserHtml()}
       <div class="section-heading">
         <div>
           <p class="eyebrow">Übungen</p>
@@ -1874,6 +1937,52 @@
       <div class="card-grid">
         ${practices.map(practiceCard).join("")}
       </div>`;
+  }
+
+  function reviewTeaserHtml() {
+    const picks = reviewPicks();
+    if (!picks.length) {
+      return "";
+    }
+    const done = reviewedToday().filter((id) => picks.includes(id)).length;
+    return `
+      <section class="section-band playground-teaser review-teaser">
+        <div>
+          <p class="eyebrow">Auffrischen, ohne XP</p>
+          <h2>Wiederholungsrunde</h2>
+          <p>${done >= picks.length ? "Für heute geschafft. Morgen gibt es eine neue Runde." : `Heute ${done} von ${picks.length} bereits gelösten Aufgaben wiederholt.`}</p>
+        </div>
+        <button class="button button-secondary" type="button" data-route="sql/wiederholen"><i data-lucide="repeat"></i>${done >= picks.length ? "Runde ansehen" : done ? "Weiter wiederholen" : "Runde starten"}</button>
+      </section>`;
+  }
+
+  function renderReview() {
+    setHeading("Gelöste Aufgaben auffrischen", "Wiederholungsrunde");
+    activateNav("sql");
+    reviewOrigin = true;
+    const picks = reviewPicks().map(practiceById).filter(Boolean);
+    const done = reviewedToday();
+    const count = picks.filter((practice) => done.includes(practice.id)).length;
+    main.innerHTML = `
+      <section class="section-band review-head">
+        <div>
+          <p class="eyebrow">Jeden Tag eine neue Auswahl</p>
+          <h2>${picks.length ? `Heute ${count} von ${picks.length} wiederholt` : "Noch nichts zu wiederholen"}</h2>
+          <p>${picks.length
+            ? "Die Runde mischt Aufgaben aus verschiedenen Einheiten, die du schon einmal gelöst hast. Löse sie erneut, ohne in deine alte Lösung zu schauen. Es gibt keine XP; jede Wiederholung zählt als Aktivität für heute."
+            : "Sobald du SQL-Aufgaben gelöst hast, stellt dir die Wiederholungsrunde täglich bis zu fünf davon zusammen."}</p>
+          ${picks.length ? `<progress class="review-progress" max="${picks.length}" value="${count}" aria-label="Fortschritt der Wiederholungsrunde"></progress>` : ""}
+        </div>
+        <button class="button button-secondary" type="button" data-route="sql"><i data-lucide="list-checks"></i>SQL-Aufgaben</button>
+      </section>
+      ${picks.length && count >= picks.length ? `<div class="result-banner is-visible is-success review-complete" role="status"><i data-lucide="circle-check"></i><div><strong>Runde geschafft</strong><p>Du hast heute alle ausgewählten Aufgaben wiederholt. Morgen gibt es eine neue Auswahl.</p></div></div>` : ""}
+      <ol class="review-list">
+        ${picks.map((practice) => `
+          <li class="${done.includes(practice.id) ? "is-reviewed" : ""}">
+            ${practiceCard(practice)}
+            <p class="review-state"><i data-lucide="${done.includes(practice.id) ? "check" : "circle-dashed"}"></i>${done.includes(practice.id) ? "heute wiederholt" : "noch offen"}</p>
+          </li>`).join("")}
+      </ol>`;
   }
 
   function playgroundStarter(schemaKey) {
@@ -2099,6 +2208,7 @@
           </div>
         </div>
         <div class="detail-actions">
+          ${reviewOrigin && reviewPicks().includes(practice.id) ? `<button class="button button-secondary" type="button" data-route="sql/wiederholen"><i data-lucide="repeat"></i>Wiederholungsrunde</button>` : ""}
           <button class="button button-secondary" type="button" data-lesson="${practice.lessonId}">
             <i data-lucide="book-open"></i>
             Lektion
@@ -3433,12 +3543,17 @@
       startupReturn = null;
     }
     renderedRoute = route;
+    if (route.name !== "practice" && !(route.name === "sql" && route.id === "wiederholen")) {
+      reviewOrigin = false;
+    }
     if (route.name === "home") {
       renderHome();
     } else if (route.name === "path") {
       renderPath();
     } else if (route.name === "sql" && route.id === "frei") {
       renderSqlPlayground();
+    } else if (route.name === "sql" && route.id === "wiederholen") {
+      renderReview();
     } else if (route.name === "sql") {
       renderSql();
     } else if (route.name === "modeling") {
