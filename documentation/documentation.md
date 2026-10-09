@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.35.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.36.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -1401,6 +1401,92 @@ Damit ist kein Punkt mehr offen, den Claude ohne Vorgabe, Abstimmung oder
 Prüfmöglichkeit umsetzen kann.
 
 Nächste Handlungsnummer: 171.
+
+### 0.32 Release 0.36.0: Prüfung an echter MariaDB und gemessene MySQL-Unterschiede [Claude, 2026-10-09]
+
+Bezug: OPT-20; außerdem schließt der Eintrag den seit 0.28 wiederholt
+genannten Punkt „nicht an einer echten Datenbank geprüft“ für Claudes
+Aufgaben und den SQL-Export des Modell-Editors.
+
+**Vorbemerkung:** Claude hatte OPT-20 als blockiert eingestuft, weil eine echte
+MySQL- oder MariaDB-Instanz zum Nachprüfen fehle. Das war falsch: Codex'
+`tools/verify-native-sql.cjs` nennt die MariaDB des Informatik-Sticks unter
+`C:\Informatik-Stick\Programme\Xampp_7.4.7\mysql`, und sie ist vorhanden.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 171 | Commit `db39141` (Eintrag 0.31, nur Protokoll) gepusht, Actions-Lauf 37901246991 erfolgreich | keine Änderung an der App |
+| 172 | `tools/verify-native-sql.cjs` gelesen; MariaDB-Programme am genannten Ort gefunden | nur lesend |
+| 173 | `tools/verify-claude-native.cjs` angelegt und ausgeführt: eigene MariaDB-Instanz auf Port 33399, Datenverzeichnis im Temp-Ordner des Systems, danach beendet und Daten gelöscht; geprüft, dass kein `mysqld` und kein Temp-Verzeichnis zurückbleibt | 43 Prüfungen bestanden |
+| 174 | `sql-feedback.js` um `MYSQL_DIFFERENCES` und `mysqlNotes` ergänzt; in `app.js` Hinweise unter dem Ergebnis des freien Labors und eine aufklappbare Liste; `styles.css`; Versionsangaben auf `0.36.0`; README-Tabelle | siehe unten |
+| 175 | `tests/sql-feedback.test.js` um zwei Tests erweitert (jetzt 9); `tests/sql-playground.browser.cjs` erweitert | |
+| 176 | **Der Browsertest fand einen eigenen Anzeigefehler aus 0.26.0:** Eine gültige Abfrage ohne Treffer meldete im freien Labor „Befehl ausgeführt. 0 Datensätze betroffen“. Jetzt erscheint „0 Ergebniszeilen“ mit dem Hinweis, die Bedingung zu prüfen | `runPlayground` in `app.js` |
+| 177 | **Eigener Werkzeugfehler:** Ein Änderungsskript, das Claude über die Shell eingegeben hatte, verlor Rückstriche und schrieb ein unsichtbares Steuerzeichen in `app.js`. `node --check` meldete den Syntaxfehler sofort; Zeile repariert, alle Quelldateien auf Steuerzeichen durchsucht (keine weiteren) | nie committet |
+| 178 | Testserver auf Port 4199 gestartet; alle Tests ausgeführt | siehe Prüfung |
+| 179 | Claudes Merkzettel ergänzt: `codex-zusammenarbeit.md` um `v0.36.0`; `testumgebung-node-playwright.md` um den Ort der MariaDB, das neue Prüfwerkzeug und die Warnung vor Rückstrichen in Shell-Skripten | außerhalb des Repos, vor diesem Eintrag |
+
+**Ergebnis der Prüfung an MariaDB 10.4.13**
+
+| Geprüft | Ergebnis |
+| --- | --- |
+| 6 Aufgaben „Fehlersuche“ | Startcode zeigt in MariaDB dasselbe Symptom (Abbruch bzw. falsches Ergebnis), die Korrektur liefert dasselbe Ergebnis wie im Browser |
+| 5 Aufgaben „Vorhersage“ (9 Fragen) | jede als richtig markierte Antwort stimmt auch in MariaDB |
+| 4 Aufgaben „Klauseln ordnen“ | richtige Reihenfolge liefert dasselbe Ergebnis; vertauschte Reihenfolge bricht auch in MariaDB ab |
+| SQL-Export des Modell-Editors (1:N und M:N, alle fünf Datentypen) | Tabellen, Primär- und Fremdschlüssel werden angelegt; ein ungültiger Verweis wird abgewiesen |
+| `SHOW TABLES`, `DESCRIBE` | verhalten sich wie im freien Labor nachgebildet |
+
+**Gemessene Unterschiede zwischen Browser-Labor und MariaDB**
+
+| Anweisung | Browser-Labor | MariaDB |
+| --- | --- | --- |
+| `SELECT 7 / 2;` | `3` | `3.5000` |
+| `… WHERE ort = 'stuttgart';` (in der Tabelle steht `Stuttgart`) | 0 Zeilen | 4 Zeilen |
+| `vorname \|\| ' ' \|\| nachname` | `Mia Keller` | `0` |
+
+Gleich verhielten sich: `LIKE 'k%'` (in beiden ohne Unterscheidung von Groß-
+und Kleinschreibung), `CONCAT`, Text in doppelten Anführungszeichen,
+`GROUP BY` mit weiterer Spalte, Datumsvergleich als Text, `LIMIT`, Tabellenname
+in Großbuchstaben, abgewiesener Fremdschlüssel. `AVG` liefert denselben Wert,
+MariaDB zeigt ihn mit vier Nachkommastellen.
+
+**Neu für Schülerinnen und Schüler**
+
+- Im freien SQL-Labor erscheint unter dem Ergebnis ein Hinweis „In MySQL
+  Workbench anders: …“, wenn die Anweisung einen der drei Unterschiede
+  betreffen kann: Division ohne Kommazahl, `||`, oder ein Textvergleich ohne
+  Treffer. Text in Anführungszeichen und Kommentare lösen keinen Hinweis aus.
+- Eine aufklappbare Liste nennt alle drei Unterschiede mit dem jeweils in
+  beiden Systemen funktionierenden Weg (`7 / 2.0`, genaue Schreibweise,
+  `CONCAT`).
+- Eine Abfrage ohne Treffer zeigt „0 Ergebniszeilen“.
+
+**Grenzen**
+
+- Die Hinweise erscheinen nur im freien Labor, nicht in den Aufgaben.
+- Gemessen wurde an der MariaDB 10.4.13 des Sticks in Grundeinstellung. Eine
+  andere Zeichensatz- oder Moduseinstellung an den Schul-PCs kann das Verhalten
+  bei Groß-/Kleinschreibung und `||` ändern.
+- Das Browser-Labor verhält sich weiterhin anders als MySQL; Claude hat das
+  Verhalten nicht angeglichen, weil das die Prüfung der bestehenden Aufgaben
+  verändern würde.
+
+**Prüfung**
+
+- 151 Node-Tests (2 neu) und 2 Python-Tests bestanden. Ein Node-Test hält die
+  Browser-Seite der drei Unterschiede fest (`7 / 2` ergibt 3, `'stuttgart'`
+  findet nichts, `||` verbindet), damit die Hinweise nicht unbemerkt falsch
+  werden, falls `sql.js` einmal ausgetauscht wird.
+- Alle 30 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199),
+  jeder beim ersten Versuch.
+- `tools/verify-claude-native.cjs`: 43 Prüfungen gegen MariaDB 10.4.13
+  bestanden. Dieses Werkzeug läuft nicht in der GitHub-Prüfung mit, weil dort
+  keine MariaDB des Sticks vorhanden ist; es ist bei Bedarf von Hand zu starten.
+- Nicht geprüft: die Bedienoberfläche von MySQL Workbench selbst (nur der
+  Datenbankserver), die Einstellungen der Schul-PCs, heller Modus der neuen
+  Hinweise.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.33.
 
 <!-- CLAUDE:END -->
 

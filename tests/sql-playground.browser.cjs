@@ -48,6 +48,23 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await page.locator('[data-playground-table="fahrschueler"]').click();
       await page.getByText("11 Ergebniszeilen").waitFor();
 
+      // Gemessene Unterschiede zu MySQL: Hinweis nur dort, wo er zutrifft (OPT-20).
+      assert.equal(await page.locator(".mysql-differences dt").count(), 3);
+      assert.equal(await page.locator("#sqlOutput .mysql-note").count(), 0);
+      await editor.fill("SELECT 7 / 2;");
+      await page.locator("#playgroundRunButton").click();
+      await page.locator("#sqlOutput .mysql-note").waitFor();
+      assert.match(await page.locator("#sqlOutput").innerText(), /In MySQL Workbench anders: Division ganzer Zahlen/);
+      assert.equal(await page.locator("#sqlOutput tbody td").first().innerText(), "3");
+      await editor.fill("SELECT nachname FROM fahrschueler WHERE ort = 'stuttgart';");
+      await page.locator("#playgroundRunButton").click();
+      await page.getByText("0 Ergebniszeilen").waitFor();
+      assert.match(await page.locator("#sqlOutput .mysql-note").innerText(), /Groß- und Kleinschreibung bei Textvergleichen/);
+      await editor.fill("SELECT nachname FROM fahrschueler WHERE ort = 'Stuttgart';");
+      await page.locator("#playgroundRunButton").click();
+      await page.getByText("4 Ergebniszeilen").waitFor();
+      assert.equal(await page.locator("#sqlOutput .mysql-note").count(), 0);
+
       // MySQL-Komfortbefehle.
       await editor.fill("SHOW TABLES;");
       await page.locator("#playgroundRunButton").click();
@@ -79,7 +96,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: free SQL playground, German error messages with suggestion, persistent changes until reset, MySQL helpers, per-database drafts, no XP, desktop/mobile.");
+    console.log("PASS: free SQL playground, German error messages with suggestion, persistent changes until reset, MySQL helpers, measured MySQL difference notes, per-database drafts, no XP, desktop/mobile.");
   } finally {
     await browser.close();
   }

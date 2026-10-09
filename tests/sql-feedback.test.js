@@ -117,3 +117,39 @@ test("Alle Cache-Parameter, die App-Version und package.json nennen denselben St
   for (const [, file] of stamps) assert.equal(isPublicFile(file), true, file);
   assert.ok(html.indexOf('src="sql-feedback.js') < html.indexOf('src="app.js'));
 });
+
+test("Hinweise auf MySQL-Unterschiede: nur bei passenden Anweisungen, nie wegen Text in Anführungszeichen", () => {
+  const notes = (sql, rows) => Array.from(feedback.mysqlNotes(sql, rows));
+  assert.deepEqual(notes("SELECT fahrstunden / 4 FROM fahrschueler;", 11), ["division"]);
+  assert.deepEqual(notes("SELECT SUM(fahrstunden)/COUNT(*) FROM fahrschueler;", 1), ["division"]);
+  assert.deepEqual(notes("SELECT fahrstunden / 4.0 FROM fahrschueler;", 11), []);
+  assert.deepEqual(notes("SELECT 7.0 / 2;", 1), []);
+  assert.deepEqual(notes("SELECT vorname || ' ' || nachname FROM fahrschueler;", 11), ["verkettung"]);
+  assert.deepEqual(notes("SELECT * FROM fahrschueler WHERE ort = 'stuttgart';", 0), ["gross-klein"]);
+  assert.deepEqual(notes("SELECT * FROM fahrschueler WHERE ort IN ('stuttgart', 'ulm');", 0), ["gross-klein"]);
+  assert.deepEqual(notes("SELECT * FROM fahrschueler WHERE ort = 'Stuttgart';", 4), []);
+  assert.deepEqual(notes("SELECT * FROM fahrschueler WHERE fahrstunden = 99;", 0), []);
+  assert.deepEqual(notes("SELECT 'a / b', '||' FROM fahrschueler; -- 7 / 2 || x", 11), []);
+  assert.deepEqual(notes("SELECT /* 7 / 2 */ nachname FROM fahrschueler;", 11), []);
+  assert.deepEqual(notes("SELECT * FROM fahrschueler;", 11), []);
+  assert.deepEqual(notes(null, 0), []);
+  assert.equal(feedback.MYSQL_DIFFERENCES.length, 3);
+  for (const item of feedback.MYSQL_DIFFERENCES) assert.ok(item.id && item.title && item.text.length > 60);
+});
+
+test("die Browser-Seite der drei gemessenen Unterschiede stimmt weiterhin", async () => {
+  const SQL = await init();
+  const db = new SQL.Database();
+  db.run(content.schemas["fahrschule-basic"].seed);
+  const value = (sql) => db.exec(sql)[0].values[0][0];
+  try {
+    assert.equal(value("SELECT 7 / 2;"), 3);
+    assert.equal(value("SELECT 7 / 2.0;"), 3.5);
+    assert.equal(value("SELECT COUNT(*) FROM fahrschueler WHERE ort = 'stuttgart';"), 0);
+    assert.equal(value("SELECT COUNT(*) FROM fahrschueler WHERE ort = 'Stuttgart';"), 4);
+    assert.equal(value("SELECT vorname || ' ' || nachname FROM fahrschueler WHERE schuelernr = 1;"), "Mia Keller");
+    assert.equal(value("SELECT CONCAT(vorname, ' ', nachname) FROM fahrschueler WHERE schuelernr = 1;"), "Mia Keller");
+  } finally {
+    db.close();
+  }
+});

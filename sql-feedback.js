@@ -113,5 +113,44 @@
     return String(sql ?? "");
   }
 
-  window.WORKBENCH_SQL_FEEDBACK = { explain, closest, schemaNames, rewriteMysql };
+  // Unterschiede zwischen Browser-Labor (SQLite) und der MariaDB des Informatik-Sticks.
+  // Jeder Eintrag wurde am 2026-10-09 mit tools/verify-claude-native.cjs an MariaDB 10.4.13
+  // nachgemessen (OPT-20). Nur gemessene Unterschiede aufnehmen.
+  const MYSQL_DIFFERENCES = [
+    {
+      id: "division",
+      title: "Division ganzer Zahlen",
+      text: "Im Browser-Labor ergibt 7 / 2 die ganze Zahl 3. MySQL Workbench rechnet 3.5000 aus. Schreibe 7 / 2.0, damit auch das Browser-Labor mit Nachkommastellen rechnet."
+    },
+    {
+      id: "gross-klein",
+      title: "Groß- und Kleinschreibung bei Textvergleichen",
+      text: "Im Browser-Labor findet ort = 'stuttgart' nichts, weil in der Tabelle 'Stuttgart' steht. MySQL Workbench unterscheidet bei = in der Grundeinstellung nicht und findet die Datensätze. Schreibe Textwerte genau so wie in der Tabelle; dann stimmt das Ergebnis in beiden."
+    },
+    {
+      id: "verkettung",
+      title: "Texte verbinden",
+      text: "Im Browser-Labor verbindet vorname || ' ' || nachname die Texte. In MySQL Workbench bedeutet || „oder“ und liefert 0 oder 1. Verwende CONCAT(vorname, ' ', nachname); das funktioniert in beiden."
+    }
+  ];
+
+  function withoutLiterals(sql) {
+    return String(sql ?? "")
+      .replace(/--[^\n]*/g, " ")
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .replace(/'(?:[^']|'')*'/g, "''")
+      .replace(/"(?:[^"]|"")*"/g, '""');
+  }
+
+  // Liefert die Kennungen der Unterschiede, die auf diese Anweisung zutreffen können.
+  function mysqlNotes(sql, rowCount) {
+    const bare = withoutLiterals(sql);
+    const notes = [];
+    if (/[\w)\]]\s*\/\s*[\w(]/.test(bare) && !/\/\s*\d+\.\d/.test(bare) && !/\d+\.\d+\s*\//.test(bare)) notes.push("division");
+    if (/\|\|/.test(bare)) notes.push("verkettung");
+    if (rowCount === 0 && /(?:=|<>|!=)\s*''|''\s*(?:=|<>|!=)|\bin\s*\(\s*''/i.test(bare)) notes.push("gross-klein");
+    return notes;
+  }
+
+  window.WORKBENCH_SQL_FEEDBACK = { explain, closest, schemaNames, rewriteMysql, mysqlNotes, MYSQL_DIFFERENCES };
 })();

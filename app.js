@@ -2198,9 +2198,16 @@
             </div>
             <p class="field-hint">Tipp: <kbd>Strg</kbd> + <kbd>Enter</kbd> führt aus. <code>SHOW TABLES;</code> und <code>DESCRIBE tabelle;</code> funktionieren wie in MySQL Workbench.</p>
             <div id="sqlOutput" class="console-output" aria-live="polite">Noch keine Abfrage ausgeführt.</div>
+            <details class="mysql-differences">
+              <summary>Drei Unterschiede zu MySQL Workbench, die du kennen solltest</summary>
+              <dl>
+                ${window.WORKBENCH_SQL_FEEDBACK.MYSQL_DIFFERENCES.map((item) => `<dt>${escapeHtml(item.title)}</dt><dd>${escapeHtml(item.text)}</dd>`).join("")}
+              </dl>
+              <p class="field-hint">Nachgemessen an der MariaDB 10.4.13 des Informatik-Sticks.</p>
+            </details>
             <div class="callout playground-note">
               <i data-lucide="info"></i>
-              <p>Das Browser-Labor arbeitet mit SQLite. Die meisten Abfragen laufen in MySQL Workbench genauso; bei Datumsfunktionen und Datentypen kann es Unterschiede geben. Maßgeblich bleibt MySQL Workbench.</p>
+              <p>Das Browser-Labor arbeitet mit SQLite. Die meisten Abfragen laufen in MySQL Workbench genauso. Maßgeblich bleibt MySQL Workbench.</p>
             </div>
           </div>
         </div>
@@ -2244,7 +2251,16 @@
       const table = tableFromResult(resultSets);
       if (table.columns.length) {
         const count = table.values.length;
-        setSqlOutput(`<p class="playground-result-count">${count} Ergebniszeile${count === 1 ? "" : "n"}</p>${renderDataTable(table)}`);
+        const notes = window.WORKBENCH_SQL_FEEDBACK.mysqlNotes(sql, count)
+          .map((id) => window.WORKBENCH_SQL_FEEDBACK.MYSQL_DIFFERENCES.find((item) => item.id === id));
+        setSqlOutput(`<p class="playground-result-count">${count} Ergebniszeile${count === 1 ? "" : "n"}</p>${renderDataTable(table)}${notes.map((note) => `<div class="callout mysql-note" role="note"><i data-lucide="triangle-alert"></i><p><strong>In MySQL Workbench anders: ${escapeHtml(note.title)}.</strong> ${escapeHtml(note.text)}</p></div>`).join("")}`);
+        renderIcons();
+      } else if (/^\s*(?:select|with)\b/i.test(sql.replace(/^(?:\s*--[^\n]*\n)+/, ""))) {
+        // Eine Abfrage ohne Treffer liefert in sql.js keine Ergebnistabelle (Claude, OPT-20).
+        const notes = window.WORKBENCH_SQL_FEEDBACK.mysqlNotes(sql, 0)
+          .map((id) => window.WORKBENCH_SQL_FEEDBACK.MYSQL_DIFFERENCES.find((item) => item.id === id));
+        setSqlOutput(`<p class="playground-result-count">0 Ergebniszeilen</p><div class="console-output">Die Abfrage ist gültig, findet aber keinen Datensatz. Prüfe die Bedingung.</div>${notes.map((note) => `<div class="callout mysql-note" role="note"><i data-lucide="triangle-alert"></i><p><strong>In MySQL Workbench anders: ${escapeHtml(note.title)}.</strong> ${escapeHtml(note.text)}</p></div>`).join("")}`);
+        renderIcons();
       } else {
         const changed = playgroundDb.getRowsModified();
         setSqlOutput(`<div class="console-output">Befehl ausgeführt. ${changed === 1 ? "1 Datensatz" : `${changed} Datensätze`} betroffen. Kontrolliere das Ergebnis mit SELECT oder „Inhalt anzeigen“.</div>`);

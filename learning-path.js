@@ -6,7 +6,7 @@
     return;
   }
 
-  content.version = "0.35.0";
+  content.version = "0.36.0";
   content.updated = "2026-10-08";
   content.course = {
     title: "BPE6 Relationale Datenbanken",

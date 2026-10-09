@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.35.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.36.0 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -29,6 +29,7 @@ veröffentlichen.
 | 0.32.0–0.33.0 | Modell-Editor `#modeling/editor` mit SQL- und Bildexport | `erm-editor.js`, `app.js` |
 | 0.34.0 | Klausurtraining `#sql/klausur` | `review.js`, `app.js` |
 | 0.35.0 | Modell-Editor: Kästen verschieben, dritte Aufgabe | `erm-editor.js` |
+| 0.36.0 | Prüfung an MariaDB; Hinweise auf drei gemessene MySQL-Unterschiede; „0 Ergebniszeilen“ im freien Labor | `tools/verify-claude-native.cjs`, `sql-feedback.js`, `app.js` |
 
 Jede Version hat einen Tag `v0.xx.y`. Zurücksetzen: siehe
 `documentation/documentation.md`, Abschnitt 0.1.
@@ -86,7 +87,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `erm-editor.js` | Modell-Editor, Logik und Seitenanbindung | Claude |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht | Claude |
 | `tools/build-site.cjs` | Liste der öffentlichen Dateien; neue Dateien dort eintragen | Codex |
-| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 149 Node-Tests, 30 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
+| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 151 Node-Tests, 30 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -101,6 +102,7 @@ python -B -m unittest discover -s tests -p "test_*.py"
 python -m http.server 4199 --bind 127.0.0.1
 $env:WORKBENCH_TEST_URL = "http://127.0.0.1:4199/"
 node tools/run-browser-tests.cjs    # Browsertests, Edge
+node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen die MariaDB des Sticks, Port 33399
 ```
 
 ### B3 Regeln, die sich bewährt haben
@@ -152,7 +154,7 @@ node tools/run-browser-tests.cjs    # Browsertests, Edge
 | OPT-17 | `.tmp/` aus Google Drive heraushalten | offen, Freigabe Jakob |
 | OPT-18 | Erstbesuch ohne Profildialog | offen, Entscheidung Jakob |
 | OPT-19 | Druckansicht | erledigt (Claude, 0.26.2) |
-| OPT-20 | MySQL-Unterschiede sichtbar machen | teilweise (Hinweis und `SHOW TABLES`/`DESCRIBE` im freien Labor) |
+| OPT-20 | MySQL-Unterschiede sichtbar machen | erledigt für das freie Labor (Claude, 0.36.0); Hinweise in den Aufgaben offen |
 | OPT-21 | Lernstand bei Ladefehler nicht verwerfen | erledigt (Claude, 0.26.1) |
 | OPT-22 | Prüfergebnis-Banner sichtbar | erledigt (Claude, 0.28.0) |
 
@@ -254,12 +256,16 @@ node tools/run-browser-tests.cjs    # Browsertests, Edge
   mehrfach überarbeitet; ob er sofort erscheinen soll, ist eine bewusste
   Festlegung. `tests/xp.browser.cjs` prüft den Erstbesuch.
 
-#### OPT-20 MySQL-Unterschiede sichtbar machen
+#### OPT-20 MySQL-Unterschiede, Rest
 
-- **Stand:** Hinweis im freien Labor; `SHOW TABLES` und `DESCRIBE` laufen.
-- **Offen:** Hinweise bei bekannten Abweichungen (Anführungszeichen,
-  Groß-/Kleinschreibung bei `LIKE`, Datumsfunktionen); Liste der nachgebildeten
-  Funktionen an einer Stelle pflegen und testen.
+- **Stand:** Drei Unterschiede an der MariaDB 10.4.13 des Sticks gemessen
+  (Ganzzahl-Division, Groß-/Kleinschreibung bei `=`, `||`). Das freie Labor
+  zeigt dazu Hinweise. Messwerte und gleich laufende Fälle stehen in
+  `documentation.md`, Abschnitt 0.32.
+- **Offen:** dieselben Hinweise in den Aufgaben (Eingriff in
+  `runSqlPractice`); weitere Fälle messen, etwa Datumsfunktionen und
+  `sql_mode` der Schul-PCs. Neue Aussagen erst nach Messung mit
+  `tools/verify-claude-native.cjs` aufnehmen.
 
 ### C4 Bekannte Schwächen in Claudes Teilen
 
@@ -269,6 +275,8 @@ node tools/run-browser-tests.cjs    # Browsertests, Edge
 - Vorhersage und Klauseln ordnen lassen sich durch Probieren lösen; sie sind
   als Übung gedacht, nicht als Nachweis.
 - Die Klassenübersicht erkennt keine gezielt gefälschte Sicherung.
-- Nicht geprüft: Schul-PCs, echte MySQL Workbench, echter Bildschirmleser,
+- An der MariaDB des Sticks geprüft: alle 15 neuen Aufgaben und der
+  SQL-Export des Modell-Editors (Abschnitt 0.32 der Dokumentation).
+- Nicht geprüft: Schul-PCs, die Workbench-Oberfläche selbst, echter Bildschirmleser,
   Touch auf einem echten Gerät, Tageswechsel der Wiederholungsrunde bei
   geöffnetem Fenster.
