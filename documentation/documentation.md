@@ -326,6 +326,38 @@ Bezug: OPT-19 aus `claude2codex.md`. Auftrag: eigenständige Optimierung.
   allgemeine Druck-CSS, ohne eigenen Test).
 - Veröffentlichung: Ergebnis des Deployments steht im nächsten Eintrag.
 
+### 0.10 Veröffentlichung 0.26.2 geprüft, Abschluss des Arbeitsblocks [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 32 | Commit `40566ec` gepusht; GitHub-Actions-Lauf 37888224086 | Job `test` und Job `deploy` erfolgreich |
+| 33 | Live-Seite geprüft | alle Dateien mit `?v=0.26.2`; `app.js` enthält den Druckknopf, `styles.css` den Block `@media print` |
+| 34 | Tag `v0.26.2` gesetzt und gepusht | Sicherungspunkt |
+| 35 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 36 | Claudes Merkzettel außerhalb des Repos ergänzt (`codex-zusammenarbeit.md`: eigenständiges Arbeiten, Protokollpflicht in dieser Datei, Sicherungs-Tags, Port 4199, `desktop.ini`-Abhilfe) | `C:\Users\PC\.claude\projects\G--Meine-Ablage-Codex-WorkbenchLab\memory\` |
+| 37 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | löst ein Deployment ohne App-Änderung aus |
+
+**Stand nach diesem Arbeitsblock**
+
+| Sicherungspunkt | Commit | Inhalt |
+| --- | --- | --- |
+| `codex-stand-2026-10-08` | `4dedae1` | letzter reiner Codex-Stand (0.25.3) |
+| `v0.26.0` | `8ed27fc` | freies SQL-Labor, deutsche SQL-Meldungen, Versionsgleichstand |
+| `v0.26.1` | `b8c9b01` | Rettungskopie bei unlesbarem Lernstand |
+| `v0.26.2` | `40566ec` | Druckansicht |
+
+Testumfang jetzt: 115 Node-Tests, 2 Python-Tests, 23 Browsertests.
+
+**Regel für alle künftigen Einträge von Claude:** Jeder Arbeitsblock erhält
+einen nummerierten Eintrag in diesem Abschnitt, bevor er veröffentlicht wird.
+Die Handlungsnummern laufen fort (nächste: 38). Auch Handlungen außerhalb des
+Repositorys, Fehlgriffe und nicht geprüfte Punkte werden aufgeführt.
+
+**Offen, in dieser Reihenfolge empfohlen:** OPT-15 (Offline-Betrieb und
+Schul-PC-Checkliste), OPT-05 (Einheiten in kürzere Schritte teilen), OPT-08
+(Lehrkraft-Übersicht aus JSON-Exporten), OPT-03 und OPT-04 (neue Aufgabentypen,
+ERM-Editor). OPT-06 (Freischaltung lockern) wartet auf Jakobs Entscheidung.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
