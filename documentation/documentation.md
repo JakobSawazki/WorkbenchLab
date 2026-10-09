@@ -13,7 +13,7 @@ Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 Live-Seite: `https://jakobsawazki.github.io/WorkbenchLab/`
 
 Abschlussprüfung der bisherigen konkreten Änderungswünsche:
-[Abnahme vom 3. Oktober 2026](ABNAHME_2026-10-03.md).
+[Abnahme vom 3. Oktober 2026](releases/ABNAHME_2026-10-03.md).
 
 Auf erneuten ausdrücklichen Auftrag werden nun auch die sieben eigenständigen
 Lehrbuch-Manuskriptdateien und vier ergänzenden Projekttexte veröffentlicht.
@@ -21,6 +21,53 @@ Das Lehrbuch bleibt ein gekennzeichneter Entwurf; Originalmaterialien und
 lokale Testexporte bleiben ausgeschlossen. Die Abnahme dokumentiert den
 vorherigen Veröffentlichungsstand; dieser Nachtrag erweitert den Dateiumfang,
 nicht die Funktionen der App.
+
+<!-- CLAUDE-WEGWEISER:BEGIN – von Claude angelegt am 2026-10-09 (OPT-14); bei jedem Release mitpflegen. -->
+## Wegweiser und aktueller Stand [Claude, 2026-10-09]
+
+**Diese Datei ist lang, weil sie auch das Archiv enthält. Zum Arbeiten genügen
+dieser Abschnitt und Abschnitt 0.**
+
+| Ich suche … | Ort |
+| --- | --- |
+| Was hat sich wann geändert? | [`CHANGELOG.md`](../CHANGELOG.md) – eine Zeile je Version |
+| Was ist gerade der Stand? | Tabelle unten |
+| Was hat Claude getan, geprüft, nicht geprüft? | Abschnitt 0 dieser Datei (nummerierte Einträge, neuester am Ende) |
+| Was hat Codex bis 0.21.0 getan? | Abschnitte 1 bis 12 dieser Datei (Stand 3. Oktober 2026, seither nicht fortgeschrieben) |
+| Was hat Codex von 0.22.0 bis 0.25.3 getan? | Einzelberichte unter [`releases/`](releases/) |
+| Was ist offen, wer ist dran? | [`claude2codex.md`](../claude2codex.md), Teil C; [`codex2claude.md`](../codex2claude.md) |
+| Jakobs Entscheidungen vom 9. Oktober 2026 | Abschnitt 0.37 dieser Datei |
+| Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
+| Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
+
+**Aktueller Stand (Release 0.38.0)**
+
+| Thema | Stand |
+| --- | --- |
+| Lerneinheiten | 21 in fünf Lernfortschritten; in fester Reihenfolge freigeschaltet; Abschluss nach Selbstkontrolle, Verständnischeck und Bestätigung durch die Lehrkraft |
+| Übungen | 58, alle frei zugänglich: 25 SQL-Schreibaufgaben, 6 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
+| Zusätzliche Übungsformen | freies SQL-Labor, Wiederholungsrunde, Klausurtraining, Modell-Editor |
+| Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
+| Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S` |
+| Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden |
+| Tests | 155 Node-Tests, 2 Python-Tests, 31 Browsertests; zusätzlich von Hand 46 Prüfungen gegen die MariaDB des Informatik-Sticks |
+| Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
+
+**Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
+
+| Datei | Inhalt |
+| --- | --- |
+| `TECHNIK_UND_DIDAKTIK.md` | didaktisches Modell, SQL im Browser, Lernstand, Bewertung |
+| `BPE6_ABGLEICH_2026.md` | Abgleich der Inhalte mit dem Bildungsplan |
+| `SQL_FEEDBACK_UND_KI.md` | SQL-Coach und Überlegungen zu einer optionalen KI-Anbindung |
+| `BILDSPRACHE_UND_ASSETS.md`, `ALPINE_LEARNING_MAP.md`, `SETTLEMENT_MAP_PROMPT.md` | Herkunft und Prompts der Bilder und Landkarten |
+| `WORKBENCH_START_VIDEO.md` | animierte Startanleitung |
+| `EARLY_WORKBENCH_PHASES.md`, `L2_1_WORKBENCH_ENTWURF.md`, `L3_2_…`, `L3_3_…`, `L4_1_WORKBENCH_AUFTRAEGE.md`, `L5_WORKBENCH_ANALYSEN.md` | Konzepte der Praxisaufträge je Lernfortschritt |
+| `OPT_10_TEST_GATE.md`, `OPT_11_PUBLIC_ARTIFACT.md` | Codex' Berichte zu Testschranke und Veröffentlichungspaket |
+| `releases/` | Release- und Abnahmeberichte 0.22.0 bis 0.25.3; archivierte frühere README-Abschnitte |
+| `screenshots/` | Bildschirmfotos früherer Stände |
+
+<!-- CLAUDE-WEGWEISER:END -->
 
 <!-- CLAUDE:BEGIN – Alle Einträge zwischen BEGIN und END stammen von Claude (Claude Code). -->
 ## 0. Arbeitsprotokoll Claude
@@ -1808,6 +1855,42 @@ Hand 46 Prüfungen gegen MariaDB (zuletzt bei 0.37.0 ausgeführt).
 | offen | OPT-09 (neu zu bewerten), OPT-23 (Lösungen im Entwicklermodus), OPT-24 (Fehlersuche nach Abiturmuster) |
 
 Nächste Handlungsnummer: 221.
+
+### 0.39 Dokumentation aufgeräumt [Claude, 2026-10-09]
+
+Bezug: OPT-14, von Jakob am 9. Oktober freigegeben („damit Codex, du und ich den
+Überblick behalten“). Keine Änderung an der App, keine neue Version.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 221 | Commit `0982390` (OPT-17-Status in der Übergabedatei) gepusht | keine Änderung an der App |
+| 222 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 223 | 17 Dateien per `git mv` nach `documentation/releases/` verschoben: 15 Release-Berichte (0.22.0 bis 0.25.3) und 2 Abnahmen. `RELEASE_0.24.1.md` heißt jetzt einheitlich `RELEASE_0_24_1.md`. Der Git-Verlauf der Dateien bleibt erhalten | Inhalt unverändert |
+| 224 | Verweise auf diese Dateien in `documentation.md`, `OPT_11_PUBLIC_ARTIFACT.md` und innerhalb der verschobenen Dateien angepasst | |
+| 225 | `CHANGELOG.md` im Projektstamm angelegt: eine Zeile je Version von 0.1 bis 0.38.0 mit Verweis auf die Quelle | neu |
+| 226 | `README.md` neu gefasst (227 statt 303 Zeilen): Wegweiser, aktueller Funktionsumfang, aktuelle Dateikarte, Veröffentlichung, NAGOLD. Die Abschnitte „Ziel“, „Fachliche Grundlage“, „SQL-Labor und MySQL Workbench“, „Lokale Prüfungen“ und der Datenschutzteil sind wörtlich übernommen | |
+| 227 | Die überholten README-Teile (Release-Hinweise bis 0.25, Stände 0.5.0 und 0.7.0, alte Architektur- und Startabschnitte) wörtlich nach `documentation/releases/README_BIS_0_25_3.md` verschoben | nichts gelöscht |
+| 228 | Am Anfang dieser Datei den Abschnitt „Wegweiser und aktueller Stand“ eingefügt (eigene Markierung `CLAUDE-WEGWEISER`) | |
+| 229 | Alle Verweise in `README.md` und `CHANGELOG.md` auf Existenz der Zieldateien geprüft; Node-Tests ausgeführt | keine fehlenden Ziele; 155 bestanden |
+| 230 | Dieser Eintrag mit allen Änderungen als ein Commit gepusht | Deployment ohne App-Änderung |
+
+**Nicht angefasst:** die Abschnitte 1 bis 12 und die Anhänge dieser Datei
+(Codex, Stand 3. Oktober), die Konzeptdokumente im Ordner `documentation/`,
+`codex2claude.md`, `Lehrbuch/`. Abschnitt 2 nennt weiterhin 38 Übungen und den
+Stand 0.21.0; der neue Wegweiser am Dateianfang nennt den aktuellen Stand und
+weist darauf hin.
+
+**Für Codex:** Neue Release-Berichte bitte unter `documentation/releases/`
+ablegen oder, einfacher, als Zeile in `CHANGELOG.md` mit einem Abschnitt in
+dieser Datei.
+
+**Offen aus OPT-14:** die alten Abschnitte dieser Datei in ein eigenes
+Archivdokument auslagern. Das würde die Datei von über 4000 auf wenige hundert
+Zeilen kürzen, verschiebt aber Codex' Text; Claude macht es erst nach einem
+kurzen Zeichen von Codex oder Jakob, weil Codex' Arbeitsweise auf diese
+Abschnitte verweist.
+
+Nächste Handlungsnummer: 231.
 
 <!-- CLAUDE:END -->
 

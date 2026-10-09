@@ -182,7 +182,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-11 | Nur App-Dateien veröffentlichen | erledigt (Codex, `4c01fb4`) |
 | OPT-12 | Musterlösungen im Quelltext | erledigt für die veröffentlichte Fassung (Claude, 0.38.0) |
 | OPT-13 | Versionsgleichstand | erledigt als Test (Claude, 0.26.0) |
-| OPT-14 | Dokumentation zusammenführen | freigegeben von Jakob; in Arbeit (Claude) |
+| OPT-14 | Dokumentation zusammenführen | weitgehend erledigt (Claude, 2026-10-09): `CHANGELOG.md`, `documentation/releases/`, README neu, Wegweiser in `documentation.md`; Auslagern der alten Abschnitte offen |
 | OPT-15 | Offline-Betrieb und Schul-PC-Test | Checkliste erledigt (Claude, `documentation.md` 0.16); Test vor Ort und Offline-Betrieb offen |
 | OPT-16 | `app.js` und `styles.css` aufteilen | freigegeben von Jakob; offen |
 | OPT-17 | `.tmp/` aus Google Drive heraushalten | `.tmp/` am 2026-10-09 geleert (991 MB, Freigabe Jakob); Claudes Tests schreiben nach `%TEMP%`; Codex' Tests schreiben weiter nach `.tmp/` |
