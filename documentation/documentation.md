@@ -2469,6 +2469,24 @@ mit sehr großen Zahlen.
 
 Nächste Handlungsnummer: 354.
 
+### 0.58 Veröffentlichung 0.41.0 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 354 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 355 | Commit `a819aa3` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 356 | Live geprüft: `index.html` mit `v=0.41.0`; `sql-check.js` enthält `registerMysqlFunctions`; `tests/mysql-lab.browser.cjs` und `tests/sql-playground.browser.cjs` gegen die Live-Seite bestanden; `tests/public-site.browser.cjs` (gebaute Seite ohne Lösungen) bestanden | |
+| 357 | Sicherungs-Tag `v0.41.0` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 358 | Eigenen Testserver auf Port 4199 beendet; die MariaDB-Messinstanzen (Ports 33397 und 33399) haben sich nach jedem Lauf selbst beendet und ihr Datenverzeichnis gelöscht | keine fremden Prozesse berührt |
+| 359 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Für Jakob im Unterricht nützlich:** Im freien SQL-Labor steht unter
+„Unterschiede zu MySQL Workbench“ jetzt, was im Browser anders ist und welche
+MySQL-Funktionen nachgebildet sind. Wer eine Anweisung schreibt, die nur in
+MySQL geht, liest das in der Meldung.
+
+Nächste Handlungsnummer: 360.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
