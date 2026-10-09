@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.32.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.33.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -1112,6 +1112,39 @@ sinnvoller als weiterer Umfang: Die neuen Aufgaben und der Modell-Editor
 enthalten fachliche Formulierungen, die die Lehrkraft freigeben sollte.
 
 Nächste Handlungsnummer: 129.
+
+### 0.25 Release 0.33.0: Bildexport und M:N-Browsertest im Modell-Editor [Claude, 2026-10-09]
+
+Bezug: OPT-04, Folgearbeiten zu 0.32.0. Schließt zwei in 0.22 benannte Lücken.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 129 | Commit `e3a4fea` (Eintrag 0.24, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 130 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 131 | `erm-editor.js`: Schaltfläche „Diagramm als Bild“ und `diagramFile()`; Versionsangaben auf `0.33.0` | |
+| 132 | `tests/erm-editor.browser.cjs` erweitert: Bildexport und M:N-Aufgabe (direkte M:N-Beziehung wird erklärt, aufgelöstes Modell besteht, drei Kästen, vier Kardinalitäten) | |
+| 133 | Testserver auf Port 4199 gestartet; exportiertes Bild per Einmal-Skript dargestellt und gesichtet; alle Tests ausgeführt | Skript und Bild nur im temporären Sitzungsordner |
+| 134 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.33.0` ergänzt | außerhalb des Repos, vor diesem Eintrag |
+
+**Neu:** „Diagramm als Bild“ lädt das aktuelle Diagramm als SVG-Datei
+(`workbenchlab-modell-<aufgabe>.svg`) herunter. Die Datei ist eigenständig:
+Farben und Schriften sind fest eingetragen, sie lässt sich in Word, OneNote
+oder einem Browser öffnen und verlustfrei vergrößern. Sie übernimmt die Farben
+des gerade aktiven Farbmodus; für Ausdrucke empfiehlt sich der helle Modus.
+
+**Prüfung**
+
+- 146 Node-Tests und 2 Python-Tests bestanden; alle 29 Browsertests bestanden
+  (Edge, Port 4199).
+- Der erweiterte `erm-editor.browser.cjs` prüft bei 1440 und 390 px zusätzlich:
+  SVG-Datei ist eigenständig (keine Klassen, keine Farbvariablen), lässt sich
+  als Bild laden und enthält Namen und Schlüsselkennzeichen; M:N-Aufgabe im
+  Browser mit falschem und richtigem Modell.
+- Exportiertes Bild dargestellt und gesichtet: Kästen, Schlüssel, Linie und
+  Kardinalitäten vollständig.
+- Nicht geprüft: Einfügen der SVG-Datei in Word oder OneNote, Import des SQL in
+  eine echte MySQL Workbench, Schul-PCs.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.26.
 
 <!-- CLAUDE:END -->
 

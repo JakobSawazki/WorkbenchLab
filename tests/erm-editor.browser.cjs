@@ -114,6 +114,53 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.equal(await page.locator(".erm-entity").count(), 2);
       assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1").includes("Fahrschüler")), false);
 
+      // Diagramm als eigenständige Bilddatei.
+      const [image] = await Promise.all([page.waitForEvent("download"), page.locator("#ermImage").click()]);
+      assert.equal(image.suggestedFilename(), "workbenchlab-modell-fahrschule-ort.svg");
+      const imageFile = path.resolve(".tmp", `erm-export-${width}.svg`);
+      await image.saveAs(imageFile);
+      const svg = fs.readFileSync(imageFile, "utf8");
+      assert.ok(svg.startsWith('<?xml version="1.0" encoding="UTF-8"?>'));
+      assert.match(svg, /<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
+      assert.match(svg, />Fahrschüler</);
+      assert.match(svg, />ortnr \(FK\)</);
+      assert.doesNotMatch(svg, /var\(|class=/);
+      const imagePage = await context.newPage();
+      await imagePage.setContent(`<img id="i" src="data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}">`);
+      assert.ok(await imagePage.locator("#i").evaluate((img) => img.decode().then(() => img.naturalWidth > 300 && img.naturalHeight > 80)));
+      await imagePage.close();
+
+      // M:N-Aufgabe: direkte M:N-Beziehung wird erklärt, das aufgelöste Modell besteht.
+      const rental = (resolved) => ({ nextId: 20, entities: [
+        { id: 1, name: "Kunde", attributes: [{ id: 2, name: "kundennr", type: "INT", pk: true, fk: false }, { id: 3, name: "nachname", type: "VARCHAR(50)", pk: false, fk: false }] },
+        { id: 4, name: "Fahrrad", attributes: [{ id: 5, name: "fahrradnr", type: "INT", pk: true, fk: false }, { id: 6, name: "modell", type: "VARCHAR(50)", pk: false, fk: false }] },
+        ...(resolved ? [{ id: 7, name: "Mietvertrag", attributes: [{ id: 8, name: "vertragnr", type: "INT", pk: true, fk: false }, { id: 9, name: "von_datum", type: "DATE", pk: false, fk: false }, { id: 10, name: "kundennr", type: "INT", pk: false, fk: true }, { id: 11, name: "fahrradnr", type: "INT", pk: false, fk: true }] }] : [])
+      ], relations: resolved ? [{ id: 12, from: 1, to: 7, card: "1:N" }, { id: 13, from: 7, to: 4, card: "N:1" }] : [{ id: 12, from: 1, to: 4, card: "M:N" }] });
+      for (const resolved of [false, true]) {
+        await page.evaluate((data) => {
+          const store = JSON.parse(localStorage.getItem("workbenchlab-erm-v1"));
+          store.task = "fahrradvermietung";
+          store.models.fahrradvermietung = data;
+          localStorage.setItem("workbenchlab-erm-v1", JSON.stringify(store));
+        }, rental(resolved));
+        await page.reload();
+        await page.locator("#ermEditor .erm-entity").first().waitFor();
+        assert.equal(await page.locator("#ermTask").inputValue(), "fahrradvermietung");
+        assert.equal(await page.locator("#ermDiagram .erm-box").count(), resolved ? 3 : 2);
+        await page.locator("#ermCheck").click();
+        const text = await page.locator("#ermResult").innerText();
+        if (resolved) {
+          assert.match(text, /Modell stimmt/);
+          assert.equal(await page.locator("#ermResult .is-warning").count(), 0);
+          assert.deepEqual(await page.locator("#ermDiagram .erm-card").allTextContents(), ["1", "N", "N", "1"]);
+          assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
+        } else {
+          assert.match(text, /„Mietvertrag“ fehlt noch/);
+          assert.match(text, /Beziehungsentität mit zwei 1:N-Beziehungen/);
+        }
+      }
+      await page.locator("#ermTask").selectOption("fahrschule-ort");
+
       // Entfernen eines Entitätstyps entfernt auch seine Beziehungen; Leeren setzt zurück.
       await entity(0).locator("[data-erm-remove-entity]").click();
       assert.equal(await page.locator(".erm-entity").count(), 1);
@@ -123,7 +170,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass, self-relation rejected, SQL export, persistence per task, not in progress data, removal and reset, desktop/mobile.");
+    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass, self-relation rejected, SQL export, persistence per task, not in progress data, image export, M:N task, removal and reset, desktop/mobile.");
   } finally {
     await browser.close();
   }

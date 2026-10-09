@@ -348,6 +348,7 @@
           <div class="runner-actions">
             ${task.target ? `<button class="button button-primary" type="button" id="ermCheck"><i data-lucide="check"></i>Modell prüfen</button>` : ""}
             <button class="button button-secondary" type="button" id="ermSql"><i data-lucide="download"></i>SQL für Workbench</button>
+            <button class="button button-secondary" type="button" id="ermImage"><i data-lucide="image-down"></i>Diagramm als Bild</button>
             <button class="button button-secondary" type="button" id="ermReset"><i data-lucide="rotate-ccw"></i>Leeren</button>
           </div>
           <div id="ermResult" role="status" aria-live="polite">${lastCheck ? resultHtml(lastCheck, escapeHtml) : ""}</div>
@@ -359,6 +360,34 @@
   function resultHtml(result, escapeHtml) {
     return `<div class="result-banner is-visible ${result.passed ? "is-success" : "is-error"}"><i data-lucide="${result.passed ? "circle-check" : "circle-alert"}"></i><div><strong>${result.passed ? "Modell stimmt" : "Noch nicht ganz"}</strong><p>${result.passed ? "Alle geprüften Punkte passen. Exportiere das SQL und baue das Modell in MySQL Workbench nach." : "Arbeite die markierten Punkte der Reihe nach ab."}</p></div></div>
       <ul class="coach-checklist erm-checklist">${result.items.map((item) => `<li class="is-${item.status}"><i data-lucide="${item.status === "success" ? "circle-check" : "lightbulb"}"></i><div><span>${escapeHtml(item.text)}</span></div></li>`).join("")}</ul>`;
+  }
+
+  // Eigenständige SVG-Datei: Farben und Schriften werden fest eingetragen, weil die
+  // Datei außerhalb der Seite keine Stilvorlagen und Farbvariablen kennt.
+  function diagramFile() {
+    const source = document.querySelector("#ermDiagram svg");
+    if (!source) return "";
+    const copy = source.cloneNode(true);
+    const originals = [source, ...source.querySelectorAll("*")];
+    [copy, ...copy.querySelectorAll("*")].forEach((element, index) => {
+      const style = getComputedStyle(originals[index]);
+      const keep = ["fill", "stroke", "stroke-width", "opacity", "font-family", "font-size", "font-weight", "text-decoration", "paint-order"];
+      element.setAttribute("style", keep.map((name) => `${name}:${style.getPropertyValue(name)}`).join(";"));
+      element.removeAttribute("class");
+    });
+    const [, , width, height] = source.getAttribute("viewBox").split(" ").map(Number);
+    copy.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    copy.setAttribute("width", width);
+    copy.setAttribute("height", height);
+    copy.setAttribute("style", "");
+    const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    background.setAttribute("width", width);
+    background.setAttribute("height", height);
+    background.setAttribute("fill", getComputedStyle(document.querySelector("#ermDiagram")).backgroundColor);
+    copy.insertBefore(background, copy.firstChild);
+    return `<?xml version="1.0" encoding="UTF-8"?>
+${new XMLSerializer().serializeToString(copy)}
+`;
   }
 
   function refreshDiagram() {
@@ -472,6 +501,13 @@
         helpers.toast("Lege zuerst einen benannten Entitätstyp an.", "error");
       } else {
         helpers.downloadBlob(new Blob([toSql(current)], { type: "text/plain;charset=utf-8" }), `workbenchlab-modell-${store.task}.sql`);
+      }
+    } else if (target.id === "ermImage") {
+      const file = diagramFile();
+      if (!file) {
+        helpers.toast("Lege zuerst einen Entitätstyp an.", "error");
+      } else {
+        helpers.downloadBlob(new Blob([file], { type: "image/svg+xml;charset=utf-8" }), `workbenchlab-modell-${store.task}.svg`);
       }
     } else if (target.id === "ermReset" && window.confirm("Das Modell dieser Aufgabe wirklich leeren?")) {
       store.models[store.task] = emptyModel();
