@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.39.3 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.40.0 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -87,10 +87,24 @@ Bitte prüfen und bei Bedarf zurücknehmen:
     dass die Übung öffnet und die Einheit gesperrt bleibt.
 12. **Kopfzeilen von `documentation/documentation.md`** (Stand, Release) und
    der Kopf der README.
+13. **Aus `app.js` unverändert verschoben:** SQL-Prüflogik → `sql-check.js`
+    (0.38.2), Prüfsumme der Sicherung → `backup.js` (0.39.1), Vorgabewerte,
+    Kürzel/Klasse, Kennungen und `normalizeState` → `state.js` (0.39.2).
+    `app.js` bindet sie je mit einer Zeile ein.
+14. **`styles.css`** in sechs Dateien geschnitten (0.39.3), Reihenfolge der
+    Regeln unverändert; beide HTML-Seiten laden alle sechs.
+15. **`index.html`**: im Profildialog Knopf „Lösungsdatei laden“ (0.39.0),
+    dazu die neuen Skript- und Style-Verweise.
+16. **`backupPayload`** schreibt zusätzlich `extras.ermDrafts`;
+    **`importProgressFile`** übernimmt den Block und nennt ihn in der
+    Rückfrage (0.40.0). `backupFormatVersion` bleibt 6.
+17. **Dokumentation umgeräumt:** Release- und Abnahmeberichte nach
+    `documentation/releases/`, deine Abschnitte 1 bis 12 nach
+    `documentation/archiv/` – Inhalt unverändert, nur Verweise angepasst.
 
-Nicht angefasst: `codex2claude.md`, `documentation/RELEASE_*.md`,
-`documentation/ABNAHME_*.md`, `Lehrbuch/`, `content.js`, die Inhalte der 21
-Einheiten in `learning-path.js` (dort nur `content.version`).
+Nicht angefasst: `codex2claude.md`, `content.js`, die Inhalte der 21
+Einheiten in `learning-path.js` (dort nur `content.version`), `Lehrbuch/`
+(außer einem Verweis in `QUELLEN.md`), deine Browsertests bis auf Punkt 2 und 11.
 
 ### A3 Übergabeprotokoll
 
@@ -125,7 +139,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `backup.js` | Prüfsumme der JSON-Sicherung, gemeinsam für `app.js` und `teacher-overview.js` | Code von Codex, ausgelagert von Claude |
 | `state.js` | Vorgabewerte, Kürzel/Klasse, Kennungen, `normalizeState`; neue Felder des Lernstands hier ergänzen. `loadState`/`saveState` bleiben in `app.js` | Code von Codex, ausgelagert von Claude |
 | `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
-| `tests/*.test.js`, `tests/*.browser.cjs` | 180 Node-Tests, 32 Browsertests | Codex und Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 181 Node-Tests, 33 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -181,7 +195,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-06 | Freischaltung lockern | erledigt (Claude, 0.38.0): Übungen frei, Einheiten in Reihenfolge |
 | OPT-07 | Wiederholung und Klausurtraining | erledigt (Claude, 0.31.0 und 0.34.0) |
 | OPT-08 | Klassenübersicht | erledigt (Claude, 0.27.0) |
-| OPT-09 | Lehrkraft-Bestätigung per Code | offen; seit NAGOLD an der Bestätigung hängen, neu zu bewerten |
+| OPT-09 | Lehrkraft-Bestätigung absichern | offen; Vorschlag mit drei Wegen in C3, Entscheidung Jakob (a, b oder c) |
 | OPT-10 | Tests vor dem Deployment | erledigt (Codex, `c27998d`) |
 | OPT-11 | Nur App-Dateien veröffentlichen | erledigt (Codex, `4c01fb4`) |
 | OPT-12 | Musterlösungen im Quelltext | erledigt für die veröffentlichte Fassung (Claude, 0.38.0) |
@@ -202,17 +216,42 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 
 1. **OPT-15:** Checkliste in `documentation.md` 0.16 schrittweise im Unterricht durchgehen.
 2. **Durchsicht** der neuen Aufgaben, des Modell-Editors und der Klassenübersicht im Unterricht.
-3. **OPT-09:** Soll die Lehrkraft-Bestätigung abgesichert werden, seit NAGOLD daran hängen?
+3. **OPT-09:** Lehrkraft-Bestätigung absichern – Weg a, b oder c? Vorschlag in C3.
 
 ### C3 Offene Punkte im Einzelnen
+
+#### OPT-09 Lehrkraft-Bestätigung absichern (Vorschlag; Entscheidung Jakob)
+
+- **Befund:** Den Haken „Die Lehrkraft hat mein Lernprodukt gesehen …“ können
+  Lernende selbst setzen. Daran hängen Abschluss, XP, die nächste Einheit und
+  5 NAGOLD. Die Prüfsumme der Sicherung schützt davor nicht; ihr Verfahren ist
+  öffentlich.
+- **Grenze:** Ohne Server kann die Lernseite kein Geheimnis prüfen. Alles, was
+  im Quelltext steht, können Lernende lesen. Verlässlich wird die Bestätigung
+  nur auf dem Gerät der Lehrkraft.
+
+| | Weg | Aufwand im Unterricht | Schutz | Umsetzung |
+| --- | --- | --- | --- | --- |
+| a | Lassen; NAGOLD im Profil als „gemeldet“ kennzeichnen. Verbindlich ist Jakobs eigene Liste | keiner | keiner in der App; Kontrolle im Gespräch | klein (Text) |
+| b | Bestätigen in der Klassenübersicht: Jakob lädt die Sicherungen und hakt je Schüler die gesehenen Einheiten ab. Die Liste bleibt auf seinem Gerät (eigene Sicherungsdatei) und liefert die NAGOLD als CSV | Sicherungen einsammeln wie bisher, Haken setzen | hoch; maßgeblich ist Jakobs Gerät | mittel; nur `lehrkraft.html` und `teacher-overview.js` |
+| c | Code je Schüler und Einheit: Die Klassenübersicht erzeugt aus einem geheimen Schlüssel kurze Codes. Die Lernseite speichert den Code, die Klassenübersicht prüft ihn | je Schüler und Einheit ein Code (bis 21 × Klassenstärke) | hoch; Codes nicht übertragbar. Tippfehler fallen erst in der Übersicht auf | groß; Lernseite und Übersicht |
+
+- **Empfehlung Claude:** b, dazu der Texthinweis aus a. Kein Mehraufwand für
+  Lernende, keine Codes; die Bewertung liegt bei der Lehrkraft, die Lernseite
+  bleibt Motivation und Selbstkontrolle.
+- **Nicht empfohlen:** ein gemeinsamer Code oder dessen Hash im Quelltext. Er
+  wäre nach der ersten Stunde bekannt oder auslesbar.
+- **Frage an Jakob:** a, b oder c?
 
 #### OPT-04 Modell-Editor, mögliche Erweiterungen
 
 - **Stand:** Formular-Editor mit verschiebbarem Diagramm, Optionalität, drei
   geprüften Aufgaben, freiem Modell, SQL- und SVG-Export. Der Export ist an der
   MariaDB des Sticks geprüft.
-- **Offen:** Entwürfe in die JSON-Sicherung aufnehmen (verlangt eine
-  Formatänderung); XP für bestandene Modellaufgaben; Krähenfuß-Darstellung.
+- **Seit 0.40.0:** Entwürfe sind Teil der JSON-Sicherung (Zusatzblock
+  `extras.ermDrafts`, Format weiter 6; ältere Sicherungen lassen vorhandene
+  Entwürfe unberührt).
+- **Offen:** XP für bestandene Modellaufgaben; Krähenfuß-Darstellung.
 - **Bitte prüfen (Jakob):** Leserichtung der Optionalität. Der Editor schreibt
   `0..1` an den Entitätstyp, von dem höchstens ein Datensatz zugeordnet ist.
 
@@ -295,8 +334,8 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 
 ### C4 Bekannte Schwächen in Claudes Teilen
 
-- Wiederholungsrunde, Modell-Entwürfe und Rettungskopie liegen außerhalb der
-  JSON-Sicherung.
+- Wiederholungsrunde, laufendes Klausurtraining und Rettungskopie liegen
+  außerhalb der JSON-Sicherung (Modell-Entwürfe seit 0.40.0 enthalten).
 - Der Modell-Editor prüft Struktur und Schlüssel, keine Attributnamen.
 - Vorhersage und Klauseln ordnen lassen sich durch Probieren lösen; sie sind
   als Übung gedacht, nicht als Nachweis.

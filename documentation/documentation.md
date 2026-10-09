@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.39.3** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.40.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.39.3)**
+**Aktueller Stand (Release 0.40.0)**
 
 | Thema | Stand |
 | --- | --- |
@@ -50,7 +50,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 180 Node-Tests, 2 Python-Tests, 32 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
+| Tests | 181 Node-Tests, 2 Python-Tests, 33 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2303,6 +2303,44 @@ bis 24; abgelehnt: OPT-05, 18). Es bleiben:
 | OPT-15 Test am Schul-PC | Jakob im Unterricht | Checkliste in Abschnitt 0.16 |
 
 Nächste Handlungsnummer: 318.
+
+### 0.53 Release 0.40.0: Modell-Entwürfe in der JSON-Sicherung; Vorschlag zu OPT-09 [Claude, 2026-10-09]
+
+Bezug: bekannte Schwäche aus `claude2codex.md` C4 („Modell-Entwürfe liegen
+außerhalb der JSON-Sicherung“) und OPT-09. Wer zwischen Schul-PC und zu Hause
+wechselt, verlor bisher seine Entwürfe aus dem Modell-Editor.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 318 | Geprüft, was von den notierten Nebenpunkten sinnvoll ist: (1) Codex' Browsertests schreiben je Lauf rund 46 MB Bilder nach `.tmp/` – nicht geändert, weil unklar ist, ob Codex' Arbeitsumgebung außerhalb des Projektordners schreiben darf; (2) drei ungenutzte PNG-Dateien (8,8 MB) unter `assets/` werden veröffentlicht, aber von keiner Seite geladen – nicht geändert, kein Nutzen für Lernende; (3) Modell-Entwürfe fehlen in der Sicherung – umgesetzt | (1) und (2) bleiben Hinweise für Codex |
+| 319 | `erm-editor.js`: `sanitizeStore` (bereinigt alle Entwürfe samt gewählter Aufgabe und Schreibweise), `exportDrafts`, `importDrafts`; `load` benutzt `sanitizeStore` | Claudes Datei |
+| 320 | `app.js`, `backupPayload` (Codex): Zusatzblock `extras.ermDrafts`; die Prüfsumme deckt ihn mit ab. `backupFormatVersion` bleibt 6, damit ältere und neuere App-Stände dieselben Dateien lesen | ältere App-Stände ignorieren den Block |
+| 321 | `app.js`, `importProgressFile` (Codex): Enthält die Sicherung den Block, nennt die Rückfrage das („Das gilt auch für deine Entwürfe im Modell-Editor (in der Sicherung: n)“) und die Entwürfe werden nach der Bestätigung bereinigt übernommen. Fehlt der Block (ältere Sicherung), bleiben die Entwürfe dieses Browsers | |
+| 322 | Text im Modell-Editor: Entwurf „gehört zur JSON-Sicherung (Diskettensymbol)“ | |
+| 323 | Tests: `tests/erm-backup.browser.cjs` neu; `tests/erm-editor.test.js` um `sanitizeStore` ergänzt | siehe Prüfung |
+| 324 | `claude2codex.md`: Vorschlag zu OPT-09 mit drei Wegen und Empfehlung (C3); Liste A2 um die Punkte 13 bis 17 ergänzt (Auslagerungen, Style-Dateien, Lösungsdatei-Knopf, Sicherung, umgeräumte Dokumentation) und den veralteten Satz „nicht angefasst“ berichtigt; OPT-04 und C4 aktualisiert | A2 war seit 0.38.2 nicht nachgeführt – Versäumnis von Claude |
+| 325 | Versionsangaben auf `0.40.0`; `CHANGELOG.md`, `README.md`, Wegweiser, Merkzettel (Tag-Bereich) | |
+| 326 | Eigenen Testserver auf Port 4199 gestartet, nach den Tests beendet | keine fremden Prozesse berührt |
+
+**Prüfung**
+
+- 181 Node-Tests (1 neu) und 2 Python-Tests bestanden.
+- Alle 33 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199).
+- Der neue Browsertest prüft: Entwurf steht in der Sicherung und in der
+  Prüfsumme; Laden auf einem zweiten „Gerät“ übernimmt ihn und der Editor zeigt
+  ihn; Abbrechen ändert nichts; nachträglich veränderte Datei wird abgelehnt;
+  ältere Sicherung ohne Block lässt Entwürfe stehen; leerer Block ersetzt sie;
+  unbrauchbare oder bösartige Inhalte (fremde Aufgaben, HTML in Namen, falsche
+  Typen, kaputte Beziehungen) werden bereinigt.
+
+**Nicht geprüft:** Laden einer 0.40.0-Sicherung in einem älteren App-Stand im
+echten Browser (aus dem Code abgeleitet: der Block wird ignoriert); Schul-PCs.
+
+**OPT-09 – was Jakob entscheiden muss** (ausführlich in `claude2codex.md` C3):
+a) lassen und NAGOLD als „gemeldet“ kennzeichnen, b) Bestätigung in der
+Klassenübersicht auf Jakobs Gerät (Empfehlung), c) Code je Schüler und Einheit.
+
+Nächste Handlungsnummer: 327.
 
 <!-- CLAUDE:END -->
 

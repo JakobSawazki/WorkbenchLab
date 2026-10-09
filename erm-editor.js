@@ -266,7 +266,20 @@
     }
   });
 
-  window.WORKBENCH_ERM = { TYPES, CARDS, TASKS, LIMITS, CANVAS, norm, identifier, emptyModel, sanitize, checkModel, toSql, layout, oneToMany, ends };
+  // Alle Entwürfe (je Aufgabe ein Modell) samt gewählter Aufgabe und Schreibweise bereinigen.
+  // Wird beim Laden aus dem Browserspeicher und beim Einlesen einer JSON-Sicherung benutzt.
+  function sanitizeStore(candidate) {
+    const clean = { task: "fahrschule-ort", notation: "n", models: {} };
+    if (candidate && typeof candidate === "object" && !Array.isArray(candidate)) {
+      if (TASKS.some((task) => task.id === candidate.task)) clean.task = candidate.task;
+      if (candidate.notation === "workbench") clean.notation = "workbench";
+      const models = candidate.models && typeof candidate.models === "object" ? candidate.models : {};
+      TASKS.forEach((task) => { if (models[task.id]) clean.models[task.id] = sanitize(models[task.id]); });
+    }
+    return clean;
+  }
+
+  window.WORKBENCH_ERM = { TYPES, CARDS, TASKS, LIMITS, CANVAS, norm, identifier, emptyModel, sanitize, sanitizeStore, checkModel, toSql, layout, oneToMany, ends };
 
   if (typeof document === "undefined") return;
 
@@ -280,9 +293,7 @@
     try {
       const stored = JSON.parse(localStorage.getItem(storageKey) || "null");
       if (stored && typeof stored === "object") {
-        store.task = TASKS.some((task) => task.id === stored.task) ? stored.task : store.task;
-        store.notation = stored.notation === "workbench" ? "workbench" : "n";
-        TASKS.forEach((task) => { if (stored.models?.[task.id]) store.models[task.id] = sanitize(stored.models[task.id]); });
+        store = sanitizeStore(stored);
       }
     } catch {}
   }
@@ -655,5 +666,16 @@ ${new XMLSerializer().serializeToString(copy)}
     load();
     container.innerHTML = `<div id="ermEditor" class="erm-editor"></div>`;
     render();
+  };
+
+  // Entwürfe für die JSON-Sicherung (0.40.0): app.js ruft beides beim Speichern und Laden auf.
+  window.WORKBENCH_ERM.exportDrafts = () => {
+    load();
+    return sanitizeStore(store);
+  };
+  window.WORKBENCH_ERM.importDrafts = (candidate) => {
+    store = sanitizeStore(candidate);
+    lastCheck = null;
+    save();
   };
 })();

@@ -242,3 +242,28 @@ test("Optionalität: Schreibweise 0..1/1..N wie in der Lerneinheit, optionaler F
   ] })).relations;
   assert.deepEqual(stored, [{ id: 3, from: 1, to: 2, card: "1:N", fromOptional: true }, { id: 4, from: 2, to: 1, card: "1:N" }]);
 });
+
+test("sanitizeStore: Entwürfe für Browserspeicher und JSON-Sicherung werden bereinigt (0.40.0)", () => {
+  const empty = { task: "fahrschule-ort", notation: "n", models: {} };
+  for (const junk of [null, undefined, 5, "text", [], {}]) {
+    assert.deepEqual(plain(erm.sanitizeStore(junk)), empty);
+  }
+  const model = { entities: [{ id: 1, name: "Ort", attributes: [{ id: 2, name: "ortnr", type: "INT", pk: true, fk: false }] }], relations: [], nextId: 3 };
+  const store = plain(erm.sanitizeStore({
+    task: "schulbibliothek", notation: "workbench", fremd: "x",
+    models: { schulbibliothek: model, "gibt-es-nicht": model, frei: "kein Modell", "fahrschule-ort": { entities: "x" } }
+  }));
+  assert.equal(store.task, "schulbibliothek");
+  assert.equal(store.notation, "workbench");
+  assert.deepEqual(Object.keys(store), ["task", "notation", "models"]);
+  assert.deepEqual(Object.keys(store.models).sort(), ["fahrschule-ort", "frei", "schulbibliothek"]);
+  assert.deepEqual(store.models.schulbibliothek, model);
+  assert.deepEqual(store.models.frei, { entities: [], relations: [], nextId: 1 });
+  assert.equal(plain(erm.sanitizeStore({ task: "unbekannt", notation: "x", models: [] })).task, "fahrschule-ort");
+  // Zweimal bereinigen ändert nichts mehr; das Ergebnis teilt keine Objekte mit der Eingabe.
+  assert.deepEqual(plain(erm.sanitizeStore(store)), store);
+  const input = { task: "frei", models: { frei: model } };
+  const copy = erm.sanitizeStore(input);
+  copy.models.frei.entities[0].name = "geändert";
+  assert.equal(input.models.frei.entities[0].name, "Ort");
+});

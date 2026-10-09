@@ -2139,7 +2139,7 @@
         <div>
           <p class="eyebrow">Vom Sachtext zum Modell</p>
           <h2>Modell-Editor</h2>
-          <p>Wähle eine Aufgabe, lege Entitätstypen mit Attributen an und verbinde sie. Das Diagramm entsteht automatisch. Dein Entwurf bleibt in diesem Browser gespeichert.</p>
+          <p>Wähle eine Aufgabe, lege Entitätstypen mit Attributen an und verbinde sie. Das Diagramm entsteht automatisch. Dein Entwurf bleibt in diesem Browser gespeichert und gehört zur JSON-Sicherung (Diskettensymbol).</p>
         </div>
         <button class="button button-secondary" type="button" data-route="modeling"><i data-lucide="network"></i>Modellieren</button>
       </header>
@@ -3279,6 +3279,8 @@
 
   async function backupPayload() {
     const exportedAt = new Date().toISOString();
+    // Entwürfe des Modell-Editors liegen außerhalb des Lernstands und reisen als Zusatzblock mit (Claude, 0.40.0).
+    const ermDrafts = window.WORKBENCH_ERM?.exportDrafts?.();
     const payload = {
       app: backupAppId,
       formatVersion: backupFormatVersion,
@@ -3309,7 +3311,8 @@
         nagold: stateNagold(),
         completedTasks: state.completedPractices.length + state.completedCommands.length
       },
-      data: structuredClone(state)
+      data: structuredClone(state),
+      extras: ermDrafts ? { ermDrafts } : {}
     };
     return {
       ...payload,
@@ -3427,8 +3430,15 @@
         }
       }
       const legacyLabel = importedState.name || String(parsed.data.name || "älterer Lernstand").slice(0, 30);
+      // Sicherungen ab 0.40.0 enthalten die Entwürfe des Modell-Editors; ältere nicht – dann bleiben
+      // die Entwürfe dieses Browsers unverändert.
+      const hasErmDrafts = Boolean(parsed.extras) && typeof parsed.extras === "object" && "ermDrafts" in parsed.extras
+        && typeof window.WORKBENCH_ERM?.importDrafts === "function";
+      const ermDraftCount = hasErmDrafts
+        ? Object.values(window.WORKBENCH_ERM.sanitizeStore(parsed.extras.ermDrafts).models).filter((model) => model.entities.length).length
+        : 0;
       const confirmed = window.confirm(
-        `Lernstand für ${legacyLabel}, Klasse ${importedState.className || "noch offen"}, mit ${stateXp(importedState)} XP laden? Dein aktueller Lernstand wird ersetzt.`
+        `Lernstand für ${legacyLabel}, Klasse ${importedState.className || "noch offen"}, mit ${stateXp(importedState)} XP laden? Dein aktueller Lernstand wird ersetzt.${hasErmDrafts ? ` Das gilt auch für deine Entwürfe im Modell-Editor (in der Sicherung: ${ermDraftCount}).` : ""}`
       );
       if (!confirmed) {
         setBackupStatus("Laden abgebrochen.");
@@ -3442,6 +3452,9 @@
       }].slice(-12);
       state = importedState;
       saveState();
+      if (hasErmDrafts) {
+        window.WORKBENCH_ERM.importDrafts(parsed.extras.ermDrafts);
+      }
       backupDialog.close();
       renderRoute();
       toast("Lernstand erfolgreich geladen");
