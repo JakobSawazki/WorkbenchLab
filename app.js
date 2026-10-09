@@ -84,6 +84,8 @@
   let sidebarHidden = false;
   let activeDrawing = null;
   let renderedRoute = null;
+  // Nach Esc im SQL-Editor verlässt die nächste Tab-Taste das Feld, statt einzurücken.
+  let sqlEditorTabLeaves = false;
   let notesReturn = null;
   let pendingNotesReturn = null;
   let startupReturn = null;
@@ -2052,13 +2054,14 @@
               </select>
             </div>
             <label class="sr-only" for="sqlEditor">SQL-Code</label>
-            <textarea class="code-editor" id="sqlEditor" spellcheck="false" data-playground-editor>${escapeHtml(draft)}</textarea>
+            <textarea class="code-editor" id="sqlEditor" spellcheck="false" aria-describedby="sqlEditorKeys" data-playground-editor>${escapeHtml(draft)}</textarea>
             <div class="runner-actions">
               <button class="button button-primary" type="button" id="playgroundRunButton" title="Ausführen (Strg + Enter)"><i data-lucide="play"></i>Ausführen</button>
               <button class="button button-secondary" type="button" id="playgroundResetButton"><i data-lucide="database-backup"></i>Datenbank zurücksetzen</button>
               <button class="icon-button" type="button" id="playgroundDownloadButton" title="SQL-Datei herunterladen" aria-label="SQL-Datei herunterladen"><i data-lucide="download" aria-hidden="true"></i></button>
             </div>
             <p class="field-hint">Tipp: <kbd>Strg</kbd> + <kbd>Enter</kbd> führt aus. <code>SHOW TABLES;</code> und <code>DESCRIBE tabelle;</code> funktionieren wie in MySQL Workbench.</p>
+            <p class="field-hint editor-keys" id="sqlEditorKeys">Tab rückt ein. Feld verlassen: <kbd>Esc</kbd>, dann <kbd>Tab</kbd> – oder <kbd>Umschalt</kbd> + <kbd>Tab</kbd>.</p>
             <div id="sqlOutput" class="console-output" aria-live="polite">Noch keine Abfrage ausgeführt.</div>
             <details class="mysql-differences">
               <summary>Unterschiede zu MySQL Workbench, die du kennen solltest</summary>
@@ -2300,7 +2303,8 @@
           <div class="lesson-body">
             ${practice.variant === "debug" ? `<div class="callout debug-callout"><i data-lucide="bug"></i><p>${escapeHtml(content.debugIntro)}</p></div>` : ""}
             <label class="sr-only" for="sqlEditor">SQL-Code</label>
-            <textarea class="code-editor" id="sqlEditor" spellcheck="false">${escapeHtml(draft)}</textarea>
+            <textarea class="code-editor" id="sqlEditor" spellcheck="false" aria-describedby="sqlEditorKeys">${escapeHtml(draft)}</textarea>
+            <p class="field-hint editor-keys" id="sqlEditorKeys"><kbd>Strg</kbd> + <kbd>Enter</kbd> führt aus. Tab rückt ein. Feld verlassen: <kbd>Esc</kbd>, dann <kbd>Tab</kbd> – oder <kbd>Umschalt</kbd> + <kbd>Tab</kbd>.</p>
             <div class="runner-actions">
               <button class="button button-secondary" type="button" id="runSqlButton">
                 <i data-lucide="play"></i>
@@ -3967,6 +3971,7 @@
     }
     if (event.target.id === "sqlEditor" && event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
+      sqlEditorTabLeaves = false;
       if (event.target.matches("[data-playground-editor]")) {
         runPlayground();
       } else {
@@ -3974,13 +3979,37 @@
       }
       return;
     }
+    // Tab rückt im SQL-Editor ein. Damit die Tastatur dort nicht gefangen ist (WCAG 2.1.2), geht
+    // Umschalt+Tab immer zum vorigen Element, und nach Esc verlässt auch Tab das Feld (Claude, 0.41.5).
+    if (event.target.id === "sqlEditor" && event.key === "Escape") {
+      sqlEditorTabLeaves = true;
+      return;
+    }
     if (event.target.id === "sqlEditor" && event.key === "Tab") {
+      if (event.shiftKey || sqlEditorTabLeaves) {
+        sqlEditorTabLeaves = false;
+        return;
+      }
       event.preventDefault();
       const editor = event.target;
       const start = editor.selectionStart;
       editor.setRangeText("  ", start, editor.selectionEnd, "end");
       editor.dispatchEvent(new Event("input"));
+    } else if (!["Shift", "Control", "Alt", "Meta", "AltGraph"].includes(event.key)) {
+      sqlEditorTabLeaves = false;
     }
+  });
+  // Die Freigabe durch Esc gilt nur für den nächsten Tastendruck im selben Feld: Verlassen des Feldes
+  // oder ein Klick heben sie auf.
+  document.addEventListener("focusout", (event) => { if (event.target.id === "sqlEditor") sqlEditorTabLeaves = false; });
+  document.addEventListener("pointerdown", () => { sqlEditorTabLeaves = false; });
+
+  // Sprunglink: Der Verweis auf #mainContent wurde vom Seitenwechsel als unbekannte Route gelesen und
+  // führte zur Startseite. Jetzt bleibt die Seite stehen und der Fokus geht in den Inhalt (Claude, 0.41.5).
+  document.querySelector(".skip-link")?.addEventListener("click", (event) => {
+    event.preventDefault();
+    main.focus({ preventScroll: true });
+    main.scrollIntoView({ block: "start" });
   });
 
   document.addEventListener("input", (event) => {

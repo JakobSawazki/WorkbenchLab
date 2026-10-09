@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.41.4** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.41.5** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.41.4)**
+**Aktueller Stand (Release 0.41.5)**
 
 | Thema | Stand |
 | --- | --- |
@@ -51,7 +51,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` (mit nachgeprüften Modellaufgaben); Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 194 Node-Tests, 2 Python-Tests, 37 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
+| Tests | 194 Node-Tests, 2 Python-Tests, 39 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2735,6 +2735,67 @@ Nächste Handlungsnummer: 438.
 | 443 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
 
 Nächste Handlungsnummer: 444.
+
+### 0.68 Release 0.41.5: Breiten zwischen Telefon und Monitor, Bedienung nur mit der Tastatur [Claude, 2026-10-09]
+
+Zwei weitere Messungen. Beide deckten Mängel auf.
+
+**A. Seitliches Überlaufen bei anderen Breiten und großer Schrift**
+
+Bisher prüften die Tests nur 1440 und 390 Pixel mit Standardschrift.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 444 | Hilfsskript `overflow.cjs`: alle 98 Routen und drei Dialoge bei 13 Breiten (320 bis 1920 Pixel, darunter die Werte direkt über den Umbruchpunkten 640, 900 und 1080) und zwei Schriftgrößen (16 und 20 Pixel) | 2548 Ansichten, 17 verschiedene Befunde |
+| 445 | **Befund 1 (häufig, Standardschrift):** „SQL-Labor“, „Modellieren“ und die Startseite liefen zwischen 641 und 1280 Pixel seitlich über (bis 73 Pixel) – also auf üblichen Laptops und Tablets | Ursache: Der Name der Einheit in den Aufgabenkarten brach nur bis 640 Pixel um (Regel stand in einer Bildschirmabfrage) |
+| 446 | **Befund 2:** Diagrammaufgaben liefen bei 1081 bis etwa 1140 Pixel über (Seitenleiste sichtbar, Diagramm braucht 775 Pixel) | das Diagramm scrollt jetzt in seinem Rahmen |
+| 447 | **Befund 3 (Telefon):** Zuordnungsaufgabe „workbench-flow-slots“ lief bei 320 bis 414 Pixel bis 151 Pixel über – lange Auswahltexte | Auswahlfelder nehmen die verfügbare Breite |
+| 448 | **Befund 4:** Arbeitsblatt der Einheiten bei 641 bis etwa 700 Pixel 8 Pixel zu breit; Nachschlageseite bei 320/360 Pixel; einzelne lange Wörter bei 320 Pixel mit großer Schrift | Hinweis rückt unter das Feld; lange Wörter dürfen auf sehr schmalen Bildschirmen umbrechen |
+| 449 | Alle Korrekturen als Block am Ende von `styles-extensions.css` (11 Regeln); keine Regel in Codex' Dateien geändert | Fehlgriff dabei: Die erste Fassung für das Arbeitsblatt machte die dritte Spalte 0 Pixel breit (Überlauf 44 statt 8 Pixel); mit dem Hilfsskript `overflow-find.cjs` gefunden und ersetzt |
+| 450 | `tests/overflow.browser.cjs` neu: alle Routen und Dialoge bei acht Breiten mit Standardschrift und vier Breiten mit der größten Schrift | 1176 Ansichten, 0 Befunde |
+| 451 | Nicht geändert: Bei 360 Pixel und größter Schrift meldete die Messung „Beschriftung abgeschnitten“ für zwei Knöpfe. Im Bild geprüft: Die Beschriftungen sind vollständig lesbar (2 Pixel Rundung) | kein Mangel |
+
+**B. Bedienung nur mit der Tastatur**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 452 | Hilfsskript `keyboard.cjs`: 16 Seiten, zwei Breiten; Tab-Reihenfolge, Sichtbarkeit und Markierung des Fokus, Dialoge | 9 Meldungen, davon 8 durch die Messmethode bedingt (die App setzt den Fokus beim Seitenwechsel bewusst in den Inhalt; der Sprunglink liegt davor) |
+| 453 | **Befund:** Im SQL-Editor rückt die Tab-Taste ein – auch mit Umschalt. Wer nur die Tastatur benutzt, kam aus dem Feld nicht mehr heraus (WCAG 2.1.2, „keine Tastaturfalle“). Betrifft jede SQL-Aufgabe und das freie SQL-Labor | `app.js`, Tastenbehandlung (Codex, seit dem ersten Commit) |
+| 454 | `app.js`: Umschalt + Tab geht immer zum vorigen Element; nach Esc verlässt auch Tab das Feld (üblicher Weg bei Code-Editoren). Tab ohne Esc rückt weiter ein. Sichtbarer Hinweis unter beiden Editoren, mit dem Feld verknüpft (`aria-describedby`) | |
+| 455 | `tests/keyboard.browser.cjs` neu (erste Fassung, siehe B2): Sprunglink führt in den Inhalt; Tab-Halte alle sichtbar und mit Fokusmarkierung; keine Falle; Editor rückt ein und lässt sich auf beiden Wegen verlassen; drei Dialoge nehmen den Fokus auf, halten ihn, schließen mit Esc und geben ihn an den Knopf zurück | Gegenprobe: ohne Nr. 454 schlägt der Test fehl |
+
+**B2. Gegenlesen vor der Veröffentlichung**
+
+Vier unabhängige Prüfinstanzen (drei Gegenleser, eine Gegenprüfung der Befunde)
+lasen die Änderung, ohne Dateien zu ändern. Neun Befunde, alle bestätigt:
+
+| Nr. | Befund | Folge |
+| ---: | --- | --- |
+| 455a | **Sprunglink „Zum Inhalt springen“ führte auf jeder Seite zur Startseite** (Verweis auf `#mainContent` wurde als unbekannte Route gelesen). Bestand seit dem ersten Commit | `app.js`: Der Sprunglink setzt den Fokus in den Inhalt, die Seite bleibt stehen |
+| 455b | Claudes neuer Tastatur-Test verdeckte das: Nach dem Sprunglink lief er 32-mal über die Startseite; die Prüfung „Esc + Tab verlässt den Editor“ wurde nie erreicht, die Fallen-Erkennung war wirkungslos, die Fokusmarkierung zu großzügig | Test berichtigt: prüft, dass die Seite nicht wechselt und der Fokus im Inhalt liegt; geht den Editor auf beiden Seiten und Breiten wirklich durch (als Zahl geprüft); Markierung zählt nur, wenn sie ohne Fokus fehlt. Jetzt 919 echte Tab-Halte statt 1664 scheinbarer |
+| 455c | Die Freigabe durch Esc blieb bestehen nach Strg + Enter, nach einem Klick und nach einem Seitenwechsel | `app.js`: Freigabe endet beim Verlassen des Feldes, bei jedem Klick und nach Strg + Enter |
+| 455d | Die Regel für Auswahlfelder der Zuordnungsaufgaben galt bei jeder Breite; am Monitor rutschte jedes Feld unter seine Beschriftung | `styles-extensions.css`: Regel gilt nur bis 640 Pixel |
+
+**C. Zwischenfälle (eigene Fehler, App nicht betroffen)**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 456 | Für die Gegenprobe zu Nr. 455 die Änderung an `app.js` mit `git stash` beiseitegelegt. Beim Zurückholen meldete Git „No stash entries found“; `app.js` war auf dem Stand von 0.41.4 | Ursache: In `.git/refs/` blieb eine Sperrdatei `stash.lock` liegen (Google Drive greift auf denselben Ordner zu), der Verweis auf den Zwischenspeicher wurde nicht geschrieben |
+| 457 | Änderung aus dem verwaisten Git-Eintrag `be58175` zurückgeholt (`git checkout be58175 -- app.js`), mit `node --check` und erneutem Testlauf geprüft; Sperrdatei entfernt, `git fsck` ohne Befund außer den bekannten `desktop.ini`-Dateien von Google Drive | nichts verloren |
+| 458 | Regel für künftig: in diesem Ordner kein `git stash`. Für Gegenproben Dateien in den Arbeitsordner kopieren und zurückkopieren | Merkzettel ergänzt |
+| 459 | Versionsangaben auf `0.41.5`; `CHANGELOG.md`, `README.md`, Wegweiser, `claude2codex.md` (A2 Punkt 23, C4), Merkzettel | |
+| 460 | Eigenen Testserver auf Port 4199 mit dem Werkzeug im Hintergrund gestartet (ein Prozess, mit `Get-NetTCPConnection` geprüft) | keine fremden Prozesse berührt |
+
+**Prüfung**
+
+- 194 Node-Tests und 2 Python-Tests bestanden.
+- Alle 39 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199).
+
+**Nicht geprüft:** Breiten über 1920 Pixel; Zoom des Browsers (nur Breite und
+Schriftgröße der App); Tastaturbedienung mit einem echten Bildschirmleser;
+Zeichenfläche der Notizen mit der Tastatur (Zeichnen braucht einen Zeiger).
+
+Nächste Handlungsnummer: 461.
 
 <!-- CLAUDE:END -->
 

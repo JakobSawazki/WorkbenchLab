@@ -217,3 +217,35 @@
 .mock-window-bar { color: #172126; }
 .achievement-card.is-locked { opacity: 0.8; }
 .portal-footer { opacity: 0.92; }
+
+/* Seitliches Überlaufen (Claude, 0.41.5): gemessen bei 13 Breiten und zwei Schriftgrößen, tests/overflow.browser.cjs */
+.exercise-meta .meta-pill { max-width: 100%; white-space: normal; }
+.tool-card { min-width: 0; }
+.diagram-practice-canvas { max-width: 100%; overflow-x: auto; }
+.choice-list { grid-template-columns: minmax(0, 1fr); }
+/* Nur schmal: Auf breiten Bildschirmen bleibt das Auswahlfeld neben seiner Beschriftung. */
+@media (max-width: 640px) {
+  .model-option > span { flex: 1 1 0; min-width: 0; }
+  .model-option select { width: 100%; min-width: 0; max-width: 100%; }
+}
+.tool-card > div { min-width: 0; }
+.tool-card h3, .tool-card p { overflow-wrap: anywhere; }
+.tool-illustration { max-width: 100%; overflow: hidden; }
+/* Zwischen 641 und 900 Pixel passt der Hinweis nicht in eine dritte Spalte; er rückt unter das Feld. */
+@media (min-width: 641px) and (max-width: 900px) {
+  .worksheet-table-name { grid-template-columns: 150px minmax(180px, 1fr); }
+  .worksheet-table-name small { grid-column: 1 / -1; }
+}
+
+/* Tastaturhinweis unter dem SQL-Editor (Claude, 0.41.5) */
+.editor-keys { margin: 0.35rem 0 0; font-size: 0.82rem; }
+@media print { .editor-keys { display: none !important; } }
+
+/* Sehr schmale Bildschirme mit großer Schrift: lange Wörter dürfen umbrechen (Claude, 0.41.5) */
+.start-sequence li > div { min-width: 0; }
+.start-sequence li strong, .start-sequence li small { overflow-wrap: anywhere; }
+@media (max-width: 420px) {
+  .choice-list label, .lesson-body p, .lesson-body li, .lesson-body h3, .lesson-body h4, .section-band h2, .section-band p, .source-card, .source-card .button { overflow-wrap: anywhere; }
+  .source-card { min-width: 0; }
+  .source-card .button { white-space: normal; }
+}

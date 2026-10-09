@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.41.4 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.41.5 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -116,6 +116,11 @@ Bitte prüfen und bei Bedarf zurücknehmen:
     „sql-create-course“ (`practical-exercises.js`) und „sql-create-table“
     (`learning-path.js`) ignorieren Leerzeichen im Datentyp und die Schreibweise
     der Spaltennamen. Muster und Sollwerte sind unverändert.
+23. **Tastatur im SQL-Editor (0.41.5):** In der Tastenbehandlung von `app.js`
+    wird Umschalt + Tab nicht mehr abgefangen, und nach Esc verlässt Tab das
+    Feld. Unter beiden Editoren steht ein Hinweis (`#sqlEditorKeys`). Elf
+    Layoutregeln gegen seitliches Überlaufen stehen am Ende von
+    `styles-extensions.css`; deine Style-Dateien sind dafür nicht geändert.
 17. **Dokumentation umgeräumt:** Release- und Abnahmeberichte nach
     `documentation/releases/`, deine Abschnitte 1 bis 12 nach
     `documentation/archiv/` – Inhalt unverändert, nur Verweise angepasst.
@@ -158,7 +163,7 @@ Prüfabfrage aus Punkt 22), `Lehrbuch/`
 | `backup.js` | Prüfsumme der JSON-Sicherung, gemeinsam für `app.js` und `teacher-overview.js` | Code von Codex, ausgelagert von Claude |
 | `state.js` | Vorgabewerte, Kürzel/Klasse, Kennungen, `normalizeState`; neue Felder des Lernstands hier ergänzen. `loadState`/`saveState` bleiben in `app.js` | Code von Codex, ausgelagert von Claude |
 | `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
-| `tests/*.test.js`, `tests/*.browser.cjs` | 194 Node-Tests, 37 Browsertests | Codex und Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 194 Node-Tests, 39 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -411,5 +416,12 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
   in einer Fassung ohne Backticks, Tabellenvorsatz und `ASC` (`patternTexts` in
   `sql-check.js`). Neue SQL-Aufgaben müssen `tests/solution-variants.test.js`
   bestehen: 23 gleichwertige Schreibweisen der Musterlösung werden angenommen.
+- Keine Seite darf seitlich überlaufen: `tests/overflow.browser.cjs` prüft alle
+  Routen bei acht Breiten (320 bis 1280 Pixel) und mit der größten Schrift. Neue
+  Raster brauchen `minmax(0, 1fr)` oder `min-width: 0`, lange Wörter eine
+  Umbruchregel.
+- Alles muss mit der Tastatur erreichbar und wieder verlassbar sein
+  (`tests/keyboard.browser.cjs`). Der SQL-Editor rückt mit Tab ein; Esc + Tab oder
+  Umschalt + Tab verlassen ihn.
 - Jeder Zugriff auf `localStorage` und `sessionStorage` gehört in `try`;
   `tests/storage-blocked.browser.cjs` prüft die App bei gesperrtem Speicher.
