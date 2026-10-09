@@ -2281,6 +2281,29 @@ Datei stehen. Die Reihenfolge der `<link>`-Zeilen nicht ändern.
 
 Damit ist OPT-16 erledigt. Nächste Handlungsnummer: 311.
 
+### 0.52 Veröffentlichung 0.39.3 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 311 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 312 | Commit `686f395` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 313 | Live geprüft: `index.html` mit `v=0.39.3`; alle sechs Style-Dateien abrufbar (zusammen 120 912 Bytes) | |
+| 314 | Vier Browsertests gegen die Live-Seite ausgeführt: freies SQL-Labor, Druckansicht, Klassenübersicht, Modell-Editor | alle bestanden |
+| 315 | Sicherungs-Tag `v0.39.3` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 316 | Eigenen Testserver auf Port 4199 beendet | |
+| 317 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Stand der Punkte aus `claude2codex.md`:** Alle Punkte, die ohne Jakob
+umsetzbar sind, sind erledigt (OPT-01 bis 04, 06 bis 08, 10 bis 14, 16, 17, 19
+bis 24; abgelehnt: OPT-05, 18). Es bleiben:
+
+| Punkt | Wer | Was fehlt |
+| --- | --- | --- |
+| OPT-09 Lehrkraft-Bestätigung absichern | Jakob entscheidet | ob und wie; an der Bestätigung hängen die NAGOLD |
+| OPT-15 Test am Schul-PC | Jakob im Unterricht | Checkliste in Abschnitt 0.16 |
+
+Nächste Handlungsnummer: 318.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
