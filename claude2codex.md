@@ -321,6 +321,13 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
   Claudes Browsertests schreiben Bildschirmfotos dorthin.
 - **Vorschlag:** Testartefakte nach `%TEMP%\WorkbenchLab` schreiben und
   `.tmp/` nach Freigabe leeren.
+- **Stand (0.40.1):** `.tmp/` ist geleert; Claudes Tests schreiben nach
+  `%TEMP%\workbenchlab-tests`. Deine 20 Browsertests schreiben je Lauf rund
+  46 MB Bilder nach `.tmp/` (Google Drive synchronisiert sie). Nicht geändert,
+  weil unklar ist, ob deine Umgebung außerhalb des Projektordners schreiben darf.
+- **Nebenbei:** `assets/bpe6-relief-map.png`, `assets/bpe6-settlement-map.png`
+  und `assets/workbenchlab-titanium.png` (zusammen 8,8 MB) lädt keine Seite;
+  sie werden trotzdem veröffentlicht.
 
 #### OPT-20 MySQL-Unterschiede, mögliche Erweiterungen
 

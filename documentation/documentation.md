@@ -2381,6 +2381,36 @@ nicht erkennen.
 
 Nächste Handlungsnummer: 336.
 
+### 0.56 Veröffentlichung 0.40.1 geprüft; Stand [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 336 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 337 | Commit `286610f` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 338 | Live geprüft: `lehrkraft.html` mit `v=0.40.1`; `tests/erm-backup.browser.cjs` und `tests/teacher-overview.browser.cjs` gegen die Live-Seite bestanden | |
+| 339 | Sicherungs-Tag `v0.40.1` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 340 | Eigenen Testserver auf Port 4199 beendet | |
+| 341 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Heute veröffentlicht (9. Oktober, seit 0.38.2):** 0.39.0 Lösungsdatei im
+Entwicklermodus · 0.39.1 bis 0.39.3 Aufteilung von `app.js` und `styles.css`
+ohne sichtbare Änderung · 0.40.0 Modell-Entwürfe in der Sicherung · 0.40.1
+Modellaufgaben in der Klassenübersicht. Jeder Stand hat einen Tag `v…`.
+
+**Offen, wartet auf Jakob**
+
+| Punkt | Was Jakob tun kann |
+| --- | --- |
+| OPT-09 Lehrkraft-Bestätigung | a, b oder c nennen (Vorschlag in `claude2codex.md` C3; Empfehlung b) |
+| OPT-15 Test am Schul-PC | Checkliste in Abschnitt 0.16 |
+| Durchsicht im Unterricht | neue Aufgaben, Modell-Editor, Klassenübersicht, Lösungsdatei |
+
+**Offen, wartet auf Codex (Hinweise, keine Aufträge):** Browsertests schreiben
+je Lauf rund 46 MB nach `.tmp/`; drei ungenutzte PNG-Dateien (8,8 MB) unter
+`assets/` werden mitveröffentlicht.
+
+Nächste Handlungsnummer: 342.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
