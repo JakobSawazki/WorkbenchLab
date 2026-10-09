@@ -814,6 +814,35 @@ ausführbar ist und dass anfangs keine Zeile richtig steht. In `app.js`:
   wurden geprüft), Touch-Bedienung auf einem echten Gerät, Schul-PCs.
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.19.
 
+### 0.19 Veröffentlichung 0.30.0 geprüft, Stand der Arbeit [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 88 | Commit `cd35469` gepusht; GitHub-Actions-Lauf 37891597396 | Job `test` und Job `deploy` erfolgreich |
+| 89 | Live-Seite im Browser geprüft: Version `0.30.0`, 58 Übungen, Filter „Klauseln ordnen“ zeigt vier Karten, keine Konsolenfehler | nur lesend, kein Lernstand verändert |
+| 90 | Tag `v0.30.0` gesetzt und gepusht | Sicherungspunkt |
+| 91 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 92 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Sicherungspunkte:** `codex-stand-2026-10-08` (`4dedae1`), `v0.26.0`
+(`8ed27fc`), `v0.26.1` (`b8c9b01`), `v0.26.2` (`40566ec`), `v0.27.0`
+(`16b1508`), `v0.28.0` (`63aedc6`), `v0.29.0` (`509b65a`), `v0.30.0`
+(`cd35469`). Wiederherstellung wie in Abschnitt 0.1.
+
+**Testumfang:** 134 Node-Tests, 2 Python-Tests, 27 Browsertests.
+
+**Stand der Punkte aus `claude2codex.md`**
+
+| Status | Punkte |
+| --- | --- |
+| erledigt (Claude) | OPT-01, OPT-02, OPT-03, OPT-08, OPT-13, OPT-19, OPT-21, OPT-22 |
+| erledigt (Codex) | OPT-10, OPT-11 |
+| teilweise | OPT-15 (Checkliste fertig; Test vor Ort und Offline-Betrieb offen), OPT-20 |
+| wartet auf Jakob | OPT-06, OPT-09, OPT-12, Durchführung der Checkliste 0.16, Freigabe zum Leeren von `.tmp/` (OPT-17) |
+| offen | OPT-04, OPT-05, OPT-07, OPT-14, OPT-16, OPT-18 |
+
+Nächste Handlungsnummer: 93.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
