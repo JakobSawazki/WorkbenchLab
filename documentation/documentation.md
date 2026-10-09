@@ -1591,6 +1591,46 @@ kann. Bei „Coach-Tipp“ und „Lösung prüfen“ erscheint er nicht.
   Gerät, Schul-PCs.
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.35.
 
+### 0.35 Veröffentlichung 0.37.0 geprüft; Stand aller Punkte [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 195 | Commit `21eff8c` gepusht; GitHub-Actions-Lauf 37903390580 | Job `test` und Job `deploy` erfolgreich |
+| 196 | Live geprüft: alle Dateien mit `?v=0.37.0`, `erm-editor.js` enthält die Optionalität | per Abruf |
+| 197 | Tag `v0.37.0` gesetzt und gepusht | Sicherungspunkt `21eff8c` |
+| 198 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 199 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Sicherungspunkte:** `codex-stand-2026-10-08` (`4dedae1`) sowie `v0.26.0` bis
+`v0.37.0` (`21eff8c`). Wiederherstellung wie in Abschnitt 0.1.
+
+**Testumfang:** 152 Node-Tests, 2 Python-Tests, 30 Browsertests; zusätzlich von
+Hand 46 Prüfungen gegen MariaDB.
+
+**Stand der Punkte aus `claude2codex.md`**
+
+| Status | Punkte |
+| --- | --- |
+| erledigt (Claude) | OPT-01, OPT-02, OPT-03, OPT-04, OPT-07, OPT-08, OPT-13, OPT-19, OPT-20, OPT-21, OPT-22 |
+| erledigt (Codex) | OPT-10, OPT-11 |
+| teilweise | OPT-15 (Checkliste), OPT-17 (Claudes Tests schreiben nicht mehr nach `.tmp/`) |
+| offen | OPT-05, OPT-06, OPT-09, OPT-12, OPT-14 (Rest), OPT-16, OPT-18; Rest von OPT-15 und OPT-17 |
+
+**Zu den offenen Punkten, nach der Erfahrung dieses Tages neu bewertet.**
+Zweimal hat Claude einen Punkt als blockiert gemeldet, der es nicht war. Für
+die verbliebenen Punkte hat Claude deshalb geprüft, ob Repo, `resources/` oder
+der Stick die fehlende Entscheidung schon enthalten:
+
+| Punkt | Ergebnis der Prüfung |
+| --- | --- |
+| OPT-06 Freischaltung, OPT-18 Profildialog | In `documentation.md` (Abschnitte 2 und 3) und in den Abnahmen ausdrücklich als gewolltes Verhalten beschrieben: sequenzielle Freischaltung, Abschluss erst nach Lehrkraftbestätigung, Profil mit Kürzel und Klasse als Pflichtangabe. Eine Änderung widerspräche einer dokumentierten Festlegung. |
+| OPT-09 Lehrkraft-Code, OPT-12 Lösungen im Quelltext | `documentation.md` und `codex2claude.md` halten fest, dass XP kein manipulationssicherer Nachweis sein sollen; Codex rät von OPT-09 ab. Ohne Jakobs Entscheidung zur Rolle der XP gibt es keinen Grund, das umzubauen. |
+| OPT-05 Einheiten in Schritte teilen | Die Abnahmedokumente beschreiben die heutige Darstellung als abgenommen (Arbeitsschritte aufklappbar, Aufgabengruppen mit höchstens fünf Fragen). Das ist bereits Codex' Antwort auf die Länge der Einheiten. |
+| OPT-14, OPT-16 Aufräumen | Betrifft Codex' Dateien; Claudes eigener Anteil ist erledigt. |
+| OPT-15 Offline, OPT-17 `.tmp/` | Schul-PC-Test und Löschfreigabe kann nur Jakob geben. |
+
+Nächste Handlungsnummer: 200.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
