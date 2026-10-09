@@ -1779,6 +1779,36 @@ als offener Punkt OPT-23 aufgenommen (siehe `claude2codex.md`).
   im Modell-Editor.
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.38.
 
+### 0.38 Veröffentlichung 0.38.0 geprüft; `.tmp/` geleert [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 215 | Commit `96f7578` gepusht; GitHub-Actions-Lauf 37915734473 | Job `test` und Job `deploy` erfolgreich |
+| 216 | Live geprüft: alle Dateien mit `?v=0.38.0`; in den fünf veröffentlichten Inhaltsdateien keine Zeile mit `solution`, `expectedSql`, `referenceSql`, `fixed` oder `proofSql`; `expected-results.js` wird ausgeliefert | per Abruf |
+| 217 | Tag `v0.38.0` gesetzt und gepusht | Sicherungspunkt `96f7578` |
+| 218 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 219 | **`.tmp/` geleert** (Freigabe Jakob): 1711 Dateien, 991 MB, über die Papierkorb-Funktion von Windows gelöscht; danach einen leeren Ordner `.tmp` neu angelegt, weil Codex' Prüfwerkzeuge dort Unterordner anlegen | Ob die Dateien im Windows- oder im Google-Drive-Papierkorb liegen, hat Claude nicht geprüft |
+| 220 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll und Übergabedatei) | Deployment ohne App-Änderung |
+
+**Sicherungspunkte:** `codex-stand-2026-10-08` (`4dedae1`) sowie `v0.26.0` bis
+`v0.38.0` (`96f7578`). Wiederherstellung wie in Abschnitt 0.1.
+
+**Testumfang:** 155 Node-Tests, 2 Python-Tests, 31 Browsertests; zusätzlich von
+Hand 46 Prüfungen gegen MariaDB (zuletzt bei 0.37.0 ausgeführt).
+
+**Stand der Punkte**
+
+| Status | Punkte |
+| --- | --- |
+| erledigt (Claude) | OPT-01, OPT-02, OPT-03, OPT-04, OPT-06, OPT-07, OPT-08, OPT-12 (veröffentlichte Fassung), OPT-13, OPT-19, OPT-20, OPT-21, OPT-22 |
+| erledigt (Codex) | OPT-10, OPT-11 |
+| verworfen durch Jakob | OPT-05 (eine Einheit bleibt eine Seite), OPT-18 (Profildialog bleibt) |
+| teilweise | OPT-15 (Checkliste; Jakob testet schrittweise im Unterricht), OPT-17 (`.tmp/` geleert; Codex' Tests schreiben weiter dorthin) |
+| freigegeben, als Nächstes | OPT-14 Dokumentation zusammenführen, OPT-16 `app.js` und `styles.css` aufteilen |
+| offen | OPT-09 (neu zu bewerten), OPT-23 (Lösungen im Entwicklermodus), OPT-24 (Fehlersuche nach Abiturmuster) |
+
+Nächste Handlungsnummer: 221.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
