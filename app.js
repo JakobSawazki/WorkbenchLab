@@ -74,6 +74,8 @@
 
   // Muss vor loadState() stehen: normalizeState() liest diese Liste (Claude, OPT-01).
   const playgroundSchemas = ["fahrschule-basic", "fahrschule", "fahrradvermietung"];
+  const rescueStorageKey = "workbenchlab-v1-rettung";
+  let stateLoadFailed = false;
   let storageAvailable = true;
   let state = loadState();
   const deviceIdentity = loadDeviceIdentity();
@@ -419,13 +421,33 @@
   }
 
   function loadState() {
+    let storedRaw = null;
     try {
-      const storedRaw = localStorage.getItem(storageKey);
+      storedRaw = localStorage.getItem(storageKey);
       const stored = storedRaw ? JSON.parse(storedRaw) : null;
       return normalizeState(stored || {});
     } catch {
+      // OPT-21 (Claude): Einen unlesbaren Lernstand nie still verwerfen. Die Rohdaten
+      // bleiben als Rettungskopie erhalten, bevor ein neuer Stand gespeichert wird.
+      if (storedRaw) {
+        stateLoadFailed = true;
+        try {
+          localStorage.setItem(rescueStorageKey, JSON.stringify({ savedAt: new Date().toISOString(), raw: storedRaw }));
+        } catch {}
+      }
       return { ...defaultState };
     }
+  }
+
+  function showLoadFailureNotice() {
+    const region = document.querySelector("#toastRegion");
+    const element = document.createElement("div");
+    element.className = "toast is-error is-persistent";
+    element.id = "stateRescueNotice";
+    element.setAttribute("role", "alert");
+    element.innerHTML = `<i data-lucide="circle-alert"></i><div><strong>Dein gespeicherter Lernstand konnte nicht gelesen werden.</strong><p>Eine Rettungskopie wurde in diesem Browser gesichert. Lade deine letzte JSON-Sicherung über das Diskettensymbol oder zeige diese Meldung deiner Lehrkraft.</p><div class="toast-actions"><button class="button button-secondary" type="button" data-rescue-download>Rettungskopie herunterladen</button><button class="button button-secondary" type="button" data-rescue-close>Schließen</button></div></div>`;
+    region.append(element);
+    renderIcons();
   }
 
   function saveState() {
@@ -3599,6 +3621,18 @@
         document.querySelector("#practiceResult").className = "result-banner";
       }
     }
+    if (event.target.closest("[data-rescue-close]")) {
+      document.querySelector("#stateRescueNotice")?.remove();
+    }
+    if (event.target.closest("[data-rescue-download]")) {
+      let rescue = "";
+      try { rescue = localStorage.getItem(rescueStorageKey) || ""; } catch {}
+      if (rescue) {
+        downloadBlob(new Blob([rescue], { type: "application/json;charset=utf-8" }), "workbenchlab-rettungskopie.json");
+      } else {
+        toast("Die Rettungskopie ist nicht mehr vorhanden.", "error");
+      }
+    }
     if (event.target.closest("#playgroundRunButton")) {
       runPlayground();
     }
@@ -3975,8 +4009,9 @@
   }).observe(document.querySelector(".topbar"));
   updateNavigation();
   updateStorageStatus();
+  if (stateLoadFailed) showLoadFailureNotice();
   const suppressProfilePrompt = new URLSearchParams(window.location.search).has("screenshot");
-  if (!suppressProfilePrompt && (!state.name || !state.className) && !sessionStorage.getItem("workbenchlab-profile-seen")) {
+  if (!suppressProfilePrompt && !stateLoadFailed && (!state.name || !state.className) && !sessionStorage.getItem("workbenchlab-profile-seen")) {
     sessionStorage.setItem("workbenchlab-profile-seen", "1");
     window.setTimeout(() => openProfileDialog(), 350);
   }

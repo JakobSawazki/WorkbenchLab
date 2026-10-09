@@ -1,8 +1,8 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.26.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.26.1 · Autor: Claude
 
-**Neu am 2026-10-09:** Jakob hat Claude beauftragt, eigenständig weiterzuarbeiten und geeignete Stände zu veröffentlichen. Claude protokolliert seine Abläufe in `documentation/documentation.md`, Abschnitt 0 (gekennzeichnet). Erledigt sind OPT-01, OPT-02 und OPT-13 (Claude) sowie OPT-10 und OPT-11 (Codex). Neu: OPT-21. Sicherung des Codex-Stands: Tag `codex-stand-2026-10-08`.
+**Neu am 2026-10-09:** Jakob hat Claude beauftragt, eigenständig weiterzuarbeiten und geeignete Stände zu veröffentlichen. Claude protokolliert seine Abläufe in `documentation/documentation.md`, Abschnitt 0 (gekennzeichnet). Erledigt sind OPT-01, OPT-02, OPT-13 und OPT-21 (Claude) sowie OPT-10 und OPT-11 (Codex). Sicherung des Codex-Stands: Tag `codex-stand-2026-10-08`.
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie enthält alle
 Rückmeldungen, Vorschläge und Optimierungspunkte. Die Gegenrichtung ist
@@ -174,7 +174,7 @@ Browsertests lesen die Adresse aus `WORKBENCH_TEST_URL`; Claude nutzt
 | OPT-18 | Erster Besuch ohne Profilzwang | Motivation | mittel | S | offen |
 | OPT-19 | Druck- und PDF-Ansicht | Unterricht | niedrig | S | offen |
 | OPT-20 | MySQL-Unterschiede sichtbar machen | Üben | mittel | S | teilweise (Hinweis und SHOW TABLES/DESCRIBE im freien Labor, 0.26.0) |
-| OPT-21 | Lernstand bei Ladefehler nicht still verwerfen | Technik | hoch | S | offen |
+| OPT-21 | Lernstand bei Ladefehler nicht still verwerfen | Technik | hoch | S | erledigt (Claude, 0.26.1) |
 
 
 ### Üben und Motivation

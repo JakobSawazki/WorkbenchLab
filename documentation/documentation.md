@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.26.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.26.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -27,7 +27,8 @@ nicht die Funktionen der App.
 
 > **Kennzeichnung:** Dieser Abschnitt wird ausschließlich von **Claude** gepflegt.
 > Einträge von Claude an anderer Stelle dieser Datei tragen den Vermerk
-> `[Claude, Datum]`. Alles Übrige stammt von Codex. Neueste Einträge stehen oben.
+> `[Claude, Datum]`. Alles Übrige stammt von Codex. Die Einträge sind
+> fortlaufend nummeriert; der neueste steht am Ende des Abschnitts.
 
 ### 0.1 Sicherung der Codex-Stände und Wiederherstellung [Claude, 2026-10-09]
 
@@ -163,6 +164,50 @@ sichtbare Meldung zeigen, statt still mit leerem Stand weiterzuarbeiten.
 - Nicht geprüft: Schul-PCs und echte MySQL Workbench.
 - Veröffentlichung: Push auf `main` am 9. Oktober 2026; das Ergebnis des
   Deployments steht in Abschnitt 0.5.
+
+### 0.5 Veröffentlichung 0.26.0 geprüft [Claude, 2026-10-09]
+
+- Commit `8ed27fc`, Tag `v0.26.0`. GitHub-Actions-Lauf 37887121711: Job `test`
+  und Job `deploy` erfolgreich.
+- Live-Seite geprüft: alle Skripte mit `?v=0.26.0`, `sql-feedback.js` wird
+  geladen, `#sql/frei` öffnet das freie SQL-Labor, der Tippfehler `nachnam`
+  liefert die deutsche Meldung mit Vorschlag. Keine Konsolenfehler.
+
+### 0.6 Release 0.26.1: Rettungskopie bei unlesbarem Lernstand [Claude, 2026-10-09]
+
+Bezug: OPT-21 aus `claude2codex.md`.
+
+Bisher lieferte `loadState()` bei jedem Lese- oder Prüffehler kommentarlos einen
+leeren Lernstand; die nächste Speicherung überschrieb den echten Stand. Jetzt
+gilt:
+
+- Kann der gespeicherte Lernstand nicht gelesen werden, legt die App die
+  unveränderten Rohdaten unter `workbenchlab-v1-rettung` ab (mit Zeitstempel).
+- Eine Meldung bleibt sichtbar, bis sie geschlossen wird. Sie bietet
+  „Rettungskopie herunterladen“ (`workbenchlab-rettungskopie.json`) und verweist
+  auf die JSON-Sicherung und die Lehrkraft.
+- Der Profildialog des Erstbesuchs erscheint in diesem Fall nicht, damit er die
+  Meldung nicht überdeckt.
+- Ein gültiger Lernstand erzeugt weder Meldung noch Rettungskopie.
+
+Die Rettungskopie enthält die Rohdaten, kein geprüftes Exportformat. Sie lässt
+sich nicht über „Laden“ einspielen, sondern dient der Lehrkraft oder einem
+Agenten zur manuellen Wiederherstellung.
+
+Geänderte Dateien: `app.js` (`loadState`, `showLoadFailureNotice`, zwei
+Klick-Behandlungen), `styles.css` (Block am Dateiende),
+`tests/state-rescue.browser.cjs` (neu), Versionsangaben auf `0.26.1`.
+
+**Prüfung**
+
+- 115 Node-Tests und 2 Python-Tests bestanden.
+- Alle 22 Browsertests bestanden (Edge, Port 4199), darunter der neue
+  `state-rescue.browser.cjs`: absichtlich defekter Lernstand bei 1440 und
+  390 px, Rohdaten unverändert in der Rettungskopie, Meldung bleibt stehen,
+  Download, kein Überschreiben beim Weiterarbeiten, Gegenprobe mit gültigem
+  Lernstand.
+- Nicht geprüft: Schul-PCs und echte MySQL Workbench.
+- Veröffentlichung: Ergebnis des Deployments steht im nächsten Eintrag.
 
 <!-- CLAUDE:END -->
 

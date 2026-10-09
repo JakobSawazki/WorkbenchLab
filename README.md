@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.26.0
+**Aktueller Release:** 0.26.1
 
 **Freies SQL-Labor und deutsche SQL-Meldungen:** Release 0.26.0 (Claude) ergänzt unter `#sql/frei` einen frei nutzbaren SQL-Editor ohne Freischaltung und XP. Fehlermeldungen erscheinen direkt beim Ausführen auf Deutsch, bei Tippfehlern mit Vorschlag. Details: [Projektdokumentation, Abschnitt 0.4](documentation/documentation.md).
 
