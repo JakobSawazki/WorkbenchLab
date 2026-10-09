@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.29.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.30.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -739,6 +739,80 @@ wie in Abschnitt 0.1.
 | offen, ohne Hindernis | OPT-04, OPT-05, OPT-07, OPT-14, OPT-16, OPT-18 |
 
 Nächste Handlungsnummer: 80.
+
+### 0.18 Release 0.30.0: Aufgabentyp „Klauseln ordnen“ [Claude, 2026-10-09]
+
+Bezug: OPT-03, Teil (b), aus `claude2codex.md`. Damit ist OPT-03 vollständig.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 80 | Commit `ff11cf5` (Eintrag 0.17, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 81 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 82 | Verteilung der Aufgabentypen in `renderPractice` und die Formularbehandlung gelesen | nur lesend |
+| 83 | `order-exercises.js` angelegt; `app.js`, `styles.css`, `index.html`, `lehrkraft.html`, `tools/build-site.cjs`, Versionsangaben, README angepasst | siehe unten |
+| 84 | `tests/order-exercises.test.js` (3 Node-Tests) und `tests/order-exercises.browser.cjs` angelegt; in `tests/teacher-overview.test.js` die Zahl der Einbindungen von 7 auf 8 erhöht | |
+| 85 | Der eigene Node-Test fand einen Inhaltsfehler: In drei der vier Aufgaben stand je eine Zeile schon zu Beginn an der richtigen Stelle. Startreihenfolgen korrigiert | vor Veröffentlichung behoben |
+| 86 | Testserver auf Port 4199 gestartet; alle Tests ausgeführt; Bildschirmfoto bei 390 px gesichtet | siehe Prüfung |
+| 87 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.30.0` ergänzt | außerhalb des Repos, vor diesem Eintrag |
+
+**Neu für Schülerinnen und Schüler**
+
+Vier Aufgaben, in denen die Zeilen einer Abfrage durcheinanderstehen und mit
+Pfeilschaltflächen in die richtige Reihenfolge gebracht werden.
+
+| Aufgabe | Einheit | Klauseln |
+| --- | --- | --- |
+| Filtern und sortieren | L1.6 | `SELECT`, `FROM`, `WHERE`, `ORDER BY` |
+| Gruppieren und Gruppen filtern | L1.8 | zusätzlich `GROUP BY`, `HAVING` |
+| Erst filtern, dann gruppieren | L1.8 | `WHERE` vor `GROUP BY` |
+| JOIN einbauen | L2.4 | `JOIN … ON` hinter `FROM` |
+
+- Bedienung mit Maus, Touch und Tastatur. Es gibt bewusst kein Ziehen mit der
+  Maus: Schaltflächen funktionieren auf allen Geräten gleich und sind für
+  Bildschirmleser ansagbar. Jede Verschiebung wird angesagt, der Fokus bleibt
+  auf der verschobenen Zeile.
+- Bei falscher Reihenfolge erscheint die feste Klauselreihenfolge als Hinweis.
+- Bei richtiger Reihenfolge erscheinen eine Erklärung und das Ergebnis der
+  ausgeführten Abfrage.
+- Je Aufgabe 15 XP. Freischaltung wie bei allen Übungen der Einheit.
+- Die Aufgaben stehen im SQL-Labor (neuer Filter „Klauseln ordnen“) und in den
+  Übungslisten ihrer Einheiten.
+- Die Anordnung wird nicht gespeichert: Beim erneuten Öffnen beginnt die
+  Aufgabe wieder durcheinander. Der Abschluss selbst bleibt gespeichert.
+
+**Auswirkungen auf Bestehendes**
+
+- Die Zahl der Übungen steigt von 54 auf 58, die erreichbaren XP um 60.
+- Der Erfolg „alle Übungen“ setzt vier Aufgaben mehr voraus. Erfolge, die
+  SQL-Aufgaben zählen, sind nicht betroffen.
+- Neuer Aufgabentyp `type: "order"`. Ältere App-Versionen kennen ihn nicht;
+  beim Laden einer neueren Sicherung in einer älteren Version würden die
+  Abschlüsse dieser Aufgaben verworfen. Das Sicherungsformat selbst ist
+  unverändert.
+
+**Technik:** `order-exercises.js` liefert je Aufgabe `lines` (richtige
+Reihenfolge) und `start` (Anfangsreihenfolge). Ein Node-Test probiert je
+Aufgabe alle Anordnungen aus und stellt sicher, dass nur die vorgesehene
+ausführbar ist und dass anfangs keine Zeile richtig steht. In `app.js`:
+`renderOrderPractice`, `updateOrderControls`, `moveOrderLine`,
+`checkOrderPractice` sowie Ergänzungen in `isSqlTopic`, `practiceKind`,
+`practiceCard`, `renderSql` und `renderPractice`. Die Ergebnisanzeige nutzt
+`showPredictResult` aus 0.29.0. Versionsangaben auf `0.30.0`.
+
+**Prüfung**
+
+- 134 Node-Tests (3 neu) und 2 Python-Tests bestanden.
+- Alle 27 Browsertests bestanden (Edge, Port 4199). Der neue
+  `order-exercises.browser.cjs` prüft bei 1440 und 390 px: Filter, gesperrte
+  Randschaltflächen, Verschieben per Tastatur mit Fokus und Ansage, Hinweis bei
+  falscher Reihenfolge, Erklärung und ausgeführtes Ergebnis bei richtiger,
+  einmalige XP, Neustart nach Neuladen, unveränderte Sperrlogik.
+- Bildschirmfoto bei 390 px im dunklen Modus gesichtet.
+- Nicht geprüft: heller Modus, echter Bildschirmleser (nur die ARIA-Angaben
+  wurden geprüft), Touch-Bedienung auf einem echten Gerät, Schul-PCs.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.19.
 
 <!-- CLAUDE:END -->
 

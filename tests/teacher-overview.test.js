@@ -116,7 +116,7 @@ test("Die Lehrkraftseite ist öffentlich, versionsgleich und lädt keine fremden
   assert.equal(isPublicFile("lehrkraft.html"), true);
   assert.equal(isPublicFile("teacher-overview.js"), true);
   const stamps = [...html.matchAll(/(?:href|src)="([^"?]+\.(?:js|css))\?v=([^"]+)"/g)];
-  assert.equal(stamps.length, 7);
+  assert.equal(stamps.length, 8);
   for (const [, file, stamp] of stamps) {
     assert.equal(stamp, version, file);
     assert.equal(isPublicFile(file), true, file);

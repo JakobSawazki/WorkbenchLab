@@ -279,7 +279,7 @@
 
   // Vorhersage-Aufgaben sind Auswahlaufgaben, gehören thematisch aber ins SQL-Labor (Claude, OPT-03c).
   function isSqlTopic(practice) {
-    return practice.type === "sql" || practice.variant === "predict";
+    return practice.type === "sql" || practice.variant === "predict" || practice.variant === "order";
   }
 
   function practiceKind(practice) {
@@ -288,6 +288,9 @@
     }
     if (practice.variant === "predict") {
       return "Vorhersage";
+    }
+    if (practice.variant === "order") {
+      return "Klauseln ordnen";
     }
     if (practice.type === "sql") {
       return "SQL";
@@ -837,7 +840,7 @@
     const completed = state.completedPractices.includes(practice.id);
     const lesson = lessonById(practice.lessonId);
     const unlocked = isPracticeUnlocked(practice);
-    const icon = practice.variant === "debug" ? "bug" : practice.variant === "predict" ? "eye" : practice.type === "sql" ? "database" : practice.type === "slots" ? "network" : "circle-help";
+    const icon = practice.variant === "debug" ? "bug" : practice.variant === "predict" ? "eye" : practice.variant === "order" ? "arrow-up-down" : practice.type === "sql" ? "database" : practice.type === "slots" ? "network" : "circle-help";
     return `
       <article class="practice-card ${unlocked ? "" : "is-locked"}" tabindex="0" role="button" data-practice="${practice.id}"
         aria-disabled="${String(!unlocked)}" aria-label="${escapeHtml(unlocked ? `${practice.title} öffnen` : `Gesperrt: zuerst ${lesson?.courseCode || "die Lerneinheit"} freischalten`)}">
@@ -1828,10 +1831,11 @@
       { id: "medium", label: "Vertiefung" },
       { id: "plus", label: "Abitur-Plus" },
       { id: "debug", label: "Fehlersuche" },
-      { id: "predict", label: "Vorhersage" }
+      { id: "predict", label: "Vorhersage" },
+      { id: "order", label: "Klauseln ordnen" }
     ];
     const practices = content.practices.filter(isSqlTopic).filter((practice) => practiceFilter === "all"
-      || (["debug", "predict"].includes(practiceFilter) ? practice.variant === practiceFilter : practice.difficulty === practiceFilter));
+      || (["debug", "predict", "order"].includes(practiceFilter) ? practice.variant === practiceFilter : practice.difficulty === practiceFilter));
     main.innerHTML = `
       <section class="section-band sql-intro-band">
         <div class="sql-intro-copy">
@@ -2072,6 +2076,8 @@
       renderDiagramPractice(practice, lesson);
     } else if (practice.type === "slots") {
       renderSlotPractice(practice, lesson);
+    } else if (practice.type === "order") {
+      renderOrderPractice(practice, lesson);
     } else {
       renderChoicePractice(practice, lesson);
     }
@@ -2198,6 +2204,86 @@
       </article>`;
     if (practice.variant === "predict") {
       loadPredictTables(practice);
+    }
+  }
+
+  // Klauseln ordnen (Claude, OPT-03b): Zeilen per Schaltfläche verschieben, tastaturbedienbar.
+  function renderOrderPractice(practice, lesson) {
+    const completed = state.completedPractices.includes(practice.id);
+    main.innerHTML = `
+      <article class="lesson-detail">
+        ${renderPracticeHeader(practice, lesson)}
+        <div class="lesson-body">
+          <section class="practice-panel">
+            <div class="callout order-callout"><i data-lucide="arrow-up-down"></i><p>${escapeHtml(content.orderIntro)}</p></div>
+            <form id="orderPracticeForm" data-practice-id="${practice.id}">
+              <ol class="order-list" id="orderList">
+                ${practice.start.map((lineIndex) => `
+                  <li data-line="${lineIndex}">
+                    <code>${escapeHtml(practice.lines[lineIndex])}</code>
+                    <span class="order-buttons">
+                      <button class="icon-button" type="button" data-order-move="-1"><i data-lucide="arrow-up" aria-hidden="true"></i></button>
+                      <button class="icon-button" type="button" data-order-move="1"><i data-lucide="arrow-down" aria-hidden="true"></i></button>
+                    </span>
+                  </li>`).join("")}
+              </ol>
+              <p class="sr-only" id="orderStatus" role="status" aria-live="polite"></p>
+              <button class="button button-primary" type="submit"><i data-lucide="check"></i>Reihenfolge prüfen</button>
+            </form>
+            <div class="result-banner ${completed ? "is-visible is-success" : ""}" id="practiceResult">
+              ${completed ? `<i data-lucide="circle-check"></i><div><strong>Bereits gelöst</strong><p>Du kannst die Übung weiter wiederholen.</p></div>` : ""}
+            </div>
+            <div id="predictResult" class="predict-result" hidden></div>
+          </section>
+        </div>
+      </article>`;
+    updateOrderControls();
+  }
+
+  function updateOrderControls() {
+    const items = [...document.querySelectorAll("#orderList > li")];
+    items.forEach((item, index) => {
+      const text = item.querySelector("code").textContent;
+      const [up, down] = item.querySelectorAll("[data-order-move]");
+      up.disabled = index === 0;
+      down.disabled = index === items.length - 1;
+      up.setAttribute("aria-label", `Zeile ${index + 1} nach oben: ${text}`);
+      up.title = "Nach oben";
+      down.setAttribute("aria-label", `Zeile ${index + 1} nach unten: ${text}`);
+      down.title = "Nach unten";
+    });
+  }
+
+  function moveOrderLine(button) {
+    const item = button.closest("li");
+    const direction = Number(button.dataset.orderMove);
+    const list = item.parentElement;
+    if (direction < 0 && item.previousElementSibling) {
+      list.insertBefore(item, item.previousElementSibling);
+    } else if (direction > 0 && item.nextElementSibling) {
+      list.insertBefore(item.nextElementSibling, item);
+    }
+    updateOrderControls();
+    const position = [...list.children].indexOf(item) + 1;
+    document.querySelector("#orderStatus").textContent = `${item.querySelector("code").textContent} steht jetzt in Zeile ${position} von ${list.children.length}.`;
+    const same = item.querySelector(`[data-order-move="${direction}"]`);
+    (same.disabled ? item.querySelector(`[data-order-move="${-direction}"]`) : same).focus();
+  }
+
+  function checkOrderPractice(form) {
+    const practice = practiceById(form.dataset.practiceId);
+    if (!practice) {
+      return;
+    }
+    const order = [...form.querySelectorAll("#orderList > li")].map((item) => Number(item.dataset.line));
+    if (order.every((lineIndex, position) => lineIndex === position)) {
+      const firstCompletion = award("practice", practice.id, practice.xp);
+      showBanner("#practiceResult", true, "Übung gelöst", firstCompletion
+        ? `${practice.xp} XP wurden gutgeschrieben. ${practice.feedback}`
+        : practice.feedback);
+      showPredictResult(practice);
+    } else {
+      showBanner("#practiceResult", false, "Noch nicht ganz", content.orderRetry);
     }
   }
 
@@ -3685,6 +3771,10 @@
         document.querySelector("#practiceResult").className = "result-banner";
       }
     }
+    const orderMove = event.target.closest("[data-order-move]");
+    if (orderMove && !orderMove.disabled) {
+      moveOrderLine(orderMove);
+    }
     if (event.target.closest("[data-print-page]")) {
       window.print();
     }
@@ -3903,6 +3993,10 @@
       } else {
         showBanner("#quizResult", false, "Noch nicht", lesson.quiz.explanation);
       }
+    }
+    if (event.target.id === "orderPracticeForm") {
+      event.preventDefault();
+      checkOrderPractice(event.target);
     }
     if (event.target.id === "choicePracticeForm") {
       event.preventDefault();

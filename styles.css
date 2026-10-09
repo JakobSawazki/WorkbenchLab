@@ -4633,3 +4633,22 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 .predict-result { margin-top: 1rem; }
 .predict-result h3 { margin: 0 0 0.2rem; }
 .predict-result p { margin: 0 0 0.5rem; font-size: 0.9rem; opacity: 0.85; }
+
+/* Aufgabentyp Klauseln ordnen (Claude, OPT-03b) */
+.order-callout { margin-bottom: 0.9rem; border-left: 4px solid var(--violet); }
+.order-list { list-style: none; counter-reset: order; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.5rem; }
+.order-list li {
+  counter-increment: order;
+  display: grid;
+  grid-template-columns: 1.8rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
+}
+.order-list li::before { content: counter(order); font-weight: 700; text-align: center; opacity: 0.75; }
+.order-list code { font-family: var(--mono); font-size: 0.95rem; overflow-wrap: anywhere; }
+.order-buttons { display: inline-flex; gap: 0.35rem; }
+.order-buttons .icon-button:disabled { opacity: 0.35; cursor: default; }

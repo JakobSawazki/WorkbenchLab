@@ -1,6 +1,8 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.29.0
+**Aktueller Release:** 0.30.0
+
+**Klauseln ordnen:** Vier Aufgaben, in denen die durcheinandergeratenen Zeilen einer Abfrage per Pfeilschaltflächen in die richtige Reihenfolge gebracht werden.
 
 **Vorhersage:** Fünf Aufgaben, in denen das Ergebnis einer Abfrage zuerst im Kopf bestimmt wird; nach der richtigen Antwort zeigt die App das tatsächliche Ergebnis.
 
