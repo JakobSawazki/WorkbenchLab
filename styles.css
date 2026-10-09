@@ -24,9 +24,9 @@
   --metal-rim: #73878b;
   --metal-glint: rgba(245, 251, 249, 0.27);
   --metal-shadow: rgba(0, 0, 0, 0.42);
-  --metal-primary-top: #378f87;
-  --metal-primary-mid: #236c68;
-  --metal-primary-bottom: #164745;
+  --metal-primary-top: #2b5478;
+  --metal-primary-mid: #203f60;
+  --metal-primary-bottom: #142b45;
   --radius: 8px;
   --on-accent: #ffffff;
   /* Schrift auf der Akzentfarbe --brand: im dunklen Design ist der Akzent hell (Claude, 0.41.3). */

@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, "..");
 const base = process.env.WORKBENCH_MARIADB_HOME || "C:/Informatik-Stick/Programme/Xampp_7.4.7/mysql";
 const bin = (name) => path.join(base, "bin", `${name}.exe`);
 const port = 33379;
-const output = fs.mkdtempSync(path.join(root, ".tmp", "native-sql-"));
+const output = fs.mkdtempSync(path.join(require("../tests/artifacts.cjs")("native-sql"), "run-"));
 const data = path.join(output, "data");
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const connection = ["--no-defaults", "--protocol=TCP", "--host=127.0.0.1", `--port=${port}`, "--user=root"];

@@ -4,7 +4,7 @@ const path = require("node:path");
 const { chromium } = require("playwright");
 const root = path.resolve(__dirname, "..");
 const url = (process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174").replace(/\/$/, "");
-const qa = path.join(root, ".tmp/workbench-start-video");
+const qa = require("../tests/artifacts.cjs")("workbench-start-video");
 (async () => {
   fs.mkdirSync(qa, { recursive: true });
   const browser = await chromium.launch({ channel: "msedge", headless: true });
@@ -79,7 +79,7 @@ const qa = path.join(root, ".tmp/workbench-start-video");
     assert.ok(media.duration >= 100 && media.duration <= 104, JSON.stringify(media));
     assert.equal(media.error, 0);
     assert.equal(media.captions, 15);
-    assert.ok(media.samples.every((sample) => Math.abs(sample.actual - sample.time) < 0.1));
+    assert.ok(media.samples.every((sample) => Math.abs(sample.actual - sample.time) < 0.1), JSON.stringify(media.samples));
     assert.ok(media.samples.every((sample) => sample.brightness > 100000));
     assert.equal(new Set(media.samples.map((sample) => sample.hash)).size, 6);
     await video.scrollIntoViewIfNeeded();

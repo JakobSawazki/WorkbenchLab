@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const output = require("./artifacts.cjs")("reference-search");
+const path = require("node:path");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 
@@ -48,7 +50,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
         assert.equal(await page.locator('[data-reference-group]:not([hidden])').count(), 4);
         await input.fill("Filtern");
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
-        await page.screenshot({ path: `.tmp/reference-search-${width}-${theme}.png` });
+        await page.screenshot({ path: path.join(output, `reference-search-${width}-${theme}.png`) });
         await page.goto(`${base}?v=0.23.4#commands`);
         await page.goto(`${base}?v=0.23.4#reference`);
         assert.equal(await input.inputValue(), "Filtern");

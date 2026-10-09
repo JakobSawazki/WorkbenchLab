@@ -249,3 +249,18 @@
   .source-card { min-width: 0; }
   .source-card .button { white-space: normal; }
 }
+/* The teacher's assessment is independent of student-reported progress. */
+.teacher-drop > * { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.teacher-drop input[type="file"] { width: 100%; }
+.profile-dialog.teacher-review-dialog { width: min(760px, calc(100% - 1.5rem)); max-height: calc(100dvh - 1.5rem); overflow: auto; padding: 1.25rem; }
+.teacher-review-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.teacher-review-head h2 { margin: 0; font-size: 1.25rem; overflow-wrap: anywhere; }
+.teacher-review-head .icon-button { flex: 0 0 42px; }
+.teacher-review-list { min-width: 0; margin: 1.25rem 0; padding: 0; border: 0; }
+.teacher-review-list legend { font-weight: 700; margin-bottom: 0.5rem; }
+.teacher-review-list label { display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.65rem 0; border-bottom: 1px solid var(--line); font-weight: 400; }
+.teacher-review-list input[type="checkbox"] { flex: 0 0 20px; width: 20px; height: 20px; padding: 0; margin-top: 0.25rem; accent-color: var(--brand); }
+.teacher-review-list span { min-width: 0; overflow-wrap: anywhere; }
+.teacher-review-list small { display: block; color: var(--muted); }
+.teacher-review-controls p { overflow-wrap: anywhere; }
+@media print { .teacher-review-controls, .teacher-review-dialog, [data-teacher-review] { display: none !important; } }

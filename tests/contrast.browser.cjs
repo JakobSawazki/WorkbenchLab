@@ -85,10 +85,6 @@ const audit = () => {
   return found;
 };
 
-// Sehr kleine Beschriftungen in zwei nachgebauten Fenstern der Nachschlageseite (Verfasser Codex);
-// sie liegen knapp unter der Schwelle (3,75 und 4,14) und sind dort wiederholter Schmuck, kein Inhalt.
-const tolerated = [/launcher-category > small/, /^li > span$/];
-
 (async () => {
   const browser = await chromium.launch({ channel: "msedge", headless: true });
   const problems = new Map();
@@ -121,7 +117,6 @@ const tolerated = [/launcher-category > small/, /^li > span$/];
         const check = async (where) => {
           views += 1;
           for (const item of await page.evaluate(audit)) {
-            if (tolerated.some((pattern) => pattern.test(item.key))) continue;
             const key = `${theme}/${accent} ${item.key} ${item.pair}`;
             if (!problems.has(key)) problems.set(key, { ...item, where: [] });
             problems.get(key).where.push(where);
@@ -139,12 +134,22 @@ const tolerated = [/launcher-category > small/, /^li > span$/];
             await page.locator(button).click();
             await page.waitForTimeout(150);
             await check(`Dialog ${label}`);
+            if (button === "#editProfileButton") {
+              await page.locator("#nagoldTotal").click();
+              await check("NAGOLD-Tabelle");
+              await page.locator('[data-nagold-edit="0"]').click();
+              await check("NAGOLD bearbeiten");
+              await page.locator("#nagoldCloseButton").click();
+            }
             await page.locator(close).click();
           }
           await page.goto(base + "lehrkraft.html", { waitUntil: "networkidle" });
           await page.locator("#teacherFiles").setInputFiles({ name: "a.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({ app: "WorkbenchLab", formatVersion: 2, data: { name: "TST.QAA", className: "TEST", completedLessons: lessons.slice(0, 2) } })) });
           await page.locator(".teacher-table").first().waitFor();
           await check("Klassenübersicht");
+          await page.locator("[data-teacher-review]").click();
+          await check("Lehrkraft-Bestätigungen");
+          await page.keyboard.press("Escape");
         }
         assert.deepEqual(errors, []);
         await context.close();

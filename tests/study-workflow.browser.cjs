@@ -5,7 +5,7 @@ const crypto = require("node:crypto");
 const { chromium } = require("playwright");
 
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
-const output = path.join(__dirname, "..", ".tmp", "study-qa");
+const output = require("./artifacts.cjs")("study-qa");
 const stable = (value) => JSON.stringify(value, (_, item) => item && typeof item === "object" && !Array.isArray(item)
   ? Object.keys(item).sort().reduce((result, key) => ({ ...result, [key]: item[key] }), {}) : item);
 
@@ -142,7 +142,7 @@ async function verifyExport(download, name) {
     await page.locator("#backupButton").click();
     await page.locator("#exportProgressButton").click();
     const exported = await verifyExport(await downloaded, "study-export.json");
-    assert.equal(exported.payload.formatVersion, 6);
+    assert.equal(exported.payload.formatVersion, 7);
     assert.equal(exported.payload.data.generalNotes, "BPE6: Offene Fragen und meine Merksätze.");
     assert.ok(exported.payload.data.lessonHighlights["warum-datenbanken"].length > 0);
     assert.equal(exported.payload.data.lessonWorksheets["warum-datenbanken"].rows[0].length, "45");
@@ -167,6 +167,17 @@ async function verifyExport(download, name) {
     const automaticExport = await verifyExport(await automatic, "study-auto-export.json");
     assert.ok(automaticExport.payload.data.completedLessons.includes("warum-datenbanken"));
     assert.equal(automaticExport.payload.summary.xp, 40);
+    assert.equal(automaticExport.payload.summary.nagold, 5);
+    const awarded = automaticExport.payload.data.nagoldEntries;
+    assert.equal(awarded.length, 1);
+    assert.equal(awarded[0].lessonId, "warum-datenbanken");
+    assert.equal(awarded[0].points, 5);
+    assert.match(awarded[0].date, /^\d{4}-\d{2}-\d{2}$/);
+    assert.match(awarded[0].time, /^(?:[01]\d|2[0-3]):[0-5]\d$/);
+    assert.match(awarded[0].purpose, /L1\.1/);
+    await page.reload();
+    assert.equal(await page.locator("#topNagold").innerText(), "5 NAG");
+    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("workbenchlab-v1")).nagoldEntries.length), 1);
     await page.screenshot({ path: path.join(output, "lesson-desktop.png") });
 
     await page.setViewportSize({ width: 390, height: 844 });

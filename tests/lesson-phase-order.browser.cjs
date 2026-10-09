@@ -4,7 +4,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const { chromium } = require("playwright");
 const root = path.resolve(__dirname, "..");
-const output = path.join(root, ".tmp", "lesson-phase-order");
+const output = require("./artifacts.cjs")("lesson-phase-order");
 const context = vm.createContext({ window: {} });
 for (const file of ["content.js", "learning-path.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context);

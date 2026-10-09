@@ -2,9 +2,10 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.41.5** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.42.0** [Codex, 2026-10-09; zuvor 0.41.5 von Claude]
 
-Veröffentlichter Stand: siehe Abschnitt 0.4.
+Veröffentlichter Stand: 0.42.0 wird im Codex-Releaseabschnitt unten geführt;
+Claudes letzter Veröffentlichungsstand bleibt historisch in Abschnitt 0.4.
 
 Mitwirkende: Jakob Sawazki, Codex, seit 8. Oktober 2026 zusätzlich Claude. Claudes Einträge stehen in Abschnitt 0 und sind dort sowie an jeder anderen Stelle mit `[Claude, Datum]` gekennzeichnet.
 
@@ -31,16 +32,19 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Ich suche … | Ort |
 | --- | --- |
 | Was hat sich wann geändert? | [`CHANGELOG.md`](../CHANGELOG.md) – eine Zeile je Version |
+| Was umfasst Codex-Release 0.42.0? | [`releases/RELEASE_0_42_0.md`](releases/RELEASE_0_42_0.md); neue Funktionen und verbleibende Ausbaupunkte |
 | Was ist gerade der Stand? | Tabelle unten |
 | Was hat Claude getan, geprüft, nicht geprüft? | Abschnitt 0 dieser Datei (nummerierte Einträge, neuester am Ende) |
 | Was hat Codex bis 0.21.0 getan? | [`archiv/PROJEKTDOKUMENTATION_BIS_0_21.md`](archiv/PROJEKTDOKUMENTATION_BIS_0_21.md) (Abschnitte 1 bis 12 und Anhänge, Stand 3. Oktober 2026) |
 | Was hat Codex von 0.22.0 bis 0.25.3 getan? | Einzelberichte unter [`releases/`](releases/) |
+| Wie hat Codex Claudes Übergabe 0.41.5 geprüft? | Abschnitt „Codex: Übergabeprüfung 0.41.5“ unten; vollständige Rückmeldung in [`codex2claude.md`](../codex2claude.md) |
+| Wo steht das Metall-/Glasdesign? | Abschnitt „Codex: Satin-Titan und Glaskanten“ unten, einschließlich Assetherkunft und Bildprompt; Bestandteil von 0.42.0 |
 | Was ist offen, wer ist dran? | [`claude2codex.md`](../claude2codex.md), Teil C; [`codex2claude.md`](../codex2claude.md) |
 | Jakobs Entscheidungen vom 9. Oktober 2026 | Abschnitt 0.37 dieser Datei |
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.41.5)**
+**Aktueller Stand (Release 0.42.0)** [Codex, 2026-10-09]
 
 | Thema | Stand |
 | --- | --- |
@@ -48,10 +52,10 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Übungen | 59, alle frei zugänglich: 25 SQL-Schreibaufgaben, 7 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
 | Zusätzliche Übungsformen | freies SQL-Labor, Wiederholungsrunde, Klausurtraining, Modell-Editor |
 | Nähe zu MySQL | 26 MySQL-Funktionen nachgebildet und an MariaDB gemessen (4 von Codex, 22 seit 0.41.0); 5 bekannte Unterschiede werden im Labor erklärt (Abschnitt 0.57) |
-| Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
-| Lehrkraft | Klassenübersicht `lehrkraft.html` (mit nachgeprüften Modellaufgaben); Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
+| Bewertung | XP als Motivation; NAGOLD-Tabelle mit Datum/Uhrzeit, automatischen 5 Punkten je Einheit und eigenen Einträgen; separate Bestätigungsliste der Lehrkraft |
+| Lehrkraft | Klassenübersicht `lehrkraft.html` mit nachgeprüften Modellaufgaben sowie eigener Bestätigungsliste, Sicherung und bestätigten CSV-Werten; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 194 Node-Tests, 2 Python-Tests, 39 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
+| Tests | 208 Node-Tests, 2 Python-Tests, 42 Browsertests; zusätzlich 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwölf Skriptimporte und native Abfragen/Fremdschlüssel (`node tools/verify-native-sql.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2816,6 +2820,288 @@ entscheidet (OPT-09, OPT-25) oder im Unterricht prüft (OPT-15).
 Nächste Handlungsnummer: 468.
 
 <!-- CLAUDE:END -->
+
+## Codex: Übergabeprüfung 0.41.5 [Codex, 2026-10-09]
+
+Ausgangspunkt: sauberer Arbeitsbaum auf `main`, Commit `44db3b1`. Übergabe,
+Wegweiser, Changelog und Änderungen seit `codex-stand-2026-10-08` geprüft.
+Die Rückmeldung zu A2.1 bis A2.23 steht vollständig in
+[`codex2claude.md`](../codex2claude.md). Claudes Arbeitsprotokoll in Abschnitt 0
+und die Übergabedatei wurden nicht umgeschrieben. Seine Änderungen bleiben
+erhalten; eine eng begrenzte Korrektur betrifft OPT-21.
+
+**OPT-21: Original erhalten, wenn die Rettungskopie nicht gespeichert werden kann.**
+Der neue Regressionstest zeigte: Bei unlesbarem Lernstand und fehlgeschlagenem
+Rettungsschreibvorgang konnte der Start das einzige Original überschreiben.
+Die vorherige Meldung versprach dennoch eine gesicherte Kopie. `app.js`
+schützt nun den Originalschlüssel auch gegen spätere Speicherversuche,
+hält aktuelle Rohdaten für den Download im Arbeitsspeicher und zeigt eine
+zutreffende Warnung. Nur ein gültiger, ausdrücklich bestätigter Import hebt
+die Sperre auf; neue Änderungen dieser Sitzung benötigen eine Dateisicherung.
+`tests/state-rescue.browser.cjs` prüft den Fehler bei 1440 und 390 Pixeln,
+mit und ohne ältere Rettungskopie, über Download, Weiterarbeit, Neuladen sowie
+abgebrochenen und bestätigten Import. Vor der Korrektur rot, danach sowohl
+gezielter Lauf als auch die abschließende Gesamtsuite grün.
+
+Prüfstand: Übernommene 194 Node-, 2 Python-Tests und alle 39 Browser-Testdateien
+bestanden. Die 151 nativen Prüfungen an einer getrennten temporären
+MariaDB-10.4.13-Instanz ebenfalls bestanden. Nach der Korrektur bestehen erneut
+194 Node-, 2 Python-Tests und alle 39 Browser-Testdateien, einschließlich des
+erweiterten Rettungstests. CSS-Aufteilung am damaligen Verschiebe-Commit
+zusätzlich auf gleiche Regeln/Reihenfolge geprüft; alle SQL-Sollwerte lesend
+neu berechnet und mit `expected-results.js` verglichen. Versionsangaben in
+beiden HTML-Seiten, `content.version` und `package.json` stimmen überein.
+`git diff --check` ohne Befund. Lokale Vorschau: `http://127.0.0.1:4199/`
+(eigener Python-Server, PID 7764); native Testinstanz wieder beendet.
+
+**Veröffentlichung:** Korrektur und Rückmeldung liegen lokal, noch kein neues
+Release, Commit oder Push. Veröffentlichter übernommener Stand bleibt 0.41.5;
+die Versionsdateien und `CHANGELOG.md` wurden daher nicht geändert.
+
+**Unverändert offen:** OPT-09 und OPT-25 warten auf Jakob; Schul-PC-Test siehe
+Abschnitt 0.16. Hinweise zu Testartefakten, ungenutzten Bildern und kleinen
+Kontrastausnahmen sind keine umgesetzten Aufträge. Modell-Entwürfe sind seit
+0.40.0 bereits im JSON-Export enthalten; Wiederholungsrunde, Klausurtraining
+und Rettungskopie nicht. Keine neuen SQL-Aufgaben oder MySQL-Funktionen.
+
+## Codex: Satin-Titan und Glaskanten, lokaler Designentwurf [Codex, 2026-10-09]
+
+Jakobs Wunsch: ein edleres, stärker metallisches Design mit dezenten
+transparenten Anteilen und fotorealistischen bläulichen Hintergründen.
+Umgesetzt am Ende von `styles-shared.css`; Reihenfolge der sechs Stylesheets,
+Layout, Buttonhöhen, Lerninhalte, SQL-Prüfung und Farbwahl bleiben erhalten.
+Die noch unveröffentlichte OPT-21-Korrektur aus der Übergabeprüfung bleibt
+ebenfalls erhalten. Kein Push, keine neue Release-Nummer in diesem Schritt.
+
+- Fotorealistische, blau anodisierte Satin-Titan-Textur für Seitenhintergrund,
+  Navigation, Kopfzeile und sehr dezent die Buttonoberflächen. Die bestehende
+  Kontrastfläche bleibt unter einer getrennten, nicht interaktiven Dekorebene
+  erhalten. In der hellen Ansicht ist die Textur schwächer und neutralisiert.
+- Gerichtete Metallreflexe, feinere Lichtkanten und zurückhaltende Schatten
+  für Aktions-, Werkzeug- und Profilbuttons. Der frühere wandernde Glanz ist
+  durch eine statische Reflexion ersetzt. Aktive Filter und Farbswatches
+  behalten ihre eindeutigen Zustandsfarben.
+- Dialoge und aufklappende Menüs mit 97 % deckender Hintergrundfarbe,
+  leichter Transparenz, Hintergrundunschärfe und doppelter Lichtkante.
+  Leseflächen und SQL-Editoren erhalten keine Bildtextur. Ohne Unterstützung
+  für Hintergrundunschärfe greift eine deckende Fläche; Druck und
+  erzwungene Kontrastfarben blenden die Materialdekoration aus.
+- Neue lokale Datei: `assets/titanium-blue-satin.webp`, 1536 × 1024 Pixel,
+  208166 Bytes. Mit dem integrierten `image_gen`-Werkzeug erzeugt; anschließend nur
+  platzsparend als WebP codiert, keine externe Bildquelle oder Laufzeit-API.
+  Original unter `C:/Users/PC/.codex/generated_images/019ed9af-d931-7103-86d8-def0a75ca5e4/exec-e380659b-72cb-482a-8b1b-3c8dded91409.png`
+  unverändert erhalten. Die neue öffentliche Datei ist für den lokalen
+  Paketbau im Git-Index aufgenommen, aber nicht committet oder gepusht.
+
+### Bildprompt
+
+```text
+Use case: product-mockup. Asset type: photorealistic material texture for the subtle background and chrome of an educational database web application, not a UI mockup. Primary request: a full-frame macro studio photograph of a single uninterrupted flat surface of premium brushed titanium, anodized in midnight blue with restrained cool silver-blue reflections. Extremely fine horizontal brushing and realistic microscopic metal grain, elegant satin finish, soft long directional reflection across upper-left, dark evenly lit lower-right. Uniform material, very low contrast, enough discernible physical texture but no distracting patterns. Orthographic close-up, no perspective edges. Full bleed landscape 1536x1024 or similar. No objects, no buildings, no circuitry, no text, no logos, no scratches, no borders, no panel divisions, no glowing lights, no bokeh, no orbs. Neutral gunmetal shadows and cool blue highlights; premium real metal photography, not a smooth computer gradient.
+```
+
+### Designprüfung
+
+Neuer Test `tests/material-design.browser.cjs`: Textur geladen und als lokale
+öffentliche Datei vorgesehen, maximal 300 KB, gleiche Profil-/Iconhöhe,
+stabile Werkzeugposition bei Hover, Glasdialog und Esc, Seitenbreite auf
+Startseite, SQL-Labor, L1.1 und SQL-Befehlen, Druck-/Kontrastmodus ohne Dekor.
+Desktop und Mobilansicht in beiden Designs anhand von Screenshots visuell geprüft.
+Der Test misst zusätzlich die tatsächlichen gerenderten Hintergrundpixel
+der inneren Buttonfläche gegen ihre Schriftfarben, einschließlich aller
+Akzentfarben am Primärbutton; die reflektierende Außenkante ist kein
+Textbereich. Damit werden die Bild-/Dekorebenen erfasst, die der bisherige
+CSS-Kontrasttest nicht auswertet. Keine Kontrastausnahmen erweitert.
+
+194 Node-, 2 Python-Tests und alle 40 Browser-Testdateien bestanden,
+einschließlich der neuen Materialprüfung und des lokalen öffentlichen
+Pakets mit der neuen Textur (63 Dateien). Kein SQL geändert, daher keine neue
+native MySQL-Messung oder Änderung der Soll-/Lösungsdateien erforderlich.
+Lokale Vorschau: `http://127.0.0.1:4199/`. `git diff --check` ohne Befund.
+
+## Codex: NAGOLD im Profilbutton, lokaler Entwurf
+
+2026-10-09: Rechts neben den XP steht der vorhandene NAGOLD-Stand in Gold,
+abgekürzt als `5 NAG`. Tooltip und zugänglicher Profil-Buttonname verwenden
+das volle Wort NAGOLD. Berechnung, Speicherung und Lehrkraft-Bestätigung
+bleiben unverändert; beide Anzeigen verwenden `stateNagold()`.
+Die gemeinsame Klickfläche und gleiche Höhe wie die übrigen Icons bleiben
+erhalten. Keine Änderung an SQL, Version oder Veröffentlichung.
+
+Der erweiterte Profil-Browsertest prüft 0, 5 und 105 NAG, Position rechts
+neben XP, unterschiedliche Farbe, Klick auf die neue Anzeige und Lesbarkeit
+innerhalb des Buttons bis 320 Pixel bei großer Schrift und maximalen XP.
+194 Node-, 2 Python-Tests sowie Profil-, Material-, Kontrast-, Überlauf-
+und Namens-Browsertests bestanden (288 Kontrast-, 1176 Breiten- und 242
+Zugänglichkeitsansichten). Screenshots für Desktop und Mobilansicht visuell geprüft.
+
+## Codex: NAGOLD-Tabelle, lokaler Entwurf
+
+2026-10-09: Jakobs Folgeaufträge ersetzen den versteckten Lehrkraft-Editor
+durch eine offene Punktetabelle. Der begonnene Schlüssel-Ansatz samt lokaler
+Test-Schlüsseldatei wurde vollständig entfernt; nichts davon veröffentlicht.
+Der bestehende Entwicklerzugang bleibt unverändert. Die folgenden Regeln
+ersetzen für diesen lokalen Entwurf die reine NAGOLD-Anzeige aus dem
+vorangegangenen Abschnitt; veröffentlichter Stand bleibt 0.41.5.
+
+- Klick auf NAGOLD im Profil öffnet die Tabelle ohne Tastenkombination.
+- Spalten Datum, Uhrzeit, Wofür, NAGOLD. Neue Zeilen über Plus mit heutigem lokalen
+  Datum und Uhrzeit im Format HH:MM, eigener Anlass oder Vorauswahl (Mitarbeit, Zusatzaufgabe,
+  Präsentation, Projektarbeit, Lernprodukt und die Lerneinheiten).
+- Je Eintrag 1 bis 5 ganze Punkte. Bestehende Zeilen per Doppelklick oder
+  Stift bearbeiten, über Minus löschen. Speichern übernimmt den Entwurf;
+  X/Esc verwirft Änderungen und stellt den Fokus im Profil wieder her.
+- Nach Jakobs anschließendem Wunsch wird beim Abschluss einer Lerneinheit
+  automatisch eine Zeile mit Datum, Uhrzeit, 5 NAGOLD und dem Namen der Einheit
+  ergänzt. `lessonId` verhindert erneute Buchung. Auch automatische Zeilen
+  sind editier-/löschbar; Neuladen erzeugt keine doppelten Punkte.
+- Alte Lernstände ohne Tabelle behalten ihre bisherigen Punkte: je bekannte
+  abgeschlossene Einheit eine Zeile, Datum „Nicht erfasst“. Ein fehlendes
+  historisches Datum oder eine fehlende Uhrzeit wird nicht erfunden. Eine ausdrücklich
+  leere Tabelle bleibt auch bei abgeschlossenen Einheiten leer.
+- `stateNagold()` summiert die Tabelle. `nagold.js` bereinigt dieselben Werte
+  für App, Import und Klassenübersicht. XP, Level und Fortschritt bleiben
+  unabhängig. Tabelle und Summe reisen in der Lernstandsdatei mit.
+- Sicherungsformat 7: Alte Apps weisen neue Sicherungen zurück, statt beim
+  Laden die Tabelle zu verlieren. Alte Sicherungen (1–6) bleiben ladbar.
+  Schutzgrenzen: 160 Zeichen Anlass, echte Kalenderdaten, 1–5 Punkte,
+  1000 eigene Zeilen plus Platz für die 21 Lerneinheiten. Keine SQL-Änderung.
+- Die Tabelle ist ausdrücklich Selbstauskunft. Verbindlich bleibt Jakobs
+  Bewertung; keine neue Behauptung einer manipulationssicheren Bestätigung.
+
+### Prüfung
+
+203 Node- und 2 Python-Tests bestanden. Neuer `tests/nagold.browser.cjs`
+prüft Datum, lokale Uhrzeit (HH:MM), Vorauswahl/Freitext, 1–5-Grenzen, Plus/Minus, Doppelklick und
+Tastaturbearbeitung, Abbruch/Fokus, Persistenz, Sicherung/Import, Summe in
+der Klassenübersicht und sichere Textdarstellung. Screenshots für beide
+Designs bei 1440, 360 und 320 Pixeln mit großer Schrift liegen unter
+`%TEMP%/workbenchlab-tests/nagold/` und sind visuell geprüft.
+`study-workflow.browser.cjs` prüft den automatischen Eintrag beim echten
+Einheitenabschluss einschließlich Sicherung und unveränderter Anzahl nach
+Neuladen. `lesson-completion.browser.cjs` prüft für alle 21 echten
+Einheitenabschlüsse je eine Zeile mit Datum, Uhrzeit und 5 Punkten.
+Profil-, Paket-, Kontrast-, Überlauf-, Namens- und Formatprüfungen sind
+angepasst. Alle 41 Browser-Testdateien bestanden, einschließlich 292
+Kontrast-, 1188 Breiten- und 246 Zugänglichkeitsansichten. Die Kopfzeile passt
+auch mit 5105 NAG bei 360/320 Pixeln und großer Schrift; die Höhe bleibt
+gleich den Werkzeugbuttons. Der öffentliche Pakettest baut 64 Dateien,
+einschließlich des Tabellenhelfers. `git diff --check` und Indexprüfung
+ohne Befund. Keine neue native MySQL-Prüfung erforderlich: kein SQL geändert.
+
+Lokale Vorschau: `http://127.0.0.1:4199/`. Noch nicht veröffentlicht.
+
+## Codex: Autarke Weiterarbeit, Lehrkraft-Bestätigungen und Testartefakte
+
+Lokaler Entwurf vom 9. Oktober 2026, noch kein neuer Release. Jakob hat die
+Umsetzung der noch offenen Vorschläge und eine spätere Veröffentlichung
+ausdrücklich freigegeben. Die zuvor geforderte Wahl zu OPT-09 und OPT-25
+blockiert die Umsetzung damit nicht mehr. Verworfene Vorschläge (OPT-05,
+OPT-18) bleiben verworfen; reale Schul-PC- und Unterrichtsprüfungen bleiben
+bei Jakob und werden nicht durch Browsernachbildungen ersetzt.
+
+### OPT-09: separate Liste der Lehrkraft
+
+Claudes Empfehlung b umgesetzt, zusammen mit der Trennung aus a. Die von
+Lernenden bearbeitbare NAGOLD-Tabelle bleibt Selbstauskunft. In
+`lehrkraft.html` können Lehrkräfte je neuester Sicherung gesehene Einheiten
+und gemeldete NAGOLD bestätigen. Das Bestätigen einer Einheit bestätigt auch
+deren aktuell gemeldete automatische Punktezeile. Eigene Einträge werden
+einzeln bestätigt. Abbrechen per X/Esc übernimmt nichts und stellt den Fokus
+wieder her. Bestätigte Punkte und Einheiten stehen separat in Übersicht und CSV.
+
+Die Bestätigungen liegen getrennt von Schülerdateien unter
+`workbenchlab-teacher-reviews-v1` im Browserspeicher der Lehrkraft. Die
+Schülerdateien selbst bleiben nur im Arbeitsspeicher. „Liste leeren“ entfernt
+die eingelesenen Schülerdateien, nicht die Bestätigungen. Die eigene Liste
+kann als `workbenchlab-lehrkraft-liste.json` gesichert und auf einem anderen
+Gerät geladen werden. Der Import prüft Kennung, Format, Grenzen und bekannte
+Einheiten; vorhandene Bestätigungen werden nur nach Rückfrage ersetzt.
+Gesperrter oder voller Speicher wird ehrlich gemeldet; die Datei-Sicherung
+bleibt möglich. Ein unlesbarer alter Speichereintrag wird nicht überschrieben.
+
+Zuordnung über Profil-ID, bei alten Dateien über Klasse/Kürzel. Bestätigte
+NAGOLD sind an den vollständigen Inhalt einer Zeile und deren Vorkommen
+gebunden. Eine geänderte Uhrzeit, Punktzahl oder Beschreibung entwertet die
+Bestätigung; unveränderte Zeilen behalten sie bei Umsortierung. Gleiche
+Zeilen werden nicht versehentlich mehrfach bestätigt. Keine Codes,
+Schlüssel oder vermeintliche Sperre auf dem Schülergerät. Diese Liste ist
+eine lokale Bewertung der Lehrkraft, keine Authentifizierung der eingelesenen
+Identität. Datenschutz: keine Übertragung, ausdrücklich nur lokale Speicherung.
+
+### OPT-17 und kleine Kontrastbefunde
+
+Alle bisherigen `.tmp`-Ausgaben der Browsertests auf
+`%TEMP%\\workbenchlab-tests` umgestellt; der gemeinsame Helfer
+`tests/artifacts.cjs` legt die jeweiligen Testordner an. Auch die älteren
+Diagnosewerkzeuge und Video-Prüfbilder nutzen nun diesen Ort; temporäre
+MariaDB-Instanzen erhalten dort eigene Laufordner. Keine vorhandenen
+Projektdateien gelöscht. Die drei ungenutzten PNG-Originale bleiben im
+Repository, sind aber vom Webseitenpaket ausgeschlossen; die aktiven
+WebP-Bilder bleiben veröffentlicht. Ein Test prüft, dass keine Laufzeitdatei
+die ausgeschlossenen PNGs verwendet.
+
+Beide kleinen Kontrastbefunde der Nachschlageseite angehoben; die bisherigen
+Ausnahmen im Kontrasttest entfernt. Neuer Lehrkraft-Dialog ist Teil der
+Kontrast- und Namensprüfung. Große Schrift auf 360 Pixeln deckte ein zu
+breites natives Dateifeld auf; dessen Rasterbreite ist nun begrenzt.
+Die dunkelblauen primären Standard-Metallfarben sind auch ohne geladenen
+Darstellungshelfer kontrastreich (betrifft insbesondere die Lehrkraftseite).
+
+Zusatzbefund: Der Python-Vorschau-Server liefert keine HTTP-Teilabrufe; das
+MP4 war dort nicht vorspulbar (`seekable` 0–0). Der vorhandene
+`tools/preview-workbench.cjs` benötigt nun keine externe `send`-Abhängigkeit
+mehr und unterstützt GET/HEAD, MIME-Typen, Byte-Bereiche und Bereichsfehler.
+Er bindet nur an 127.0.0.1 und liefert nur öffentliche App-Dateien; Ressourcen,
+Git-Dateien, Pfadtraversierung, Windows-Alternativdatenströme und aus dem
+öffentlichen Bereich herausführende Verknüpfungen sind ausgeschlossen.
+`pnpm serve` verwendet diesen Server. Vorschau zusätzlich auf Port 4201
+gestartet, bisherige 4199-Vorschau unverändert. Der MP4-Prüfer besteht dort:
+1920×1080, 101,98 Sekunden, 15 Untertitel, sechs unterschiedliche decodierte
+Zeitpunkte, Desktop/Mobil passend. Keine Änderung an der Videodatei nötig.
+
+Zwischenprüfungen: 206 Node- und 2 Python-Tests vor der Serverergänzung
+bestanden; zwei neue Server-Tests für Datei-/Pfadgrenzen und Byte-Bereiche
+bestanden. Neue Lehrkraft-Prüfung einschließlich 360 Pixeln mit großer
+Schrift in beiden Designs bestanden. 294 Kontrastansichten ohne Ausnahmen,
+248 Namens-/Strukturansichten bestanden. Der komplette Browserlauf wird
+nach Abschluss hier ergänzt. `verify-native-sql.cjs` bestätigt alle zwölf
+Einheitenskripte sowie die bisherigen nativen Abfragen und Fremdschlüssel
+an einer getrennten MariaDB 10.4.13; kein Eingriff in Jakobs laufende Datenbank.
+OPT-25, Offline-Paket/Service Worker, Modell-Editor-Erweiterungen und der
+Umgang mit Lösungen im öffentlichen Repository sind weiterhin separat
+abzuarbeiten. Keine neue MySQL-Aussage oder SQL-Aufgabe in diesem Schritt.
+
+## Codex: Release 0.42.0
+
+Dieser Zwischenrelease bündelt die oben dokumentierten lokalen Entwürfe:
+Satin-Titan-/Glaskanten, NAGOLD in der Kopfzeile, Punkte-Tabelle mit lokaler
+Datums-/Uhrzeitvorbelegung, automatische Einheitenbuchungen, eigene
+Lehrkraft-Bestätigungsliste und die Speicherrettung aus der Übergabeprüfung.
+Hinzu kommen Kontrastkorrekturen, Testartefakte in Temp und die lokale
+Video-Vorschau mit HTTP-Teilabrufen. Einzelheiten und Prüfkommandos stehen
+in [`releases/RELEASE_0_42_0.md`](releases/RELEASE_0_42_0.md).
+
+Alle Versionsstempel der beiden HTML-Seiten, beide Inhaltsversionen und
+`package.json` stehen auf 0.42.0. Die lokale Lösungsdatei für Jakob wurde neu
+erzeugt; sie bleibt unter `resources/`, unversioniert und unveröffentlicht.
+Die feste Reihenfolge der sechs Style-Dateien bleibt unverändert.
+
+Abschlussprüfung für 0.42.0: 208 Node-Tests, 2 Python-Tests und alle 42
+Browser-Testdateien bestanden, letzter Gesamtlauf gegen die neue Vorschau
+auf Port 4201. Darunter 294 Kontrastansichten ohne Ausnahmen, 1188
+Überlaufansichten, 248 Namens-/Strukturansichten und 919 Tastaturstopps.
+Beide nativen MariaDB-Prüfer bestanden (151 Fälle sowie zwölf Skriptimporte
+mit den jeweiligen Voraussetzungs-Schemata). Öffentlicher Paketbau:
+61 Dateien, keine Lösungsanweisungen oder privaten Ressourcen. Syntax-,
+Diff- und Indexprüfungen ohne Befund. Veröffentlichung über den bestehenden
+Pages-Workflow; der Workflow prüft Node und Python erneut vor dem Deploy.
+
+Der autarke Gesamtauftrag ist damit nicht abgeschlossen: Als nächste
+Umsetzung folgen OPT-25, das Offline-Paket/Service Worker und die offenen
+Modell-Editor-Erweiterungen. Die weiter im öffentlichen Git-Verlauf
+enthaltenen alten SQL-Lösungen sind durch den Webseitenfilter nicht geheim
+geworden; dieser Rest von OPT-12 ist ebenfalls separat zu behandeln.
+Keine vorgetäuschte Schul-PC-, MySQL-8- oder Unterrichtsabnahme.
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
 

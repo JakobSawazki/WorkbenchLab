@@ -54,6 +54,71 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await context.close();
     }
 
+    // Eine volle Quota kann die Kopie verhindern, obwohl das kleinere Ersatzobjekt noch passen würde.
+    for (const width of [1440, 390]) {
+      const broken = '{"name":"NEW.RAW","completedLessons":[';
+      const context = await browser.newContext({ viewport: { width, height: 900 }, acceptDownloads: true });
+      await context.addInitScript(({ raw, oldCopy }) => {
+        const setItem = Storage.prototype.setItem;
+        if (!sessionStorage.getItem("seeded")) {
+          sessionStorage.setItem("seeded", "1");
+          localStorage.setItem("workbenchlab-v1", raw);
+          if (oldCopy) localStorage.setItem("workbenchlab-v1-rettung", JSON.stringify({ raw: "older rescue" }));
+        }
+        Storage.prototype.setItem = function (key, value) {
+          if (this === localStorage && key === "workbenchlab-v1-rettung") {
+            throw new DOMException("Quota exceeded", "QuotaExceededError");
+          }
+          return setItem.call(this, key, value);
+        };
+      }, { raw: broken, oldCopy: width === 1440 });
+      const page = await context.newPage();
+      const errors = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.goto(base + "#home");
+      await page.locator("#stateRescueNotice").waitFor();
+      assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1")), broken,
+        "Without a saved rescue copy, startup must not overwrite the original");
+      assert.match(await page.locator("#stateRescueNotice").innerText(), /nicht im Browser gespeichert/);
+      const box = await page.locator("#stateRescueNotice").boundingBox();
+      assert.ok(box.x >= 0 && box.x + box.width <= width + 1, `Quota notice outside ${width}px`);
+      const [download] = await Promise.all([page.waitForEvent("download"), page.locator("[data-rescue-download]").click()]);
+      const rescue = JSON.parse(require("node:fs").readFileSync(await download.path(), "utf8"));
+      assert.equal(rescue.raw, broken, "Download must contain this session's raw data, not an older rescue");
+      await page.locator("[data-rescue-close]").click();
+      await page.goto(base + "#sql/frei");
+      await page.locator("#sqlEditor").fill("SELECT 1;");
+      await page.waitForTimeout(800);
+      assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1")), broken,
+        "Later saves must preserve the original too");
+      await page.reload();
+      await page.locator("#stateRescueNotice").waitFor();
+      assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1")), broken);
+      await page.locator("[data-rescue-close]").click();
+      await page.locator("#backupButton").click();
+      assert.ok(await page.locator("#backupStorageHint").isVisible());
+      // Only a valid, explicitly confirmed import may replace the protected original.
+      const backupFile = {
+        name: "valid-backup.json", mimeType: "application/json",
+        buffer: Buffer.from(JSON.stringify({ app: "WorkbenchLab", formatVersion: 1,
+          data: { name: "TST.QAA", className: "TEST", completedCommands: ["cmd-select"] } }))
+      };
+      page.once("dialog", (dialog) => dialog.dismiss());
+      await page.locator("#progressFileInput").setInputFiles(backupFile);
+      await page.waitForFunction(() => document.querySelector("#backupStatus").textContent.includes("abgebrochen"));
+      assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1")), broken);
+      page.once("dialog", (dialog) => dialog.accept());
+      await page.locator("#progressFileInput").setInputFiles(backupFile);
+      await page.waitForFunction(() => !document.querySelector("#backupDialog").open);
+      assert.equal(await page.locator("#topXp").innerText(), "12 XP");
+      assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("workbenchlab-v1")).name), "TST.QAA");
+      await page.reload();
+      assert.equal(await page.locator("#stateRescueNotice").count(), 0);
+      assert.equal(await page.locator("#topXp").innerText(), "12 XP");
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+
     // Gegenprobe: Ein gültiger Lernstand erzeugt weder Meldung noch Rettungskopie.
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     await context.addInitScript(() => {
@@ -65,7 +130,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
     assert.equal(await page.locator("#stateRescueNotice").count(), 0);
     assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1-rettung")), null);
     assert.equal(await page.locator("#topXp").innerText(), "12 XP");
-    console.log("PASS: unreadable progress keeps raw rescue copy, persistent alert, download, no silent overwrite, valid progress untouched, desktop/mobile.");
+    console.log("PASS: unreadable progress keeps raw rescue copy; failed rescue writes preserve originals through startup, saves and reload; current raw download with/without older copy; cancel preserves data, confirmed import restores saving; valid progress untouched, desktop/mobile.");
   } finally {
     await browser.close();
   }

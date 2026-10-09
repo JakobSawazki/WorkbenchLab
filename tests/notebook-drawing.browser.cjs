@@ -4,7 +4,7 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
-const output = path.join(__dirname, "..", ".tmp", "drawing-qa");
+const output = require("./artifacts.cjs")("drawing-qa");
 const stable = (value) => JSON.stringify(value, (_, item) => item && typeof item === "object" && !Array.isArray(item)
   ? Object.keys(item).sort().reduce((result, key) => ({ ...result, [key]: item[key] }), {}) : item);
 const alpha = (page, x, y) => page.locator("#noteCanvas").evaluate((canvas, point) => canvas.getContext("2d").getImageData(...point, 1, 1).data[3], [x, y]);
@@ -111,7 +111,7 @@ async function line(page, x1, y1, x2, y2) {
     const file = path.join(output, "drawing-export.json");
     await (await json).saveAs(file);
     const exported = JSON.parse(fs.readFileSync(file, "utf8"));
-    assert.equal(exported.formatVersion, 6);
+    assert.equal(exported.formatVersion, 7);
     assert.equal(exported.data.noteDrawings["warum-datenbanken"][1].width, 48);
     assert.equal(exported.data.noteDrawings["warum-datenbanken"].length, 3);
     const { integrity, ...body } = exported;

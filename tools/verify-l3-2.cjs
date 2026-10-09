@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
 const root = path.resolve(__dirname, "..");
-const qa = path.join(root, ".tmp/l3-2");
+const qa = require("../tests/artifacts.cjs")("l3-2");
 (async () => {
   fs.mkdirSync(qa, { recursive: true });
   const browser = await chromium.launch({ channel: "msedge", headless: true });

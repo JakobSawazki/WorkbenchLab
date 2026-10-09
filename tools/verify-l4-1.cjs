@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
-const output = path.resolve(__dirname, "..", ".tmp", "l4-1");
+const output = require("../tests/artifacts.cjs")("l4-1");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 (async () => {
   fs.mkdirSync(output, { recursive: true });

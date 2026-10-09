@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
 const root = path.resolve(__dirname, "..");
-const output = path.join(root, ".tmp", "l3-3");
+const output = require("../tests/artifacts.cjs")("l3-3");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 (async () => {
   fs.mkdirSync(output, { recursive: true });

@@ -63,7 +63,7 @@ const storedDrafts = (page) => page.evaluate(() => JSON.parse(localStorage.getIt
     // Gerät A: Entwurf vorhanden → Sicherung enthält ihn, Prüfsumme deckt ihn ab.
     const a = await open(browser, drafts);
     const exported = await exportBackup(a.page);
-    assert.equal(exported.formatVersion, 6);
+    assert.equal(exported.formatVersion, 7);
     assert.deepEqual(exported.extras.ermDrafts, drafts);
     assert.equal(exported.integrity.digest, digest(exported));
 
@@ -164,7 +164,7 @@ const storedDrafts = (page) => page.evaluate(() => JSON.parse(localStorage.getIt
     for (let index = 0; index < await cells.count(); index += 1) values.push((await cells.nth(index).locator("td, th").nth(at).innerText()).trim());
     assert.deepEqual(values.sort(), ["1 / 3", "–"].sort());
     assert.match(await overview.locator(".teacher-table").first().locator('td[title^="Bestanden: Fahrschüler"]').getAttribute("title"), /Entwürfe mit Inhalt: 1/);
-    assert.match(await overview.locator(".teacher-note").innerText(), /auf Ihrem Gerät neu geprüft/);
+    assert.match((await overview.locator(".teacher-note").allTextContents()).join("\n"), /auf Ihrem Gerät neu geprüft/);
     assert.ok(await overview.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
     assert.deepEqual(teacherErrors, []);
     await teacher.close();

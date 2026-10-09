@@ -86,7 +86,10 @@ const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
     // NAGOLD im Profil: zwei abgeschlossene Einheiten ergeben 10.
     await page.locator("#editProfileButton").click();
     await page.locator("#profileDialog").waitFor();
-    assert.match(await page.locator("#nagoldTotal").innerText(), /10 NAGOLD aus WorkbenchLab: 2 abgeschlossene Lerneinheiten × 5/);
+    assert.match(await page.locator("#nagoldTotal").innerText(), /10 NAGOLD/);
+    await page.locator("#nagoldTotal").click();
+    assert.equal(await page.locator("#nagoldRows tr").count(), 2);
+    await page.keyboard.press("Escape");
     assert.deepEqual(errors, []);
     console.log("PASS: published site without solution statements, checks by expected results (query, debug, insert), free exercises with preview mark, lessons still sequential, NAGOLD in profile.");
   } finally {

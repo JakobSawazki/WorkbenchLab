@@ -1190,3 +1190,173 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 .profile-help-content .field-hint{font-size:.86rem;color:var(--muted);}
 .profile-help-dialog::backdrop{background:rgba(3,10,20,.46);}
 @media(max-width:520px){.profile-dialog.profile-help-dialog{padding:1.1rem;}}
+
+/* Satin titanium: decorative layers never replace the contrast-safe surface colours. */
+:root {
+  --material-texture: url("assets/titanium-blue-satin.webp");
+  --material-opacity: 0.17;
+  --material-grain-opacity: 0.045;
+}
+
+:root[data-theme="light"] {
+  --material-opacity: 0.055;
+  --material-grain-opacity: 0.018;
+}
+
+body,
+.sidebar,
+.topbar {
+  isolation: isolate;
+}
+
+body::before,
+.sidebar::before,
+.topbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--material-texture);
+  background-size: cover;
+  background-position: center;
+  opacity: var(--material-opacity);
+}
+
+body::before {
+  position: fixed;
+  opacity: calc(var(--material-opacity) * 0.7);
+}
+
+:root[data-theme="light"] :is(body, .sidebar, .topbar)::before {
+  filter: grayscale(1);
+}
+
+.sidebar {
+  box-shadow: inset -1px 0 0 rgba(219, 235, 255, 0.08);
+}
+
+.topbar {
+  background: color-mix(in srgb, var(--panel) 96%, transparent);
+  backdrop-filter: blur(18px) saturate(115%);
+  box-shadow: inset 0 1px 0 rgba(219, 235, 255, 0.08), 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme] :is(.icon-button, .button:not(.button-ghost):not(.is-active), .backup-action, .profile-trigger) {
+  isolation: isolate;
+  background: linear-gradient(158deg, var(--metal-top), var(--metal-mid) 43%, var(--metal-bottom) 57%, var(--metal-mid));
+  border-color: var(--metal-rim);
+  box-shadow: inset 0 1px 0 rgba(232, 243, 255, 0.38), inset 1px 0 0 rgba(232, 243, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28), 0 3px 7px var(--metal-shadow);
+}
+
+:root[data-theme] :is(.icon-button, .button:not(.button-ghost):not(.is-active), .backup-action, .profile-trigger)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--material-texture) center / 320px auto;
+  opacity: var(--material-grain-opacity);
+}
+
+:root[data-theme] :is(.icon-button, .button, .backup-action)::after {
+  background: linear-gradient(165deg, rgba(235, 245, 255, 0.045), transparent 43%);
+  transform: none;
+  transition: none;
+}
+
+:root[data-theme] :is(.icon-button, .button-secondary, .backup-action, .profile-trigger):hover:not(:disabled) {
+  border-color: var(--brand-2);
+  box-shadow: inset 0 1px 0 rgba(232, 243, 255, 0.5), inset 0 0 0 1px rgba(219, 235, 255, 0.08),
+    0 4px 12px var(--metal-shadow);
+  transform: none;
+}
+
+:root[data-theme] .button.button-primary:not(.is-active) {
+  color: var(--on-accent);
+  background: linear-gradient(158deg, var(--metal-primary-top), var(--metal-primary-mid) 43%,
+    var(--metal-primary-bottom) 57%, var(--metal-primary-mid));
+}
+
+:root[data-theme] :is(.icon-button, .button, .backup-action):active:not(:disabled) {
+  transform: none;
+  box-shadow: inset 0 2px 5px var(--metal-shadow), inset 0 1px 0 rgba(232, 243, 255, 0.15);
+}
+
+.nav-item:is(:hover, .is-active) {
+  background: linear-gradient(158deg, var(--metal-top), var(--metal-mid) 43%, var(--metal-bottom));
+  box-shadow: inset 0 1px 0 rgba(232, 243, 255, 0.28), 0 3px 8px var(--metal-shadow);
+}
+
+.nav-item.is-active {
+  box-shadow: inset 3px 0 0 var(--brand-2), inset 0 1px 0 rgba(232, 243, 255, 0.28), 0 3px 8px var(--metal-shadow);
+}
+
+:root[data-theme] :is(dialog, .path-quick-menu, .path-lesson-submenu, .map-lesson-menu, .eraser-sizes) {
+  background-color: color-mix(in srgb, var(--panel) 97%, transparent);
+  backdrop-filter: blur(20px) saturate(110%);
+  border-color: var(--metal-rim);
+  box-shadow: inset 0 1px 0 rgba(232, 243, 255, 0.3), inset 1px 0 0 rgba(232, 243, 255, 0.09),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.16), 0 18px 48px rgba(0, 0, 0, 0.3);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .topbar,
+  :root[data-theme] :is(dialog, .path-quick-menu, .path-lesson-submenu, .map-lesson-menu, .eraser-sizes) {
+    background-color: var(--panel);
+  }
+}
+
+@media (forced-colors: active), print {
+  body::before, .sidebar::before, .topbar::before,
+  :root[data-theme] :is(.icon-button, .button, .backup-action, .profile-trigger)::before,
+  :root[data-theme] :is(.icon-button, .button, .backup-action)::after {
+    display: none;
+  }
+  .topbar,
+  :root[data-theme] :is(dialog, .path-quick-menu, .path-lesson-submenu, .map-lesson-menu, .eraser-sizes) {
+    background-color: var(--panel);
+    backdrop-filter: none;
+  }
+}
+
+.profile-trigger-xp { white-space: nowrap; }
+.profile-trigger-nagold { margin-left: .25rem; color: var(--amber); }
+
+.profile-progress .nagold-total { display: flex; align-items: center; justify-content: space-between; gap: .75rem; width: 100%; text-align: left; }
+#nagoldDialog { width: min(880px, calc(100% - 1.5rem)); max-height: calc(100dvh - 1.5rem); }
+#nagoldDialog .dialog-heading { grid-template-columns: minmax(0, 1fr) auto; }
+.nagold-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.nagold-table th, .nagold-table td { padding: .65rem .4rem; vertical-align: top; border-bottom: 1px solid var(--line); text-align: left; overflow-wrap: anywhere; }
+.nagold-table th:first-child { width: 9rem; }
+.nagold-table th:nth-child(2) { width: 6.5rem; }
+.nagold-table th:nth-child(4) { width: 5.5rem; }
+.nagold-table th:last-child { width: 6rem; }
+.nagold-table input, .nagold-table select { display: block; width: 100%; min-width: 0; margin: 0; padding: .45rem; }
+.nagold-table select { margin-bottom: .4rem; }
+.nagold-row-actions .icon-button { width: 36px; height: 36px; min-width: 36px; padding: 0; }
+.nagold-row-actions .icon-button + .icon-button { margin-left: .25rem; }
+.nagold-table-footer { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .75rem; }
+#nagoldSum { color: var(--amber); font-weight: 700; text-align: right; }
+#nagoldError:empty { display: none; }
+@media (max-width: 640px) {
+  .nagold-table, .nagold-table tbody { display: block; }
+  .nagold-table thead { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+  .nagold-table tr { display: grid; grid-template-columns: minmax(0, 1fr) 6rem; gap: .5rem; padding: .85rem 0; border-bottom: 1px solid var(--line); }
+  .nagold-table td { display: block; min-width: 0; padding: 0; border: 0; }
+  .nagold-table td::before { content: attr(data-label); display: block; font-size: .8rem; font-weight: 700; color: var(--muted); margin-bottom: .25rem; }
+  .nagold-table td:nth-child(1) { grid-column: 1; grid-row: 1; }
+  .nagold-table td:nth-child(2) { grid-column: 2; grid-row: 1; }
+  .nagold-table td:nth-child(3) { grid-column: 1 / -1; grid-row: 2; }
+  .nagold-table td:nth-child(4) { grid-column: 1; grid-row: 3; max-width: 5.5rem; }
+  .nagold-table td:nth-child(5) { grid-column: 2; grid-row: 3; justify-self: end; align-self: end; }
+  .nagold-table td:nth-child(5)::before { display: none; }
+}
+@media (max-width: 400px) {
+  .nagold-table td:nth-child(1) { grid-column: 1 / -1; grid-row: 1; }
+  .nagold-table td:nth-child(2) { grid-column: 1; grid-row: 2; }
+  .nagold-table td:nth-child(3) { grid-column: 1 / -1; grid-row: 3; }
+  .nagold-table td:nth-child(4) { grid-column: 2; grid-row: 2; max-width: none; }
+  .nagold-table td:nth-child(5) { grid-column: 1 / -1; grid-row: 4; }
+}

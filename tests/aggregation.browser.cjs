@@ -4,6 +4,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const { chromium } = require("playwright");
 const root = path.resolve(__dirname, "..");
+const output = require("./artifacts.cjs")("aggregation");
 const context = vm.createContext({ window: {} });
 for (const file of ["content.js", "learning-path.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context);
@@ -52,9 +53,9 @@ async function revealAnswer(page, id) {
         assert.ok(await page.getByText(target.classroomTask.fileName, { exact: false }).count());
       }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
-      await page.screenshot({ path: path.join(root, `.tmp/${code}-${width}.png`), fullPage: true });
+      await page.screenshot({ path: path.join(output, `${code}-${width}.png`), fullPage: true });
       await fields.first().scrollIntoViewIfNeeded();
-      await page.screenshot({ path: path.join(root, `.tmp/${code}-worksheet-${width}.png`) });
+      await page.screenshot({ path: path.join(output, `${code}-worksheet-${width}.png`) });
       if (target.webWorksheet.definitionGroups) {
         const group = page.locator(".worksheet-group").nth(1);
         await group.locator("summary").click();

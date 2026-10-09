@@ -4,7 +4,7 @@ const path = require("node:path");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 (async () => {
-  const output = path.join(__dirname, "..", ".tmp", "completion-qa");
+  const output = require("./artifacts.cjs")("completion-qa");
   fs.mkdirSync(output, { recursive: true });
   const browser = await chromium.launch({ headless: true, channel: "msedge" });
   try {
@@ -52,6 +52,13 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await page.locator("[data-complete-lesson]").click();
       assert.ok(await page.locator("[data-complete-lesson]").isDisabled());
       assert.equal((await state()).completedLessons.length, index + 1);
+      const entries = (await state()).nagoldEntries;
+      assert.equal(entries.length, index + 1);
+      const awarded = entries.filter(entry => entry.lessonId === lesson.id);
+      assert.equal(awarded.length, 1);
+      assert.equal(awarded[0].points, 5);
+      assert.match(awarded[0].date, /^\d{4}-\d{2}-\d{2}$/);
+      assert.match(awarded[0].time, /^(?:[01]\d|2[0-3]):[0-5]\d$/);
       if (index + 1 < ordered.length) {
         const next = page.locator("[data-next-lesson]");
         assert.equal(await next.getAttribute("data-lesson"), ordered[index + 1].id);

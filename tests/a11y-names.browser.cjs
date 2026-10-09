@@ -150,6 +150,13 @@ const audit = () => {
         await page.locator(button).click();
         await page.waitForTimeout(150);
         await check(`Dialog ${label}`);
+        if (button === "#editProfileButton") {
+          await page.locator("#nagoldTotal").click();
+          await check("NAGOLD-Tabelle");
+          await page.locator('[data-nagold-edit="0"]').click();
+          await check("NAGOLD bearbeiten");
+          await page.locator("#nagoldCloseButton").click();
+        }
         await page.locator(close).click();
       }
       await page.goto(base + "lehrkraft.html", { waitUntil: "networkidle" });
@@ -157,6 +164,9 @@ const audit = () => {
       await page.locator("#teacherFiles").setInputFiles({ name: "sicherung.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({ app: "WorkbenchLab", formatVersion: 2, data: { name: "TST.QAA", className: "TEST", completedLessons: lessons.slice(0, 2) } })) });
       await page.locator(".teacher-table").first().waitFor();
       await check("Klassenübersicht mit Tabelle");
+      await page.locator("[data-teacher-review]").click();
+      await check("Lehrkraft-Bestätigungen");
+      await page.keyboard.press("Escape");
       assert.deepEqual(errors, []);
       await context.close();
     }

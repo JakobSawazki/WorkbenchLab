@@ -12,7 +12,7 @@ const ordered = Array.from(context.window.WORKBENCH_CONTENT.modules.flatMap((mod
 const completed = ordered.slice(0, ordered.indexOf("erm-beziehungsentitaet"));
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 (async () => {
-  const output = path.join(root, ".tmp", "mn-modeling");
+  const output = require("./artifacts.cjs")("mn-modeling");
   fs.mkdirSync(output, { recursive: true });
   const browser = await chromium.launch({ headless: true, channel: "msedge" });
   try {

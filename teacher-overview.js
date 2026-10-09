@@ -4,7 +4,6 @@
   // ausschließlich lokal im Browser; es findet keine Übertragung statt.
 
   const MAX_FILE_BYTES = 12 * 1024 * 1024;
-  const NAGOLD_PER_LESSON = 5; // wie nagoldPerLesson in app.js
 
   // Dieselbe Prüfsumme wie die Lernplattform (backup.js).
   const { stableStringify, sha256Hex } = window.WORKBENCH_BACKUP;
@@ -61,7 +60,8 @@
       xpMismatch: Number.isFinite(statedXp) && statedXp !== xp,
       lessons,
       lessonsDone: lessons.length,
-      nagold: lessons.length * NAGOLD_PER_LESSON,
+      nagold: window.WORKBENCH_NAGOLD.total(data, content),
+      nagoldEntries: window.WORKBENCH_NAGOLD.entriesFor(data, content),
       lessonsTotal: lessonIds.length,
       practicesDone: practices.length,
       practicesTotal: content.practices.length,
@@ -113,20 +113,69 @@
     return `"${cell.replace(/"/g, '""')}"`;
   }
 
-  function toCsv(rows, content) {
+  function studentKey(row) {
+    return JSON.stringify(row.profileId ? ["profile", row.profileId] : ["identity", row.className, row.studentCode]);
+  }
+
+  // Include the complete entry and its occurrence: edits invalidate approval without
+  // losing approvals when an unrelated row is inserted, removed or reordered.
+  function entryKeys(entries) {
+    const counts = new Map();
+    return entries.map((entry) => {
+      const value = stableStringify(entry);
+      const occurrence = counts.get(value) || 0;
+      counts.set(value, occurrence + 1);
+      return JSON.stringify([value, occurrence]);
+    });
+  }
+
+  function normalizeReviews(value, content) {
+    if (!value || value.app !== "WorkbenchLab-Lehrkraft" || value.formatVersion !== 1 || !Array.isArray(value.records) || value.records.length > 2000) {
+      throw new Error("Keine gültige Lehrkraft-Liste");
+    }
+    const keys = new Set();
+    const lessonIds = new Set(content.lessons.map((lesson) => lesson.id));
+    const records = value.records.map((record) => {
+      if (!record || typeof record.studentKey !== "string" || record.studentKey.length > 600 || keys.has(record.studentKey)
+        || !Array.isArray(record.entries) || record.entries.length > window.WORKBENCH_NAGOLD.maxEntries
+        || record.entries.some((key) => typeof key !== "string" || key.length > 4096)
+        || !Array.isArray(record.lessons) || record.lessons.some((id) => !lessonIds.has(id))) {
+        throw new Error("Ungültiger Eintrag in der Lehrkraft-Liste");
+      }
+      keys.add(record.studentKey);
+      return { studentKey: record.studentKey, entries: [...new Set(record.entries)], lessons: [...new Set(record.lessons)] };
+    });
+    return { app: "WorkbenchLab-Lehrkraft", formatVersion: 1, records };
+  }
+
+  function approvedSummary(row, reviews) {
+    const record = reviews.records.find((item) => item.studentKey === studentKey(row));
+    const approved = new Set(record?.entries || []);
+    const entries = row.nagoldEntries || [];
+    const keys = entryKeys(entries);
+    return {
+      nagold: entries.reduce((sum, entry, index) => sum + (approved.has(keys[index]) ? entry.points : 0), 0),
+      lessons: row.lessons.filter((id) => record?.lessons.includes(id))
+    };
+  }
+
+  function toCsv(rows, content, reviews = { records: [] }) {
     const lessons = content.modules.flatMap((module) => module.lessonIds)
       .map((id) => content.lessons.find((lesson) => lesson.id === id)).filter(Boolean);
     const head = ["Klasse", "Kürzel", "NAGOLD", "XP", "Einheiten", "von", "Übungen", "von", "Befehlsaufgaben",
       "Modellaufgaben bestanden", "von", "Modell-Entwürfe",
       ...content.modules.map((module) => module.code), "Aktive Tage", "Letzte Aktivität", "Sicherung vom",
-      "Prüfsumme", "Ältere Sicherung", "App-Version", "Gerät", "Datei", ...lessons.map((lesson) => lesson.courseCode)];
+      "Prüfsumme", "Ältere Sicherung", "App-Version", "Gerät", "Datei", ...lessons.map((lesson) => lesson.courseCode),
+      "NAGOLD bestätigt", "Einheiten bestätigt", ...lessons.map((lesson) => `${lesson.courseCode} bestätigt`)];
     const lines = rows.map((row) => [row.className, row.studentCode, row.nagold, row.xp, row.lessonsDone, row.lessonsTotal,
       row.practicesDone, row.practicesTotal, row.commandsDone,
       row.models ? row.models.passed.length : "", row.models ? row.models.total : "", row.models ? row.models.drafts : "",
       ...row.modules.map((module) => `${module.done}/${module.total}`),
       row.activeDays, row.lastActivity, row.exportedAt.slice(0, 16).replace("T", " "), integrityLabels[row.integrity] || "",
       row.superseded ? "ja" : "nein", row.appVersion, row.deviceCode, row.fileName,
-      ...lessons.map((lesson) => (row.lessons.includes(lesson.id) ? "x" : ""))]);
+      ...lessons.map((lesson) => (row.lessons.includes(lesson.id) ? "x" : "")),
+      approvedSummary(row, reviews).nagold, approvedSummary(row, reviews).lessons.length,
+      ...lessons.map((lesson) => approvedSummary(row, reviews).lessons.includes(lesson.id) ? "x" : "")]);
     return `﻿${[head, ...lines].map((line) => line.map(csvCell).join(";")).join("\r\n")}\r\n`;
   }
 
@@ -144,7 +193,8 @@
     return row;
   }
 
-  window.WORKBENCH_TEACHER = { stableStringify, integrityStatus, summarize, markSuperseded, sortRows, toCsv, readFile, integrityLabels, NAGOLD_PER_LESSON };
+  window.WORKBENCH_TEACHER = { stableStringify, integrityStatus, summarize, markSuperseded, sortRows, toCsv, readFile, integrityLabels,
+    studentKey, entryKeys, normalizeReviews, approvedSummary };
 
   if (typeof document === "undefined" || !document.querySelector("#teacherApp")) return;
 
@@ -156,6 +206,121 @@
   let rejected = [];
   let classFilter = "";
   let hideSuperseded = true;
+  const reviewStorageKey = "workbenchlab-teacher-reviews-v1";
+  let reviews = { app: "WorkbenchLab-Lehrkraft", formatVersion: 1, records: [] };
+  let preserveUnreadableReviews = false;
+  const reviewStatus = document.querySelector("#teacherReviewStatus");
+  let storedReviews = null;
+  try {
+    storedReviews = localStorage.getItem(reviewStorageKey);
+    if (storedReviews !== null) reviews = normalizeReviews(JSON.parse(storedReviews), content);
+  } catch {
+    preserveUnreadableReviews = storedReviews !== null;
+    reviewStatus.textContent = preserveUnreadableReviews
+      ? "Lehrkraft-Liste konnte nicht geladen werden. Eine vorhandene Sicherung bleibt unverändert; laden Sie Ihre Listendatei."
+      : "Browserspeicher nicht verfügbar. Bestätigungen bitte als Datei sichern.";
+  }
+  const reviewDialog = document.querySelector("#teacherReviewDialog");
+  let reviewRow = null;
+  let reviewDraft = null;
+  let reviewOpener = null;
+
+  function persistReviews() {
+    if (preserveUnreadableReviews) {
+      reviewStatus.textContent = "Die unlesbare gespeicherte Liste bleibt erhalten. Neue Bestätigungen bitte als Datei sichern.";
+      return;
+    }
+    try {
+      localStorage.setItem(reviewStorageKey, JSON.stringify(reviews));
+      reviewStatus.textContent = "Bestätigungen auf diesem Gerät gespeichert.";
+    } catch {
+      reviewStatus.textContent = "Bestätigungen nur in diesem Fenster verfügbar. Bitte die Lehrkraft-Liste als Datei sichern.";
+    }
+  }
+
+  function downloadFile(value, filename, type) {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([value], { type }));
+    link.download = filename;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  }
+
+  function openReview(row, opener) {
+    reviewRow = row;
+    reviewOpener = opener;
+    const stored = reviews.records.find((item) => item.studentKey === studentKey(row));
+    reviewDraft = { studentKey: studentKey(row), entries: [...(stored?.entries || [])], lessons: [...(stored?.lessons || [])] };
+    document.querySelector("#teacherReviewTitle").textContent = `${row.studentCode} · ${row.className}`;
+    const entries = row.nagoldEntries || [];
+    const keys = entryKeys(entries);
+    document.querySelector("#teacherReviewBody").innerHTML = `
+      <fieldset class="teacher-review-list"><legend>Gesehene Einheiten</legend>
+        ${lessons.filter((lesson) => row.lessons.includes(lesson.id)).map((lesson) => `<label><input type="checkbox" data-review-lesson="${escapeHtml(lesson.id)}" ${reviewDraft.lessons.includes(lesson.id) ? "checked" : ""}><span>${escapeHtml(lesson.courseCode)} · ${escapeHtml(lesson.title)}</span></label>`).join("") || "<p>Keine Einheiten gemeldet.</p>"}
+      </fieldset>
+      <fieldset class="teacher-review-list"><legend>NAGOLD bestätigen</legend>
+        ${entries.map((entry, index) => `<label><input type="checkbox" data-review-entry="${index}" ${reviewDraft.entries.includes(keys[index]) ? "checked" : ""}><span><strong>${entry.points} NAGOLD</strong> · ${escapeHtml(entry.purpose)}<small>${escapeHtml(entry.date || "Datum nicht erfasst")} · ${escapeHtml(entry.time || "Uhrzeit nicht erfasst")}</small></span></label>`).join("") || "<p>Keine NAGOLD gemeldet.</p>"}
+      </fieldset>`;
+    reviewDialog.showModal();
+    document.querySelector("#teacherReviewClose").focus();
+  }
+
+  reviewDialog.addEventListener("close", () => {
+    reviewDraft = null;
+    reviewRow = null;
+    const key = reviewOpener?.dataset.teacherReview;
+    const opener = [...document.querySelectorAll("[data-teacher-review]")].find((button) => button.dataset.teacherReview === key);
+    (opener || document.querySelector("#teacherFiles")).focus();
+  });
+  document.querySelector("#teacherReviewClose").addEventListener("click", () => reviewDialog.close());
+  document.querySelector("#teacherReviewSave").addEventListener("click", () => {
+    if (!reviewDraft) return;
+    const next = { ...reviews, records: reviews.records.filter((record) => record.studentKey !== reviewDraft.studentKey).concat(reviewDraft) };
+    try { reviews = normalizeReviews(next, content); }
+    catch (error) { reviewStatus.textContent = error.message; return; }
+    persistReviews();
+    render();
+    reviewDialog.close();
+  });
+  reviewDialog.addEventListener("change", (event) => {
+    if (!reviewDraft || !reviewRow) return;
+    const { reviewEntry, reviewLesson } = event.target.dataset;
+    const toggle = (list, value, checked) => checked ? [...new Set([...list, value])] : list.filter((item) => item !== value);
+    if (reviewEntry !== undefined) {
+      const key = entryKeys(reviewRow.nagoldEntries)[Number(reviewEntry)];
+      if (key) reviewDraft.entries = toggle(reviewDraft.entries, key, event.target.checked);
+    }
+    if (reviewLesson !== undefined) {
+      reviewDraft.lessons = toggle(reviewDraft.lessons, reviewLesson, event.target.checked);
+      // A seen unit also approves its currently reported automatic ledger entry.
+      const keys = entryKeys(reviewRow.nagoldEntries);
+      reviewRow.nagoldEntries.forEach((entry, index) => {
+        if (entry.lessonId !== reviewLesson) return;
+        reviewDraft.entries = toggle(reviewDraft.entries, keys[index], event.target.checked);
+        reviewDialog.querySelector(`[data-review-entry="${index}"]`).checked = event.target.checked;
+      });
+    }
+  });
+  document.querySelector("#teacherReviewExport").addEventListener("click", () => {
+    downloadFile(JSON.stringify(reviews, null, 2), "workbenchlab-lehrkraft-liste.json", "application/json");
+  });
+  document.querySelector("#teacherReviewLoad").addEventListener("click", () => document.querySelector("#teacherReviewImport").click());
+  document.querySelector("#teacherReviewImport").addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      if (file.size > MAX_FILE_BYTES) throw new Error("Datei ist größer als 12 MB");
+      const imported = normalizeReviews(JSON.parse(await file.text()), content);
+      if (reviews.records.length && !window.confirm("Vorhandene Bestätigungen durch diese Lehrkraft-Liste ersetzen?")) return;
+      reviews = imported;
+      preserveUnreadableReviews = false;
+      persistReviews();
+      render();
+    } catch (error) { reviewStatus.textContent = `Liste nicht geladen: ${error.message}`; }
+  });
 
   const fileInput = document.querySelector("#teacherFiles");
   const dropZone = document.querySelector("#teacherDrop");
@@ -202,7 +367,7 @@
           <thead><tr>
             <th scope="col">Klasse</th><th scope="col">Kürzel</th><th scope="col">NAGOLD</th><th scope="col">XP</th><th scope="col">Einheiten</th><th scope="col">Übungen</th><th scope="col" title="Geprüfte Aufgaben im Modell-Editor, auf diesem Gerät neu geprüft">Modelle</th>
             ${content.modules.map((module) => `<th scope="col">${escapeHtml(module.code)}</th>`).join("")}
-            <th scope="col">Letzte Aktivität</th><th scope="col">Sicherung vom</th><th scope="col">Prüfsumme</th>
+            <th scope="col">Letzte Aktivität</th><th scope="col">Sicherung vom</th><th scope="col">Prüfsumme</th><th scope="col">NAGOLD bestätigt</th><th scope="col">Einheiten bestätigt</th><th scope="col">Prüfen</th>
           </tr></thead>
           <tbody>${shown.map((row) => `
             <tr class="${row.superseded ? "is-old" : ""}">
@@ -217,6 +382,9 @@
               <td>${escapeHtml(row.lastActivity || "–")}</td>
               <td>${escapeHtml(row.exportedAt ? new Date(row.exportedAt).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" }) : "–")}</td>
               <td class="integrity-${row.integrity}">${escapeHtml(integrityLabels[row.integrity])}</td>
+              <td data-approved-nagold><strong>${approvedSummary(row, reviews).nagold}</strong></td>
+              <td>${approvedSummary(row, reviews).lessons.length} / ${row.lessonsTotal}</td>
+              <td><button type="button" class="button button-secondary" data-teacher-review="${escapeHtml(studentKey(row))}" aria-label="${escapeHtml(row.studentCode)}: Einheiten und NAGOLD prüfen" ${row.superseded ? "disabled" : ""}>Prüfen</button></td>
             </tr>`).join("")}
           </tbody>
         </table>
@@ -275,8 +443,13 @@
     }
   });
   document.addEventListener("click", (event) => {
+    const reviewButton = event.target.closest("[data-teacher-review]");
+    if (reviewButton) {
+      const row = rows.find((item) => !item.superseded && studentKey(item) === reviewButton.dataset.teacherReview);
+      if (row) openReview(row, reviewButton);
+    }
     if (event.target.closest("#teacherCsv")) {
-      const blob = new Blob([toCsv(visibleRows(), content)], { type: "text/csv;charset=utf-8" });
+      const blob = new Blob([toCsv(visibleRows(), content, reviews)], { type: "text/csv;charset=utf-8" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = `workbenchlab-klassenuebersicht-${new Date().toISOString().slice(0, 10)}.csv`;

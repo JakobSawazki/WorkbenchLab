@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
-const output = path.join(__dirname, "..", ".tmp", "appearance-qa");
+const output = require("./artifacts.cjs")("appearance-qa");
 
 async function checkWidth(page, selector = "html") {
   const sizes = await page.locator(selector).evaluate((el) => ({ width: el.clientWidth, scroll: el.scrollWidth }));

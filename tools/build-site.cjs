@@ -5,10 +5,14 @@ const { execFileSync } = require("node:child_process");
 const publicRootFiles = new Set([
   "index.html", "styles.css", "styles-lesson.css", "styles-practice.css", "styles-visuals.css", "styles-shared.css", "styles-extensions.css", "app.js", "content.js", "learning-path.js",
   "lesson-openings.js", "practical-exercises.js", "study-tools.js", "appearance.js",
-  "drawing.js", "command-search.js", "reference-search.js", "sql-check.js", "backup.js", "state.js", "sql-feedback.js", "review.js", "erm-editor.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "expected-results.js", "lehrkraft.html", "teacher-overview.js",
+  "drawing.js", "command-search.js", "reference-search.js", "sql-check.js", "backup.js", "nagold.js", "state.js", "sql-feedback.js", "review.js", "erm-editor.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "expected-results.js", "lehrkraft.html", "teacher-overview.js",
+]);
+const sourceOnlyAssets = new Set([
+  "assets/bpe6-relief-map.png", "assets/bpe6-settlement-map.png", "assets/workbenchlab-titanium.png",
 ]);
 function isPublicFile(file) {
   return !file.split("/").some((part) => part.startsWith(".") || part === "desktop.ini")
+    && !sourceOnlyAssets.has(file)
     && (publicRootFiles.has(file) || file.startsWith("assets/") || file.startsWith("vendor/"));
 }
 function buildSite(root = path.resolve(__dirname, "..")) {

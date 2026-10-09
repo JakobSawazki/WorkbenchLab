@@ -10,6 +10,20 @@ const { SOLUTION_LINE } = require("../tools/build-site.cjs");
 const root = path.resolve(__dirname, "..");
 const plain = (value) => JSON.parse(JSON.stringify(value));
 
+test("Ungenutzte PNG-Originale bleiben lokal, nur aktive Bilddateien werden veröffentlicht", () => {
+  const { isPublicFile } = require("../tools/build-site.cjs");
+  const originals = ["assets/bpe6-relief-map.png", "assets/bpe6-settlement-map.png", "assets/workbenchlab-titanium.png"];
+  for (const file of originals) {
+    assert.equal(fs.existsSync(path.join(root, file)), true, file);
+    assert.equal(isPublicFile(file), false, file);
+  }
+  for (const file of ["assets/workbenchlab-titanium.webp", "assets/titanium-blue-satin.webp"]) assert.equal(isPublicFile(file), true);
+  for (const file of fs.readdirSync(root).filter((name) => /\.(?:js|html|css)$/.test(name))) {
+    const source = fs.readFileSync(path.join(root, file), "utf8");
+    for (const original of originals) assert.equal(source.includes(original), false, `${file} nutzt ${original}`);
+  }
+});
+
 test("expected-results.js ist aktuell und deckt jede SQL-Aufgabe ab", async () => {
   const content = loadContent().WORKBENCH_CONTENT;
   const expected = await computeExpected(content);
@@ -57,12 +71,12 @@ test("die veröffentlichten Inhaltsdateien enthalten keine Lösungsanweisungen u
   assert.deepEqual(plain(content.practices.map(keep)), plain(full.practices.map(keep)));
 });
 
-test("Übungen sind frei, Einheiten bleiben in Reihenfolge; NAGOLD je Einheit ist einheitlich", () => {
+test("Übungen sind frei, Einheiten bleiben in Reihenfolge; NAGOLD werden gemeinsam aus der Tabelle summiert", () => {
   const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
   assert.match(app, /function isPracticeUnlocked\(practice\) \{\s*return Boolean\(practice\);\s*\}/);
   assert.match(app, /function isLessonUnlocked\(lesson\)/);
-  assert.match(app, /const nagoldPerLesson = 5;/);
-  assert.match(fs.readFileSync(path.join(root, "teacher-overview.js"), "utf8"), /const NAGOLD_PER_LESSON = 5;/);
+  assert.match(app, /return nagold\.total\(candidate\)/);
+  assert.match(fs.readFileSync(path.join(root, "teacher-overview.js"), "utf8"), /WORKBENCH_NAGOLD\.total\(data, content\)/);
   assert.match(fs.readFileSync(path.join(root, "index.html"), "utf8"), /id="nagoldTotal"/);
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   assert.ok(html.indexOf('src="expected-results.js') < html.indexOf('src="app.js'));

@@ -4,7 +4,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
-const output = path.join(__dirname, "..", ".tmp", "settlement-map");
+const output = require("./artifacts.cjs")("settlement-map");
 const contentContext = vm.createContext({ window: {} });
 for (const file of ["content.js", "learning-path.js"]) {
   vm.runInContext(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), contentContext);

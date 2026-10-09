@@ -8,7 +8,7 @@ const vm = require("node:vm");
 const root = path.resolve(__dirname, "..");
 const context = vm.createContext({ window: {}, crypto: globalThis.crypto });
 context.globalThis = context;
-for (const file of ["content.js", "learning-path.js", "lesson-openings.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "study-tools.js", "drawing.js", "state.js"]) {
+for (const file of ["content.js", "learning-path.js", "lesson-openings.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "study-tools.js", "drawing.js", "nagold.js", "state.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });
 }
 const content = context.window.WORKBENCH_CONTENT;
@@ -136,10 +136,20 @@ test("normalizeState: Entwürfe aller Datenbestände des freien SQL-Labors bleib
   assert.deepEqual(normalize({ drafts }).drafts, drafts);
 });
 
+test("NAGOLD-Tabelle bleibt beim Normalisieren, Bearbeiten und Leeren erhalten", () => {
+  const legacy = normalize({ completedLessons: [lessonId] });
+  assert.equal(legacy.nagoldEntries.length, 1);
+  assert.equal(legacy.nagoldEntries[0].lessonId, lessonId);
+  assert.deepEqual(normalize(legacy), legacy);
+  const edited = normalize({ completedLessons: [lessonId], nagoldEntries: [{ date: "2026-10-09", purpose: "Eigener Anlass", points: 2 }, { date: "2026-10-09", purpose: "Zu viel", points: 6 }] });
+  assert.deepEqual(edited.nagoldEntries, [{ date: "2026-10-09", time: "", purpose: "Eigener Anlass", points: 2 }]);
+  assert.deepEqual(normalize({ ...legacy, nagoldEntries: [] }).nagoldEntries, []);
+});
+
 test("state.js wird nach seinen Quellen und vor app.js geladen, veröffentlicht und ist die einzige Kopie", () => {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const at = (file) => html.indexOf(`src="${file}`);
-  for (const before of ["content.js", "order-exercises.js", "study-tools.js", "drawing.js"]) {
+  for (const before of ["content.js", "order-exercises.js", "study-tools.js", "drawing.js", "nagold.js"]) {
     assert.ok(at(before) > 0 && at(before) < at("state.js"), before);
   }
   assert.ok(at("state.js") < at("app.js"));

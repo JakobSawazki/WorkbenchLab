@@ -14,12 +14,12 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.41.5">
-  <link rel="stylesheet" href="styles-lesson.css?v=0.41.5">
-  <link rel="stylesheet" href="styles-practice.css?v=0.41.5">
-  <link rel="stylesheet" href="styles-visuals.css?v=0.41.5">
-  <link rel="stylesheet" href="styles-shared.css?v=0.41.5">
-  <link rel="stylesheet" href="styles-extensions.css?v=0.41.5">
+  <link rel="stylesheet" href="styles.css?v=0.42.0">
+  <link rel="stylesheet" href="styles-lesson.css?v=0.42.0">
+  <link rel="stylesheet" href="styles-practice.css?v=0.42.0">
+  <link rel="stylesheet" href="styles-visuals.css?v=0.42.0">
+  <link rel="stylesheet" href="styles-shared.css?v=0.42.0">
+  <link rel="stylesheet" href="styles-extensions.css?v=0.42.0">
   <style>
     /* Klassenübersicht für Lehrkräfte (Claude, OPT-08) */
     body { margin: 0; }
@@ -89,7 +89,7 @@
     </header>
 
     <section class="teacher-privacy" aria-label="Datenschutz">
-      <p><strong>Alles bleibt auf diesem Gerät.</strong> Die Dateien werden nur in diesem Browserfenster gelesen und nicht hochgeladen oder gespeichert. Nach dem Schließen oder Neuladen der Seite ist die Übersicht leer.</p>
+      <p><strong>Alles bleibt auf diesem Gerät.</strong> Lernstände werden nur in diesem Browserfenster gelesen und nicht hochgeladen. Nach dem Neuladen ist die Übersicht leer. Ihre Bestätigungen bleiben getrennt davon auf diesem Gerät gespeichert.</p>
     </section>
 
     <section class="teacher-drop" id="teacherDrop" aria-labelledby="teacherDropTitle">
@@ -99,20 +99,39 @@
       <input type="file" id="teacherFiles" accept=".json,application/json" multiple>
     </section>
 
+    <section class="teacher-review-controls" aria-labelledby="teacherReviewHeading">
+      <h2 id="teacherReviewHeading">Ihre Bestätigungsliste</h2>
+      <div class="teacher-controls">
+        <button class="button button-secondary" type="button" id="teacherReviewExport">Liste sichern</button>
+        <button class="button button-secondary" type="button" id="teacherReviewLoad">Liste laden</button>
+        <input hidden type="file" id="teacherReviewImport" aria-label="Lehrkraft-Liste auswählen" accept=".json,application/json">
+      </div>
+      <p id="teacherReviewStatus" role="status" aria-live="polite"></p>
+    </section>
     <p id="teacherStatus" role="status" aria-live="polite"></p>
     <div id="teacherResult"></div>
+    <p class="teacher-note">Die NAGOLD-Spalte enthält gemeldete Punkte. „NAGOLD bestätigt“ enthält nur die von Ihnen in dieser Liste bestätigten Einträge. Änderungen an einem Eintrag müssen erneut bestätigt werden. Diese Liste ist Ihre lokale Bewertung, kein Echtheitsnachweis für die Identität einer eingelesenen Datei.</p>
 
-    <p class="teacher-note">Die Prüfsumme zeigt, ob eine Datei nach dem Speichern verändert wurde. Sie ist kein manipulationssicherer Leistungsnachweis: XP, Abschlüsse und der Haken „Lehrkraft hat bestätigt“ werden im Browser der Lernenden gesetzt. Die Spalte „Modelle“ ist davon ausgenommen: Die Entwürfe aus dem Modell-Editor werden hier auf Ihrem Gerät neu geprüft. XP und NAGOLD in dieser Übersicht werden aus den abgeschlossenen Einheiten und Aufgaben neu berechnet; je abgeschlossener Lerneinheit zählen 5 NAGOLD.</p>
+    <p class="teacher-note">Die Prüfsumme zeigt, ob eine Datei nach dem Speichern verändert wurde. Sie ist kein manipulationssicherer Leistungsnachweis: XP, Abschlüsse und der Haken „Lehrkraft hat bestätigt“ werden im Browser der Lernenden gesetzt. Die Spalte „Modelle“ ist davon ausgenommen: Die Entwürfe aus dem Modell-Editor werden hier auf Ihrem Gerät neu geprüft. XP werden aus den abgeschlossenen Aufgaben berechnet. NAGOLD werden aus der NAGOLD-Tabelle summiert: automatisch 5 je abgeschlossener Lerneinheit sowie eigene Einträge mit höchstens 5 Punkten. Alle Zeilen können von den Lernenden bearbeitet werden. Verbindlich ist die Bewertung der Lehrkraft. Bei älteren Sicherungen ohne Tabelle bleiben die bisherigen 5 NAGOLD je abgeschlossener Einheit erhalten.</p>
   </main>
 
-  <script src="content.js?v=0.41.5"></script>
-  <script src="learning-path.js?v=0.41.5"></script>
-  <script src="practical-exercises.js?v=0.41.5"></script>
-  <script src="debug-exercises.js?v=0.41.5"></script>
-  <script src="predict-exercises.js?v=0.41.5"></script>
-  <script src="order-exercises.js?v=0.41.5"></script>
-  <script src="backup.js?v=0.41.5"></script>
-  <script src="erm-editor.js?v=0.41.5"></script>
-  <script src="teacher-overview.js?v=0.41.5"></script>
+  <dialog id="teacherReviewDialog" class="profile-dialog teacher-review-dialog" aria-labelledby="teacherReviewTitle">
+    <div class="teacher-review-head">
+      <h2 id="teacherReviewTitle">Bestätigungen</h2>
+      <button class="icon-button" type="button" id="teacherReviewClose" aria-label="Schließen" title="Schließen">&times;</button>
+    </div>
+    <div id="teacherReviewBody"></div>
+    <div class="dialog-actions"><button class="button button-primary" type="button" id="teacherReviewSave">Bestätigen</button></div>
+  </dialog>
+  <script src="content.js?v=0.42.0"></script>
+  <script src="learning-path.js?v=0.42.0"></script>
+  <script src="practical-exercises.js?v=0.42.0"></script>
+  <script src="debug-exercises.js?v=0.42.0"></script>
+  <script src="predict-exercises.js?v=0.42.0"></script>
+  <script src="order-exercises.js?v=0.42.0"></script>
+  <script src="backup.js?v=0.42.0"></script>
+  <script src="nagold.js?v=0.42.0"></script>
+  <script src="erm-editor.js?v=0.42.0"></script>
+  <script src="teacher-overview.js?v=0.42.0"></script>
 </body>
 </html>

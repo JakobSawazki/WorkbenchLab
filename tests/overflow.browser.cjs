@@ -19,7 +19,7 @@ const plans = [
 
 const overflow = () => Math.round(document.documentElement.scrollWidth - window.innerWidth);
 const dialogProblem = () => {
-  const dialog = document.querySelector("dialog[open]");
+  const dialog = [...document.querySelectorAll("dialog[open]")].at(-1);
   if (!dialog) return "kein Dialog offen";
   const rect = dialog.getBoundingClientRect();
   if (rect.left < -1 || rect.right > window.innerWidth + 1) return `ragt hinaus (${Math.round(rect.left)} bis ${Math.round(rect.right)} von ${window.innerWidth})`;
@@ -67,6 +67,14 @@ const dialogProblem = () => {
           views += 1;
           const problem = await page.evaluate(dialogProblem);
           if (problem) problems.push(`Dialog ${label} bei ${width}px, Schrift ${fontSize}px: ${problem}`);
+          if (button === "#editProfileButton") {
+            await page.locator("#nagoldTotal").click();
+            await page.locator('[data-nagold-edit="0"]').click();
+            views += 1;
+            const ledgerProblem = await page.evaluate(dialogProblem);
+            if (ledgerProblem) problems.push(`NAGOLD bei ${width}px, Schrift ${fontSize}px: ${ledgerProblem}`);
+            await page.locator("#nagoldCloseButton").click();
+          }
           await page.locator(close).click();
         }
       }

@@ -12,7 +12,7 @@ function sign(payload) {
   return payload;
 }
 (async () => {
-  const output = path.join(__dirname, "..", ".tmp", "backup-safety-qa");
+  const output = require("./artifacts.cjs")("backup-safety-qa");
   fs.mkdirSync(output, { recursive: true });
   const browser = await chromium.launch({ headless: true, channel: "msedge" });
   try {

@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const output = require("./artifacts.cjs")("home-navigation");
+const path = require("node:path");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 
@@ -24,7 +26,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
         await page.waitForURL('**#home');
         await page.waitForFunction(() => scrollY === 0);
       }
-      await page.screenshot({ path: `.tmp/home-navigation-${width}.png` });
+      await page.screenshot({ path: path.join(output, `home-navigation-${width}.png`) });
     }
     console.log("PASS: no redundant overview, brand returns home and scrolls to top on desktop/mobile.");
   } finally { await browser.close(); }

@@ -16,7 +16,7 @@ const output = path.join(root, "assets/tutorials");
     await page.evaluate(() => document.fonts.ready);
     await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete));
     await page.waitForTimeout(300);
-    const qa = path.join(root, ".tmp/workbench-start-video");
+    const qa = require("../tests/artifacts.cjs")("workbench-start-video");
     fs.mkdirSync(qa, { recursive: true });
     for (const time of [2, 8, 18, 23, 35, 39, 46, 53, 58, 64, 70, 74, 81, 86, 93, 99]) {
       const scene = await page.evaluate((time) => window.WorkbenchStart.render(time), time);

@@ -15,7 +15,7 @@
   const developerStorageKey = "workbenchlab-developer-v1";
   const pendingModuleStorageKey = "workbenchlab-pending-module-v1";
   const backupAppId = "WorkbenchLab";
-  const backupFormatVersion = 6;
+  const backupFormatVersion = 7;
   const maxBackupBytes = 25 * 1024 * 1024;
   let backupBusy = false;
   // Vorgabewerte, Kennungen und normalizeState: state.js (OPT-16, Schritt 3, Claude).
@@ -33,6 +33,10 @@
   const profileHelpDialog = document.querySelector("#profileHelpDialog");
   const profileInfoButton = document.querySelector("#profileInfoButton");
   const profileForm = document.querySelector("#profileForm");
+  const nagold = window.WORKBENCH_NAGOLD;
+  const nagoldDialog = document.querySelector("#nagoldDialog");
+  let nagoldDraft = [];
+  let nagoldEditing = new Set();
   const profileName = document.querySelector("#profileName");
   const profileClass = document.querySelector("#profileClass");
   const profileNameError = document.querySelector("#profileNameError");
@@ -55,6 +59,8 @@
 
   const rescueStorageKey = "workbenchlab-v1-rettung";
   let stateLoadFailed = false;
+  let stateRescueJson = "";
+  let preserveUnreadableState = false;
   let storageAvailable = true;
   let state = loadState();
   const deviceIdentity = loadDeviceIdentity();
@@ -62,11 +68,7 @@
     state.profileDeviceId = deviceIdentity.id;
     state.profileCreatedAt = state.profileCreatedAt || new Date().toISOString();
   }
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(state));
-  } catch {
-    storageAvailable = false;
-  }
+  persistState();
   let practiceFilter = "all";
   // Freies SQL-Labor (Claude, OPT-01): Datenbank bleibt bis zum Zurücksetzen erhalten.
   let playgroundSchemaKey = playgroundSchemas[0];
@@ -257,9 +259,12 @@
       // bleiben als Rettungskopie erhalten, bevor ein neuer Stand gespeichert wird.
       if (storedRaw) {
         stateLoadFailed = true;
+        stateRescueJson = JSON.stringify({ savedAt: new Date().toISOString(), raw: storedRaw });
         try {
-          localStorage.setItem(rescueStorageKey, JSON.stringify({ savedAt: new Date().toISOString(), raw: storedRaw }));
-        } catch {}
+          localStorage.setItem(rescueStorageKey, stateRescueJson);
+        } catch {
+          preserveUnreadableState = true;
+        }
       }
       return structuredClone(defaultState);
     }
@@ -271,18 +276,26 @@
     element.className = "toast is-error is-persistent";
     element.id = "stateRescueNotice";
     element.setAttribute("role", "alert");
-    element.innerHTML = `<i data-lucide="circle-alert"></i><div><strong>Dein gespeicherter Lernstand konnte nicht gelesen werden.</strong><p>Eine Rettungskopie wurde in diesem Browser gesichert. Lade deine letzte JSON-Sicherung über das Diskettensymbol oder zeige diese Meldung deiner Lehrkraft.</p><div class="toast-actions"><button class="button button-secondary" type="button" data-rescue-download>Rettungskopie herunterladen</button><button class="button button-secondary" type="button" data-rescue-close>Schließen</button></div></div>`;
+    const rescueMessage = preserveUnreadableState
+      ? "Die Rettungskopie konnte nicht im Browser gespeichert werden. Die ursprünglichen Daten bleiben unverändert. Lade die Rettungskopie herunter und zeige sie deiner Lehrkraft. Sichere neue Änderungen über das Diskettensymbol."
+      : "Eine Rettungskopie wurde in diesem Browser gesichert. Lade deine letzte JSON-Sicherung über das Diskettensymbol oder zeige diese Meldung deiner Lehrkraft.";
+    element.innerHTML = `<i data-lucide="circle-alert"></i><div><strong>Dein gespeicherter Lernstand konnte nicht gelesen werden.</strong><p>${rescueMessage}</p><div class="toast-actions"><button class="button button-secondary" type="button" data-rescue-download>Rettungskopie herunterladen</button><button class="button button-secondary" type="button" data-rescue-close>Schließen</button></div></div>`;
     region.append(element);
     renderIcons();
   }
 
-  function saveState() {
+  function persistState() {
+    storageAvailable = false;
+    // OPT-21: A failed rescue write must not let later saves destroy the only original.
+    if (preserveUnreadableState) return;
     try {
       localStorage.setItem(storageKey, JSON.stringify(state));
       storageAvailable = true;
-    } catch {
-      storageAvailable = false;
-    }
+    } catch {}
+  }
+
+  function saveState() {
+    persistState();
     updateChrome();
     updateStorageStatus();
   }
@@ -478,10 +491,12 @@
     if (!key || state[key].includes(id)) {
       return false;
     }
+    const awardedAt = new Date();
+    const nagoldAdded = kind === "lesson" && nagold.addLessonEntry(state, lessonById(id), todayKey(awardedAt), nagoldTime(awardedAt));
     state[key].push(id);
     markActivity();
     saveState();
-    toast(kind === "lesson" ? `+${xp} XP und +${nagoldPerLesson} NAGOLD gesammelt` : `+${xp} XP gesammelt`, "xp");
+    toast(nagoldAdded ? `+${xp} XP und +${nagold.maxPoints} NAGOLD gesammelt` : `+${xp} XP gesammelt`, "xp");
     return true;
   }
 
@@ -766,31 +781,29 @@
 
   function updateChrome() {
     const xp = stateXp();
+    const nagold = stateNagold();
     const level = currentLevel();
     const displayName = state.name || "Gast";
     document.querySelector("#topProfileName").textContent = displayName;
     document.querySelector("#topProfileClass").textContent = state.className || "Klasse offen";
-    document.querySelector("#editProfileButton").title = `${displayName} · ${state.className || "Klasse offen"} · Level ${level.number} · ${xp} XP · Profil öffnen`;
-    document.querySelector("#editProfileButton").setAttribute("aria-label", `${displayName}, ${state.className || "Klasse offen"}, ${xp} XP: Profil und Lernfortschritt öffnen`);
+    document.querySelector("#editProfileButton").title = `${displayName} · ${state.className || "Klasse offen"} · Level ${level.number} · ${xp} XP · ${nagold} NAGOLD · Profil öffnen`;
+    document.querySelector("#editProfileButton").setAttribute("aria-label", `${displayName}, ${state.className || "Klasse offen"}, ${xp} XP, ${nagold} NAGOLD: Profil und Lernfortschritt öffnen`);
     document.querySelector("#topXp").textContent = `${xp} XP`;
+    document.querySelector("#topNagold").textContent = `${nagold} NAG`;
     updateLevelDialog();
     renderPathQuickMenu();
     updateDeveloperControl();
   }
 
-  // NAGOLD (Jakobs Punktesystem für die kontinuierlich erbrachte Leistung): je vollständig
-  // abgeschlossener Lerneinheit einmalig fünf. Derselbe Wert steht in teacher-overview.js.
-  const nagoldPerLesson = 5;
   function stateNagold(candidate = state) {
-    return candidate.completedLessons.filter((id) => lessonById(id)).length * nagoldPerLesson;
+    return nagold.total(candidate);
   }
 
   function updateLevelDialog() {
-    const lessonsDone = state.completedLessons.filter((id) => lessonById(id)).length;
-    const nagold = document.querySelector("#nagoldTotal");
-    if (nagold) {
-      nagold.innerHTML = `<strong>${stateNagold()} NAGOLD</strong> aus WorkbenchLab: ${lessonsDone} abgeschlossene Lerneinheit${lessonsDone === 1 ? "" : "en"} × ${nagoldPerLesson}. Sie zählen, sobald deine Lehrkraft den Abschluss bestätigt hat.`;
-    }
+    const nagoldButton = document.querySelector("#nagoldTotal");
+    nagoldButton.innerHTML = `<strong>${stateNagold()} NAGOLD</strong><i data-lucide="list" aria-hidden="true"></i>`;
+    nagoldButton.setAttribute("aria-label", `${stateNagold()} NAGOLD: Einträge öffnen`);
+    renderIcons();
     const xp = stateXp();
     const level = currentLevel();
     const highest = level.number === levels.length;
@@ -3456,6 +3469,7 @@
         destinationDeviceId: deviceIdentity.id
       }].slice(-12);
       state = importedState;
+      preserveUnreadableState = false;
       saveState();
       if (hasErmDrafts) {
         window.WORKBENCH_ERM.importDrafts(parsed.extras.ermDrafts);
@@ -3897,8 +3911,10 @@
       document.querySelector("#stateRescueNotice")?.remove();
     }
     if (event.target.closest("[data-rescue-download]")) {
-      let rescue = "";
-      try { rescue = localStorage.getItem(rescueStorageKey) || ""; } catch {}
+      let rescue = stateRescueJson;
+      if (!rescue) {
+        try { rescue = localStorage.getItem(rescueStorageKey) || ""; } catch {}
+      }
       if (rescue) {
         downloadBlob(new Blob([rescue], { type: "application/json;charset=utf-8" }), "workbenchlab-rettungskopie.json");
       } else {
@@ -4194,6 +4210,118 @@
     });
   }
 
+  function nagoldPresetOptions() {
+    return ["Mitarbeit", "Zusatzaufgabe", "Präsentation", "Projektarbeit", "Lernprodukt",
+      ...content.lessons.map(lesson => `${lesson.courseCode || lesson.index} · ${lesson.title}`.slice(0, 160))];
+  }
+
+  function nagoldTime(date = new Date()) {
+    return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  }
+
+  function updateNagoldSum() {
+    document.querySelector("#nagoldSum").textContent = `${nagold.normalizeEntries(nagoldDraft).reduce((sum, row) => sum + row.points, 0)} NAGOLD gesamt`;
+  }
+
+  function renderNagoldRows() {
+    const presets = nagoldPresetOptions();
+    document.querySelector("#nagoldRows").innerHTML = nagoldDraft.map((row, index) => {
+      const editing = nagoldEditing.has(index);
+      const label = `Zeile ${index + 1}`;
+      const date = row.date ? new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" }).format(new Date(`${row.date}T12:00:00Z`)) : "Nicht erfasst";
+      return `<tr data-nagold-index="${index}" class="${editing ? "is-editing" : ""}">
+        <td data-label="Datum">${editing ? `<input type="date" data-nagold-field="date" aria-label="Datum, ${label}" value="${escapeHtml(row.date)}" ${row.allowUnknownDate ? "" : "required"}>` : escapeHtml(date)}</td>
+        <td data-label="Uhrzeit">${editing ? `<input type="time" data-nagold-field="time" aria-label="Uhrzeit, ${label}" value="${escapeHtml(row.time)}" ${row.allowUnknownTime ? "" : "required"} step="60">` : escapeHtml(row.time || "Nicht erfasst")}</td>
+        <td data-label="Wofür">${editing ? `<select data-nagold-preset aria-label="Anlass auswählen, ${label}"><option value="">Eigener Anlass</option>${presets.map(preset => `<option value="${escapeHtml(preset)}" ${preset === row.purpose ? "selected" : ""}>${escapeHtml(preset)}</option>`).join("")}</select><input type="text" data-nagold-field="purpose" aria-label="Wofür, ${label}" value="${escapeHtml(row.purpose)}" maxlength="160" required>` : escapeHtml(row.purpose)}</td>
+        <td data-label="NAGOLD">${editing ? `<input type="number" data-nagold-field="points" aria-label="NAGOLD, ${label}" min="1" max="5" step="1" value="${row.points}" inputmode="numeric" required>` : row.points}</td>
+        <td class="nagold-row-actions"><button class="icon-button" type="button" data-nagold-edit="${index}" title="Eintrag bearbeiten" aria-label="${label} bearbeiten" ${editing ? "disabled" : ""}><i data-lucide="pencil" aria-hidden="true"></i></button><button class="icon-button" type="button" data-nagold-remove="${index}" title="Zeile löschen" aria-label="${label} löschen"><i data-lucide="minus" aria-hidden="true"></i></button></td>
+      </tr>`;
+    }).join("");
+    document.querySelector("#nagoldAddButton").disabled = nagoldDraft.filter(row => !row.lessonId).length >= nagold.maxManualEntries;
+    updateNagoldSum();
+    renderIcons();
+  }
+
+  function addNagoldRow() {
+    if (nagoldDraft.filter(row => !row.lessonId).length >= nagold.maxManualEntries) return;
+    const now = new Date();
+    nagoldDraft.push({ date: todayKey(now), time: nagoldTime(now), purpose: "", points: 5 });
+    nagoldEditing.add(nagoldDraft.length - 1);
+    renderNagoldRows();
+    document.querySelector('#nagoldRows tr:last-child [data-nagold-field="purpose"]').focus();
+  }
+
+  function editNagoldRow(index) {
+    if (!nagoldDraft[index] || nagoldEditing.has(index)) return;
+    nagoldEditing.add(index);
+    renderNagoldRows();
+    document.querySelector(`[data-nagold-index="${index}"] [data-nagold-field="purpose"]`).focus();
+  }
+
+  document.querySelector("#nagoldTotal").addEventListener("click", () => {
+    nagoldDraft = state.nagoldEntries.map(row => ({ ...row, allowUnknownDate: !row.date, allowUnknownTime: !row.time }));
+    nagoldEditing = new Set();
+    document.querySelector("#nagoldError").textContent = "";
+    renderNagoldRows();
+    nagoldDialog.showModal();
+    if (!nagoldDraft.length) addNagoldRow();
+  });
+  document.querySelector("#nagoldAddButton").addEventListener("click", addNagoldRow);
+  document.querySelector("#nagoldCloseButton").addEventListener("click", () => nagoldDialog.close());
+  nagoldDialog.addEventListener("close", () => {
+    nagoldDraft = [];
+    nagoldEditing.clear();
+    document.querySelector("#nagoldRows").replaceChildren();
+    if (profileDialog.open) document.querySelector("#nagoldTotal").focus();
+  });
+  document.querySelector("#nagoldRows").addEventListener("dblclick", event => {
+    if (event.target.closest("button, input, select")) return;
+    const row = event.target.closest("[data-nagold-index]");
+    if (row) editNagoldRow(Number(row.dataset.nagoldIndex));
+  });
+  document.querySelector("#nagoldRows").addEventListener("click", event => {
+    const edit = event.target.closest("[data-nagold-edit]");
+    if (edit) editNagoldRow(Number(edit.dataset.nagoldEdit));
+    const remove = event.target.closest("[data-nagold-remove]");
+    if (!remove) return;
+    const index = Number(remove.dataset.nagoldRemove);
+    nagoldDraft.splice(index, 1);
+    nagoldEditing = new Set([...nagoldEditing].filter(value => value !== index).map(value => value > index ? value - 1 : value));
+    renderNagoldRows();
+    const next = document.querySelector(`[data-nagold-remove="${Math.min(index, nagoldDraft.length - 1)}"]`);
+    (next || document.querySelector("#nagoldAddButton")).focus();
+  });
+  function readNagoldInput(event) {
+    const field = event.target.closest("[data-nagold-field], [data-nagold-preset]");
+    if (!field) return;
+    const row = field.closest("[data-nagold-index]");
+    const draft = nagoldDraft[Number(row.dataset.nagoldIndex)];
+    if (field.hasAttribute("data-nagold-preset")) {
+      if (!field.value) return;
+      draft.purpose = field.value;
+      row.querySelector('[data-nagold-field="purpose"]').value = field.value;
+    } else {
+      draft[field.dataset.nagoldField] = field.dataset.nagoldField === "points" ? field.valueAsNumber : field.value;
+      if (field.dataset.nagoldField === "purpose") row.querySelector("[data-nagold-preset]").value = nagoldPresetOptions().includes(field.value) ? field.value : "";
+    }
+    document.querySelector("#nagoldError").textContent = "";
+    updateNagoldSum();
+  }
+  document.querySelector("#nagoldRows").addEventListener("input", readNagoldInput);
+  document.querySelector("#nagoldRows").addEventListener("change", readNagoldInput);
+  document.querySelector("#nagoldForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const entries = nagold.normalizeEntries(nagoldDraft);
+    if (entries.length !== nagoldDraft.length) {
+      document.querySelector("#nagoldError").textContent = "Bitte für jede Zeile einen Anlass und 1 bis 5 ganze NAGOLD eintragen.";
+      return;
+    }
+    state.nagoldEntries = entries;
+    saveState();
+    nagoldDialog.close();
+    toast(storageAvailable ? "NAGOLD gespeichert" : "NAGOLD übernommen. Bitte den Lernstand über Speichern sichern.");
+  });
+
   document.querySelector("#editProfileButton").addEventListener("click", () => {
     openProfileDialog();
   });
@@ -4207,6 +4335,7 @@
   });
   profileDialog.addEventListener("close", () => {
     if (profileHelpDialog.open) profileHelpDialog.close();
+    if (nagoldDialog.open) nagoldDialog.close();
     developerControlRevealed = false;
     updateDeveloperControl();
   });

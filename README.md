@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.41.5 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
+**Aktueller Release:** 0.42.0 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
 **Repository:** <https://github.com/JakobSawazki/WorkbenchLab>
 
 WorkbenchLab ist eine browserbasierte Lernumgebung für Jahrgangsstufe 1 im
@@ -32,8 +32,8 @@ Entwickelt von Jakob Sawazki gemeinsam mit zwei KI-Agenten (Codex und Claude).
 | Modellieren | Modell- und Begriffsaufgaben; Modell-Editor mit Diagramm, drei geprüften Aufgaben, SQL- und Bildexport |
 | Nachschlagen | SQL-Befehle mit Suche, Startanleitung für Informatik-Stick und Workbench, Videos, Quellen |
 | Lernstand | lokal im Browser; Sicherung und Übertragung als JSON-Datei; Notizen, Markierungen, Zeichnungen; Druckansicht |
-| Motivation | XP, Level, Erfolge, Aktivitätstage; NAGOLD je abgeschlossener Einheit |
-| Lehrkraft | Klassenübersicht aus JSON-Sicherungen unter <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html>; Entwicklermodus im Profil mit `AltGr + S`, dort auch „Lösungsdatei laden“ (Datei erzeugen mit `node tools/build-solutions.cjs`) |
+| Motivation | XP, Level, Erfolge, Aktivitätstage; NAGOLD-Tabelle mit automatischen und eigenen Einträgen |
+| Lehrkraft | Klassenübersicht und getrennte Bestätigungsliste unter <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html>; Entwicklermodus im Profil mit `AltGr + S`, dort auch „Lösungsdatei laden“ (Datei erzeugen mit `node tools/build-solutions.cjs`) |
 
 ![WorkbenchLab Übersicht](documentation/screenshots/workbenchlab-visuals-desktop.png)
 
@@ -100,6 +100,7 @@ Icons und Browser-SQL werden lokal mitgeliefert.
 | --- | --- |
 | `index.html` | App-Shell, Dialoge, Skripteinbindung |
 | `app.js` | Routing, Darstellung, Freischaltung, XP und NAGOLD, SQL-Prüfung, Sicherung |
+| `nagold.js` | Bereinigung und Summe der NAGOLD-Tabelle, automatische Einträge und Übernahme älterer Punktestände |
 | `content.js`, `learning-path.js`, `lesson-openings.js`, `practical-exercises.js` | Inhalte: Einheiten, Übungen, Übungsdatenbanken, Befehle |
 | `debug-exercises.js`, `predict-exercises.js`, `order-exercises.js` | Aufgabentypen Fehlersuche, Vorhersage, Klauseln ordnen |
 | `expected-results.js` | vorberechnete Sollergebnisse der SQL-Aufgaben (erzeugt von `tools/build-expected.cjs`) |
@@ -110,7 +111,7 @@ Icons und Browser-SQL werden lokal mitgeliefert.
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht |
 | `styles.css`, `styles-lesson.css`, `styles-practice.css`, `styles-visuals.css`, `styles-shared.css`, `styles-extensions.css` | Styling in sechs Teilen; die Reihenfolge ist fest |
 | `assets/`, `vendor/` | Bilder, SQL-Downloads, Video; Lucide und `sql.js` |
-| `tests/`, `tools/` | 194 Node-Tests, 39 Browsertests, Prüf- und Bauwerkzeuge |
+| `tests/`, `tools/` | 208 Node-Tests, 42 Browsertests, Prüf- und Bauwerkzeuge (einschließlich lokaler Entwürfe) |
 | `resources/`, `references/` | lokales Originalmaterial, **nicht** versioniert und nicht veröffentlicht |
 
 ## Veröffentlichung
@@ -221,8 +222,26 @@ abgeschlossener Lerneinheit zählen einmalig 5 **NAGOLD**, das Punktesystem der
 Lehrkraft. Der Abschluss einer Einheit verlangt die Bestätigung durch die
 Lehrkraft; diese Bestätigung ist im Browser ein Haken und technisch nicht
 manipulationssicher. Maßgeblich bleibt deshalb die persönliche Kontrolle des
-Lernprodukts. Die Klassenübersicht berechnet XP und NAGOLD aus den
-abgeschlossenen Einheiten neu.
+Lernprodukts. Ein Klick auf NAGOLD im Profil öffnet die
+Punktetabelle: automatische Einträge je Einheit sowie eigene Einträge mit
+Datum, Uhrzeit (HH:MM), Anlass und 1 bis 5 Punkten. Neue Zeilen erhalten
+automatisch das lokale Datum und die Uhrzeit. Zeilen lassen sich hinzufügen, bearbeiten
+und löschen. XP werden weiter aus Abschlüssen berechnet; NAGOLD werden aus
+der Tabelle summiert, auch in der Klassenübersicht. Diese Tabelle ist eine
+Selbstauskunft, kein manipulationssicherer Leistungsnachweis. Sicherungen
+verwenden Format 7; ältere Sicherungen bleiben ladbar.
+
+In der Lehrkraftübersicht lassen sich gesehene Einheiten und NAGOLD
+unabhängig bestätigen. Die Bestätigungen bleiben auf dem Lehrkraftgerät,
+haben eine eigene Sicherungsdatei und separate Spalten im CSV. Geänderte
+Punktezeilen erfordern erneute Bestätigung; Schülerdateien können keine
+Bestätigungen in diese Liste einschleusen.
+
+`pnpm serve` nutzt einen lokalen Node-Server ohne zusätzliche Abhängigkeiten.
+Er unterstützt HTTP-Teilabrufe, damit sich das Startvideo auch lokal
+vorspulen lässt. Python bleibt für die Python-Tests erforderlich. Testbilder
+und diagnostische Ausgaben liegen in `%TEMP%\workbenchlab-tests`, nicht im
+synchronisierten Projektordner.
 
 Die veröffentlichte Lernseite enthält keine Lösungsanweisungen zu den
 SQL-Aufgaben; sie prüft gegen vorberechnete Sollergebnisse. Im öffentlichen

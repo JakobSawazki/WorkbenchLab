@@ -65,7 +65,8 @@ const asFile = (file) => ({ name: path.basename(file), mimeType: "application/js
       const mia = await rows.nth(1).innerText();
       assert.match(ben, /J1-1\s+BEN\.ALT/);
       assert.match(ben, /2 \/ 21/);
-      assert.match(ben, /J1-1\s+BEN\.ALT\s+10\s/);
+      // A changed completion list must not recreate points in an explicitly empty ledger.
+      assert.match(ben, /J1-1\s+BEN\.ALT\s+0\s/);
       assert.match(ben, /verändert oder beschädigt/);
       assert.match(mia, /J1-1\s+MIA\.MUE\s+0\s+12\s+0 \/ 21/);
       assert.match(mia, /2026-10-0[89]/);
@@ -104,7 +105,7 @@ const asFile = (file) => ({ name: path.basename(file), mimeType: "application/js
         const edges = await page.evaluate(() => Array.from(document.querySelectorAll(".teacher-table")).map((table) => Math.ceil(table.getBoundingClientRect().right)));
         assert.equal(edges.length, 2);
         for (const edge of edges) assert.ok(edge <= printable, `Tabelle ragt im Druck (${label}) über den Rand: ${edge} > ${printable}`);
-        assert.equal(await page.locator(".teacher-controls").isVisible(), false);
+        for (const controls of await page.locator(".teacher-controls").all()) assert.equal(await controls.isVisible(), false);
         await page.emulateMedia({ media: "screen" });
       }
       await page.setViewportSize({ width, height: 900 });

@@ -4,7 +4,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
-const output = path.join(__dirname, "..", ".tmp", "opening-qa");
+const output = require("./artifacts.cjs")("opening-qa");
 const fixture = vm.createContext({ window: {} });
 for (const file of ["content.js", "learning-path.js"]) vm.runInContext(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), fixture);
 const ids = Array.from(fixture.window.WORKBENCH_CONTENT.lessons, item => item.id);

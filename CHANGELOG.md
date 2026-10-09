@@ -6,6 +6,12 @@ Quelle. Wer eine Version veröffentlicht, ergänzt hier eine Zeile.
 
 Spalte „Von“: C = Codex, Cl = Claude.
 
+## 0.42 – 9. Oktober 2026
+
+| Version | Von | Inhalt | Abschnitt |
+| --- | --- | --- | --- |
+| 0.42.0 | C | NAGOLD-Tabelle mit Datum/Uhrzeit, eigenen und automatischen Einträgen; getrennte Bestätigungsliste der Lehrkraft mit Sicherung und CSV; blaues Satin-Titan-/Glasdesign; sichere Rettung bei Speicherfehlern; Kontrast ohne Ausnahmen; Testartefakte in Temp und lokal vorspulbares Startvideo | [Codex: Autarke Weiterarbeit](documentation/documentation.md) |
+
 ## 0.38 bis 0.26 – 9. Oktober 2026
 
 Quelle: [documentation/documentation.md](documentation/documentation.md), Abschnitt 0 (Arbeitsprotokoll Claude).

@@ -5,7 +5,7 @@ const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 
 (async () => {
-  const output = path.join(__dirname, "..", ".tmp", "table-design-qa");
+  const output = require("./artifacts.cjs")("table-design-qa");
   fs.mkdirSync(output, { recursive: true });
   const browser = await chromium.launch({ headless: true, channel: "msedge" });
   try {

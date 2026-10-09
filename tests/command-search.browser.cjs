@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const output = require("./artifacts.cjs")("command-search");
+const path = require("node:path");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 (async () => {
@@ -39,7 +41,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
         assert.equal(await page.locator("#commandResults .command-card").first().getAttribute("data-command"), "cmd-having");
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
         assert.ok((await input.boundingBox()).x >= 0);
-        await page.screenshot({ path: `.tmp/command-search-${width}-${theme}.png` });
+        await page.screenshot({ path: path.join(output, `command-search-${width}-${theme}.png`) });
       }
     }
     assert.deepEqual(errors, []);
