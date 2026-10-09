@@ -1488,6 +1488,34 @@ MariaDB zeigt ihn mit vier Nachkommastellen.
   Hinweise.
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.33.
 
+### 0.33 Veröffentlichung 0.36.0 geprüft; Stand aller Punkte [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 180 | Commit `101bc9b` gepusht; GitHub-Actions-Lauf 37902299259 | Job `test` und Job `deploy` erfolgreich |
+| 181 | Live geprüft: alle Dateien mit `?v=0.36.0`, `sql-feedback.js` enthält die Liste der Unterschiede | per Abruf |
+| 182 | Tag `v0.36.0` gesetzt und gepusht | Sicherungspunkt `101bc9b` |
+| 183 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 184 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Sicherungspunkte:** `codex-stand-2026-10-08` (`4dedae1`) sowie `v0.26.0` bis
+`v0.36.0` (`101bc9b`). Wiederherstellung wie in Abschnitt 0.1.
+
+**Testumfang:** 151 Node-Tests, 2 Python-Tests, 30 Browsertests; zusätzlich von
+Hand 43 Prüfungen gegen MariaDB.
+
+**Stand der Punkte aus `claude2codex.md`**
+
+| Status | Punkte |
+| --- | --- |
+| erledigt (Claude) | OPT-01, OPT-02, OPT-03, OPT-07, OPT-08, OPT-13, OPT-19, OPT-21, OPT-22; OPT-04 bis auf die Optionalität; OPT-20 für das freie Labor |
+| erledigt (Codex) | OPT-10, OPT-11 |
+| teilweise | OPT-15 (Checkliste) |
+| braucht eine Vorgabe oder Entscheidung von Jakob | OPT-06, OPT-09, OPT-12, OPT-17, OPT-18; Notation der Optionalität (OPT-04); Durchführung der Checkliste 0.16 (OPT-15) |
+| braucht Abstimmung mit Codex | OPT-05, OPT-14 (Rest), OPT-16; MySQL-Hinweise auch in den Aufgaben (OPT-20, Eingriff in `runSqlPractice`) |
+
+Nächste Handlungsnummer: 185.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
