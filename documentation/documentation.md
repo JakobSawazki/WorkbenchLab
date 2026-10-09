@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.26.2** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.27.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -357,6 +357,79 @@ Repositorys, Fehlgriffe und nicht geprüfte Punkte werden aufgeführt.
 Schul-PC-Checkliste), OPT-05 (Einheiten in kürzere Schritte teilen), OPT-08
 (Lehrkraft-Übersicht aus JSON-Exporten), OPT-03 und OPT-04 (neue Aufgabentypen,
 ERM-Editor). OPT-06 (Freischaltung lockern) wartet auf Jakobs Entscheidung.
+
+### 0.11 Release 0.27.0: Klassenübersicht für Lehrkräfte [Claude, 2026-10-09]
+
+Bezug: OPT-08 aus `claude2codex.md`. Auftrag: eigenständige Weiterarbeit.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 38 | Commit `a28b013` (Eintrag 0.10, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 39 | `git fetch`, `git status`: lokaler und entfernter Stand identisch, keine fremden Änderungen | vor Arbeitsbeginn |
+| 40 | Exportformat, Prüfsummenverfahren und XP-Berechnung in `app.js` gelesen | nur lesend |
+| 41 | `teacher-overview.js` und `lehrkraft.html` angelegt | neue Dateien im Projektstamm |
+| 42 | `tools/build-site.cjs` um beide Dateien ergänzt; Versionsangaben auf `0.27.0`; README-Absatz | |
+| 43 | `tests/teacher-overview.test.js` (7 Node-Tests) und `tests/teacher-overview.browser.cjs` angelegt | |
+| 44 | Testserver auf Port 4199 gestartet, alle Tests ausgeführt, Bildschirmfoto gesichtet | siehe Prüfung |
+| 45 | Zwei Fehlversuche im Browsertest behoben: Dateiname mit `<` und `>` ist unter Windows nicht anlegbar; Playwright erlaubt keine Mischung aus Pfaden und Speicherdateien | nur Testcode betroffen |
+
+**Neu für die Lehrkraft**
+
+Adresse: <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html>
+(lokal: `lehrkraft.html`). Die Seite ist bewusst nicht in der Navigation der
+Lernplattform verlinkt und für Suchmaschinen als `noindex` markiert. Sie ist
+nicht geheim und braucht es nicht zu sein: Sie zeigt nur, was man ihr selbst
+an Dateien gibt.
+
+- Mehrere JSON-Sicherungen auf einmal auswählen oder hineinziehen.
+- Tabelle je Person: Klasse, Kürzel, XP, Einheiten, Übungen, Fortschritt je
+  Lernfortschritt L1 bis L5, letzte Aktivität, Zeitpunkt der Sicherung,
+  Prüfsummenstatus.
+- Zweite Tabelle: abgeschlossene Einheiten L1.1 bis L5.3 je Person.
+- Filter nach Klasse; „nur neueste Sicherung je Person“ blendet ältere
+  Sicherungen desselben Profils aus.
+- Kennzahlen: Anzahl, Mittelwerte, Anzahl ungültiger Prüfsummen.
+- CSV-Download (Semikolon, UTF-8 mit BOM, für Excel) und Druck.
+- Abgelehnte Dateien werden mit Grund aufgeführt, nicht still übersprungen.
+
+**Datenschutz und Grenzen**
+
+- Die Dateien werden nur im Browserfenster gelesen. Die Seite schreibt nichts in
+  den Browserspeicher und lädt nichts nach außen; ein Test prüft beides.
+- XP werden aus den abgeschlossenen Einheiten und Aufgaben **neu berechnet**.
+  Weicht der in der Datei genannte Wert ab, erscheint ein Warnzeichen.
+- „verändert oder beschädigt“ bedeutet: Der Dateiinhalt passt nicht zur
+  Prüfsumme. Das Verfahren ist öffentlich; wer die Datei gezielt fälscht und
+  die Prüfsumme neu berechnet, wird nicht erkannt. Die Übersicht ersetzt die
+  pädagogische Einordnung nicht (so auch Codex in `codex2claude.md`).
+- CSV-Zellen, die mit `=`, `+`, `-` oder `@` beginnen, werden entschärft.
+
+**Technik:** `teacher-overview.js` enthält die reine Logik (`summarize`,
+`integrityStatus`, `markSuperseded`, `sortRows`, `toCsv`) und darunter die
+Seitenanbindung. Die Seite lädt `content.js`, `learning-path.js` und
+`practical-exercises.js`, um Einheiten und XP-Werte zu kennen; `app.js` wird
+nicht geladen. Ein Test stellt sicher, dass `stableStringify` in beiden Dateien
+gleich bleibt, sonst würden gültige Sicherungen als verändert gelten.
+
+**Prüfung**
+
+- 122 Node-Tests (7 neu) und 2 Python-Tests bestanden.
+- Alle 24 Browsertests bestanden (Edge, Port 4199). Der neue
+  `teacher-overview.browser.cjs` erzeugt über die Lernplattform eine echte
+  Sicherung, stellt eine veränderte Kopie, eine fremde und eine defekte Datei
+  daneben und prüft bei 1440 und 390 px: Zählung, Prüfsummenstatus, Matrix,
+  Schutz vor doppeltem Einlesen, CSV, Dateiname mit HTML-Zeichen nur als Text,
+  kein Browserspeicher, keine Anfragen an fremde Adressen, kein Überlauf.
+- Nach dem Gesamtlauf wurde nur noch die Anzeige des Sicherungszeitpunkts auf
+  deutsches Ortszeitformat umgestellt; `teacher-overview.browser.cjs` und die
+  Node-Tests liefen danach erneut erfolgreich.
+- Bildschirmfoto bei 1440 px im dunklen Modus gesichtet.
+- Nicht geprüft: heller Modus der Lehrkraftseite, Ausdruck auf Papier, sehr
+  große Klassen (über 40 Dateien), Sicherungen aus App-Versionen vor 0.20,
+  Schul-PCs.
+- Veröffentlichung: Ergebnis des Deployments steht im nächsten Eintrag.
 
 <!-- CLAUDE:END -->
 

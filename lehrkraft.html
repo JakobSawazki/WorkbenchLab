@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="WorkbenchLab: Klassenübersicht für Lehrkräfte aus lokal eingelesenen JSON-Sicherungen.">
+  <title>Klassenübersicht · WorkbenchLab</title>
+  <link rel="icon" type="image/webp" href="assets/workbenchlab-titanium.webp">
+  <script>
+    (() => {
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("workbenchlab-theme-v1") === "light" ? "light" : "dark";
+      } catch {}
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css?v=0.27.0">
+  <style>
+    /* Klassenübersicht für Lehrkräfte (Claude, OPT-08) */
+    body { margin: 0; }
+    .teacher-page { max-width: 1280px; margin: 0 auto; padding: clamp(1rem, 3vw, 2rem); }
+    .teacher-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+    .teacher-head h1 { margin: 0.1rem 0 0; font-size: clamp(1.5rem, 3vw, 2rem); }
+    .teacher-drop { display: grid; gap: 0.75rem; justify-items: start; padding: clamp(1rem, 3vw, 1.5rem); border: 2px dashed var(--line); border-radius: var(--radius); background: var(--panel); }
+    .teacher-drop.is-over { border-color: var(--brand); }
+    .teacher-drop p { margin: 0; }
+    .teacher-drop input[type="file"] { max-width: 100%; font: inherit; color: inherit; }
+    .teacher-privacy { margin: 1rem 0; padding: 0.8rem 1rem; border-left: 4px solid var(--green); background: var(--panel); border-radius: var(--radius); }
+    .teacher-privacy p { margin: 0; }
+    #teacherStatus { min-height: 1.5em; margin: 0.75rem 0; font-weight: 700; }
+    .teacher-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin: 1rem 0; }
+    .teacher-controls select { min-height: 2.5rem; padding: 0.35rem 0.6rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-strong); color: inherit; font: inherit; }
+    .teacher-controls .teacher-check { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .teacher-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+    .teacher-stats div { padding: 0.8rem 1rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+    .teacher-stats strong { display: block; font-size: 1.35rem; }
+    .teacher-stats span { color: var(--muted); font-size: 0.9rem; }
+    .teacher-stats .is-warning { border-color: var(--red); }
+    .teacher-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+    .teacher-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    .teacher-table th, .teacher-table td { padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+    .teacher-table thead th { position: sticky; top: 0; background: var(--panel-strong); }
+    .teacher-table tbody tr:last-child > * { border-bottom: 0; }
+    .teacher-table .is-done { color: var(--green); font-weight: 700; }
+    .teacher-table .is-old { opacity: 0.6; }
+    .teacher-table small { font-weight: 400; color: var(--muted); }
+    .teacher-table .integrity-veraendert { color: var(--red); font-weight: 700; }
+    .teacher-table .integrity-gueltig { color: var(--green); }
+    .teacher-matrix td, .teacher-matrix thead th:not(:first-child) { text-align: center; padding-inline: 0.4rem; }
+    .teacher-rejected { margin: 1rem 0; padding: 0.8rem 1rem; border: 1px solid var(--red); border-radius: var(--radius); background: var(--panel); }
+    .teacher-rejected h2 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+    .teacher-rejected ul { margin: 0; padding-left: 1.2rem; }
+    .teacher-page h2 { margin: 1.5rem 0 0.6rem; font-size: 1.2rem; }
+    .teacher-note { color: var(--muted); font-size: 0.92rem; margin-top: 1.25rem; }
+    @media print {
+      .teacher-drop, .teacher-controls, .teacher-head a, .teacher-privacy { display: none !important; }
+      .teacher-table-wrap { overflow: visible; border: 0; }
+      .teacher-table { font-size: 8.5pt; }
+      .teacher-table th, .teacher-table td { padding: 2pt 4pt; border: 1px solid #999; color: #000 !important; }
+      .teacher-table thead th { position: static; background: #eee !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="teacher-page" id="teacherApp">
+    <header class="teacher-head">
+      <div>
+        <p class="eyebrow">WorkbenchLab · für Lehrkräfte</p>
+        <h1>Klassenübersicht</h1>
+      </div>
+      <a class="button button-secondary" href="index.html">Zur Lernplattform</a>
+    </header>
+
+    <section class="teacher-privacy" aria-label="Datenschutz">
+      <p><strong>Alles bleibt auf diesem Gerät.</strong> Die Dateien werden nur in diesem Browserfenster gelesen und nicht hochgeladen oder gespeichert. Nach dem Schließen oder Neuladen der Seite ist die Übersicht leer.</p>
+    </section>
+
+    <section class="teacher-drop" id="teacherDrop" aria-labelledby="teacherDropTitle">
+      <h2 id="teacherDropTitle" style="margin:0">JSON-Sicherungen einlesen</h2>
+      <p>Lassen Sie sich die Lernstände geben, die Ihre Schülerinnen und Schüler über das Diskettensymbol gespeichert haben. Wählen Sie alle Dateien einer Klasse auf einmal aus oder ziehen Sie sie in dieses Feld.</p>
+      <label for="teacherFiles" class="sr-only">JSON-Sicherungen auswählen</label>
+      <input type="file" id="teacherFiles" accept=".json,application/json" multiple>
+    </section>
+
+    <p id="teacherStatus" role="status" aria-live="polite"></p>
+    <div id="teacherResult"></div>
+
+    <p class="teacher-note">Die Prüfsumme zeigt, ob eine Datei nach dem Speichern verändert wurde. Sie ist kein manipulationssicherer Leistungsnachweis: XP, Abschlüsse und der Haken „Lehrkraft hat bestätigt“ werden im Browser der Lernenden gesetzt. Die XP in dieser Übersicht werden aus den abgeschlossenen Einheiten und Aufgaben neu berechnet.</p>
+  </main>
+
+  <script src="content.js?v=0.27.0"></script>
+  <script src="learning-path.js?v=0.27.0"></script>
+  <script src="practical-exercises.js?v=0.27.0"></script>
+  <script src="teacher-overview.js?v=0.27.0"></script>
+</body>
+</html>

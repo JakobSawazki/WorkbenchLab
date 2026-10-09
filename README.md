@@ -1,6 +1,8 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.26.2
+**Aktueller Release:** 0.27.0
+
+**Klassenübersicht für Lehrkräfte:** <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html> liest mehrere JSON-Sicherungen lokal ein und zeigt Fortschritt, XP, letzte Aktivität und Prüfsummenstatus je Person; CSV-Export und Druck inklusive. Es werden keine Daten übertragen.
 
 **Freies SQL-Labor und deutsche SQL-Meldungen:** Release 0.26.0 (Claude) ergänzt unter `#sql/frei` einen frei nutzbaren SQL-Editor ohne Freischaltung und XP. Fehlermeldungen erscheinen direkt beim Ausführen auf Deutsch, bei Tippfehlern mit Vorschlag. Details: [Projektdokumentation, Abschnitt 0.4](documentation/documentation.md).
 
