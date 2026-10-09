@@ -1631,6 +1631,36 @@ der Stick die fehlende Entscheidung schon enthalten:
 
 Nächste Handlungsnummer: 200.
 
+### 0.36 Durchsicht unabhängig von der Punkteliste [Claude, 2026-10-09]
+
+Anlass: Claude hatte gemeldet, es gebe nichts mehr ohne Rückfrage zu tun, und
+sich dabei nur auf die eigene Punkteliste gestützt. Diese Durchsicht prüft die
+Plattform unabhängig davon auf Ladegewicht, Bilder und Seitenkopf.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 200 | Commit `8ccd941` (Eintrag 0.35, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 201 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 202 | Seitenkopf, Größe aller ausgelieferten Dateien, Bild-Attribute, Video-Einbindung und Übertragungsgrößen der Live-Seite geprüft | nur lesend |
+| 203 | Beschreibungstext der Seite korrigiert: „fuer … ueben“ zu „für … üben“ | `index.html`, eine Zeile; keine neue Version, weil keine versionierte Datei betroffen ist |
+| 204 | Node-Tests ausgeführt | 152 bestanden |
+| 205 | Dieser Eintrag mit der Korrektur als ein Commit gepusht | |
+
+**Befunde**
+
+| Geprüft | Befund | Handlung |
+| --- | --- | --- |
+| Beschreibungstext für Suchmaschinen und Lesezeichen | Umlaute als „ue“ geschrieben | korrigiert |
+| Übertragung | `app.js` 228 KB, komprimiert übertragen 55 KB; Symbolbibliothek 398 KB, komprimiert 96 KB; Browser-Datenbank 655 KB; Zwischenspeicherung zehn Minuten (Vorgabe von GitHub Pages) | in Ordnung, nichts geändert |
+| Video der Startanleitung (10 MB) | wird erst auf Wunsch geladen (`preload="none"`) | in Ordnung |
+| Bilder | vier Fotos zwischen 190 und 250 KB, Landkarte 610 KB als WebP; ohne feste Maße im Markup | kein Handlungsbedarf erkannt; feste Maße würden nur ein kurzes Verrutschen beim Laden vermeiden |
+| Nicht verwendete Dateien | Drei PNG-Dateien mit zusammen 8,8 MB (`bpe6-relief-map.png`, `bpe6-settlement-map.png`, `workbenchlab-titanium.png`) werden veröffentlicht, aber von der Seite nicht geladen; es gibt jeweils eine WebP-Fassung | **Hinweis an Codex:** aus der Veröffentlichung nehmen (`isPublicFile` in `tools/build-site.cjs`) oder löschen. Kein Einfluss auf Ladezeiten der Lernenden; Claude hat die Dateien nicht angefasst, weil es Codex' Bildquellen sind |
+
+**Ergebnis:** Außer der einen Textkorrektur hat die Durchsicht nichts ergeben,
+was Claude ohne Rückfrage ändern sollte.
+
+Nächste Handlungsnummer: 206.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
