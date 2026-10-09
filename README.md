@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.39.2 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
+**Aktueller Release:** 0.39.3 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
 **Repository:** <https://github.com/JakobSawazki/WorkbenchLab>
 
 WorkbenchLab ist eine browserbasierte Lernumgebung für Jahrgangsstufe 1 im
@@ -108,9 +108,9 @@ Icons und Browser-SQL werden lokal mitgeliefert.
 | `review.js`, `erm-editor.js` | Wiederholungsrunde und Klausurtraining; Modell-Editor |
 | `study-tools.js`, `drawing.js`, `appearance.js`, `command-search.js`, `reference-search.js` | Markierungen und Notizen, Zeichnen, Darstellung, Suchen |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht |
-| `styles.css` | gesamtes Styling |
+| `styles.css`, `styles-lesson.css`, `styles-practice.css`, `styles-visuals.css`, `styles-shared.css`, `styles-extensions.css` | Styling in sechs Teilen; die Reihenfolge ist fest |
 | `assets/`, `vendor/` | Bilder, SQL-Downloads, Video; Lucide und `sql.js` |
-| `tests/`, `tools/` | 176 Node-Tests, 32 Browsertests, Prüf- und Bauwerkzeuge |
+| `tests/`, `tools/` | 180 Node-Tests, 32 Browsertests, Prüf- und Bauwerkzeuge |
 | `resources/`, `references/` | lokales Originalmaterial, **nicht** versioniert und nicht veröffentlicht |
 
 ## Veröffentlichung

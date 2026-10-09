@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.39.2** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.39.3** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.39.2)**
+**Aktueller Stand (Release 0.39.3)**
 
 | Thema | Stand |
 | --- | --- |
@@ -50,7 +50,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 176 Node-Tests, 2 Python-Tests, 32 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
+| Tests | 180 Node-Tests, 2 Python-Tests, 32 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2225,6 +2225,61 @@ Nächste Handlungsnummer: 295.
 | OPT-16 `styles.css` aufteilen | Claude oder Codex | reine Ordnungsarbeit; die Reihenfolge der Regeln bestimmt das Aussehen, deshalb nur mit Bildvergleich vorher/nachher sinnvoll |
 
 Nächste Handlungsnummer: 302.
+
+### 0.51 Release 0.39.3: `styles.css` aufteilen (OPT-16, Schritt 4) [Claude, 2026-10-09]
+
+Bezug: OPT-16, letzter Teil. Keine sichtbare Änderung. In 0.50 hatte Claude
+diesen Schritt als „nur mit Bildvergleich sinnvoll“ offen gelassen; genau so ist
+er jetzt umgesetzt.
+
+**Vorgehen:** Die Datei wurde an fünf Leerzeilen zwischen zwei Regeln
+geschnitten, nichts umsortiert. Beide Seiten laden die sechs Dateien in
+derselben Reihenfolge. Damit bleibt die Kaskade (welche Regel gewinnt) gleich.
+
+| Datei | Zeilen | Inhalt |
+| --- | ---: | --- |
+| `styles.css` | 1134 | Grundlagen, Farbwerte, Seitenrahmen, Navigation, Kopfzeile, Startseite, Lernpfad |
+| `styles-lesson.css` | 813 | Lerneinheit: Ablauf, Inhalt, Arbeitsblatt, Notizen, Arbeitsauftrag, Abschluss |
+| `styles-practice.css` | 616 | Übungen: Ergebnisbanner, SQL-Labor, Coach, Tabellen, Kardinalitäten, Diagrammaufgaben |
+| `styles-visuals.css` | 809 | Schaubilder der Einheiten, Erfolge, Workbench-Start, nachgebaute Fenster |
+| `styles-shared.css` | 1192 | spätere Schichten: gemeinsame Flächen, Dialoge, Dunkelmodus, Bildschirmbreiten, Lernkarte |
+| `styles-extensions.css` | 213 | Claudes Erweiterungen seit 0.26.0 |
+
+Die Namen beschreiben den Schwerpunkt; weil nichts umsortiert wurde, sind die
+Themen nicht überall scharf getrennt (Verfasser der ersten fünf Teile: Codex).
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 302 | Eigenen Testserver auf Port 4199 gestartet | |
+| 303 | Hilfsskripte für den Bildvergleich geschrieben (`shots.cjs`, `cmp.cjs`): 416 Ansichten = alle 12 Übersichtsseiten, 21 Einheiten, 59 Übungen, 4 Befehle, Druckansicht, 3 Dialoge, Klassenübersicht leer und mit Sicherung; je 1440 und 390 Pixel, hell und dunkel | nur im Arbeitsordner außerhalb des Repositorys, nicht versioniert |
+| 304 | Fehlgriff: Die ersten zwei Serien desselben Stands unterschieden sich in 91 Bildern (meist 1 bis 30 Pixel, Abweichung 1; Startseite und Profildialog deutlich) | Ursache: Grafikkarten-Rundung und zu frühe Aufnahme. Aufnahme ohne Grafikkarte, mit Warten auf Schriften und Bilder → nur noch 6 Bilder mit höchstens 79 abweichenden Pixeln |
+| 305 | Zwei Serien vor der Änderung aufgenommen (Stand `v0.39.2`) | Maß für das Grundrauschen |
+| 306 | `styles.css` per Skript geschnitten. Das Skript bricht ab, wenn die sechs Stücke, mit je einer Leerzeile verbunden, nicht exakt die alte Datei ergeben, oder wenn ein Stück offene Klammern hat | verlustfrei; je Datei drei Kommentarzeilen als Kopf ergänzt |
+| 307 | `index.html`, `lehrkraft.html`: sechs `<link>`-Zeilen statt einer; `tools/build-site.cjs`: fünf neue öffentliche Dateien (Codex-Dateien) | |
+| 308 | `tests/styles-split.test.js` neu (4 Tests): Reihenfolge in beiden Seiten, veröffentlicht, Klammern geschlossen, kein `@import`, keine ungeladene Style-Datei; `tests/teacher-overview.test.js`: Zahl der Verweise 9 → 14 | |
+| 309 | Zwei Serien nach der Änderung aufgenommen und mit beiden Serien davor verglichen | siehe Prüfung |
+| 310 | Versionsangaben auf `0.39.3`; `CHANGELOG.md`, `README.md`, Wegweiser, `claude2codex.md` (OPT-16 erledigt, Dateikarte), Merkzettel (Tag-Bereich, Regel zur Reihenfolge) | |
+
+**Prüfung**
+
+- Bildvergleich: In jedem der vier Vergleiche vorher/nachher sind 409 bis 413
+  von 416 Bildern bytegleich. Die übrigen (höchstens 156 Pixel, Kopfzeile bzw.
+  eine sehr lange Einheit) unterscheiden sich genauso zwischen zwei Aufnahmen
+  desselben Stands; kein Bild weicht in beiden Nachher-Serien von beiden
+  Vorher-Serien ab.
+- 180 Node-Tests (4 neu) und 2 Python-Tests bestanden.
+- Alle 32 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199).
+- Gebaute Seite (`_site`) enthält alle sechs Dateien.
+
+**Nicht geprüft:** andere Browser als Edge; Schul-PCs; sehr langsame
+Verbindung (sechs statt einer Style-Datei beim ersten Aufruf, danach aus dem
+Zwischenspeicher).
+
+**Für Codex:** Neue Regeln ans Ende der thematisch passenden Datei; soll eine
+Regel eine frühere überschreiben, muss sie in derselben oder einer späteren
+Datei stehen. Die Reihenfolge der `<link>`-Zeilen nicht ändern.
+
+Damit ist OPT-16 erledigt. Nächste Handlungsnummer: 311.
 
 <!-- CLAUDE:END -->
 

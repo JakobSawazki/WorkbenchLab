@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.39.2 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.39.3 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -114,7 +114,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `content.js`, `learning-path.js`, `lesson-openings.js`, `practical-exercises.js` | Inhalte, 21 Einheiten, Übungen | Codex |
 | `app.js` (ca. 4350 Zeilen) | Routing, Rendering, Freischaltung, XP, SQL-Prüfung, Export/Import | Codex, Ergänzungen Claude |
 | `study-tools.js`, `drawing.js`, `appearance.js`, `command-search.js`, `reference-search.js` | Textmarker, Zeichnen, Darstellung, Suchen | Codex |
-| `styles.css` (ca. 4700 Zeilen) | Styling; Claudes Blöcke stehen am Dateiende und sind kommentiert | beide |
+| `styles.css`, `styles-lesson.css`, `styles-practice.css`, `styles-visuals.css`, `styles-shared.css`, `styles-extensions.css` | Styling in sechs Teilen (seit 0.39.3), in dieser Reihenfolge geladen; Reihenfolge nicht ändern. Claudes Blöcke stehen in `styles-extensions.css` | Teile 1–5 Codex, Teil 6 Claude |
 | `sql-check.js` | Ergebnisvergleich, Aufbauprüfung, nachgebildete Datumsfunktionen (aus `app.js` ausgelagert) | Code Codex, Datei Claude |
 | `sql-feedback.js` | deutsche SQL-Meldungen, `SHOW TABLES`/`DESCRIBE` | Claude |
 | `debug-exercises.js`, `predict-exercises.js`, `order-exercises.js` | drei Aufgabentypen | Claude |
@@ -125,7 +125,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `backup.js` | Prüfsumme der JSON-Sicherung, gemeinsam für `app.js` und `teacher-overview.js` | Code von Codex, ausgelagert von Claude |
 | `state.js` | Vorgabewerte, Kürzel/Klasse, Kennungen, `normalizeState`; neue Felder des Lernstands hier ergänzen. `loadState`/`saveState` bleiben in `app.js` | Code von Codex, ausgelagert von Claude |
 | `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
-| `tests/*.test.js`, `tests/*.browser.cjs` | 176 Node-Tests, 32 Browsertests | Codex und Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 180 Node-Tests, 32 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -188,7 +188,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-13 | Versionsgleichstand | erledigt als Test (Claude, 0.26.0) |
 | OPT-14 | Dokumentation zusammenführen | erledigt (Claude, 2026-10-09): `CHANGELOG.md`, `documentation/releases/`, `documentation/archiv/`, README neu, Wegweiser |
 | OPT-15 | Offline-Betrieb und Schul-PC-Test | Checkliste erledigt (Claude, `documentation.md` 0.16); Test vor Ort und Offline-Betrieb offen |
-| OPT-16 | `app.js` und `styles.css` aufteilen | Schritt 1 (0.38.2): SQL-Prüflogik in `sql-check.js`; Schritt 2 (0.39.1): Prüfsumme der Sicherung in `backup.js`; Schritt 3 (0.39.2): Lernstand-Bereinigung in `state.js`; offen: `styles.css` aufteilen |
+| OPT-16 | `app.js` und `styles.css` aufteilen | Schritt 1 (0.38.2): SQL-Prüflogik in `sql-check.js`; Schritt 2 (0.39.1): Prüfsumme der Sicherung in `backup.js`; Schritt 3 (0.39.2): Lernstand-Bereinigung in `state.js`; Schritt 4 (0.39.3): `styles.css` in sechs Dateien. Erledigt (Claude) |
 | OPT-17 | `.tmp/` aus Google Drive heraushalten | `.tmp/` am 2026-10-09 geleert (991 MB, Freigabe Jakob); Claudes Tests schreiben nach `%TEMP%`; Codex' Tests schreiben weiter nach `.tmp/` |
 | OPT-18 | Erstbesuch ohne Profildialog | verworfen (Jakob, 2026-10-09): Dialog bleibt |
 | OPT-19 | Druckansicht | erledigt (Claude, 0.26.2) |
@@ -269,6 +269,12 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
   zuerst SQL-Laufzeit und -Prüfung, dann Export/Import, dann Lernstand. Reine
   Logik ohne DOM halten. Claudes neue Teile folgen diesem Muster bereits.
 - **Abnahme:** alle Tests unverändert grün nach jedem Schritt.
+- **Umsetzung (0.38.2 bis 0.39.3):** `sql-check.js`, `backup.js`, `state.js` und sechs
+  Style-Dateien; Code jeweils unverändert verschoben, dazu direkte Tests. `app.js`
+  hat noch rund 4300 Zeilen (Darstellung und Ereignisse); weiteres Aufteilen wäre
+  ein Umbau, kein Verschieben, und ist nicht geplant.
+- **Regel für neue Styles:** ans Ende der passenden Datei; was eine frühere Regel
+  überschreiben soll, muss in derselben oder einer späteren Datei stehen.
 
 #### OPT-17 `.tmp/` aus Google Drive heraushalten
 

@@ -1,0 +1,213 @@
+/* WorkbenchLab-Styles, Teil 6 von 6: Erweiterungen seit 0.26.0 (Claude) – freies SQL-Labor, Druck, neue Aufgabentypen, Wiederholung, Klausurtraining, Modell-Editor, NAGOLD, Lösungen der Lehrkraft.
+   Reihenfolge der sechs Dateien in index.html und lehrkraft.html = Reihenfolge der früheren styles.css;
+   sie bestimmt, welche Regel gewinnt. Nicht umsortieren (tests/styles-split.test.js). */
+
+/* Freies SQL-Labor und deutsche SQL-Meldungen (Claude, OPT-01/OPT-02) */
+.playground-teaser {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  margin-bottom: 1.25rem;
+}
+.playground-teaser h2 { margin: 0.15rem 0 0.35rem; }
+.playground-teaser p:last-child { margin-bottom: 0; }
+.playground-schema-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+.playground-schema-row label { font-weight: 700; }
+.playground-schema-row select {
+  flex: 1 1 14rem;
+  min-width: 0;
+  min-height: 2.6rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
+  color: inherit;
+  font: inherit;
+}
+.sql-playground .field-hint { margin: 0.6rem 0 0.8rem; }
+.sql-playground kbd {
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 0.85em;
+}
+.playground-result-count { margin: 0 0 0.4rem; font-size: 0.88rem; opacity: 0.85; }
+.playground-note { margin-top: 1rem; }
+.playground-table-button { width: 100%; margin-top: 0.7rem; justify-content: center; }
+.console-output.sql-error { border-left: 4px solid #e0707a; }
+.console-output.sql-error p { margin: 0.35rem 0 0.5rem; font-size: 0.95rem; line-height: 1.5; }
+.console-output.sql-error small { display: block; opacity: 0.75; overflow-wrap: anywhere; }
+
+/* Rettungshinweis bei unlesbarem Lernstand (Claude, OPT-21) */
+.toast.is-persistent {
+  align-items: flex-start;
+  max-width: min(34rem, calc(100vw - 2rem));
+  pointer-events: auto;
+}
+.toast.is-persistent p { margin: 0.35rem 0 0.6rem; font-weight: 400; line-height: 1.45; }
+.toast-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* Druckansicht für Einheiten, Aufgabenblätter und Notizen (Claude, OPT-19) */
+@media print {
+  @page { margin: 15mm; }
+  html, body { background: #fff !important; }
+  .sidebar, .topbar-actions, .mobile-menu-button, .mobile-backdrop, .portal-footer,
+  .toast-region, .reading-tools, .detail-actions, .skip-link, .lesson-photo-opening img,
+  .completion-actions, dialog { display: none !important; }
+  .app-shell { display: block; min-height: 0; }
+  .topbar { position: static; box-shadow: none; border: 0; background: none !important; padding: 0 0 6mm; }
+  main { padding: 0 !important; }
+  main * { box-shadow: none !important; text-shadow: none !important; animation: none !important; transition: none !important; }
+  section, article, details, table, figure, .schema-card, .task-step-item { break-inside: avoid; }
+  h2, h3, summary { break-after: avoid; }
+  textarea, input, select { border: 1px solid #777 !important; background: #fff !important; color: #000 !important; }
+  textarea { overflow: visible !important; resize: none; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.8em; overflow-wrap: anywhere; }
+}
+
+/* Aufgabentyp Fehlersuche (Claude, OPT-03a) */
+.debug-callout { margin-bottom: 0.9rem; border-left: 4px solid var(--amber); }
+
+/* Aufgabentyp Vorhersage (Claude, OPT-03c) */
+.predict-callout { margin-bottom: 0.9rem; border-left: 4px solid var(--blue); }
+.predict-code { margin: 0 0 0.9rem; white-space: pre; overflow-x: auto; font-family: var(--mono); font-size: 0.95rem; line-height: 1.55; }
+.predict-data { margin-bottom: 1.1rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; }
+.predict-data summary { cursor: pointer; font-weight: 700; }
+.predict-data[open] summary { margin-bottom: 0.6rem; }
+.predict-tables h4 { margin: 0.6rem 0 0.35rem; }
+.predict-result { margin-top: 1rem; }
+.predict-result h3 { margin: 0 0 0.2rem; }
+.predict-result p { margin: 0 0 0.5rem; font-size: 0.9rem; opacity: 0.85; }
+
+/* Aufgabentyp Klauseln ordnen (Claude, OPT-03b) */
+.order-callout { margin-bottom: 0.9rem; border-left: 4px solid var(--violet); }
+.order-list { list-style: none; counter-reset: order; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.5rem; }
+.order-list li {
+  counter-increment: order;
+  display: grid;
+  grid-template-columns: 1.8rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
+}
+.order-list li::before { content: counter(order); font-weight: 700; text-align: center; opacity: 0.75; }
+.order-list code { font-family: var(--mono); font-size: 0.95rem; overflow-wrap: anywhere; }
+.order-buttons { display: inline-flex; gap: 0.35rem; }
+.order-buttons .icon-button:disabled { opacity: 0.35; cursor: default; }
+
+/* Wiederholungsrunde (Claude, OPT-07) */
+.review-teaser, .exam-teaser { margin-top: -0.25rem; }
+.review-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: clamp(1rem, 3vw, 1.35rem); margin-bottom: 1rem; }
+.review-head h2 { margin: 0.15rem 0 0.4rem; }
+.review-head > div { flex: 1 1 22rem; min-width: 0; }
+.review-progress { width: 100%; max-width: 26rem; height: 0.7rem; margin-top: 0.4rem; }
+.review-complete { margin: 0 0 1rem; }
+.review-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1rem; }
+.review-list li { display: grid; gap: 0.4rem; align-content: start; min-width: 0; }
+.review-list .practice-card { min-width: 0; }
+.review-list .meta-pill { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.review-state { display: inline-flex; align-items: center; gap: 0.4rem; margin: 0; font-size: 0.9rem; font-weight: 700; }
+.review-state svg { width: 1rem; height: 1rem; }
+.review-list .is-reviewed .review-state { color: var(--green); }
+
+/* Modell-Editor (Claude, OPT-04) */
+.erm-task { padding: clamp(1rem, 3vw, 1.35rem); margin-bottom: 1rem; }
+.erm-task p { margin: 0.7rem 0 0; }
+.erm-task-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+.erm-task-pick label { font-weight: 700; }
+.erm-editor select, .erm-editor input:not([type="checkbox"]) {
+  min-width: 0;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
+  color: inherit;
+  font: inherit;
+}
+.erm-task-pick select { flex: 1 1 16rem; }
+.erm-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 1rem; align-items: start; }
+.erm-form, .erm-preview { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); padding: clamp(0.9rem, 2.5vw, 1.2rem); min-width: 0; }
+.erm-form h3, .erm-preview h3 { margin: 0 0 0.7rem; }
+.erm-form h3:not(:first-child) { margin-top: 1.4rem; }
+.erm-entity { margin: 0 0 0.8rem; padding: 0.7rem; border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
+.erm-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; margin-bottom: 0.6rem; }
+.erm-row input { font-weight: 700; }
+.erm-attribute-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(8.2rem, auto) auto auto auto; gap: 0.4rem; align-items: center; margin-bottom: 0.45rem; }
+.erm-flag { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+.erm-small { min-height: 2.2rem; padding-block: 0.25rem; font-size: 0.9rem; }
+.erm-relation { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: 0.4rem; align-items: center; margin-bottom: 0.5rem; }
+.erm-form .field-hint { margin: 0.8rem 0 0; }
+.erm-diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-strong); padding: 0.5rem; margin-bottom: 0.9rem; min-height: 8rem; }
+.erm-svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+.erm-empty { margin: 2rem 1rem; text-align: center; color: var(--muted); }
+.erm-box { fill: var(--panel); stroke: var(--brand); stroke-width: 1.5; }
+.erm-box-head { fill: var(--brand); opacity: 0.22; }
+.erm-title { fill: var(--text); font: 700 14px var(--sans); }
+.erm-attribute { fill: var(--text); font: 13px var(--mono); }
+.erm-attribute.is-pk { text-decoration: underline; font-weight: 700; }
+.erm-line { stroke: var(--muted); stroke-width: 2; }
+.erm-card { fill: var(--amber); font: 700 15px var(--sans); paint-order: stroke; stroke: var(--panel-strong); stroke-width: 4px; }
+.erm-checklist { margin-top: 0.8rem; }
+@media (max-width: 900px) {
+  .erm-layout { grid-template-columns: minmax(0, 1fr); }
+  .erm-attribute-row { grid-template-columns: minmax(0, 1fr) minmax(8.2rem, auto) auto; }
+  .erm-attribute-row .erm-flag { justify-self: start; }
+}
+
+/* Klausurtraining (Claude, OPT-07) */
+.exam-clock { display: inline-flex; align-items: center; gap: 0.45rem; margin: 0.3rem 0 0; font-size: 1.15rem; }
+.exam-clock svg { width: 1.15rem; height: 1.15rem; }
+.exam-clock strong { font-family: var(--mono); font-size: 1.35rem; }
+.exam-clock.is-over strong { color: var(--red); }
+.teacher-like-table-wrap { overflow-x: auto; margin-bottom: 0.6rem; }
+.exam-table th[scope="row"] { text-align: left; font-weight: 700; }
+.exam-table td, .exam-table th { vertical-align: middle; }
+
+/* Modell-Editor, zweite Stufe: Kästen verschieben (Claude, OPT-04) */
+.erm-entity-box { cursor: grab; touch-action: none; }
+.erm-entity-box:active { cursor: grabbing; }
+.erm-entity-box:focus { outline: none; }
+.erm-entity-box:focus-visible .erm-box { stroke: var(--amber); stroke-width: 3; }
+.erm-svg text { user-select: none; pointer-events: none; }
+.erm-drag-hint { margin: -0.4rem 0 0.8rem; }
+
+/* Gemessene Unterschiede zu MySQL (Claude, OPT-20) */
+.mysql-note { margin-top: 0.8rem; border-left: 4px solid var(--amber); }
+.mysql-differences { margin-top: 1rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; }
+.mysql-differences summary { cursor: pointer; font-weight: 700; }
+.mysql-differences dl { margin: 0.7rem 0 0.4rem; }
+.mysql-differences dt { font-weight: 700; margin-top: 0.6rem; }
+.mysql-differences dd { margin: 0.15rem 0 0; }
+
+/* Modell-Editor: Optionalität (Claude, OPT-04) */
+.erm-optional { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin: -0.1rem 0 0.3rem; font-weight: 400; }
+.erm-optional .erm-flag { font-weight: 400; white-space: normal; }
+
+/* NAGOLD im Profil, Vorgriff-Kennzeichen, Schreibweise im Modell-Editor (Claude, 0.38.0) */
+.nagold-total { margin: 0.7rem 0 0; padding: 0.6rem 0.75rem; border: 1px solid var(--amber); border-radius: var(--radius); line-height: 1.45; }
+.nagold-total strong { color: var(--amber); font-size: 1.1rem; }
+.practice-ahead { border-style: dashed; }
+.erm-diagram-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.7rem; margin-bottom: 0.7rem; }
+.erm-diagram-head h3 { margin: 0 auto 0 0; }
+.erm-diagram-head label { font-size: 0.9rem; }
+
+/* Lösung für die Lehrkraft im Entwicklermodus (Claude, OPT-23) */
+.teacher-solution { margin-top: 1.2rem; border: 1px dashed var(--amber); border-radius: var(--radius); padding: 0.7rem 0.9rem; }
+.teacher-solution summary { cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 0.45rem; }
+.teacher-solution summary svg { width: 1rem; height: 1rem; }
+.teacher-solution pre { margin: 0.5rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--mono); font-size: 0.92rem; }
+@media print { .teacher-solution { display: none !important; } }

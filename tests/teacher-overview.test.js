@@ -117,7 +117,7 @@ test("Die Lehrkraftseite ist öffentlich, versionsgleich und lädt keine fremden
   assert.equal(isPublicFile("lehrkraft.html"), true);
   assert.equal(isPublicFile("teacher-overview.js"), true);
   const stamps = [...html.matchAll(/(?:href|src)="([^"?]+\.(?:js|css))\?v=([^"]+)"/g)];
-  assert.equal(stamps.length, 9);
+  assert.equal(stamps.length, 14);
   // NAGOLD je Einheit muss in App und Klassenübersicht gleich sein.
   assert.equal(Number(fs.readFileSync(path.join(root, "app.js"), "utf8").match(/const nagoldPerLesson = (\d+);/)[1]), teacher.NAGOLD_PER_LESSON);
   for (const [, file, stamp] of stamps) {
