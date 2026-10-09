@@ -1734,6 +1734,7 @@
               Lernpfad
             </button>
             ${practice ? `<button class="button button-primary" type="button" data-practice="${practice.id}"><i data-lucide="pencil"></i>Übung</button>` : ""}
+            <button class="icon-button" type="button" data-print-page title="Einheit drucken oder als PDF speichern" aria-label="Einheit drucken oder als PDF speichern"><i data-lucide="printer" aria-hidden="true"></i></button>
           </div>
         </header>
         <details class="workflow-disclosure"><summary>Arbeitsreihenfolge der Einheit</summary><ol class="lesson-workflow" aria-label="Arbeitsreihenfolge der Einheit">
@@ -3621,6 +3622,9 @@
         document.querySelector("#practiceResult").className = "result-banner";
       }
     }
+    if (event.target.closest("[data-print-page]")) {
+      window.print();
+    }
     if (event.target.closest("[data-rescue-close]")) {
       document.querySelector("#stateRescueNotice")?.remove();
     }
@@ -4000,6 +4004,34 @@
   });
   developerModeButton?.addEventListener("click", () => setDeveloperMode(!developerMode));
   window.addEventListener("hashchange", renderRoute);
+
+  // Druckansicht (Claude, OPT-19): helle Farben, alle Abschnitte geöffnet, Antwortfelder
+  // in voller Höhe. Nach dem Druck wird der vorherige Zustand wiederhergestellt.
+  let restoreAfterPrint = null;
+  function preparePrint() {
+    if (restoreAfterPrint) {
+      return;
+    }
+    const closed = [...main.querySelectorAll("details:not([open])")];
+    closed.forEach((item) => { item.open = true; });
+    const fields = [...main.querySelectorAll("textarea")].map((field) => [field, field.style.height]);
+    fields.forEach(([field]) => {
+      field.style.height = "auto";
+      field.style.height = `${field.scrollHeight + 4}px`;
+    });
+    const theme = document.documentElement.dataset.theme;
+    applyTheme("light", false);
+    restoreAfterPrint = () => {
+      closed.forEach((item) => { item.open = false; });
+      fields.forEach(([field, height]) => { field.style.height = height; });
+      applyTheme(theme, false);
+    };
+  }
+  window.addEventListener("beforeprint", preparePrint);
+  window.addEventListener("afterprint", () => {
+    restoreAfterPrint?.();
+    restoreAfterPrint = null;
+  });
 
   applyTheme(readTheme(), false);
   initSqlRuntime().catch(() => {});

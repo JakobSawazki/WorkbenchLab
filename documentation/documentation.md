@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.26.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.26.2** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -280,6 +280,51 @@ Eintrag mit Auftrag, Handlungen, geänderten Dateien, Prüfung, Veröffentlichun
 Verlaufs, keine Änderung an `resources/`, `references/`, `Lehrbuch/` oder an
 Codex' Dateien `codex2claude.md` und `documentation/RELEASE_*.md`, kein Zugriff
 auf das Projekt „Sawazki Electronics“.
+
+### 0.9 Release 0.26.2: Druckansicht für Einheiten [Claude, 2026-10-09]
+
+Bezug: OPT-19 aus `claude2codex.md`. Auftrag: eigenständige Optimierung.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 26 | Commit `4ab90bd` (Eintrag 0.8, nur Protokoll) gepusht | keine Änderung an der App |
+| 27 | Testserver erneut auf Port 4199 gestartet | eigener Prozess |
+| 28 | Druckansicht umgesetzt (siehe unten) | `app.js`, `styles.css` |
+| 29 | `tests/print-view.browser.cjs` angelegt | 1 neuer Browsertest |
+| 30 | Druckansicht per Einmal-Skript bei A4-Breite fotografiert und gesichtet; das Test-PDF liegt unter `.tmp/print-view-l1-1.pdf` | Bilder nur im temporären Sitzungsordner; PDF nicht versioniert |
+| 31 | Alle Node-, Python- und Browsertests gegen Port 4199 ausgeführt | siehe Prüfung |
+
+**Neu für Schülerinnen und Schüler**
+
+- In jeder Einheit steht oben rechts ein Druckersymbol „Einheit drucken oder als
+  PDF speichern“. `Strg + P` wirkt genauso.
+- Beim Drucken wechselt die Seite vorübergehend auf helle Farben, öffnet alle
+  eingeklappten Abschnitte und zeigt jedes Antwortfeld in voller Höhe.
+  Navigation, Werkzeugleisten, Schaltflächen und Dialoge werden nicht gedruckt.
+  Externe Links erhalten ihre Adresse in Klammern.
+- Nach dem Drucken ist alles wie vorher: Farbmodus, eingeklappte Abschnitte,
+  Feldhöhen. Die gespeicherte Farbmodus-Einstellung wird nicht verändert.
+
+**Technik:** `preparePrint()` und die Ereignisse `beforeprint`/`afterprint` in
+`app.js`; Block `@media print` am Ende von `styles.css`. Versionsangaben auf
+`0.26.2`.
+
+**Prüfung**
+
+- 115 Node-Tests und 2 Python-Tests bestanden.
+- Alle 23 Browsertests bestanden (Edge, Port 4199), darunter der neue
+  `print-view.browser.cjs`: heller Modus während des Drucks, kein
+  eingeklappter Abschnitt, 14-zeilige Antwort vollständig sichtbar,
+  Navigation und Werkzeuge ausgeblendet, PDF erzeugt, Zustand danach
+  unverändert.
+- Druckbild von L1.1 bei A4-Breite gesichtet: Tabelle, Aufgabenblatt und
+  Antwortfelder sauber lesbar.
+- Nicht geprüft: Ausdruck auf einem echten Drucker, andere Browser als Edge,
+  Druck der Seiten „Meine Notizen“ und „SQL-Labor“ (dort greift nur das
+  allgemeine Druck-CSS, ohne eigenen Test).
+- Veröffentlichung: Ergebnis des Deployments steht im nächsten Eintrag.
 
 <!-- CLAUDE:END -->
 

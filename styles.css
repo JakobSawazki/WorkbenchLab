@@ -4601,3 +4601,21 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 }
 .toast.is-persistent p { margin: 0.35rem 0 0.6rem; font-weight: 400; line-height: 1.45; }
 .toast-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* Druckansicht für Einheiten, Aufgabenblätter und Notizen (Claude, OPT-19) */
+@media print {
+  @page { margin: 15mm; }
+  html, body { background: #fff !important; }
+  .sidebar, .topbar-actions, .mobile-menu-button, .mobile-backdrop, .portal-footer,
+  .toast-region, .reading-tools, .detail-actions, .skip-link, .lesson-photo-opening img,
+  .completion-actions, dialog { display: none !important; }
+  .app-shell { display: block; min-height: 0; }
+  .topbar { position: static; box-shadow: none; border: 0; background: none !important; padding: 0 0 6mm; }
+  main { padding: 0 !important; }
+  main * { box-shadow: none !important; text-shadow: none !important; animation: none !important; transition: none !important; }
+  section, article, details, table, figure, .schema-card, .task-step-item { break-inside: avoid; }
+  h2, h3, summary { break-after: avoid; }
+  textarea, input, select { border: 1px solid #777 !important; background: #fff !important; color: #000 !important; }
+  textarea { overflow: visible !important; resize: none; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.8em; overflow-wrap: anywhere; }
+}
