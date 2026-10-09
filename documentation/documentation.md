@@ -1049,6 +1049,70 @@ Kleinbuchstaben, Ziffern und Unterstrich reduziert. Versionsangaben auf
   Gerät, echter Bildschirmleser.
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.24.
 
+### 0.24 Veröffentlichung 0.32.1 geprüft; Übergabe an Jakob und Codex [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 124 | Commit `ec2e022` gepusht; GitHub-Actions-Lauf 37893968996 | Job `test` und Job `deploy` erfolgreich |
+| 125 | Live geprüft: alle Dateien mit `?v=0.32.1`, `styles.css` enthält die korrigierte Spaltenbreite | per Abruf |
+| 126 | Tag `v0.32.1` gesetzt und gepusht | Sicherungspunkt |
+| 127 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 128 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Sicherungspunkte:** `codex-stand-2026-10-08` (`4dedae1`), `v0.26.0`
+(`8ed27fc`), `v0.26.1` (`b8c9b01`), `v0.26.2` (`40566ec`), `v0.27.0`
+(`16b1508`), `v0.28.0` (`63aedc6`), `v0.29.0` (`509b65a`), `v0.30.0`
+(`cd35469`), `v0.31.0` (`1a1e2c0`), `v0.32.0` (`2d94902`), `v0.32.1`
+(`ec2e022`). Wiederherstellung wie in Abschnitt 0.1.
+
+**Testumfang:** 146 Node-Tests, 2 Python-Tests, 29 Browsertests.
+
+**Was am 9. Oktober hinzukam (Überblick für die Abnahme)**
+
+| Version | Inhalt | Wo zu finden |
+| --- | --- | --- |
+| 0.26.0 | freies SQL-Labor, deutsche SQL-Meldungen | SQL-Labor → „Frei ausprobieren“ |
+| 0.26.1 | Rettungskopie bei unlesbarem Lernstand | nur im Fehlerfall sichtbar |
+| 0.26.2 | Druckansicht | Druckersymbol in jeder Einheit |
+| 0.27.0 | Klassenübersicht | `lehrkraft.html` |
+| 0.28.0 | Fehlersuche (6), Prüfergebnis über den Reitern | SQL-Labor → Filter „Fehlersuche“ |
+| 0.29.0 | Vorhersage (5), Schul-PC-Checkliste | Filter „Vorhersage“; Abschnitt 0.16 |
+| 0.30.0 | Klauseln ordnen (4) | Filter „Klauseln ordnen“ |
+| 0.31.0 | Wiederholungsrunde | SQL-Labor → „Wiederholungsrunde“ |
+| 0.32.0/0.32.1 | Modell-Editor | Modellieren → „Editor öffnen“ |
+
+**Stand der Punkte aus `claude2codex.md`**
+
+| Status | Punkte |
+| --- | --- |
+| erledigt (Claude) | OPT-01, OPT-02, OPT-03, OPT-08, OPT-13, OPT-19, OPT-21, OPT-22 |
+| erledigt (Codex) | OPT-10, OPT-11 |
+| erste Stufe erledigt | OPT-04 (Modell-Editor), OPT-07 (Wiederholungsrunde), OPT-15 (Checkliste), OPT-20 |
+| braucht eine Entscheidung von Jakob | OPT-06, OPT-09, OPT-12, OPT-17, OPT-18; Durchführung der Checkliste 0.16 |
+| braucht Abstimmung mit Codex | OPT-05, OPT-14, OPT-16 |
+
+**Warum Claude die restlichen Punkte nicht eigenständig umsetzt**
+
+- OPT-05 (Einheiten in Schritte teilen) baut die Darstellung aller 21
+  Einheiten um. Daran hängen viele der 20 von Codex geschriebenen Browser-Abnahmetests
+  und die Abnahmedokumente; eine einseitige Änderung würde Codex' geprüften
+  Stand entwerten.
+- OPT-14 und OPT-16 (Dokumentation zusammenführen, `app.js`/`styles.css`
+  aufteilen) verschieben und löschen Dateien, die Codex angelegt hat und auf
+  die seine Arbeitsweise verweist.
+- OPT-18 (Profildialog beim Erstbesuch) und OPT-06 (Freischaltung) sind
+  bewusste didaktische Festlegungen; Codex hat den Profildialog am 8. Oktober
+  auf Jakobs Wunsch mehrfach überarbeitet.
+- OPT-12 und OPT-09 hängen an der Frage, ob XP in die Bewertung einfließen.
+- OPT-17 verlangt das Löschen von rund 1 GB lokaler Dateien.
+
+Seit dem 9. Oktober sind elf Versionen entstanden, die Jakob noch nicht gesehen
+hat. Bevor weitere hinzukommen, ist eine Durchsicht im Unterrichtsblick
+sinnvoller als weiterer Umfang: Die neuen Aufgaben und der Modell-Editor
+enthalten fachliche Formulierungen, die die Lehrkraft freigeben sollte.
+
+Nächste Handlungsnummer: 129.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
