@@ -2,21 +2,21 @@
 
 **Aktueller Release:** 0.33.0
 
-**Modell-Editor:** Unter „Modellieren“ lassen sich Entitätstypen, Attribute, Schlüssel und Beziehungen selbst anlegen; das Diagramm entsteht automatisch, zwei Aufgaben werden geprüft, und das Modell lässt sich als SQL für MySQL Workbench exportieren.
+**Neu seit 0.26.0 (Claude, 9. Oktober 2026):**
 
-**Wiederholungsrunde:** Im SQL-Labor stellt die App täglich bis zu fünf bereits gelöste Aufgaben aus verschiedenen Einheiten zum Auffrischen zusammen (ohne XP).
+| Bereich | Was | Wo |
+| --- | --- | --- |
+| Üben | Freies SQL-Labor ohne Freischaltung und XP | SQL-Labor → „Frei ausprobieren“ |
+| Üben | Deutsche SQL-Fehlermeldungen mit Vorschlag direkt beim Ausführen | alle SQL-Aufgaben |
+| Üben | 15 neue Aufgaben: Fehlersuche (6), Vorhersage (5), Klauseln ordnen (4) | SQL-Labor → Filter |
+| Üben | Wiederholungsrunde mit täglich bis zu fünf gelösten Aufgaben | SQL-Labor |
+| Modellieren | Modell-Editor mit Diagramm, zwei geprüften Aufgaben, SQL- und Bildexport | Modellieren → „Editor öffnen“ |
+| Unterricht | Klassenübersicht aus JSON-Sicherungen, lokal im Browser | <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html> |
+| Unterricht | Druckansicht jeder Einheit | Druckersymbol in der Einheit |
+| Sicherheit | Rettungskopie, falls der gespeicherte Lernstand unlesbar ist | nur im Fehlerfall sichtbar |
 
-**Klauseln ordnen:** Vier Aufgaben, in denen die durcheinandergeratenen Zeilen einer Abfrage per Pfeilschaltflächen in die richtige Reihenfolge gebracht werden.
-
-**Vorhersage:** Fünf Aufgaben, in denen das Ergebnis einer Abfrage zuerst im Kopf bestimmt wird; nach der richtigen Antwort zeigt die App das tatsächliche Ergebnis.
-
-**Fehlersuche:** Sechs neue SQL-Aufgaben, in denen eine fehlerhafte Abfrage zu reparieren ist (fehlendes Komma, fehlende Anführungszeichen, AND statt OR, WHERE statt HAVING, Klauselreihenfolge, JOIN ohne Bedingung).
-
-**Klassenübersicht für Lehrkräfte:** <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html> liest mehrere JSON-Sicherungen lokal ein und zeigt Fortschritt, XP, letzte Aktivität und Prüfsummenstatus je Person; CSV-Export und Druck inklusive. Es werden keine Daten übertragen.
-
-**Freies SQL-Labor und deutsche SQL-Meldungen:** Release 0.26.0 (Claude) ergänzt unter `#sql/frei` einen frei nutzbaren SQL-Editor ohne Freischaltung und XP. Fehlermeldungen erscheinen direkt beim Ausführen auf Deutsch, bei Tippfehlern mit Vorschlag. Details: [Projektdokumentation, Abschnitt 0.4](documentation/documentation.md).
-
-**Sicherung und Wiederherstellung:** Der Stand vor Claudes Änderungen ist als Tag `codex-stand-2026-10-08` gesichert; Anleitung in der [Projektdokumentation, Abschnitt 0.1](documentation/documentation.md).
+Einzelheiten, Prüfumfang und Grenzen je Version: [Projektdokumentation, Abschnitt 0](documentation/documentation.md).
+Der Stand vor diesen Änderungen ist als Tag `codex-stand-2026-10-08` gesichert; die Wiederherstellung beschreibt Abschnitt 0.1.
 
 **Schmalere Profilanzeige:** [Release 0.25.1](documentation/RELEASE_0_25_1.md) reduziert die Mindestbreite des Profilbuttons; Name, Klasse und XP bleiben erhalten.
 

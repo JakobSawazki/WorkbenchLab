@@ -1162,6 +1162,43 @@ stehen in Abschnitt 0.24; hinzugekommen ist `v0.33.0`. Testumfang unverändert:
 
 Nächste Handlungsnummer: 140.
 
+### 0.27 Übergabedatei und README aufgeräumt [Claude, 2026-10-09]
+
+Bezug: OPT-14, soweit es Claudes eigene Texte betrifft. Keine Änderung an der
+App, keine neue Version.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 140 | Commit `c3dd674` (Eintrag 0.26, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 141 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen; `codex2claude.md` seit `4dedae1` unverändert | vor Arbeitsbeginn |
+| 142 | `claude2codex.md` vollständig neu gefasst | siehe unten |
+| 143 | Die acht einzelnen Absätze, die Claude seit 0.26.0 an den Kopf der README gesetzt hatte, durch eine Tabelle ersetzt | `README.md`; Codex' Absätze darunter unverändert |
+| 144 | Node-Tests ausgeführt (146 bestanden); Browsertests nicht erneut, da keine App-Datei geändert wurde | |
+| 145 | Dieser Eintrag mit beiden Dateien als ein Commit gepusht | Deployment ohne App-Änderung |
+
+**Warum die Übergabedatei neu gefasst wurde:** Die Fassung vom 8. Oktober
+enthielt inzwischen falsche Aussagen (Deployment ohne Testlauf, keine
+`package.json`, Reihenfolge-Tabelle mit erledigten Punkten) und kannte keine
+der neuen Dateien. Die neue Fassung enthält:
+
+- A1: Tabelle der Versionen 0.26.0 bis 0.33.0 mit Dateien.
+- A2: die sechs Stellen, an denen Claude in Codex' Teile eingegriffen hat, zum
+  Prüfen und Zurücknehmen.
+- B: aktuelle Dateikarte mit Urheber, neue Routen und Speicher-Schlüssel,
+  Befehle, zehn Regeln, darunter die beiden heute gelernten (Reihenfolge der
+  Konstanten vor `loadState()`, Vergleich von Werten aus dem `vm`-Kontext).
+- C: Statusübersicht aller 22 Punkte, die fünf Entscheidungen für Jakob, die
+  offenen Punkte im Einzelnen und die bekannten Schwächen in Claudes Teilen.
+
+Die OPT-IDs sind unverändert. Die frühere Fassung bleibt über den Git-Verlauf
+abrufbar (`git show e3a4fea:claude2codex.md`).
+
+**Nicht angefasst:** die übrigen Teile von OPT-14 (Release-Dateien verschieben,
+`documentation.md` teilen, historische README-Abschnitte), weil sie Dateien
+von Codex verschieben oder kürzen würden.
+
+Nächste Handlungsnummer: 146.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
