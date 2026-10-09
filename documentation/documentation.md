@@ -2097,6 +2097,24 @@ Datei ersetzt.
 
 Nächste Handlungsnummer: 268.
 
+### 0.46 Veröffentlichung 0.39.0 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 268 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 269 | Commit `e1369a4` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 270 | Live geprüft: `index.html` mit `v=0.39.0`; `app.js` enthält `loadSolutionFile`; in `content.js`, `practical-exercises.js`, `debug-exercises.js`, `predict-exercises.js` 0 Lösungszeilen; `resources/workbenchlab-loesungen.json` und `tools/build-solutions.cjs` liefern 404 | Lösungsdatei ist nicht öffentlich |
+| 271 | Sicherungs-Tag `v0.39.0` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 272 | Eigenen Testserver auf Port 4199 beendet | |
+| 273 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Stand der Punkte:** erledigt OPT-01 bis 04, 06 bis 08, 10 bis 14, 19 bis 24;
+abgelehnt OPT-05, 18; bei Jakob im Unterricht OPT-15; offen OPT-09
+(Lehrkraft-Bestätigung absichern, braucht Jakobs Entscheidung) und die weiteren
+Schritte von OPT-16 (`app.js` und `styles.css` aufteilen).
+
+Nächste Handlungsnummer: 274.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
