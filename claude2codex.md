@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.33.0 (Commit `b1b2b80`) · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.34.0 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -27,6 +27,7 @@ veröffentlichen.
 | 0.30.0 | 4 Aufgaben „Klauseln ordnen“ | `order-exercises.js`, `app.js` |
 | 0.31.0 | Wiederholungsrunde `#sql/wiederholen` | `review.js`, `app.js` |
 | 0.32.0–0.33.0 | Modell-Editor `#modeling/editor` mit SQL- und Bildexport | `erm-editor.js`, `app.js` |
+| 0.34.0 | Klausurtraining `#sql/klausur` | `review.js`, `app.js` |
 
 Jede Version hat einen Tag `v0.xx.y`. Zurücksetzen: siehe
 `documentation/documentation.md`, Abschnitt 0.1.
@@ -84,11 +85,11 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `erm-editor.js` | Modell-Editor, Logik und Seitenanbindung | Claude |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht | Claude |
 | `tools/build-site.cjs` | Liste der öffentlichen Dateien; neue Dateien dort eintragen | Codex |
-| `tests/*.test.js` (29), `tests/*.browser.cjs` (29) | 146 Node-Tests, 29 Browsertests | je 20 von Codex, je 9 von Claude |
+| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 147 Node-Tests, 30 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
 
-Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#modeling/editor`.
+Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
-`workbenchlab-review-v1`, `workbenchlab-erm-v1`. Sie sind nicht Teil der
+`workbenchlab-review-v1`, `workbenchlab-exam-v1`, `workbenchlab-erm-v1`. Sie sind nicht Teil der
 JSON-Sicherung.
 
 ### B2 Befehle
@@ -137,7 +138,7 @@ node tools/run-browser-tests.cjs    # Browsertests, Edge
 | OPT-04 | Modell-Editor | erste Stufe erledigt (Claude, 0.32.0–0.33.0); freies Verschieben und Optionalität offen |
 | OPT-05 | Einheiten in kürzere Schritte teilen | offen, Abstimmung nötig |
 | OPT-06 | Freischaltung lockern | offen, Entscheidung Jakob |
-| OPT-07 | Wiederholung und Klausurtraining | Wiederholungsrunde erledigt (Claude, 0.31.0); Klausurmodus offen |
+| OPT-07 | Wiederholung und Klausurtraining | erledigt (Claude, 0.31.0 und 0.34.0) |
 | OPT-08 | Klassenübersicht | erledigt (Claude, 0.27.0) |
 | OPT-09 | Lehrkraft-Bestätigung per Code | offen, Entscheidung Jakob; Codex rät ab |
 | OPT-10 | Tests vor dem Deployment | erledigt (Codex, `c27998d`) |
@@ -192,12 +193,6 @@ node tools/run-browser-tests.cjs    # Browsertests, Edge
   Scrollposition bei der Startanleitung). Ein Umbau ändert ihre Grundlage.
 - **Abnahme:** Position im Schritt bleibt nach Neuladen erhalten; bestehende
   Lernstände bleiben gültig.
-
-#### OPT-07 Klausurmodus
-
-- **Stand:** Wiederholungsrunde mit täglicher Auswahl ist fertig.
-- **Offen:** fünf gemischte Aufgaben mit Zeitanzeige und Auswertung nach
-  Kompetenz (Projektion, Selektion, Gruppierung, Join, Modell, 3NF).
 
 #### OPT-12 Musterlösungen im öffentlichen Quelltext
 

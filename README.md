@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.33.0
+**Aktueller Release:** 0.34.0
 
 **Neu seit 0.26.0 (Claude, 9. Oktober 2026):**
 
@@ -10,6 +10,7 @@
 | Üben | Deutsche SQL-Fehlermeldungen mit Vorschlag direkt beim Ausführen | alle SQL-Aufgaben |
 | Üben | 15 neue Aufgaben: Fehlersuche (6), Vorhersage (5), Klauseln ordnen (4) | SQL-Labor → Filter |
 | Üben | Wiederholungsrunde mit täglich bis zu fünf gelösten Aufgaben | SQL-Labor |
+| Üben | Klausurtraining: fünf gemischte Aufgaben in 20 Minuten mit Auswertung je Einheit | SQL-Labor |
 | Modellieren | Modell-Editor mit Diagramm, zwei geprüften Aufgaben, SQL- und Bildexport | Modellieren → „Editor öffnen“ |
 | Unterricht | Klassenübersicht aus JSON-Sicherungen, lokal im Browser | <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html> |
 | Unterricht | Druckansicht jeder Einheit | Druckersymbol in der Einheit |

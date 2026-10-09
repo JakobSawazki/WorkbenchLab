@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.33.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.34.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -1198,6 +1198,88 @@ abrufbar (`git show e3a4fea:claude2codex.md`).
 von Codex verschieben oder kürzen würden.
 
 Nächste Handlungsnummer: 146.
+
+### 0.28 Release 0.34.0: Klausurtraining [Claude, 2026-10-09]
+
+Bezug: OPT-07, zweiter Teil. Damit ist OPT-07 vollständig.
+
+**Vorbemerkung:** Claude hatte nach 0.33.0 angehalten und eine Durchsicht durch
+Jakob empfohlen. Die automatische Prüfung des Auftrags wies darauf hin, dass
+Klausurmodus und zweite Editor-Stufe nicht blockiert sind. Das stimmt; die
+Empfehlung zur Durchsicht bleibt bestehen (siehe 0.24), ist aber kein
+Hindernis. Claude hat deshalb weitergearbeitet.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 146 | Commit `12f235b` (Eintrag 0.27 mit Übergabedatei und README) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 147 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 148 | `review.js` um `examSummary` und `clock` ergänzt; in `app.js` Klausurtraining mit Route `sql/klausur`, Einstieg im SQL-Labor, Rücksprung aus der Aufgabe, ein Aufruf in `award`; `styles.css`; Versionsangaben auf `0.34.0`; README-Tabelle | siehe unten |
+| 149 | `tests/review.test.js` um einen Test erweitert (jetzt 6); `tests/exam.browser.cjs` angelegt | |
+| 150 | Drei Fehlversuche im Browsertest, alle im Testcode: der Lösungshelfer kannte Aufgaben zum Anlegen von Tabellen nicht; die Annahme „höchstens zwei Einheiten“ war falsch, weil auch L1.4 eine SQL-Aufgabe hat | nur Testcode |
+| 151 | **Der Browsertest fand einen echten Darstellungsfehler:** In den Aufgabenlisten von Wiederholungsrunde und Klausurtraining schob ein langer Einheitenname die Seite bei 1440 px über den Rand. Der Fehler bestand seit 0.31.0 in der Wiederholungsrunde, trat dort aber nur bei bestimmten Aufgaben auf. Mit einem Einmal-Skript alle 15 Aufgabenkombinationen durchgeprüft, Ursache behoben (`.review-list` in `styles.css`) | Skript nur im temporären Sitzungsordner |
+| 152 | Testserver auf Port 4199 gestartet; Browsertest dreimal hintereinander (zufällige Auswahl) und danach alle Tests ausgeführt; Bildschirmfoto gesichtet | siehe Prüfung |
+| 153 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.34.0` ergänzt | außerhalb des Repos, vor diesem Eintrag |
+
+**Neu für Schülerinnen und Schüler**
+
+- Im SQL-Labor erscheint der Abschnitt „Klausurtraining“, sobald mindestens
+  drei SQL-Aufgaben freigeschaltet sind.
+- „Runde starten“ zieht fünf Aufgaben aus den **freigeschalteten** Einheiten,
+  bevorzugt aus verschiedenen: Schreibaufgaben, Fehlersuche, Vorhersage,
+  Klauseln ordnen. Jede Runde ist neu gemischt.
+- Eine Uhr zählt 20 Minuten herunter. Nach Ablauf kann weitergearbeitet
+  werden; später gelöste Aufgaben werden getrennt gezählt.
+- „Jetzt auswerten“ zeigt: in der Zeit gelöste Aufgaben, benötigte Zeit, und je
+  Einheit „x von y“ mit der Empfehlung „sicher“ oder einer Schaltfläche zur
+  Einheit.
+- Neu gelöste Aufgaben bringen wie gewohnt XP; die Runde selbst gibt keine.
+
+**Bewusste Entscheidungen und Grenzen**
+
+- Hinweise und SQL-Coach bleiben während der Runde verfügbar. Sie abzuschalten
+  hätte einen Eingriff in Codex' Aufgabenansicht bedeutet; der Starttext sagt
+  offen, dass die Lernenden selbst entscheiden.
+- Die Zeit wird nicht erzwungen und lässt sich durch Schließen des Fensters
+  nicht anhalten: Sie läuft ab dem Startzeitpunkt.
+- Runde und Auswertung liegen unter `workbenchlab-exam-v1` im Browserspeicher,
+  nicht im Lernstand und nicht in der JSON-Sicherung. Die Klassenübersicht
+  sieht sie nicht.
+- 20 Minuten und fünf Aufgaben sind fest eingestellt (`examMinutes`,
+  `examSize` in `app.js`).
+- Modell- und Begriffsaufgaben sind nicht enthalten.
+
+**Prüfung**
+
+- 147 Node-Tests (1 neu) und 2 Python-Tests bestanden.
+- Browsertests (Edge, Port 4199): Der Rechner war während der Läufe stark
+  ausgelastet; ein Gesamtlauf dauerte über 25 Minuten statt vier.
+  - Erster Gesamtlauf: `backup-safety.browser.cjs` brach mit Zeitüberschreitung
+    ab; einzeln wiederholt bestand er. Claude wertet das als Lastproblem, nicht
+    als Fehler der Änderung.
+  - Zweiter Gesamtlauf: 20 Tests bestanden, dann scheiterte
+    `review.browser.cjs`. **Echter Folgefehler:** Der Einstieg zum
+    Klausurtraining trug dieselbe Klasse `review-teaser` wie der zur
+    Wiederholungsrunde. Behoben (eigene Klasse `exam-teaser`).
+  - Danach auf dem endgültigen Stand einzeln ausgeführt und bestanden: die 14
+    Tests, die der zweite Lauf nicht mehr erreicht hatte (darunter `review`,
+    `exam`, `predict-exercises`), sowie erneut `debug-exercises`,
+    `order-exercises`, `practical-exercises` und `erm-editor`.
+  - **Nicht erneut ausgeführt** nach der letzten Korrektur (zwei Zeilen: eine
+    Klasse im Einstiegsabschnitt, eine CSS-Regel): zwölf Tests, die das
+    SQL-Labor nicht berühren (`aggregation`, `appearance`, `backup-safety`,
+    `command-search`, `home-navigation`, `lesson-completion`,
+    `lesson-openings`, `lesson-phase-order`, `mn-modeling`, `model-glossary`,
+    `notebook-drawing`, `opening-lessons-layout`). Sie bestanden im zweiten
+    Gesamtlauf mit dem Stand unmittelbar davor.
+- Der neue `exam.browser.cjs` zieht zufällige Aufgaben; er lief fünfmal
+  hintereinander erfolgreich und löst dabei jeden Aufgabentyp über die
+  Oberfläche.
+- Bildschirmfoto der Auswertung bei 1440 px gesichtet.
+- Nicht geprüft: heller Modus des Klausurtrainings, Verhalten der Uhr, wenn
+  der Rechner in den Ruhezustand geht, Schul-PCs.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.29.
 
 <!-- CLAUDE:END -->
 

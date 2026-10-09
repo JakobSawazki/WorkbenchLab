@@ -46,5 +46,35 @@
     return chosen.map((item) => item.id);
   }
 
-  window.WORKBENCH_REVIEW = { pick };
+  // Klausurtraining (Claude, OPT-07): Auswertung je Einheit.
+  // picks: [{ id, lessonId }], solved: { id: Zeitstempel in ms }, lessons: [{ id, courseCode, title }]
+  function examSummary(picks, solved, lessons, startedAt, endsAt) {
+    const inTime = (id) => Number.isFinite(solved[id]) && solved[id] >= startedAt && solved[id] <= endsAt;
+    const late = (id) => Number.isFinite(solved[id]) && solved[id] > endsAt;
+    const groups = [];
+    picks.forEach((item) => {
+      let group = groups.find((entry) => entry.lessonId === item.lessonId);
+      if (!group) {
+        const lesson = lessons.find((entry) => entry.id === item.lessonId);
+        group = { lessonId: item.lessonId, code: lesson?.courseCode || "", title: lesson?.title || "", total: 0, solved: 0, late: 0 };
+        groups.push(group);
+      }
+      group.total += 1;
+      if (inTime(item.id)) group.solved += 1;
+      if (late(item.id)) group.late += 1;
+    });
+    return {
+      total: picks.length,
+      solved: picks.filter((item) => inTime(item.id)).length,
+      late: picks.filter((item) => late(item.id)).length,
+      groups
+    };
+  }
+
+  function clock(milliseconds) {
+    const seconds = Math.max(0, Math.ceil(milliseconds / 1000));
+    return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  }
+
+  window.WORKBENCH_REVIEW = { pick, examSummary, clock };
 })();

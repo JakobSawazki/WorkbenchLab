@@ -56,3 +56,26 @@ test("die Wiederholungsrunde wird vor der App geladen und veröffentlicht", () =
   assert.equal(require("../tools/build-site.cjs").isPublicFile("review.js"), true);
   assert.doesNotMatch(fs.readFileSync(path.join(root, "review.js"), "utf8"), /Math\.random|Date\.now|new Date/);
 });
+
+test("Klausurtraining: Auswertung zählt je Einheit, trennt verspätete Lösungen und formatiert die Zeit", () => {
+  const { examSummary, clock } = context.window.WORKBENCH_REVIEW;
+  const picks = [{ id: "a", lessonId: "l1" }, { id: "b", lessonId: "l1" }, { id: "c", lessonId: "l2" }, { id: "d", lessonId: "l3" }, { id: "e", lessonId: "l3" }];
+  const lessons = [{ id: "l1", courseCode: "L1.5", title: "Projektion" }, { id: "l2", courseCode: "L1.6", title: "Selektion" }];
+  const start = 1000000;
+  const end = start + 20 * 60000;
+  const result = JSON.parse(JSON.stringify(examSummary(picks, { a: start + 5000, c: end, d: end + 1, x: start + 1, e: start - 1 }, lessons, start, end)));
+  assert.equal(result.total, 5);
+  assert.equal(result.solved, 2);
+  assert.equal(result.late, 1);
+  assert.deepEqual(result.groups, [
+    { lessonId: "l1", code: "L1.5", title: "Projektion", total: 2, solved: 1, late: 0 },
+    { lessonId: "l2", code: "L1.6", title: "Selektion", total: 1, solved: 1, late: 0 },
+    { lessonId: "l3", code: "", title: "", total: 2, solved: 0, late: 1 }
+  ]);
+  assert.deepEqual(JSON.parse(JSON.stringify(examSummary([], {}, lessons, start, end))), { total: 0, solved: 0, late: 0, groups: [] });
+  assert.equal(clock(20 * 60000), "20:00");
+  assert.equal(clock(61000), "01:01");
+  assert.equal(clock(999), "00:01");
+  assert.equal(clock(0), "00:00");
+  assert.equal(clock(-5000), "00:00");
+});

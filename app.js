@@ -539,6 +539,64 @@
   const reviewSize = 5;
   let reviewOrigin = false;
 
+  // Klausurtraining (Claude, OPT-07): fünf gemischte Aufgaben mit Zeitanzeige.
+  // Der Stand einer Runde liegt getrennt vom Lernstand und ist nicht Teil der JSON-Sicherung.
+  const examStorageKey = "workbenchlab-exam-v1";
+  const examSize = 5;
+  const examMinutes = 20;
+  let examOrigin = false;
+  let examTimer = null;
+
+  function readExam() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(examStorageKey) || "null");
+      if (stored && Number.isFinite(stored.startedAt) && Array.isArray(stored.picks)) {
+        const picks = stored.picks.filter((id) => typeof id === "string" && practiceById(id));
+        const solved = {};
+        Object.entries(stored.solved || {}).forEach(([id, time]) => {
+          if (picks.includes(id) && Number.isFinite(time)) solved[id] = time;
+        });
+        if (picks.length) {
+          return { startedAt: stored.startedAt, picks, solved, finishedAt: Number.isFinite(stored.finishedAt) ? stored.finishedAt : null };
+        }
+      }
+    } catch {}
+    return null;
+  }
+
+  function writeExam(exam) {
+    try {
+      if (exam) {
+        localStorage.setItem(examStorageKey, JSON.stringify(exam));
+      } else {
+        localStorage.removeItem(examStorageKey);
+      }
+    } catch {}
+  }
+
+  const examEndsAt = (exam) => exam.startedAt + examMinutes * 60000;
+  const examRunning = (exam) => Boolean(exam && !exam.finishedAt);
+
+  function examPool() {
+    return content.practices.filter((practice) => isSqlTopic(practice) && isPracticeUnlocked(practice));
+  }
+
+  function startExam() {
+    const pool = examPool();
+    const startedAt = Date.now();
+    const picks = window.WORKBENCH_REVIEW.pick(pool.map((practice) => ({ id: practice.id, lessonId: practice.lessonId })), `klausur|${startedAt}|${state.profileId}`, examSize);
+    writeExam({ startedAt, picks, solved: {}, finishedAt: null });
+  }
+
+  function markExamSolved(id) {
+    const exam = readExam();
+    if (!examRunning(exam) || !exam.picks.includes(id) || exam.solved[id]) {
+      return;
+    }
+    exam.solved[id] = Date.now();
+    writeExam(exam);
+  }
+
   function readReviewDay() {
     try {
       const stored = JSON.parse(localStorage.getItem(reviewStorageKey) || "null");
@@ -593,6 +651,9 @@
   }
 
   function award(kind, id, xp) {
+    if (kind === "practice") {
+      markExamSolved(id);
+    }
     if (kind === "practice" && state.completedPractices.includes(id)) {
       markReviewed(id);
     }
@@ -1925,6 +1986,7 @@
         <button class="button button-primary" type="button" data-route="sql/frei"><i data-lucide="flask-conical"></i>Frei ausprobieren</button>
       </section>
       ${reviewTeaserHtml()}
+      ${examTeaserHtml()}
       <div class="section-heading">
         <div>
           <p class="eyebrow">Übungen</p>
@@ -1937,6 +1999,113 @@
       <div class="card-grid">
         ${practices.map(practiceCard).join("")}
       </div>`;
+  }
+
+  function examTeaserHtml() {
+    if (examPool().length < 3) {
+      return "";
+    }
+    const exam = readExam();
+    return `
+      <section class="section-band playground-teaser exam-teaser">
+        <div>
+          <p class="eyebrow">Unter Zeit üben</p>
+          <h2>Klausurtraining</h2>
+          <p>${examRunning(exam) ? "Eine Runde läuft noch." : `${examSize} gemischte Aufgaben in ${examMinutes} Minuten, danach eine Auswertung je Einheit.`}</p>
+        </div>
+        <button class="button button-secondary" type="button" data-route="sql/klausur"><i data-lucide="timer"></i>${examRunning(exam) ? "Weiter zur Runde" : "Zum Klausurtraining"}</button>
+      </section>`;
+  }
+
+  function examResultHtml(exam) {
+    const picks = exam.picks.map(practiceById).filter(Boolean);
+    const summary = window.WORKBENCH_REVIEW.examSummary(picks.map((practice) => ({ id: practice.id, lessonId: practice.lessonId })), exam.solved, content.lessons, exam.startedAt, examEndsAt(exam));
+    const used = Math.min(exam.finishedAt, examEndsAt(exam)) - exam.startedAt;
+    return `
+      <section class="section-band review-head exam-result" aria-live="polite">
+        <div>
+          <p class="eyebrow">Auswertung</p>
+          <h2>${summary.solved} von ${summary.total} Aufgaben in der Zeit gelöst</h2>
+          <p>Benötigte Zeit: ${window.WORKBENCH_REVIEW.clock(used)} von ${examMinutes}:00 Minuten.${summary.late ? ` ${summary.late} weitere Aufgabe${summary.late === 1 ? "" : "n"} nach Ablauf der Zeit gelöst.` : ""}</p>
+        </div>
+        <button class="button button-primary" type="button" id="examRestart"><i data-lucide="rotate-ccw"></i>Neue Runde</button>
+      </section>
+      <div class="teacher-like-table-wrap">
+        <table class="data-table exam-table">
+          <thead><tr><th scope="col">Einheit</th><th scope="col">in der Zeit gelöst</th><th scope="col">Empfehlung</th></tr></thead>
+          <tbody>${summary.groups.map((group) => `
+            <tr>
+              <th scope="row">${escapeHtml(group.code)} · ${escapeHtml(group.title)}</th>
+              <td>${group.solved} von ${group.total}</td>
+              <td>${group.solved === group.total ? "sicher" : `<button class="button button-secondary" type="button" data-lesson="${escapeHtml(group.lessonId)}"><i data-lucide="book-open"></i>Einheit wiederholen</button>`}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+      <p class="field-hint">Die Auswertung ist eine Selbsteinschätzung zum Üben. Sie wird nicht gespeichert und nicht in die JSON-Sicherung übernommen.</p>`;
+  }
+
+  function renderExam() {
+    setHeading("Unter Zeit üben", "Klausurtraining");
+    activateNav("sql");
+    examOrigin = true;
+    const exam = readExam();
+    const pool = examPool();
+    if (!exam) {
+      main.innerHTML = `
+        <section class="section-band review-head">
+          <div>
+            <p class="eyebrow">${examSize} Aufgaben · ${examMinutes} Minuten</p>
+            <h2>${pool.length < 3 ? "Noch nicht genug Aufgaben freigeschaltet" : "Bereit für eine Runde?"}</h2>
+            <p>${pool.length < 3
+              ? "Das Klausurtraining mischt SQL-Aufgaben aus deinen freigeschalteten Einheiten. Sobald dort mindestens drei Aufgaben verfügbar sind, kannst du starten."
+              : "Du bekommst gemischte Aufgaben aus deinen freigeschalteten Einheiten: Abfragen schreiben, Fehler finden, Ergebnisse vorhersagen, Klauseln ordnen. Die Uhr läuft ab dem Start. Hinweise und Coach bleiben verfügbar – entscheide selbst, ob du sie nutzt. Neu gelöste Aufgaben bringen wie gewohnt XP."}</p>
+          </div>
+          <div class="detail-actions">
+            ${pool.length < 3 ? "" : `<button class="button button-primary" type="button" id="examStart"><i data-lucide="play"></i>Runde starten</button>`}
+            <button class="button button-secondary" type="button" data-route="sql"><i data-lucide="list-checks"></i>SQL-Aufgaben</button>
+          </div>
+        </section>`;
+      return;
+    }
+    const picks = exam.picks.map(practiceById).filter(Boolean);
+    if (exam.finishedAt) {
+      main.innerHTML = `${examResultHtml(exam)}
+        <ol class="review-list">${picks.map((practice) => `<li class="${exam.solved[practice.id] ? "is-reviewed" : ""}">${practiceCard(practice)}<p class="review-state"><i data-lucide="${exam.solved[practice.id] ? "check" : "circle-dashed"}"></i>${exam.solved[practice.id] ? (exam.solved[practice.id] > examEndsAt(exam) ? "nach der Zeit gelöst" : "gelöst") : "offen geblieben"}</p></li>`).join("")}</ol>`;
+      return;
+    }
+    const count = picks.filter((practice) => exam.solved[practice.id]).length;
+    main.innerHTML = `
+      <section class="section-band review-head">
+        <div>
+          <p class="eyebrow">Runde läuft</p>
+          <h2>${count} von ${picks.length} gelöst</h2>
+          <p class="exam-clock"><i data-lucide="timer"></i><span>Verbleibend:</span> <strong id="examClock" role="timer" aria-live="off">--:--</strong></p>
+          <p id="examTimeUp" class="field-error" role="status" aria-live="polite"></p>
+        </div>
+        <div class="detail-actions">
+          <button class="button button-primary" type="button" id="examFinish"><i data-lucide="flag"></i>Jetzt auswerten</button>
+        </div>
+      </section>
+      <ol class="review-list">${picks.map((practice) => `<li class="${exam.solved[practice.id] ? "is-reviewed" : ""}">${practiceCard(practice)}<p class="review-state"><i data-lucide="${exam.solved[practice.id] ? "check" : "circle-dashed"}"></i>${exam.solved[practice.id] ? "gelöst" : "noch offen"}</p></li>`).join("")}</ol>`;
+    const tick = () => {
+      const clockElement = document.querySelector("#examClock");
+      if (!clockElement) {
+        return;
+      }
+      const remaining = examEndsAt(exam) - Date.now();
+      clockElement.textContent = window.WORKBENCH_REVIEW.clock(remaining);
+      if (remaining <= 0) {
+        clockElement.closest(".exam-clock").classList.add("is-over");
+        document.querySelector("#examTimeUp").textContent = "Die Zeit ist abgelaufen. Du kannst weiterarbeiten; später gelöste Aufgaben werden getrennt gezählt.";
+        window.clearInterval(examTimer);
+        examTimer = null;
+      }
+    };
+    tick();
+    if (examEndsAt(exam) > Date.now()) {
+      examTimer = window.setInterval(tick, 1000);
+    }
   }
 
   function reviewTeaserHtml() {
@@ -2233,6 +2402,7 @@
           </div>
         </div>
         <div class="detail-actions">
+          ${examOrigin && readExam()?.picks.includes(practice.id) ? `<button class="button button-secondary" type="button" data-route="sql/klausur"><i data-lucide="timer"></i>Klausurtraining</button>` : ""}
           ${reviewOrigin && reviewPicks().includes(practice.id) ? `<button class="button button-secondary" type="button" data-route="sql/wiederholen"><i data-lucide="repeat"></i>Wiederholungsrunde</button>` : ""}
           <button class="button button-secondary" type="button" data-lesson="${practice.lessonId}">
             <i data-lucide="book-open"></i>
@@ -3571,6 +3741,13 @@
     if (route.name !== "practice" && !(route.name === "sql" && route.id === "wiederholen")) {
       reviewOrigin = false;
     }
+    if (route.name !== "practice" && !(route.name === "sql" && route.id === "klausur")) {
+      examOrigin = false;
+    }
+    if (examTimer) {
+      window.clearInterval(examTimer);
+      examTimer = null;
+    }
     if (route.name === "home") {
       renderHome();
     } else if (route.name === "path") {
@@ -3579,6 +3756,8 @@
       renderSqlPlayground();
     } else if (route.name === "sql" && route.id === "wiederholen") {
       renderReview();
+    } else if (route.name === "sql" && route.id === "klausur") {
+      renderExam();
     } else if (route.name === "sql") {
       renderSql();
     } else if (route.name === "modeling" && route.id === "editor") {
@@ -3912,6 +4091,31 @@
         setSqlOutput(`<div class="console-output">Die Aufgabe wurde zurückgesetzt.</div>`);
         document.querySelector("#practiceResult").className = "result-banner";
       }
+    }
+    if (event.target.closest("#examStart")) {
+      startExam();
+      renderExam();
+      renderIcons();
+      document.querySelector(".review-list [data-practice]")?.focus();
+    }
+    if (event.target.closest("#examFinish")) {
+      const exam = readExam();
+      if (examRunning(exam)) {
+        writeExam({ ...exam, finishedAt: Date.now() });
+      }
+      if (examTimer) {
+        window.clearInterval(examTimer);
+        examTimer = null;
+      }
+      renderExam();
+      renderIcons();
+      document.querySelector("#examRestart")?.focus();
+    }
+    if (event.target.closest("#examRestart")) {
+      writeExam(null);
+      renderExam();
+      renderIcons();
+      document.querySelector("#examStart")?.focus();
     }
     const orderMove = event.target.closest("[data-order-move]");
     if (orderMove && !orderMove.disabled) {
