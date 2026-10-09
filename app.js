@@ -2087,6 +2087,23 @@
     }
   }
 
+  // Modell-Editor (Claude, OPT-04); die Logik liegt in erm-editor.js.
+  function renderModelEditor() {
+    setHeading("Eigene Modelle entwerfen", "Modell-Editor");
+    activateNav("modeling");
+    main.innerHTML = `
+      <header class="section-band review-head">
+        <div>
+          <p class="eyebrow">Vom Sachtext zum Modell</p>
+          <h2>Modell-Editor</h2>
+          <p>Wähle eine Aufgabe, lege Entitätstypen mit Attributen an und verbinde sie. Das Diagramm entsteht automatisch. Dein Entwurf bleibt in diesem Browser gespeichert.</p>
+        </div>
+        <button class="button button-secondary" type="button" data-route="modeling"><i data-lucide="network"></i>Modellieren</button>
+      </header>
+      <div id="ermMount"></div>`;
+    window.WORKBENCH_ERM.mount(document.querySelector("#ermMount"), { escapeHtml, renderIcons, toast, downloadBlob });
+  }
+
   function renderModeling() {
     setHeading("eERM, Schlüssel und Normalisierung", "Modellieren");
     activateNav("modeling");
@@ -2120,6 +2137,14 @@
           <img src="assets/images/eerm-workshop.jpg" alt="Eine Lerngruppe ordnet Entitäten und Beziehungen für eine Fahrradvermietung">
           <figcaption><i data-lucide="boxes"></i> Gemeinsam vom Sachtext zum Modell</figcaption>
         </figure>
+      </section>
+      <section class="section-band playground-teaser erm-teaser">
+        <div>
+          <p class="eyebrow">Selbst modellieren, ohne XP</p>
+          <h2>Modell-Editor</h2>
+          <p>Lege Entitätstypen, Attribute, Schlüssel und Beziehungen selbst an, lass dein Modell prüfen und exportiere es als SQL für MySQL Workbench.</p>
+        </div>
+        <button class="button button-primary" type="button" data-route="modeling/editor"><i data-lucide="pencil-ruler"></i>Editor öffnen</button>
       </section>
       <div class="section-heading">
         <div>
@@ -3556,6 +3581,8 @@
       renderReview();
     } else if (route.name === "sql") {
       renderSql();
+    } else if (route.name === "modeling" && route.id === "editor") {
+      renderModelEditor();
     } else if (route.name === "modeling") {
       renderModeling();
     } else if (route.name === "commands") {

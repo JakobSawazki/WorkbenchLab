@@ -1,6 +1,8 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.31.0
+**Aktueller Release:** 0.32.0
+
+**Modell-Editor:** Unter „Modellieren“ lassen sich Entitätstypen, Attribute, Schlüssel und Beziehungen selbst anlegen; das Diagramm entsteht automatisch, zwei Aufgaben werden geprüft, und das Modell lässt sich als SQL für MySQL Workbench exportieren.
 
 **Wiederholungsrunde:** Im SQL-Labor stellt die App täglich bis zu fünf bereits gelöste Aufgaben aus verschiedenen Einheiten zum Auffrischen zusammen (ohne XP).
 

@@ -4665,3 +4665,48 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 .review-state { display: inline-flex; align-items: center; gap: 0.4rem; margin: 0; font-size: 0.9rem; font-weight: 700; }
 .review-state svg { width: 1rem; height: 1rem; }
 .review-list .is-reviewed .review-state { color: var(--green); }
+
+/* Modell-Editor (Claude, OPT-04) */
+.erm-task { padding: clamp(1rem, 3vw, 1.35rem); margin-bottom: 1rem; }
+.erm-task p { margin: 0.7rem 0 0; }
+.erm-task-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+.erm-task-pick label { font-weight: 700; }
+.erm-editor select, .erm-editor input:not([type="checkbox"]) {
+  min-width: 0;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-strong);
+  color: inherit;
+  font: inherit;
+}
+.erm-task-pick select { flex: 1 1 16rem; }
+.erm-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 1rem; align-items: start; }
+.erm-form, .erm-preview { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); padding: clamp(0.9rem, 2.5vw, 1.2rem); min-width: 0; }
+.erm-form h3, .erm-preview h3 { margin: 0 0 0.7rem; }
+.erm-form h3:not(:first-child) { margin-top: 1.4rem; }
+.erm-entity { margin: 0 0 0.8rem; padding: 0.7rem; border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
+.erm-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; margin-bottom: 0.6rem; }
+.erm-row input { font-weight: 700; }
+.erm-attribute-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto auto auto; gap: 0.4rem; align-items: center; margin-bottom: 0.45rem; }
+.erm-flag { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+.erm-small { min-height: 2.2rem; padding-block: 0.25rem; font-size: 0.9rem; }
+.erm-relation { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: 0.4rem; align-items: center; margin-bottom: 0.5rem; }
+.erm-form .field-hint { margin: 0.8rem 0 0; }
+.erm-diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-strong); padding: 0.5rem; margin-bottom: 0.9rem; min-height: 8rem; }
+.erm-svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+.erm-empty { margin: 2rem 1rem; text-align: center; color: var(--muted); }
+.erm-box { fill: var(--panel); stroke: var(--brand); stroke-width: 1.5; }
+.erm-box-head { fill: var(--brand); opacity: 0.22; }
+.erm-title { fill: var(--text); font: 700 14px var(--sans); }
+.erm-attribute { fill: var(--text); font: 13px var(--mono); }
+.erm-attribute.is-pk { text-decoration: underline; font-weight: 700; }
+.erm-line { stroke: var(--muted); stroke-width: 2; }
+.erm-card { fill: var(--amber); font: 700 15px var(--sans); paint-order: stroke; stroke: var(--panel-strong); stroke-width: 4px; }
+.erm-checklist { margin-top: 0.8rem; }
+@media (max-width: 900px) {
+  .erm-layout { grid-template-columns: minmax(0, 1fr); }
+  .erm-attribute-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+  .erm-attribute-row .erm-flag { justify-self: start; }
+}

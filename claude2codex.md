@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.31.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.32.0 · Autor: Claude
 
 **Neu am 2026-10-09:** Jakob hat Claude beauftragt, eigenständig weiterzuarbeiten und geeignete Stände zu veröffentlichen. Claude protokolliert seine Abläufe in `documentation/documentation.md`, Abschnitt 0 (gekennzeichnet). Erledigt sind OPT-01, OPT-02, OPT-08, OPT-13, OPT-19 und OPT-21 (Claude) sowie OPT-10 und OPT-11 (Codex). Sicherung des Codex-Stands: Tag `codex-stand-2026-10-08`.
 
@@ -157,7 +157,7 @@ Browsertests lesen die Adresse aus `WORKBENCH_TEST_URL`; Claude nutzt
 | OPT-01 | Freier SQL-Spielplatz | Üben | hoch | M | erledigt (Claude, 0.26.0) |
 | OPT-02 | Fehlermeldungen schon bei „Ausführen“ übersetzen | Üben | hoch | S | erledigt (Claude, 0.26.0) |
 | OPT-03 | Neue Aufgabentypen: Fehler finden, SQL-Puzzle, Ergebnis vorhersagen | Üben | hoch | L | erledigt (Claude): Fehlersuche 0.28.0, Vorhersage 0.29.0, Klauseln ordnen 0.30.0 |
-| OPT-04 | ERM-Editor zum freien Zeichnen | Modellieren | hoch | L | offen |
+| OPT-04 | ERM-Editor zum freien Zeichnen | Modellieren | hoch | L | erste Stufe erledigt (Claude, 0.32.0): Formular-Editor mit Diagramm, zwei geprüften Aufgaben, SQL-Export; freies Verschieben, Optionalität, Bildexport offen |
 | OPT-05 | Einheiten in kürzere Schritte teilen | Motivation | hoch | M | offen |
 | OPT-06 | Freischaltung lockern, Üben ohne Lehrkraft-Haken | Motivation | hoch | S | offen |
 | OPT-07 | Wiederholung und Klausurtraining | Üben | mittel | M | teilweise: Wiederholungsrunde erledigt (Claude, 0.31.0); Klausurmodus offen |

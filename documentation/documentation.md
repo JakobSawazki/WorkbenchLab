@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.31.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.32.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -943,6 +943,88 @@ ohne Uhrzeit, damit die Auswahl prüfbar ist. In `app.js`: `readReviewDay`,
 | offen | OPT-04, OPT-05, OPT-14, OPT-16, OPT-18 |
 
 Nächste Handlungsnummer: 107.
+
+### 0.22 Release 0.32.0: Modell-Editor [Claude, 2026-10-09]
+
+Bezug: OPT-04 aus `claude2codex.md`, erste Ausbaustufe.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 107 | Commit `3240fad` (Eintrag 0.21, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 108 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 109 | `renderModeling`, Routenverteilung und `downloadBlob` gelesen | nur lesend |
+| 110 | `erm-editor.js` angelegt (Logik und Seitenanbindung in einer Datei); in `app.js` nur `renderModelEditor`, die Route `modeling/editor` und ein Einstiegsabschnitt auf „Modellieren“; `styles.css`, `index.html`, `tools/build-site.cjs`, Versionsangaben, README | siehe unten |
+| 111 | `tests/erm-editor.test.js` (7 Node-Tests) und `tests/erm-editor.browser.cjs` angelegt | |
+| 112 | Der Node-Test fand eine Unsauberkeit: abgelehnte Beziehungen verbrauchten trotzdem Nummern; behoben | vor Veröffentlichung |
+| 113 | Der Browsertest fand einen Bedienfehler: Nach dem Umbenennen eines Entitätstyps wurde neu gezeichnet und der Fokus sprang aus dem nächsten Feld zurück. Jetzt werden nur die Auswahllisten der Beziehungen nachgeführt | vor Veröffentlichung |
+| 114 | Testserver auf Port 4199 gestartet; alle Tests ausgeführt; Bildschirmfoto bei 1440 px gesichtet | siehe Prüfung |
+| 115 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.32.0` ergänzt | außerhalb des Repos, vor diesem Eintrag |
+
+**Neu für Schülerinnen und Schüler**
+
+Unter „Modellieren“ führt der neue Abschnitt „Modell-Editor“ zu
+`#modeling/editor`. Ohne Freischaltung, ohne XP.
+
+- **Bauen:** Entitätstypen anlegen und benennen; Attribute mit Datentyp
+  (`INT`, `VARCHAR(50)`, `DATE`, `DOUBLE`, `BOOLEAN`) sowie Kennzeichen PK und
+  FK; Beziehungen zwischen zwei Entitätstypen mit Kardinalität `1:N`, `N:1`,
+  `1:1` oder `M:N`. Alles über Formularfelder, mit Tastatur bedienbar.
+- **Sehen:** Das Diagramm entsteht automatisch: Kästen mit Attributen,
+  unterstrichene Primärschlüssel, Linien mit Kardinalitäten an beiden Enden.
+- **Prüfen:** Zwei Aufgaben mit Rückmeldung je Abweichung:
+  - L2.1 Fahrschüler und Wohnorte (1:N)
+  - L3.1 Fahrradvermietung (M:N über Beziehungsentität auflösen)
+
+  Geprüft werden: vorhandene Entitätstypen (mit mehreren zulässigen
+  Schreibweisen), genau ein Primärschlüssel, Fremdschlüssel auf der richtigen
+  Seite, Richtung der Kardinalität, eine direkte M:N-Beziehung und überzählige
+  Beziehungen. Dazu ein „Freies Modell“ ohne Prüfung.
+- **Mitnehmen:** „SQL für Workbench“ lädt `CREATE TABLE`-Anweisungen mit
+  `PRIMARY KEY` und `FOREIGN KEY … REFERENCES` herunter, in einer Reihenfolge,
+  in der referenzierte Tabellen zuerst entstehen.
+
+**Grenzen dieser Ausbaustufe**
+
+- Kein freies Verschieben der Kästen; die Anordnung ist automatisch (bis zu
+  acht Entitätstypen, je bis zu zwölf Attribute).
+- Keine Optionalität (0 oder 1), keine Rollen, keine zusammengesetzten
+  Schlüssel in der Prüfung, kein Bildexport.
+- Attributnamen werden nicht fachlich geprüft, nur Schlüssel und Struktur.
+  Ein Modell kann die Prüfung bestehen und trotzdem unpassende Attribute
+  enthalten.
+- Entwürfe liegen unter dem eigenen Schlüssel `workbenchlab-erm-v1` im
+  Browserspeicher, je Aufgabe einer. Sie sind **nicht** Teil der
+  JSON-Sicherung; der SQL-Export ist der Weg, ein Modell mitzunehmen.
+- Das exportierte SQL ist ein Ausgangspunkt. In MySQL Workbench entsteht
+  daraus per Reverse Engineering ein EER-Diagramm; das hat Claude nicht an
+  einer echten Workbench geprüft.
+
+**Technik:** `erm-editor.js` stellt `window.WORKBENCH_ERM` bereit: `sanitize`,
+`checkModel`, `toSql`, `layout`, `identifier`, `norm`, die Aufgabenliste
+`TASKS` und `mount`. Der Editor behandelt seine Ereignisse selbst und greift
+nur ein, wenn `#ermEditor` vorhanden ist. Bezeichner für das SQL werden auf
+Kleinbuchstaben, Ziffern und Unterstrich reduziert. Versionsangaben auf
+`0.32.0`. `lehrkraft.html` lädt die Datei nicht.
+
+**Prüfung**
+
+- 146 Node-Tests (7 neu) und 2 Python-Tests bestanden. Die Node-Tests prüfen
+  beide Aufgaben mit richtigem Modell und je typischem Fehler, führen das
+  exportierte SQL in der Browser-Datenbank aus (Schlüssel, Verweise,
+  Reihenfolge), bereinigen beschädigte gespeicherte Modelle und stellen sicher,
+  dass sich Kästen im Diagramm bei 1 bis 8 Entitätstypen nicht überlappen.
+- Alle 29 Browsertests bestanden (Edge, Port 4199). Der neue
+  `erm-editor.browser.cjs` baut bei 1440 und 390 px das 1:N-Modell per Tastatur,
+  prüft Diagramm, Rückmeldungen, Bestehen, Ablehnung einer Selbstbeziehung,
+  SQL-Export, Bestand nach Neuladen, getrennte Modelle je Aufgabe, Entfernen
+  und Leeren.
+- Bildschirmfoto bei 1440 px im dunklen Modus gesichtet.
+- Nicht geprüft: die M:N-Aufgabe im Browser (nur in den Node-Tests), heller
+  Modus, Import des exportierten SQL in eine echte MySQL Workbench, Touch auf
+  einem echten Gerät, Schul-PCs.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.23.
 
 <!-- CLAUDE:END -->
 
