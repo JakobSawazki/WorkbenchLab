@@ -78,9 +78,15 @@ const firstLessons = ["warum-datenbanken", "relation-und-schluessel", "eerm-grun
       await page.locator("#checkSqlButton").click();
       await banner("Aufgabe gelöst");
 
-      // Spätere Einheit bleibt gesperrt wie jede andere Übung.
+      // Übungen späterer Einheiten sind frei zugänglich und als Vorgriff gekennzeichnet (Entscheidung Jakob, 0.38.0).
       await page.goto(base + "#practice/debug-join-ohne-bedingung");
-      await page.waitForFunction(() => location.hash === "#path");
+      await page.locator(".debug-callout").waitFor();
+      assert.equal(await page.evaluate(() => location.hash), "#practice/debug-join-ohne-bedingung");
+      await page.goto(base + "#sql");
+      await page.locator('[data-filter="debug"]').click();
+      assert.equal(await page.locator('main [data-practice="debug-join-ohne-bedingung"] .practice-ahead').count(), 1);
+      assert.equal(await page.locator('main [data-practice="debug-fehlendes-komma"] .practice-ahead').count(), 0);
+      assert.equal(await page.locator("main .practice-card.is-locked").count(), 0);
 
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
       assert.deepEqual(errors, []);

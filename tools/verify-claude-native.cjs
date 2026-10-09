@@ -101,7 +101,7 @@ const erm = context.window.WORKBENCH_ERM;
     for (const item of content.practices.filter((practice) => practice.variant === "predict")) {
       check(`${item.id}: gezeigte Abfrage läuft in MariaDB`, native(item.schema, item.sql).length > 0);
       for (const question of item.questions) {
-        const value = native(item.schema, question.verifySql.replace(/FROM \((SELECT[^;]+)\)(?=\s*(WHERE|;|$))/i, "FROM ($1) AS teil"));
+        const value = native(item.schema, question.proofSql.replace(/FROM \((SELECT[^;]+)\)(?=\s*(WHERE|;|$))/i, "FROM ($1) AS teil"));
         check(`${item.id}: „${question.question}“`, String(value[0][0]) === question.options[question.correct]);
       }
     }

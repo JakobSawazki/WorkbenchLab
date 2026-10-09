@@ -4,6 +4,7 @@
   // ausschließlich lokal im Browser; es findet keine Übertragung statt.
 
   const MAX_FILE_BYTES = 12 * 1024 * 1024;
+  const NAGOLD_PER_LESSON = 5; // wie nagoldPerLesson in app.js
 
   function stableStringify(value) {
     if (Array.isArray(value)) {
@@ -60,6 +61,7 @@
       xpMismatch: Number.isFinite(statedXp) && statedXp !== xp,
       lessons,
       lessonsDone: lessons.length,
+      nagold: lessons.length * NAGOLD_PER_LESSON,
       lessonsTotal: lessonIds.length,
       practicesDone: practices.length,
       practicesTotal: content.practices.length,
@@ -113,10 +115,10 @@
   function toCsv(rows, content) {
     const lessons = content.modules.flatMap((module) => module.lessonIds)
       .map((id) => content.lessons.find((lesson) => lesson.id === id)).filter(Boolean);
-    const head = ["Klasse", "Kürzel", "XP", "Einheiten", "von", "Übungen", "von", "Befehlsaufgaben",
+    const head = ["Klasse", "Kürzel", "NAGOLD", "XP", "Einheiten", "von", "Übungen", "von", "Befehlsaufgaben",
       ...content.modules.map((module) => module.code), "Aktive Tage", "Letzte Aktivität", "Sicherung vom",
       "Prüfsumme", "Ältere Sicherung", "App-Version", "Gerät", "Datei", ...lessons.map((lesson) => lesson.courseCode)];
-    const lines = rows.map((row) => [row.className, row.studentCode, row.xp, row.lessonsDone, row.lessonsTotal,
+    const lines = rows.map((row) => [row.className, row.studentCode, row.nagold, row.xp, row.lessonsDone, row.lessonsTotal,
       row.practicesDone, row.practicesTotal, row.commandsDone, ...row.modules.map((module) => `${module.done}/${module.total}`),
       row.activeDays, row.lastActivity, row.exportedAt.slice(0, 16).replace("T", " "), integrityLabels[row.integrity] || "",
       row.superseded ? "ja" : "nein", row.appVersion, row.deviceCode, row.fileName,
@@ -138,7 +140,7 @@
     return row;
   }
 
-  window.WORKBENCH_TEACHER = { stableStringify, integrityStatus, summarize, markSuperseded, sortRows, toCsv, readFile, integrityLabels };
+  window.WORKBENCH_TEACHER = { stableStringify, integrityStatus, summarize, markSuperseded, sortRows, toCsv, readFile, integrityLabels, NAGOLD_PER_LESSON };
 
   if (typeof document === "undefined" || !document.querySelector("#teacherApp")) return;
 
@@ -187,13 +189,14 @@
         <div><strong>${shown.length}</strong><span>angezeigt</span></div>
         <div><strong>${average((row) => row.lessonsDone)} / ${lessons.length}</strong><span>Einheiten im Mittel</span></div>
         <div><strong>${average((row) => row.practicesDone)}</strong><span>Übungen im Mittel</span></div>
+        <div><strong>${average((row) => row.nagold)}</strong><span>NAGOLD im Mittel</span></div>
         <div><strong>${average((row) => row.xp)}</strong><span>XP im Mittel</span></div>
         <div class="${problems ? "is-warning" : ""}"><strong>${problems}</strong><span>mit ungültiger Prüfsumme</span></div>
       </div>
       <div class="teacher-table-wrap" tabindex="0" role="region" aria-label="Klassenübersicht">
         <table class="teacher-table">
           <thead><tr>
-            <th scope="col">Klasse</th><th scope="col">Kürzel</th><th scope="col">XP</th><th scope="col">Einheiten</th><th scope="col">Übungen</th>
+            <th scope="col">Klasse</th><th scope="col">Kürzel</th><th scope="col">NAGOLD</th><th scope="col">XP</th><th scope="col">Einheiten</th><th scope="col">Übungen</th>
             ${content.modules.map((module) => `<th scope="col">${escapeHtml(module.code)}</th>`).join("")}
             <th scope="col">Letzte Aktivität</th><th scope="col">Sicherung vom</th><th scope="col">Prüfsumme</th>
           </tr></thead>
@@ -201,6 +204,7 @@
             <tr class="${row.superseded ? "is-old" : ""}">
               <td>${escapeHtml(row.className)}</td>
               <th scope="row">${escapeHtml(row.studentCode)}${row.superseded ? ' <small>(ältere Sicherung)</small>' : ""}</th>
+              <td><strong>${row.nagold}</strong></td>
               <td>${row.xp}${row.xpMismatch ? ' <small title="Die Datei nennt einen anderen XP-Wert als die Nachrechnung.">⚠</small>' : ""}</td>
               <td>${row.lessonsDone} / ${row.lessonsTotal}</td>
               <td>${row.practicesDone} / ${row.practicesTotal}</td>

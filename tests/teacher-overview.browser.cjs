@@ -65,8 +65,9 @@ const asFile = (file) => ({ name: path.basename(file), mimeType: "application/js
       const mia = await rows.nth(1).innerText();
       assert.match(ben, /J1-1\s+BEN\.ALT/);
       assert.match(ben, /2 \/ 21/);
+      assert.match(ben, /J1-1\s+BEN\.ALT\s+10\s/);
       assert.match(ben, /verändert oder beschädigt/);
-      assert.match(mia, /J1-1\s+MIA\.MUE\s+12\s+0 \/ 21/);
+      assert.match(mia, /J1-1\s+MIA\.MUE\s+0\s+12\s+0 \/ 21/);
       assert.match(mia, /2026-10-0[89]/);
       assert.match(mia, /gültig/);
       assert.equal(await page.locator(".teacher-stats .is-warning strong").innerText(), "1");

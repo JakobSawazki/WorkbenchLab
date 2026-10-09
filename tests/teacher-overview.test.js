@@ -44,6 +44,7 @@ test("Zusammenfassung zählt Einheiten, Übungen und Module und rechnet XP unabh
   assert.equal(row.studentCode, "MIA.MUE");
   assert.equal(row.className, "J1-1");
   assert.equal(row.lessonsDone, 3);
+  assert.equal(row.nagold, 15);
   assert.equal(row.lessonsTotal, lessonIds.length);
   assert.equal(row.practicesDone, 1);
   assert.equal(row.xp, expectedXp);
@@ -100,7 +101,7 @@ test("CSV ist für Tabellenprogramme geeignet und entschärft Formeln", () => {
   row.fileName = "datei.json";
   row.superseded = false;
   const csv = teacher.toCsv([row], content);
-  assert.ok(csv.startsWith("﻿\"Klasse\";\"Kürzel\";\"XP\""));
+  assert.ok(csv.startsWith("﻿\"Klasse\";\"Kürzel\";\"NAGOLD\";\"XP\""));
   const lines = csv.trim().split("\r\n");
   assert.equal(lines.length, 2);
   assert.ok(lines[1].startsWith('"J1;""1""";"\'=1+1";'));
@@ -117,6 +118,8 @@ test("Die Lehrkraftseite ist öffentlich, versionsgleich und lädt keine fremden
   assert.equal(isPublicFile("teacher-overview.js"), true);
   const stamps = [...html.matchAll(/(?:href|src)="([^"?]+\.(?:js|css))\?v=([^"]+)"/g)];
   assert.equal(stamps.length, 8);
+  // NAGOLD je Einheit muss in App und Klassenübersicht gleich sein.
+  assert.equal(Number(fs.readFileSync(path.join(root, "app.js"), "utf8").match(/const nagoldPerLesson = (\d+);/)[1]), teacher.NAGOLD_PER_LESSON);
   for (const [, file, stamp] of stamps) {
     assert.equal(stamp, version, file);
     assert.equal(isPublicFile(file), true, file);

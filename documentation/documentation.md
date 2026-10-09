@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.37.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.38.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -1660,6 +1660,124 @@ Plattform unabhängig davon auf Ladegewicht, Bilder und Seitenkopf.
 was Claude ohne Rückfrage ändern sollte.
 
 Nächste Handlungsnummer: 206.
+
+### 0.37 Release 0.38.0: Jakobs Entscheidungen umgesetzt [Claude, 2026-10-09]
+
+**Auftrag:** Jakob hat am 9. Oktober im Chat neun Rückfragen beantwortet.
+
+| Nr. | Jakobs Entscheidung | Umsetzung |
+| --- | --- | --- |
+| 1 | Übungen frei zugänglich; die Lerneinheiten bleiben als roter Faden in fester Reihenfolge | in 0.38.0 umgesetzt |
+| 2 | Profildialog beim Erstbesuch bleibt | keine Änderung |
+| 3 | Leistung fließt über das Punktesystem NAGOLD in die kontinuierlich erbrachte Leistung (keL) ein: je vollständig abgeschlossener Lerneinheit einmalig 5 NAGOLD, im Profil sichtbar; mehr als 100 im Jahr sind ausdrücklich in Ordnung | in 0.38.0 umgesetzt |
+| 3 | Musterlösungen gehören nicht in den öffentlichen Quelltext | in 0.38.0 umgesetzt |
+| 4 | `.tmp/` darf geleert werden | siehe Abschnitt 0.38 |
+| 5 | Eine Lerneinheit bleibt eine vollständige Seite | keine Änderung; OPT-05 damit vorerst erledigt |
+| 6 | Dokumentation und Code aufräumen, damit alle drei den Überblick behalten | folgt als eigener Arbeitsblock |
+| 7, 8 | Schul-PC-Test und Durchsicht der neuen Aufgaben macht Jakob schrittweise im Unterricht | – |
+| 9 | Kardinalitäten wie in den offiziellen Abituraufgaben; die Formulierung „1 : N“ aus dem Materialpaket ist in Ordnung | in 0.38.0 umgesetzt |
+
+Später ergänzt von Jakob: Lösungen könnten im Entwicklermodus sichtbar werden;
+als offener Punkt OPT-23 aufgenommen (siehe `claude2codex.md`).
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 206 | Jakobs Entscheidungen in Claudes Merkzettel `jakob-entscheidungen-2026-10-09.md` festgehalten | außerhalb des Repos |
+| 207 | `resources/Leistungsbewertung/Leistungsbewertung.docx` und `Vertrag.docx` gelesen: 1 NAGOLD entspricht einem Bewertungspunkt, keL zählt 50 %; NAGOLD gibt es für erfolgreich erledigte Arbeitsaufträge | nur lesend, nicht veröffentlicht |
+| 208 | Jakobs OneNote-Notizbuch „Lernfelder“ über seinen Freigabelink im eingebauten Browser geöffnet (Gastzugang mit Schreibrecht; Claude hat nichts verändert). Von der Seite „Abitur“ **eine** Datei heruntergeladen: die Aufgabenstellung des Haupttermins 2025 (`2024-2025.pdf`, 7,1 MB). Korrektur-, Lösungs- und Notendateien sowie die dort stehenden Namen von Prüflingen hat Claude nicht geöffnet und gibt sie nirgends wieder | Ablage unversioniert unter `resources/abitur/` |
+| 209 | PDF-Lesewerkzeug PyMuPDF 1.28.2 für den aktuellen Benutzer installiert (`pip install --user pymupdf`) | außerhalb des Repos |
+| 210 | Abituraufgabe gesichtet (Datenbankteil, Seiten 2 bis 4) | Befund unten |
+| 211 | Umsetzung der Entscheidungen 1, 3 und 9; neues Werkzeug `tools/build-expected.cjs`, neue Datei `expected-results.js`, Erweiterung von `tools/build-site.cjs` | siehe unten |
+| 212 | Tests ergänzt und angepasst, darunter zwei von Codex (`practical-exercises.browser.cjs`: Übung öffnet sich jetzt, die Einheit bleibt gesperrt) | siehe Prüfung |
+| 213 | Testserver auf Port 4199 gestartet; alle Tests ausgeführt | siehe Prüfung |
+| 214 | Claudes Merkzettel ergänzt (`codex-zusammenarbeit.md`, `testumgebung-node-playwright.md`) | außerhalb des Repos, vor diesem Eintrag |
+
+**Befund aus der Abituraufgabe (Haupttermin 2025)**
+
+- Die Datenbankstruktur ist als MySQL-Workbench-Diagramm abgedruckt. An den
+  Verbindungen steht `1` auf der einen und `∞` auf der anderen Seite. Eine
+  Angabe zur Optionalität gibt es nicht.
+- Die Leserichtung entspricht dem Modell-Editor: `1` steht an der Tabelle, auf
+  die verwiesen wird, `∞` an der Tabelle mit dem Fremdschlüssel.
+- Die Aufgabe verlangt, aus einem Sachtext ein ER-Modell und ein
+  Relationenmodell in dritter Normalform zu entwickeln.
+- Eine Teilaufgabe gibt eine fehlerhafte SQL-Anweisung vor und verlangt, den
+  Fehler zu erläutern und zu korrigieren. Das entspricht dem Aufgabentyp
+  „Fehlersuche“ aus 0.28.0.
+- Die Abfragen verbinden Tabellen über `FROM a, b WHERE a.x = b.x`.
+
+**1. Übungen frei, Einheiten in Reihenfolge**
+
+- Jede Übung lässt sich öffnen, auch im SQL-Labor und unter „Modellieren“.
+- Gehört eine Übung zu einer Einheit, die im Lernpfad noch nicht erreicht ist,
+  trägt ihre Karte das Kennzeichen „Vorgriff“.
+- Die Lerneinheiten selbst bleiben unverändert gesperrt, bis die vorherige
+  abgeschlossen ist.
+- Das Klausurtraining zieht weiterhin nur Aufgaben aus erreichten Einheiten.
+
+**3. NAGOLD**
+
+- Im Profil steht unter dem Level: „x NAGOLD aus WorkbenchLab: n abgeschlossene
+  Lerneinheiten × 5. Sie zählen, sobald deine Lehrkraft den Abschluss bestätigt
+  hat.“
+- Beim Abschluss einer Einheit erscheint „+XP und +5 NAGOLD gesammelt“.
+- Die Klassenübersicht zeigt je Person eine Spalte NAGOLD (neu berechnet aus
+  den abgeschlossenen Einheiten), den Mittelwert und führt sie im CSV.
+- Die JSON-Sicherung nennt den Wert in `summary.nagold`.
+- Der Wert 5 steht als `nagoldPerLesson` in `app.js` und als
+  `NAGOLD_PER_LESSON` in `teacher-overview.js`; ein Test hält beide gleich.
+- 21 Einheiten ergeben 105 NAGOLD. XP bleiben das Motivationssystem innerhalb
+  der Plattform; NAGOLD hängen allein am Abschluss einer Einheit, für den die
+  Lehrkraft-Bestätigung nötig ist.
+
+**3. Keine Lösungsanweisungen im öffentlichen Quelltext**
+
+- `tools/build-expected.cjs` berechnet zu jeder SQL-Aufgabe das Sollergebnis
+  und schreibt es nach `expected-results.js` (29 Einträge).
+- Die Seite prüft Lösungen gegen dieses Sollergebnis. Fehlt es, greift sie wie
+  bisher auf die Lösungsanweisung zurück; das ist nur in der Entwicklung der
+  Fall.
+- Beim Veröffentlichen entfernt `tools/build-site.cjs` aus fünf Inhaltsdateien
+  alle Zeilen `solution`, `expectedSql`, `referenceSql`, `fixed` und
+  `proofSql` und bricht ab, falls danach noch eine Lösungsangabe vorhanden wäre
+  oder ein Sollergebnis fehlt.
+- Im Repository bleiben die Lösungen stehen, weil die Tests sie brauchen. Das
+  Repository ist öffentlich; wer dort sucht, findet sie weiterhin. Entfernt
+  sind sie aus der Lernseite, also aus dem, was der Browser der Lernenden lädt.
+- Weiterhin im Browser lesbar und nicht vermeidbar: das Sollergebnis als
+  Tabelle, die richtige Antwortnummer bei Auswahl- und Vorhersageaufgaben, die
+  richtige Zeilenreihenfolge bei „Klauseln ordnen“.
+- **Arbeitsregel:** Nach jeder Änderung an einer SQL-Aufgabe
+  `node tools/build-expected.cjs` ausführen. Ein Test schlägt fehl, wenn
+  `expected-results.js` veraltet ist. Lösungsangaben immer einzeilig schreiben.
+
+**9. Schreibweise im Modell-Editor**
+
+- Über dem Diagramm lässt sich die Schreibweise wählen: `1 : N` (wie im
+  Materialpaket) oder `1 : ∞` (wie in MySQL Workbench und im Abitur). Die Wahl
+  bleibt gespeichert.
+- Die Optionalität aus 0.37.0 bleibt als Zusatz erhalten; im Abitur kommt sie
+  nicht vor.
+
+**Prüfung**
+
+- 155 Node-Tests (3 neu) und 2 Python-Tests bestanden. Neu geprüft:
+  `expected-results.js` ist aktuell und deckt jede SQL-Aufgabe ab; nach dem
+  Entfernen der Lösungszeilen laden die Inhaltsdateien weiter, und alles, was
+  Lernende sehen oder die Prüfung braucht, ist unverändert.
+- Alle 31 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199),
+  jeder beim ersten Versuch.
+- Der neue `public-site.browser.cjs` baut die veröffentlichte Fassung, liefert
+  sie auf einem eigenen freien Port aus und prüft dort: keine Lösungsangaben in
+  den geladenen Daten und Dateien; richtige und falsche Lösungen einer
+  Abfrage-, einer Fehlersuche- und einer `INSERT`-Aufgabe werden allein mit dem
+  Sollergebnis beurteilt; keine gesperrte Übung, „Vorgriff“ vorhanden; L1.4
+  bleibt gesperrt, L1.3 offen; NAGOLD im Profil.
+- Nicht geprüft: Schul-PCs; heller Modus der NAGOLD-Zeile und der neuen Auswahl
+  im Modell-Editor.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.38.
 
 <!-- CLAUDE:END -->
 

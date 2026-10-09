@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.37.0
+**Aktueller Release:** 0.38.0
 
 **Neu seit 0.26.0 (Claude, 9. Oktober 2026):**
 

@@ -255,8 +255,15 @@
     return !prerequisite || state.completedLessons.includes(prerequisite.id);
   }
 
+  // Übungen sind seit 0.38.0 frei zugänglich (Entscheidung Jakob, 2026-10-09).
+  // Die Lerneinheiten selbst bleiben in fester Reihenfolge gesperrt: siehe isLessonUnlocked.
   function isPracticeUnlocked(practice) {
-    return Boolean(practice && isLessonUnlocked(lessonById(practice.lessonId)));
+    return Boolean(practice);
+  }
+
+  // Gehört die Übung zu einer Einheit, die im Lernpfad noch nicht erreicht ist?
+  function isPracticeAhead(practice) {
+    return Boolean(practice) && !isLessonUnlocked(lessonById(practice.lessonId));
   }
 
   function practiceById(id) {
@@ -578,7 +585,7 @@
   const examRunning = (exam) => Boolean(exam && !exam.finishedAt);
 
   function examPool() {
-    return content.practices.filter((practice) => isSqlTopic(practice) && isPracticeUnlocked(practice));
+    return content.practices.filter((practice) => isSqlTopic(practice) && !isPracticeAhead(practice));
   }
 
   function startExam() {
@@ -669,7 +676,7 @@
     state[key].push(id);
     markActivity();
     saveState();
-    toast(`+${xp} XP gesammelt`, "xp");
+    toast(kind === "lesson" ? `+${xp} XP und +${nagoldPerLesson} NAGOLD gesammelt` : `+${xp} XP gesammelt`, "xp");
     return true;
   }
 
@@ -922,7 +929,19 @@
     updateDeveloperControl();
   }
 
+  // NAGOLD (Jakobs Punktesystem für die kontinuierlich erbrachte Leistung): je vollständig
+  // abgeschlossener Lerneinheit einmalig fünf. Derselbe Wert steht in teacher-overview.js.
+  const nagoldPerLesson = 5;
+  function stateNagold(candidate = state) {
+    return candidate.completedLessons.filter((id) => lessonById(id)).length * nagoldPerLesson;
+  }
+
   function updateLevelDialog() {
+    const lessonsDone = state.completedLessons.filter((id) => lessonById(id)).length;
+    const nagold = document.querySelector("#nagoldTotal");
+    if (nagold) {
+      nagold.innerHTML = `<strong>${stateNagold()} NAGOLD</strong> aus WorkbenchLab: ${lessonsDone} abgeschlossene Lerneinheit${lessonsDone === 1 ? "" : "en"} × ${nagoldPerLesson}. Sie zählen, sobald deine Lehrkraft den Abschluss bestätigt hat.`;
+    }
     const xp = stateXp();
     const level = currentLevel();
     const highest = level.number === levels.length;
@@ -977,6 +996,7 @@
           <span class="meta-pill">${escapeHtml(lesson?.courseCode || lesson?.index || "")} · ${escapeHtml(lesson?.title || "BPE6")}</span>
           <span class="meta-pill difficulty-${practice.difficulty}">${difficultyLabel(practice.difficulty)}</span>
           <span class="meta-pill"><i data-lucide="sparkles"></i>${practice.xp} XP</span>
+          ${isPracticeAhead(practice) ? `<span class="meta-pill practice-ahead" title="Diese Übung gehört zu einer Einheit, die du im Lernpfad noch nicht erreicht hast.">Vorgriff</span>` : ""}
         </div>
       </article>`;
   }
@@ -3381,11 +3401,18 @@
       let passed = patternProblems.length === 0;
       let expected;
       if (practice.check.type === "query") {
-        expectedDb = await createDatabase(practice.schema);
-        expected = tableFromResult(expectedDb.exec(practice.check.expectedSql));
+        // Veröffentlicht wird nur das Sollergebnis (expected-results.js), nicht die Lösungsanweisung (OPT-12).
+        if (window.WORKBENCH_EXPECTED?.[practice.id]) {
+          expected = window.WORKBENCH_EXPECTED[practice.id];
+        } else {
+          expectedDb = await createDatabase(practice.schema);
+          expected = tableFromResult(expectedDb.exec(practice.check.expectedSql));
+        }
         passed = passed && sameTable(table, expected, practice.check.orderSensitive);
       } else {
-        if (practice.check.referenceSql) {
+        if (window.WORKBENCH_EXPECTED?.[practice.id]) {
+          expected = window.WORKBENCH_EXPECTED[practice.id];
+        } else if (practice.check.referenceSql) {
           expectedDb = await createDatabase(practice.schema);
           expectedDb.run(practice.check.referenceSql);
           expected = tableFromResult(expectedDb.exec(practice.check.verifySql));
@@ -3565,6 +3592,7 @@
       summary: {
         xp: stateXp(),
         completedLessons: state.completedLessons.length,
+        nagold: stateNagold(),
         completedTasks: state.completedPractices.length + state.completedCommands.length
       },
       data: structuredClone(state)

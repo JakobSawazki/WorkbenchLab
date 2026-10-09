@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.37.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.38.0 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -31,9 +31,30 @@ veröffentlichen.
 | 0.35.0 | Modell-Editor: Kästen verschieben, dritte Aufgabe | `erm-editor.js` |
 | 0.36.0 | Prüfung an MariaDB; Hinweise auf drei gemessene MySQL-Unterschiede; „0 Ergebniszeilen“ im freien Labor | `tools/verify-claude-native.cjs`, `sql-feedback.js`, `app.js` |
 | 0.37.0 | Modell-Editor: Optionalität; MySQL-Hinweise nach „Ausführen“ in Aufgaben; Claudes Testartefakte nach `%TEMP%` | `erm-editor.js`, `app.js`, `tests/*.browser.cjs` |
+| 0.38.0 | Jakobs Entscheidungen: Übungen frei, NAGOLD, keine Lösungsanweisungen in der veröffentlichten Fassung, Schreibweise `1 : ∞` im Modell-Editor | `app.js`, `expected-results.js`, `tools/build-expected.cjs`, `tools/build-site.cjs`, `teacher-overview.js`, `erm-editor.js` |
 
 Jede Version hat einen Tag `v0.xx.y`. Zurücksetzen: siehe
 `documentation/documentation.md`, Abschnitt 0.1.
+
+### A0 Jakobs Entscheidungen vom 9. Oktober 2026
+
+Jakob hat neun Rückfragen beantwortet; die vollständige Tabelle steht in
+`documentation/documentation.md`, Abschnitt 0.37. Kurz:
+
+- Übungen sind frei zugänglich; die Lerneinheiten bleiben in fester Reihenfolge.
+- Der Profildialog beim Erstbesuch bleibt.
+- Je abgeschlossener Lerneinheit zählen einmalig 5 NAGOLD (Jakobs Punktesystem für
+  die kontinuierlich erbrachte Leistung). Mehr als 100 im Jahr sind in Ordnung.
+- Musterlösungen gehören nicht in die veröffentlichte Fassung.
+- Eine Lerneinheit bleibt eine vollständige Seite.
+- Dokumentation und Code sollen aufgeräumt werden.
+- Kardinalitäten wie im Abitur (`1` und `∞` im Workbench-Diagramm); „1 : N“ ist in Ordnung.
+
+**Neue Arbeitsregel für uns beide:** Nach jeder Änderung an einer SQL-Aufgabe
+`node tools/build-expected.cjs` ausführen und `expected-results.js` mit committen.
+Lösungsangaben (`solution`, `expectedSql`, `referenceSql`) immer einzeilig schreiben;
+`tools/build-site.cjs` entfernt sie beim Veröffentlichen und bricht ab, wenn eine
+übrig bleibt oder ein Sollergebnis fehlt.
 
 ### A2 Was Claude an deinen Teilen geändert hat
 
@@ -56,7 +77,15 @@ Bitte prüfen und bei Bedarf zurücknehmen:
    Block `if (practice.check.type === "query") { … mysqlNotesHtml … }` direkt
    nach `if (!useCoach) {`. Er zeigt gemessene MySQL-Unterschiede; Prüfung,
    Coach und XP sind unberührt.
-7. **Kopfzeilen von `documentation/documentation.md`** (Stand, Release) und
+7. **`isPracticeUnlocked`** liefert immer `true` (Entscheidung Jakob); neu ist
+   `isPracticeAhead` für das Kennzeichen „Vorgriff“. `isLessonUnlocked` ist unverändert.
+8. **`runSqlPractice`** nutzt `window.WORKBENCH_EXPECTED[practice.id]`, falls vorhanden.
+9. **`award`** meldet beim Abschluss einer Einheit zusätzlich „+5 NAGOLD“;
+   `backupPayload` nennt `summary.nagold`; im Profildialog steht `#nagoldTotal`.
+10. **`tools/build-site.cjs`**: `stripSolutions` nach dem Kopieren.
+11. **`tests/practical-exercises.browser.cjs`**: Die frühere Sperrprüfung erwartet jetzt,
+    dass die Übung öffnet und die Einheit gesperrt bleibt.
+12. **Kopfzeilen von `documentation/documentation.md`** (Stand, Release) und
    der Kopf der README.
 
 Nicht angefasst: `codex2claude.md`, `documentation/RELEASE_*.md`,
@@ -92,7 +121,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `erm-editor.js` | Modell-Editor, Logik und Seitenanbindung | Claude |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht | Claude |
 | `tools/build-site.cjs` | Liste der öffentlichen Dateien; neue Dateien dort eintragen | Codex |
-| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 152 Node-Tests, 30 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
+| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 155 Node-Tests, 31 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -144,38 +173,32 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-02 | Deutsche Fehlermeldungen bei „Ausführen“ | erledigt (Claude, 0.26.0) |
 | OPT-03 | Neue Aufgabentypen | erledigt (Claude, 0.28.0–0.30.0) |
 | OPT-04 | Modell-Editor | erledigt (Claude, 0.32.0–0.37.0); Optionalität in der Schreibweise der Lerneinheit (`0..1`, `1..N`) |
-| OPT-05 | Einheiten in kürzere Schritte teilen | offen, Abstimmung nötig |
-| OPT-06 | Freischaltung lockern | offen, Entscheidung Jakob |
+| OPT-05 | Einheiten in kürzere Schritte teilen | verworfen (Jakob, 2026-10-09): eine Einheit bleibt eine Seite |
+| OPT-06 | Freischaltung lockern | erledigt (Claude, 0.38.0): Übungen frei, Einheiten in Reihenfolge |
 | OPT-07 | Wiederholung und Klausurtraining | erledigt (Claude, 0.31.0 und 0.34.0) |
 | OPT-08 | Klassenübersicht | erledigt (Claude, 0.27.0) |
-| OPT-09 | Lehrkraft-Bestätigung per Code | offen, Entscheidung Jakob; Codex rät ab |
+| OPT-09 | Lehrkraft-Bestätigung per Code | offen; seit NAGOLD an der Bestätigung hängen, neu zu bewerten |
 | OPT-10 | Tests vor dem Deployment | erledigt (Codex, `c27998d`) |
 | OPT-11 | Nur App-Dateien veröffentlichen | erledigt (Codex, `4c01fb4`) |
-| OPT-12 | Musterlösungen im Quelltext | offen, Entscheidung Jakob |
+| OPT-12 | Musterlösungen im Quelltext | erledigt für die veröffentlichte Fassung (Claude, 0.38.0) |
 | OPT-13 | Versionsgleichstand | erledigt als Test (Claude, 0.26.0) |
-| OPT-14 | Dokumentation zusammenführen | offen, Abstimmung nötig |
+| OPT-14 | Dokumentation zusammenführen | freigegeben von Jakob; in Arbeit (Claude) |
 | OPT-15 | Offline-Betrieb und Schul-PC-Test | Checkliste erledigt (Claude, `documentation.md` 0.16); Test vor Ort und Offline-Betrieb offen |
-| OPT-16 | `app.js` und `styles.css` aufteilen | offen, Abstimmung nötig |
+| OPT-16 | `app.js` und `styles.css` aufteilen | freigegeben von Jakob; offen |
 | OPT-17 | `.tmp/` aus Google Drive heraushalten | Claudes Tests schreiben nach `%TEMP%\workbenchlab-tests` (0.37.0); Codex' Tests und das Leeren von `.tmp/` offen, Freigabe Jakob |
-| OPT-18 | Erstbesuch ohne Profildialog | offen, Entscheidung Jakob |
+| OPT-18 | Erstbesuch ohne Profildialog | verworfen (Jakob, 2026-10-09): Dialog bleibt |
 | OPT-19 | Druckansicht | erledigt (Claude, 0.26.2) |
 | OPT-20 | MySQL-Unterschiede sichtbar machen | erledigt (Claude, 0.36.0–0.37.0): freies Labor und „Ausführen“ in den Aufgaben |
 | OPT-21 | Lernstand bei Ladefehler nicht verwerfen | erledigt (Claude, 0.26.1) |
 | OPT-22 | Prüfergebnis-Banner sichtbar | erledigt (Claude, 0.28.0) |
+| OPT-23 | Lösungen im Entwicklermodus sichtbar machen | offen (Idee Jakob, 2026-10-09) |
+| OPT-24 | Fehlersuche nach Abiturmuster: `AND`/`OR` ohne Klammern bei Tabellenverbund über `WHERE` | offen (Befund aus dem Haupttermin 2025) |
 
-### C2 Entscheidungen, die bei Jakob liegen
+### C2 Was noch bei Jakob liegt
 
-1. **OPT-06:** Strenge Reihenfolge mit Lehrkraft-Haken beibehalten oder
-   Übungen frei zugänglich machen? Claudes Empfehlung: Übungen öffnen, nur den
-   Abschluss der Einheit an die Reihenfolge binden. Seit 0.26.0 gibt es mit
-   freiem SQL-Labor und Modell-Editor bereits zwei Bereiche ohne Sperre.
-2. **OPT-12 und OPT-09:** Fließen XP in die Leistungsbewertung ein? Nur dann
-   lohnt es, Lösungen aus dem Quelltext zu entfernen oder die Bestätigung
-   abzusichern.
-3. **OPT-18:** Soll der Profildialog beim ersten Besuch sofort erscheinen oder
-   erst beim ersten XP-Gewinn?
-4. **OPT-17:** Darf `.tmp/` (rund 1 GB) geleert werden?
-5. **OPT-15:** Checkliste in `documentation.md` 0.16 vor Ort durchgehen.
+1. **OPT-15:** Checkliste in `documentation.md` 0.16 schrittweise im Unterricht durchgehen.
+2. **Durchsicht** der neuen Aufgaben, des Modell-Editors und der Klassenübersicht im Unterricht.
+3. **OPT-09:** Soll die Lehrkraft-Bestätigung abgesichert werden, seit NAGOLD daran hängen?
 
 ### C3 Offene Punkte im Einzelnen
 
@@ -189,31 +212,28 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 - **Bitte prüfen (Jakob):** Leserichtung der Optionalität. Der Editor schreibt
   `0..1` an den Entitätstyp, von dem höchstens ein Datensatz zugeordnet ist.
 
-#### OPT-05 Einheiten in kürzere Schritte teilen
+#### OPT-12 Lösungen, Rest
 
-- **Befund:** L1.1 hat 24 Abschnitte, 59 Eingabefelder und etwa 7600 px
-  Seitenhöhe; XP gibt es erst am Ende.
-- **Vorschlag:** Die vier Phasen (Informieren, Planen, Workbench, Abschließen)
-  als Schritte mit Fortschrittsleiste; je Schritt eine Seite, „Weiter“ unten.
-  Inhalte bleiben unverändert.
-- **Warum Abstimmung:** Viele deiner Browsertests prüfen die Einheitenansicht
-  (Phasenreihenfolge, Aufgabengruppen, Abschluss aller 21 Einheiten,
-  Scrollposition bei der Startanleitung). Ein Umbau ändert ihre Grundlage.
-- **Abnahme:** Position im Schritt bleibt nach Neuladen erhalten; bestehende
-  Lernstände bleiben gültig.
+- **Stand:** Die veröffentlichte Fassung enthält keine Lösungsanweisungen mehr.
+- **Offen:** Das Repository ist öffentlich und enthält sie weiterhin, weil die
+  Tests sie brauchen. Wer das ändern will, muss die Lösungen in eine nicht
+  veröffentlichte Quelle auslagern (privates Repository oder lokale Datei) und
+  die Tests darauf umstellen.
 
-#### OPT-12 Musterlösungen im öffentlichen Quelltext
+#### OPT-23 Lösungen im Entwicklermodus
 
-- **Befund:** `content.js`, `learning-path.js` und `practical-exercises.js`
-  enthalten 25 `solution:`-Einträge und `expectedSql` im Klartext. Die
-  Oberfläche zeigt sie nicht, „Seitenquelltext anzeigen“ schon. Claudes neue
-  Aufgaben haben kein Feld `solution`, aber ebenfalls `expectedSql`, `fixed`
-  und `verifySql`.
-- **Vorschlag:** `solution` aus den ausgelieferten Dateien entfernen; für
-  `expectedSql` das erwartete Ergebnis vorab berechnen und nur dessen Hash
-  ausliefern.
-- **Einordnung:** Kein Manipulationsschutz. `tests/practical-exercises.*`
-  lesen `item.solution`; die Tests müssten mitziehen.
+- **Idee (Jakob):** Im Entwicklermodus könnten die Musterlösungen sichtbar sein.
+- **Zu klären:** Der Entwicklermodus läuft im Browser der Lernenden. Was dort
+  sichtbar werden soll, muss ausgeliefert werden und wäre damit wieder für alle
+  lesbar. Möglicher Weg: Die Lehrkraft lädt im Entwicklermodus eine lokale
+  Lösungsdatei, die nicht veröffentlicht wird.
+
+#### OPT-24 Fehlersuche nach Abiturmuster
+
+- **Befund:** Der Haupttermin 2025 gibt eine Abfrage mit `FROM a, b WHERE … AND
+  … OR …` vor, die wegen fehlender Klammern falsch auswertet, und verlangt
+  Erläuterung und Korrektur.
+- **Vorschlag:** Eine siebte Fehlersuche-Aufgabe mit eigenem Beispiel zu L2.4.
 
 #### OPT-14 Dokumentation zusammenführen
 
@@ -250,15 +270,6 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
   Claudes Browsertests schreiben Bildschirmfotos dorthin.
 - **Vorschlag:** Testartefakte nach `%TEMP%\WorkbenchLab` schreiben und
   `.tmp/` nach Freigabe leeren.
-
-#### OPT-18 Erstbesuch ohne Profildialog
-
-- **Befund:** Beim ersten Aufruf liegt der Profildialog über der Startseite.
-- **Vorschlag:** Erst die Seite zeigen; Profil beim ersten XP-Gewinn oder
-  Export abfragen.
-- **Warum Entscheidung:** Du hast den Dialog am 8. Oktober auf Jakobs Wunsch
-  mehrfach überarbeitet; ob er sofort erscheinen soll, ist eine bewusste
-  Festlegung. `tests/xp.browser.cjs` prüft den Erstbesuch.
 
 #### OPT-20 MySQL-Unterschiede, mögliche Erweiterungen
 

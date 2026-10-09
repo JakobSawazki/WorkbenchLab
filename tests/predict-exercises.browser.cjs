@@ -72,9 +72,9 @@ const firstLessons = ["warum-datenbanken", "relation-und-schluessel", "eerm-grun
       await page.locator("#predictResult table").waitFor();
       assert.equal(await page.locator("#predictResult tbody tr").count(), 11);
 
-      // Spätere Einheit bleibt gesperrt.
+      // Auch die Vorhersage einer späteren Einheit lässt sich öffnen (0.38.0).
       await page.goto(base + "#practice/predict-join");
-      await page.waitForFunction(() => location.hash === "#path");
+      await page.locator(".predict-callout").waitFor();
 
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
       await page.goto(base + "#practice/predict-where-and");

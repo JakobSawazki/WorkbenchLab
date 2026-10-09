@@ -52,7 +52,7 @@ test("jede als richtig markierte Antwort stimmt mit der echten Ausführung über
   for (const item of predict) {
     assert.doesNotThrow(() => item.sql);
     for (const question of item.questions) {
-      const actual = String(await scalar(item.schema, question.verifySql));
+      const actual = String(await scalar(item.schema, question.proofSql));
       assert.equal(question.options[question.correct], actual, `${item.id}: ${question.question}`);
       assert.equal(question.options.filter((option) => option === actual).length, 1);
     }

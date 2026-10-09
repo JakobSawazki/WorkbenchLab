@@ -69,13 +69,13 @@ const firstLessons = ["warum-datenbanken", "relation-und-schluessel", "eerm-grun
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
       await page.screenshot({ path: `${artifacts}/order-${width}.png`, animations: "disabled" });
 
-      // Neu geöffnet beginnt die Aufgabe wieder durcheinander; spätere Einheit bleibt gesperrt.
+      // Neu geöffnet beginnt die Aufgabe wieder durcheinander; auch die Aufgabe einer späteren Einheit lässt sich öffnen (0.38.0).
       await page.reload();
       await page.locator(".order-callout").waitFor();
       assert.equal((await lines())[0], "WHERE ort = 'Stuttgart'");
       assert.match(await page.locator("#practiceResult").innerText(), /Bereits gelöst/);
       await page.goto(base + "#practice/order-join");
-      await page.waitForFunction(() => location.hash === "#path");
+      await page.locator(".order-callout").waitFor();
       assert.deepEqual(errors, []);
       await context.close();
     }

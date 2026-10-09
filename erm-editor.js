@@ -62,9 +62,11 @@
   // Beschriftung der beiden Enden. Ohne Optionalität die kurze Form (1, N, M); sobald eine
   // Seite optional ist, beide Enden in der Schreibweise der Lerneinheit: 0..1, 1..1, 0..N, 1..N.
   // Die Angabe an einem Entitätstyp sagt, wie viele seiner Datensätze zu einem der anderen Seite gehören.
-  function ends(relation) {
+  function ends(relation, notation = "n") {
     const [left, right] = relation.card.split(":");
-    if (!relation.fromOptional && !relation.toOptional) return [left, right];
+    // Abitur und MySQL Workbench schreiben die Viele-Seite als ∞ (siehe Haupttermin 2025, Aufgabe 1.2).
+    const many = (value) => (notation === "workbench" && value !== "1" ? "∞" : value);
+    if (!relation.fromOptional && !relation.toOptional) return [many(left), many(right)];
     const full = (max, optional) => `${optional ? 0 : 1}..${max === "1" ? "1" : "N"}`;
     return [full(left, relation.fromOptional), full(right, relation.toOptional)];
   }
@@ -271,7 +273,7 @@
   // ---------- Seitenanbindung ----------
   const storageKey = "workbenchlab-erm-v1";
   let helpers = null;
-  let store = { task: "fahrschule-ort", models: {} };
+  let store = { task: "fahrschule-ort", notation: "n", models: {} };
   let lastCheck = null;
 
   function load() {
@@ -279,6 +281,7 @@
       const stored = JSON.parse(localStorage.getItem(storageKey) || "null");
       if (stored && typeof stored === "object") {
         store.task = TASKS.some((task) => task.id === stored.task) ? stored.task : store.task;
+        store.notation = stored.notation === "workbench" ? "workbench" : "n";
         TASKS.forEach((task) => { if (stored.models?.[task.id]) store.models[task.id] = sanitize(stored.models[task.id]); });
       }
     } catch {}
@@ -310,7 +313,7 @@
       };
       const start = edge(a, bx - ax, by - ay);
       const end = edge(b, ax - bx, ay - by);
-      const [left, right] = ends(relation);
+      const [left, right] = ends(relation, store.notation);
       const label = (from, to, text) => `<text class="erm-card" x="${from.x + (to.x - from.x) * 0.18}" y="${from.y + (to.y - from.y) * 0.18 - 6}" text-anchor="middle">${text}</text>`;
       return `<line class="erm-line" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"></line>${label(start, end, left)}${label(end, start, right)}`;
     }).join("");
@@ -383,7 +386,14 @@
         </section>
 
         <section class="erm-preview" aria-label="Diagramm und Prüfung">
-          <h3>Diagramm</h3>
+          <div class="erm-diagram-head">
+            <h3>Diagramm</h3>
+            <label for="ermNotation">Schreibweise</label>
+            <select id="ermNotation">
+              <option value="n" ${store.notation === "n" ? "selected" : ""}>1 : N</option>
+              <option value="workbench" ${store.notation === "workbench" ? "selected" : ""}>1 : ∞ (wie in MySQL Workbench und im Abitur)</option>
+            </select>
+          </div>
           <div class="erm-diagram" id="ermDiagram">${diagramSvg(current, escapeHtml)}</div>
           <p class="field-hint erm-drag-hint">Kästen lassen sich ziehen. Mit der Tastatur: Kasten ansteuern, dann Pfeiltasten.</p>
           <div class="runner-actions">
@@ -474,7 +484,11 @@ ${new XMLSerializer().serializeToString(copy)}
   document.addEventListener("change", (event) => {
     if (!event.target.closest?.("#ermEditor")) return;
     const target = event.target;
-    if (target.id === "ermTask") {
+    if (target.id === "ermNotation") {
+      store.notation = target.value === "workbench" ? "workbench" : "n";
+      save();
+      refreshDiagram();
+    } else if (target.id === "ermTask") {
       store.task = TASKS.some((task) => task.id === target.value) ? target.value : store.task;
       changed(true, "#ermTask");
     } else if (target.matches("[data-erm-attribute-type]")) {

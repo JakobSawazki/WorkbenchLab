@@ -4741,3 +4741,11 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 /* Modell-Editor: Optionalität (Claude, OPT-04) */
 .erm-optional { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin: -0.1rem 0 0.3rem; font-weight: 400; }
 .erm-optional .erm-flag { font-weight: 400; white-space: normal; }
+
+/* NAGOLD im Profil, Vorgriff-Kennzeichen, Schreibweise im Modell-Editor (Claude, 0.38.0) */
+.nagold-total { margin: 0.7rem 0 0; padding: 0.6rem 0.75rem; border: 1px solid var(--amber); border-radius: var(--radius); line-height: 1.45; }
+.nagold-total strong { color: var(--amber); font-size: 1.1rem; }
+.practice-ahead { border-style: dashed; }
+.erm-diagram-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.7rem; margin-bottom: 0.7rem; }
+.erm-diagram-head h3 { margin: 0 auto 0 0; }
+.erm-diagram-head label { font-size: 0.9rem; }

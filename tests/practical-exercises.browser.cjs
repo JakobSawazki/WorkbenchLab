@@ -109,11 +109,15 @@ const output = path.resolve(__dirname, "..", ".tmp", "practical-exercises");
     }
     const locked = await browser.newPage();
     await locked.addInitScript(() => localStorage.setItem("workbenchlab-v1", JSON.stringify({ name: "TES.TIA", className: "TEST" })));
+    // Seit 0.38.0 sind Übungen frei zugänglich (Entscheidung Jakob, 2026-10-09; Test angepasst von Claude).
+    // Die Einheit selbst bleibt gesperrt, bis die vorherige abgeschlossen ist.
     await locked.goto(`${base}#practice/sql-create-course`);
+    await locked.locator("#sqlEditor").waitFor();
+    assert.equal(await locked.evaluate(() => location.hash), "#practice/sql-create-course");
+    await locked.goto(`${base}#lesson/workbench-workflow`);
     await locked.waitForURL(/#path$/);
-    assert.equal(await locked.locator("#sqlEditor").count(), 0);
     await locked.close();
     assert.deepEqual(errors, []);
-    console.log("PASS: five new exercises and three protected mutations, wrong/right results, persistence, coach without XP, no duplicate XP, SQL download, JSON roundtrip, prerequisite gate and 24 desktop/mobile views.");
+    console.log("PASS: five new exercises and three protected mutations, wrong/right results, persistence, coach without XP, no duplicate XP, SQL download, JSON roundtrip, free exercises with locked lesson and 24 desktop/mobile views.");
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

@@ -126,7 +126,7 @@
       hints: exercise.hints,
       check: {
         type: "query",
-        expectedSql: exercise.fixed,
+        ...(exercise.fixed ? { expectedSql: exercise.fixed } : {}),
         orderSensitive: true,
         required: exercise.required
       }

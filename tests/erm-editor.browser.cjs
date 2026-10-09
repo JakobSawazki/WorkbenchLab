@@ -144,6 +144,16 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.deepEqual(await place(0), startPlace);
       await page.locator("#ermCheck").click();
 
+      // Schreibweise wie im Abitur und in MySQL Workbench: 1 : ∞; die Wahl bleibt gespeichert.
+      await page.locator("#ermNotation").selectOption("workbench");
+      assert.deepEqual(await page.locator("#ermDiagram .erm-card").allTextContents(), ["1", "∞"]);
+      await page.reload();
+      await page.locator("#ermDiagram .erm-entity-box").first().waitFor();
+      assert.equal(await page.locator("#ermNotation").inputValue(), "workbench");
+      assert.deepEqual(await page.locator("#ermDiagram .erm-card").allTextContents(), ["1", "∞"]);
+      await page.locator("#ermNotation").selectOption("n");
+      await page.locator("#ermCheck").click();
+
       // Optionalität: Schreibweise 0..1 / 1..N im Diagramm, Fremdschlüssel im Export ohne NOT NULL.
       assert.deepEqual(await page.locator("#ermDiagram .erm-card").allTextContents(), ["1", "N"]);
       await page.locator('.erm-relation [data-erm-optional="from"]').check();
