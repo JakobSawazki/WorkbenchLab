@@ -2124,7 +2124,7 @@ Claude); ein Test verglich bisher nur die Texte der beiden Kopien.
 | Nr. | Handlung | Ergebnis / Ort |
 | ---: | --- | --- |
 | 274 | `backup.js` neu: `stableStringify`, `sha256Hex`, `verifyBackupIntegrity` unverändert aus `app.js` übernommen (Verfasser Codex) → `window.WORKBENCH_BACKUP` | ohne DOM, ohne Lernstand |
-| 275 | `app.js`: die drei Funktionen entfernt, eine Zeile bindet `backup.js` ein | 4539 → 4515 Zeilen (inklusive OPT-23) |
+| 275 | `app.js`: die drei Funktionen entfernt, eine Zeile bindet `backup.js` ein | 4546 → 4515 Zeilen |
 | 276 | `teacher-overview.js`: eigene Kopie entfernt, nutzt `backup.js` | eine Quelle statt zwei |
 | 277 | `index.html`, `lehrkraft.html`: `backup.js` vor `app.js` bzw. `teacher-overview.js` geladen; `tools/build-site.cjs`: in die Liste der öffentlichen Dateien aufgenommen (je eine Zeile in Codex-Dateien) | |
 | 278 | `tests/backup.test.js` neu (4 Tests: Schlüsselreihenfolge, SHA-256 mit Umlauten, gültig/verändert/ohne Prüfsumme/altes Format, Ladereihenfolge und einzige Kopie); `tests/teacher-overview.test.js` angepasst | die Prüfsumme war bisher nur über Browsertests abgedeckt |
@@ -2197,12 +2197,34 @@ als „in Absprache mit Codex“ zurückgestellt; er ließ sich aber ohne inhalt
 **Nicht geprüft:** Schul-PCs; echte Lernstände von Lernenden aus älteren
 Versionen (nur die in den Tests nachgebildeten).
 
-**Stand OPT-16:** `app.js` hatte vor Schritt 1 rund 4590 Zeilen und hat jetzt
+**Stand OPT-16:** `app.js` hatte vor Schritt 1 4605 Zeilen und hat jetzt
 4310, obwohl seither OPT-23 dazukam. Ausgelagert und direkt getestet sind
 SQL-Prüflogik, Prüfsumme und Lernstand-Bereinigung. Offen ist nur noch das
 Aufteilen von `styles.css`.
 
 Nächste Handlungsnummer: 295.
+
+### 0.50 Veröffentlichung 0.39.2 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 295 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 296 | Commit `7c20e52` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 297 | Live geprüft: `index.html` mit `v=0.39.2`, `state.js` abrufbar | |
+| 298 | Sicherungs-Tag `v0.39.2` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 299 | Eigenen Testserver auf Port 4199 beendet | |
+| 300 | Berichtigung: Zeilenzahlen von `app.js` in 0.47 und 0.49 waren geschätzt und ungenau. Mit `git show <Tag>:app.js` nachgezählt und dort korrigiert | `v0.38.1`: 4605 · `v0.39.0`: 4546 · `v0.39.1`: 4515 · `v0.39.2`: 4310 |
+| 301 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Offene Punkte**
+
+| Punkt | Wer | Was fehlt |
+| --- | --- | --- |
+| OPT-09 Lehrkraft-Bestätigung absichern | Jakob entscheidet | ob und wie; an der Bestätigung hängen die NAGOLD |
+| OPT-15 Test am Schul-PC | Jakob im Unterricht | Checkliste in Abschnitt 0.16 |
+| OPT-16 `styles.css` aufteilen | Claude oder Codex | reine Ordnungsarbeit; die Reihenfolge der Regeln bestimmt das Aussehen, deshalb nur mit Bildvergleich vorher/nachher sinnvoll |
+
+Nächste Handlungsnummer: 302.
 
 <!-- CLAUDE:END -->
 
