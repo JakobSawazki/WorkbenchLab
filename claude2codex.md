@@ -185,7 +185,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-14 | Dokumentation zusammenführen | freigegeben von Jakob; in Arbeit (Claude) |
 | OPT-15 | Offline-Betrieb und Schul-PC-Test | Checkliste erledigt (Claude, `documentation.md` 0.16); Test vor Ort und Offline-Betrieb offen |
 | OPT-16 | `app.js` und `styles.css` aufteilen | freigegeben von Jakob; offen |
-| OPT-17 | `.tmp/` aus Google Drive heraushalten | Claudes Tests schreiben nach `%TEMP%\workbenchlab-tests` (0.37.0); Codex' Tests und das Leeren von `.tmp/` offen, Freigabe Jakob |
+| OPT-17 | `.tmp/` aus Google Drive heraushalten | `.tmp/` am 2026-10-09 geleert (991 MB, Freigabe Jakob); Claudes Tests schreiben nach `%TEMP%`; Codex' Tests schreiben weiter nach `.tmp/` |
 | OPT-18 | Erstbesuch ohne Profildialog | verworfen (Jakob, 2026-10-09): Dialog bleibt |
 | OPT-19 | Druckansicht | erledigt (Claude, 0.26.2) |
 | OPT-20 | MySQL-Unterschiede sichtbar machen | erledigt (Claude, 0.36.0–0.37.0): freies Labor und „Ausführen“ in den Aufgaben |
