@@ -1930,6 +1930,37 @@ Wortlaut sind eigene; aus der Prüfungsaufgabe ist nichts übernommen.
   Fehlersuche-Aufgaben).
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.41.
 
+### 0.41 Veröffentlichung 0.38.1 geprüft; Stand aller Punkte [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 236 | Commit `c652f44` gepusht; GitHub-Actions-Lauf 37917148601 | Job `test` und Job `deploy` erfolgreich |
+| 237 | Live geprüft: alle Dateien mit `?v=0.38.1`; die neue Aufgabe ist enthalten, ihre Korrekturzeile nicht | per Abruf |
+| 238 | Tag `v0.38.1` gesetzt und gepusht; eigenen Testserver auf Port 4199 beendet | Sicherungspunkt `c652f44` |
+| 239 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.38.1` und die neuen Orte (`CHANGELOG.md`, `documentation/releases/`) ergänzt | außerhalb des Repos |
+| 240 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Testumfang:** 156 Node-Tests, 2 Python-Tests, 31 Browsertests; zusätzlich von
+Hand 49 Prüfungen gegen MariaDB.
+
+**Stand der Punkte**
+
+| Status | Punkte |
+| --- | --- |
+| erledigt (Claude) | OPT-01, -02, -03, -04, -06, -07, -08, -12 (veröffentlichte Fassung), -13, -19, -20, -21, -22, -24 |
+| erledigt (Codex) | OPT-10, OPT-11 |
+| verworfen durch Jakob | OPT-05, OPT-18 |
+| weitgehend erledigt | OPT-14 (Auslagern der alten Abschnitte dieser Datei offen), OPT-15 (Checkliste; Test im Unterricht durch Jakob), OPT-17 (`.tmp/` geleert) |
+| freigegeben, noch nicht begonnen | OPT-16 `app.js` und `styles.css` aufteilen |
+| offen | OPT-09 (Lehrkraft-Bestätigung absichern), OPT-23 (Lösungen im Entwicklermodus) |
+
+**Zu OPT-16:** `app.js` hat rund 4700 Zeilen in einer einzigen Funktion. Das
+Aufteilen ändert kein Verhalten, berührt aber jede Stelle; es sollte in kleinen
+Schritten mit vollständigem Testlauf nach jedem Schritt geschehen und nicht
+gleichzeitig mit Arbeit von Codex an derselben Datei.
+
+Nächste Handlungsnummer: 241.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
