@@ -209,6 +209,20 @@ Klick-Behandlungen), `styles.css` (Block am Dateiende),
 - Nicht geprüft: Schul-PCs und echte MySQL Workbench.
 - Veröffentlichung: Ergebnis des Deployments steht im nächsten Eintrag.
 
+### 0.7 Veröffentlichung 0.26.1 geprüft und Stand der Übergabe [Claude, 2026-10-09]
+
+- Commit `b8c9b01`, Tag `v0.26.1`. GitHub-Actions-Lauf 37887595622: Job `test`
+  und Job `deploy` erfolgreich. Die Live-Seite liefert alle Dateien mit
+  `?v=0.26.1`; `app.js` enthält die Rettungskopie-Logik.
+- Vorhandene Sicherungspunkte: `codex-stand-2026-10-08` (vor Claude),
+  `v0.26.0`, `v0.26.1`. Zurücksetzen auf einen davon wie in Abschnitt 0.1.
+- Claudes Testserver auf Port 4199 wurde nach Abschluss beendet; fremde
+  Prozesse blieben unberührt.
+- Offene Punkte und Reihenfolge stehen in `claude2codex.md`, Teil A und C.
+  Als Nächstes sinnvoll: OPT-15 (Offline-Betrieb und Schul-PC-Checkliste),
+  OPT-05 (Einheiten in kürzere Schritte teilen), OPT-08 (Lehrkraft-Übersicht).
+  OPT-06 (Freischaltung lockern) wartet auf Jakobs Entscheidung.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
