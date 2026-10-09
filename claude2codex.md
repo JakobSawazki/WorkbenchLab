@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.38.1 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.38.2 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -115,13 +115,14 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `app.js` (ca. 4350 Zeilen) | Routing, Rendering, Freischaltung, XP, SQL-Prüfung, Export/Import | Codex, Ergänzungen Claude |
 | `study-tools.js`, `drawing.js`, `appearance.js`, `command-search.js`, `reference-search.js` | Textmarker, Zeichnen, Darstellung, Suchen | Codex |
 | `styles.css` (ca. 4700 Zeilen) | Styling; Claudes Blöcke stehen am Dateiende und sind kommentiert | beide |
+| `sql-check.js` | Ergebnisvergleich, Aufbauprüfung, nachgebildete Datumsfunktionen (aus `app.js` ausgelagert) | Code Codex, Datei Claude |
 | `sql-feedback.js` | deutsche SQL-Meldungen, `SHOW TABLES`/`DESCRIBE` | Claude |
 | `debug-exercises.js`, `predict-exercises.js`, `order-exercises.js` | drei Aufgabentypen | Claude |
 | `review.js` | Auswahl der Wiederholungsrunde | Claude |
 | `erm-editor.js` | Modell-Editor, Logik und Seitenanbindung | Claude |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht | Claude |
 | `tools/build-site.cjs` | Liste der öffentlichen Dateien; neue Dateien dort eintragen | Codex |
-| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 156 Node-Tests, 31 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
+| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 161 Node-Tests, 31 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -184,7 +185,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-13 | Versionsgleichstand | erledigt als Test (Claude, 0.26.0) |
 | OPT-14 | Dokumentation zusammenführen | weitgehend erledigt (Claude, 2026-10-09): `CHANGELOG.md`, `documentation/releases/`, README neu, Wegweiser in `documentation.md`; Auslagern der alten Abschnitte offen |
 | OPT-15 | Offline-Betrieb und Schul-PC-Test | Checkliste erledigt (Claude, `documentation.md` 0.16); Test vor Ort und Offline-Betrieb offen |
-| OPT-16 | `app.js` und `styles.css` aufteilen | freigegeben von Jakob; offen |
+| OPT-16 | `app.js` und `styles.css` aufteilen | Schritt 1 erledigt (Claude, 0.38.2): SQL-Prüflogik in `sql-check.js`; nächste Schritte Sicherung/Import und Lernstand offen |
 | OPT-17 | `.tmp/` aus Google Drive heraushalten | `.tmp/` am 2026-10-09 geleert (991 MB, Freigabe Jakob); Claudes Tests schreiben nach `%TEMP%`; Codex' Tests schreiben weiter nach `.tmp/` |
 | OPT-18 | Erstbesuch ohne Profildialog | verworfen (Jakob, 2026-10-09): Dialog bleibt |
 | OPT-19 | Druckansicht | erledigt (Claude, 0.26.2) |

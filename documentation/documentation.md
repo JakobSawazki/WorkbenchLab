@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.38.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.38.2** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ dieser Abschnitt und Abschnitt 0.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.38.1)**
+**Aktueller Stand (Release 0.38.2)**
 
 | Thema | Stand |
 | --- | --- |
@@ -50,7 +50,7 @@ dieser Abschnitt und Abschnitt 0.**
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S` |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden |
-| Tests | 155 Node-Tests, 2 Python-Tests, 31 Browsertests; zusätzlich von Hand 46 Prüfungen gegen die MariaDB des Informatik-Sticks |
+| Tests | 161 Node-Tests, 2 Python-Tests, 31 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -1954,12 +1954,47 @@ Hand 49 Prüfungen gegen MariaDB.
 | freigegeben, noch nicht begonnen | OPT-16 `app.js` und `styles.css` aufteilen |
 | offen | OPT-09 (Lehrkraft-Bestätigung absichern), OPT-23 (Lösungen im Entwicklermodus) |
 
-**Zu OPT-16:** `app.js` hat rund 4700 Zeilen in einer einzigen Funktion. Das
+**Zu OPT-16:** `app.js` hatte rund 4600 Zeilen in einer einzigen Funktion. Das
 Aufteilen ändert kein Verhalten, berührt aber jede Stelle; es sollte in kleinen
 Schritten mit vollständigem Testlauf nach jedem Schritt geschehen und nicht
 gleichzeitig mit Arbeit von Codex an derselben Datei.
 
 Nächste Handlungsnummer: 241.
+
+### 0.42 Release 0.38.2: `app.js` aufteilen, Schritt 1 [Claude, 2026-10-09]
+
+Bezug: OPT-16, von Jakob am 9. Oktober freigegeben. Für Lernende ändert sich
+nichts.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 241 | Commit `a2c08de` (Eintrag 0.41, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 242 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 243 | Aus `app.js` zwei zusammenhängende Blöcke unverändert nach `sql-check.js` verschoben: die nachgebildeten Datumsfunktionen (`parseDateParts`, `registerSqlFunctions`) und die Prüflogik (`tableFromResult`, `normalizeCell`, `normalizedRows`, `sameTable`, `sqlCoachPatterns`, `sqlPatternInfo`, `checkSqlPatterns`). Das Verschiebeskript bricht ab, falls ein Block etwas aus dem Lernstand, den Inhalten oder der Seite benutzt oder `app.js` danach noch einen der internen Namen verwendet | `app.js` 4605 → 4489 Zeilen; `sql-check.js` 127 Zeilen |
+| 244 | `app.js` bezieht die vier benötigten Funktionen aus `window.WORKBENCH_SQL_CHECK`; `index.html` lädt `sql-check.js` vor `app.js`; `tools/build-site.cjs`, README und `CHANGELOG.md` ergänzt; Versionsangaben auf `0.38.2` | |
+| 245 | `tests/sql-check.test.js` angelegt (5 Tests). Die Prüflogik war bisher nur über Browsertests abgedeckt; jetzt wird sie direkt getestet | |
+| 246 | Testserver auf Port 4199 gestartet; alle Tests ausgeführt | siehe Prüfung |
+
+**Warum dieser Schritt zuerst:** Die Blöcke hängen von nichts anderem in
+`app.js` ab, lassen sich also ohne Umbau herauslösen, und sie entscheiden über
+richtig und falsch. Direkte Tests dafür sind der größte Gewinn.
+
+**Mögliche nächste Schritte (nicht begonnen):** Sicherung und Import
+(`stableStringify`, `sha256Hex`, `backupPayload`, `verifyBackupIntegrity`,
+`importProgressFile`) nach `backup.js`; danach Lernstand (`normalizeState`,
+`loadState`, `saveState`) nach `state.js`. Beide greifen auf gemeinsame
+Variablen zu und brauchen deshalb eine Übergabe von Abhängigkeiten, nicht nur
+ein Verschieben.
+
+**Prüfung**
+
+- 161 Node-Tests (5 neu) und 2 Python-Tests bestanden.
+- Alle 31 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199),
+  jeder beim ersten Versuch. Darunter sind alle Tests, die SQL-Aufgaben lösen
+  und prüfen lassen, sowie der Test der veröffentlichten Fassung.
+- Nicht erneut ausgeführt: die Prüfung gegen MariaDB (die Aufgaben sind
+  unverändert; zuletzt bei 0.38.1 mit 49 Prüfungen bestanden).
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.43.
 
 <!-- CLAUDE:END -->
 
