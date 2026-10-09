@@ -76,7 +76,7 @@ ohne gültiges Schülerkürzel verlangen dessen Ergänzung.
 
 Die IDs erleichtern die organisatorische Zuordnung, sind aber weder
 Hardware-Fingerprinting noch ein manipulationssicherer Leistungsnachweis.
-Details stehen in [der aktuellen Projektdokumentation](documentation.md).
+Details stehen in [dem Archiv der Projektdokumentation](archiv/PROJEKTDOKUMENTATION_BIS_0_21.md), Abschnitt 5.
 
 ## Leistungsbewertung
 

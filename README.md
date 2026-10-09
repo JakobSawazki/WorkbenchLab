@@ -19,6 +19,7 @@ Entwickelt von Jakob Sawazki gemeinsam mit zwei KI-Agenten (Codex und Claude).
 | Übergabe Claude → Codex, offene Punkte | [claude2codex.md](claude2codex.md) |
 | Übergabe Codex → Claude | [codex2claude.md](codex2claude.md) |
 | Einzelne Release- und Abnahmeberichte | [documentation/releases/](documentation/releases/) |
+| Projektdokumentation bis Release 0.21.0 (Codex) | [documentation/archiv/](documentation/archiv/PROJEKTDOKUMENTATION_BIS_0_21.md) |
 | Lehrbuch-Manuskript (Entwurf) | [Lehrbuch/README.md](Lehrbuch/README.md) |
 | Stand vor Claudes Mitarbeit wiederherstellen | Tag `codex-stand-2026-10-08`; Anleitung in der Projektdokumentation, Abschnitt 0.1 |
 
@@ -208,11 +209,11 @@ Beim JSON-Export werden zusätzlich Profilherkunft, aktuelles Exportgerät,
 Übertragungshistorie und eine SHA-256-Prüfsumme ausgegeben. Browser können
 weder eine MAC-Adresse noch zuverlässig eine lokale IP-Adresse bereitstellen;
 diese Werte werden deshalb nicht vorgetäuscht. Details und Grenzen der
-Zuordnung stehen in der [Projektdokumentation](documentation/documentation.md).
+Zuordnung stehen im [Archiv der Projektdokumentation](documentation/archiv/PROJEKTDOKUMENTATION_BIS_0_21.md), Abschnitt 5.
 
 Der SQL-Coach sendet weder SQL-Code noch Profil- oder Leistungsdaten an einen
 KI-Dienst. Ein optionaler KI-Ausbau ist nur über ein geschütztes serverseitiges
-Gateway vorgesehen; Details stehen in der [Projektdokumentation](documentation/documentation.md).
+Gateway vorgesehen; Details stehen in [SQL-Feedback und KI](documentation/SQL_FEEDBACK_UND_KI.md).
 
 Die XP sind das Motivationssystem innerhalb der Plattform. In die Bewertung der
 kontinuierlich erbrachten Leistung fließt etwas anderes ein: Je vollständig

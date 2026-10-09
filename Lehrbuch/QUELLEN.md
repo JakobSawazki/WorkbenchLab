@@ -23,7 +23,7 @@ Die folgenden lokalen Dateien wurden für Zielgruppe, Architektur, Unterrichtsum
 - [Projektbeschreibung](../README.md)
 - [Bisheriger BPE6-Abgleich](../documentation/BPE6_ABGLEICH_2026.md)
 - [Technik und Didaktik](../documentation/TECHNIK_UND_DIDAKTIK.md)
-- [Aktuelle Quellen- und Veröffentlichungsregeln](../documentation/documentation.md)
+- [Aktuelle Quellen- und Veröffentlichungsregeln](../documentation/archiv/PROJEKTDOKUMENTATION_BIS_0_21.md)
 - [Lektions- und Übungsbestand](../content.js)
 - [App-Logik](../app.js)
 - [Pages-Workflow](../.github/workflows/pages.yml)

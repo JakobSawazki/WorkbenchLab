@@ -58,7 +58,7 @@ Quelle: Einzelberichte unter [documentation/releases/](documentation/releases/).
 
 ## 0.21 bis 0.1 – 18. Juni bis 1. Oktober 2026
 
-Quelle: [documentation/documentation.md](documentation/documentation.md), Abschnitt 6 „Versionsverlauf“
+Quelle: [Archiv der Projektdokumentation](documentation/archiv/PROJEKTDOKUMENTATION_BIS_0_21.md), Abschnitt 6 „Versionsverlauf“
 (Codex), sowie die [Abnahme vom 3. Oktober 2026](documentation/releases/ABNAHME_2026-10-03.md).
 Frühere README-Abschnitte zu den Ständen 0.5.0 und 0.7.0 liegen im
 [Archiv](documentation/releases/README_BIS_0_25_3.md).
