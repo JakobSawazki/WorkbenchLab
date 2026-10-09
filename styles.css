@@ -4619,3 +4619,6 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
   textarea { overflow: visible !important; resize: none; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.8em; overflow-wrap: anywhere; }
 }
+
+/* Aufgabentyp Fehlersuche (Claude, OPT-03a) */
+.debug-callout { margin-bottom: 0.9rem; border-left: 4px solid var(--amber); }

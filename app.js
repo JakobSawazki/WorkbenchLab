@@ -278,6 +278,9 @@
   }
 
   function practiceKind(practice) {
+    if (practice.variant === "debug") {
+      return "Fehlersuche";
+    }
     if (practice.type === "sql") {
       return "SQL";
     }
@@ -826,7 +829,7 @@
     const completed = state.completedPractices.includes(practice.id);
     const lesson = lessonById(practice.lessonId);
     const unlocked = isPracticeUnlocked(practice);
-    const icon = practice.type === "sql" ? "database" : practice.type === "slots" ? "network" : "circle-help";
+    const icon = practice.variant === "debug" ? "bug" : practice.type === "sql" ? "database" : practice.type === "slots" ? "network" : "circle-help";
     return `
       <article class="practice-card ${unlocked ? "" : "is-locked"}" tabindex="0" role="button" data-practice="${practice.id}"
         aria-disabled="${String(!unlocked)}" aria-label="${escapeHtml(unlocked ? `${practice.title} öffnen` : `Gesperrt: zuerst ${lesson?.courseCode || "die Lerneinheit"} freischalten`)}">
@@ -1815,9 +1818,11 @@
       { id: "all", label: "Alle" },
       { id: "easy", label: "Grundlage" },
       { id: "medium", label: "Vertiefung" },
-      { id: "plus", label: "Abitur-Plus" }
+      { id: "plus", label: "Abitur-Plus" },
+      { id: "debug", label: "Fehlersuche" }
     ];
-    const practices = sqlPractices().filter((practice) => practiceFilter === "all" || practice.difficulty === practiceFilter);
+    const practices = sqlPractices().filter((practice) => practiceFilter === "all"
+      || (practiceFilter === "debug" ? practice.variant === "debug" : practice.difficulty === practiceFilter));
     main.innerHTML = `
       <section class="section-band sql-intro-band">
         <div class="sql-intro-copy">
@@ -2094,6 +2099,7 @@
         <div class="runner-main">
           ${renderPracticeHeader(practice, lesson)}
           <div class="lesson-body">
+            ${practice.variant === "debug" ? `<div class="callout debug-callout"><i data-lucide="bug"></i><p>${escapeHtml(content.debugIntro)}</p></div>` : ""}
             <label class="sr-only" for="sqlEditor">SQL-Code</label>
             <textarea class="code-editor" id="sqlEditor" spellcheck="false">${escapeHtml(draft)}</textarea>
             <div class="runner-actions">
@@ -2115,6 +2121,7 @@
               </button>
               <button class="icon-button" type="button" id="downloadSqlButton" title="SQL-Datei herunterladen" aria-label="SQL-Datei herunterladen"><i data-lucide="download" aria-hidden="true"></i></button>
             </div>
+            <div class="result-banner" id="practiceResult" role="status" aria-live="polite"></div>
             <div class="runner-tabs">
               <button class="runner-tab is-active" type="button" data-runner-tab="result">Ergebnis</button>
               <button class="runner-tab" type="button" data-runner-tab="coach">SQL-Coach</button>
@@ -2122,7 +2129,6 @@
             </div>
             <div class="runner-panel is-active" data-runner-panel="result">
               <div id="sqlOutput" class="console-output">Noch keine Abfrage ausgeführt.</div>
-              <div class="result-banner" id="practiceResult"></div>
             </div>
             <div class="runner-panel" data-runner-panel="coach">
               <div class="sql-coach is-idle" id="sqlCoach">

@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.27.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.28.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -464,6 +464,92 @@ OPT-21 (Claude); OPT-10, OPT-11 (Codex); OPT-20 teilweise.
 | OPT-14, OPT-16, OPT-17 | Aufräumen von Dokumentation, `app.js`/`styles.css` und `.tmp/`: betrifft Codex' Dateien bzw. erfordert Löschfreigabe |
 
 Nächste Handlungsnummer: 51.
+
+### 0.13 Release 0.28.0: Aufgabentyp „Fehlersuche“ [Claude, 2026-10-09]
+
+Bezug: OPT-03, Teil (a), aus `claude2codex.md`. Auftrag: eigenständige
+Weiterarbeit. Die in Abschnitt 0.12 genannte Zurückhaltung bei OPT-03 hat
+Claude für diesen Teil aufgegeben, weil er ohne Eingriff in vorhandene
+Einheiten, Lernstand-Format oder Abnahmetests auskommt.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 51 | Commit `308c9f7` (Eintrag 0.12, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 52 | Claudes Merkzettel `codex-zusammenarbeit.md` um den Sicherungspunkt `v0.27.0` ergänzt | außerhalb des Repos, `C:\Users\PC\.claude\projects\G--Meine-Ablage-Codex-WorkbenchLab\memory\` |
+| 53 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 54 | `practical-exercises.js`, `practiceKind`, `practiceCard`, `renderLessonExercises` und Zähl-Annahmen in den Tests gelesen | nur lesend |
+| 55 | `debug-exercises.js` angelegt; `app.js`, `styles.css`, `index.html`, `lehrkraft.html`, `tools/build-site.cjs`, Versionsangaben, README angepasst | siehe unten |
+| 56 | `tests/debug-exercises.test.js` (5 Node-Tests) und `tests/debug-exercises.browser.cjs` angelegt; in `tests/teacher-overview.test.js` die Zahl der Einbindungen von 5 auf 6 erhöht | |
+| 57 | Testserver auf Port 4199 gestartet; alle Tests ausgeführt | siehe Prüfung |
+| 58 | Ein Fehlversuch im Browsertest: Die Rückmeldung „Aufgabe gelöst“ steht im Reiter „Ergebnis“, nach „Lösung prüfen“ ist aber der Coach-Reiter aktiv; der Test wartet jetzt auf den Text statt auf die Sichtbarkeit | nur Testcode; Beobachtung siehe unten |
+
+**Neu für Schülerinnen und Schüler**
+
+Sechs Aufgaben, in denen eine vorgegebene Abfrage genau einen typischen Fehler
+enthält. Erst ausführen, Meldung oder Ergebnis lesen, dann korrigieren.
+
+| Aufgabe | Einheit | Fehler | Symptom |
+| --- | --- | --- | --- |
+| Eine Spalte fehlt | L1.5 | Komma zwischen zwei Spalten fehlt | läuft, aber nur zwei Spalten |
+| Esslingen wird nicht gefunden | L1.6 | Textwert ohne Anführungszeichen | Meldung |
+| Leeres Ergebnis | L1.6 | `AND` statt `OR` | läuft, aber keine Zeile |
+| Gruppen filtern | L1.8 | `WHERE` statt `HAVING` | Meldung |
+| Reihenfolge der Klauseln | L1.8 | `ORDER BY` vor `GROUP BY` | Meldung |
+| Viel zu viele Zeilen | L2.4 | `JOIN` ohne `ON` | läuft, aber Kreuzprodukt |
+
+- Je Aufgabe 20 XP, drei gestufte Hinweise, Coach und deutsche Meldungen wie
+  bei den übrigen SQL-Aufgaben.
+- Die Aufgaben erscheinen in den Übungslisten ihrer Einheiten und im SQL-Labor;
+  dort gibt es den neuen Filter „Fehlersuche“. Sie tragen das Kennzeichen
+  „Fehlersuche“ und ein eigenes Symbol.
+- Freischaltung wie bei allen Übungen der jeweiligen Einheit.
+- „Zurücksetzen“ stellt die fehlerhafte Ausgangsabfrage wieder her.
+
+**Auswirkungen auf Bestehendes**
+
+- Die Zahl der Übungen steigt von 43 auf 49. Erfolge, die „alle SQL-Aufgaben“
+  oder „alle Übungen“ verlangen, setzen damit sechs Aufgaben mehr voraus. Wer
+  einen solchen Erfolg bereits freigeschaltet hatte, sieht ihn wieder als
+  offen, bis die neuen Aufgaben gelöst sind.
+- Die erreichbaren XP steigen um 120.
+- Das Lernstand-Format bleibt unverändert; ältere Sicherungen laden wie bisher.
+- Die Aufgabenobjekte enthalten kein Feld `solution` (vgl. OPT-12). Das
+  Sollergebnis wird wie bei allen Abfrageaufgaben aus `expectedSql` berechnet
+  und steht damit weiterhin im Quelltext.
+
+**Sichtbare Rückmeldung nach „Lösung prüfen“ (OPT-22, betrifft alle SQL-Aufgaben):**
+Nach „Lösung prüfen“ wechselt die Ansicht auf den Coach-Reiter. Das Banner
+„Aufgabe gelöst“ bzw. „Noch nicht ganz“ lag im Reiter „Ergebnis“ und war dann
+verdeckt. Claude hat das Banner `#practiceResult` in `renderSqlPractice` über
+die Reiter gesetzt und mit `role="status"` versehen. Texte, Farben und Logik
+sind unverändert. Das ist eine Änderung an einem von Codex gebauten Bereich;
+Rückbau bei Bedarf: die eine Zeile wieder in das Ergebnis-Panel verschieben.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 59 | Banner in `app.js` über die Reiter verschoben; Browsertest prüft jetzt Sichtbarkeit bei aktivem Coach-Reiter | alle Tests danach erneut ausgeführt |
+
+**Technik:** `debug-exercises.js` hängt die Aufgaben mit `variant: "debug"` an
+`content.practices` an; Prüfung, Speicherung und Export nutzen die vorhandenen
+Wege für SQL-Aufgaben. In `app.js` vier kleine Stellen: `practiceKind`,
+Symbol in `practiceCard`, Filter in `renderSql`, Hinweiskasten in
+`renderSqlPractice`. Versionsangaben auf `0.28.0`.
+
+**Prüfung**
+
+- 127 Node-Tests (5 neu) und 2 Python-Tests bestanden. Die Node-Tests prüfen je
+  Aufgabe, dass der Startcode das beschriebene Symptom zeigt, die Korrektur
+  das Sollergebnis liefert und eine gleichwertige Lösung (`IN` statt `OR`)
+  ebenfalls besteht.
+- Alle 25 Browsertests bestanden (Edge, Port 4199), zweimal: vor und nach dem
+  Verschieben des Banners. Der neue `debug-exercises.browser.cjs` prüft bei
+  1440 und 390 px Filter, Kennzeichnung, beide Symptomarten, einmalige XP,
+  Zurücksetzen, unveränderte Sperrlogik und das sichtbare Banner.
+- Nicht geprüft: heller Modus der neuen Elemente (Hinweiskasten, Filter),
+  Wirkung im Unterricht, Schul-PCs.
+- Veröffentlichung: Ergebnis des Deployments steht im nächsten Eintrag.
 
 <!-- CLAUDE:END -->
 

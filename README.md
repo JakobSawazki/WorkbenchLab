@@ -1,6 +1,8 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.27.0
+**Aktueller Release:** 0.28.0
+
+**Fehlersuche:** Sechs neue SQL-Aufgaben, in denen eine fehlerhafte Abfrage zu reparieren ist (fehlendes Komma, fehlende Anführungszeichen, AND statt OR, WHERE statt HAVING, Klauselreihenfolge, JOIN ohne Bedingung).
 
 **Klassenübersicht für Lehrkräfte:** <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html> liest mehrere JSON-Sicherungen lokal ein und zeigt Fortschritt, XP, letzte Aktivität und Prüfsummenstatus je Person; CSV-Export und Druck inklusive. Es werden keine Daten übertragen.
 
