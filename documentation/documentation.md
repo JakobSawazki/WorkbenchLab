@@ -2723,6 +2723,19 @@ geschrieben sind als die Musterlösung?
 
 Nächste Handlungsnummer: 438.
 
+### 0.67 Veröffentlichung 0.41.4 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 438 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 439 | Commit `26bb552` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 440 | Live geprüft: `index.html` mit `v=0.41.4`; `sql-check.js` enthält `patternTexts`; `tests/mysql-lab.browser.cjs` gegen die Live-Seite bestanden (darin die Lösung mit Kommentar, Backticks, Tabellenvorsatz und `ASC`) | |
+| 441 | Sicherungs-Tag `v0.41.4` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 442 | Eigenen Testserver beendet; mit `Get-NetTCPConnection` und Befehlszeilenabfrage geprüft: Auf Port 4199 hört nichts mehr, kein eigener `http.server`-Prozess übrig; Codex' Server auf Port 4325 läuft unverändert | erstmals mit wirksamer Prüfung |
+| 443 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+Nächste Handlungsnummer: 444.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
