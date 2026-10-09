@@ -2592,6 +2592,26 @@ standen. Zwei führten zu Korrekturen.
 
 Nächste Handlungsnummer: 393.
 
+### 0.63 Veröffentlichung 0.41.2 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 393 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 394 | Commit `e1bac5f` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 395 | Live geprüft: `index.html` mit `v=0.41.2`; `erm-editor.js` enthält die Berührungsbehandlung; `tests/erm-editor.browser.cjs` (mit Fingerziehen) und `tests/a11y-names.browser.cjs` (242 Ansichten) gegen die Live-Seite bestanden | |
+| 396 | Sicherungs-Tag `v0.41.2` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 397 | Eigenen Testserver auf Port 4199 beendet | |
+| 398 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Bilanz der Prüfrunde seit 0.41.0** (Abschnitte 0.57 bis 0.62): Aus den Listen
+„nicht geprüft“ wurden sieben Punkte gemessen. Vier davon deckten Fehler auf,
+die jetzt behoben und durch Tests abgesichert sind: MySQL-Funktionen im
+Browser-Labor, Ausdruck der Klassenübersicht, Fingerziehen im Modell-Editor,
+zwei Stellen für Bildschirmleser. Drei blieben ohne Befund: Wiederholungsrunde
+über Mitternacht, Zeitzonen, neue Sicherung im älteren App-Stand.
+
+Nächste Handlungsnummer: 399.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
