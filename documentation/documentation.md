@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.39.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.39.2** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.39.1)**
+**Aktueller Stand (Release 0.39.2)**
 
 | Thema | Stand |
 | --- | --- |
@@ -50,7 +50,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 168 Node-Tests, 2 Python-Tests, 32 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
+| Tests | 176 Node-Tests, 2 Python-Tests, 32 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2170,6 +2170,39 @@ erledigen kann, sind erledigt. Offen bleiben:
 | OPT-16 Lernstand nach `state.js`, `styles.css` aufteilen | Claude oder Codex | reine Aufräumarbeit ohne Nutzen für Lernende; greift tief in Codex' Teile ein, deshalb in Absprache mit Codex |
 
 Nächste Handlungsnummer: 288.
+
+### 0.49 Release 0.39.2: `app.js` aufteilen, Schritt 3 [Claude, 2026-10-09]
+
+Bezug: OPT-16. Keine sichtbare Änderung. In 0.48 hatte Claude diesen Schritt
+als „in Absprache mit Codex“ zurückgestellt; er ließ sich aber ohne inhaltliche
+Änderung am Code erledigen, deshalb jetzt umgesetzt.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 288 | `state.js` neu: Vorgabewerte (`defaultState`), Muster für Kürzel und Klasse, `normalizeStudentCode`, `isValidStudentCode`, `normalizeClassName`, `isValidClassName`, `createOpaqueId`, `isOpaqueId`, `shortIdentity`, `uniqueAllowedStrings`, `worksheetAnswerLimit`, `normalizeState`, `playgroundSchemas` – per Skript zeichengleich aus `app.js` ausgeschnitten → `window.WORKBENCH_STATE` | ohne DOM, ohne Speicherzugriff; Verfasser des Codes: Codex |
+| 289 | `app.js`: Blöcke entfernt, ein Absatz bindet `state.js` ein. `loadState`, `saveState`, Rettungskopie und Import bleiben in `app.js` | 4515 → 4310 Zeilen |
+| 290 | `index.html`: `state.js` nach `backup.js` geladen; `tools/build-site.cjs`: in die Liste der öffentlichen Dateien (je eine Zeile in Codex-Dateien) | |
+| 291 | `tests/state.test.js` neu (8 Tests): Kürzel und Klasse, Kennungen, leerer/unbrauchbarer Stand, gültiger Stand bleibt erhalten und ist nach zweiter Bereinigung unverändert, Unbekanntes/Doppeltes/Überlanges wird entfernt oder gekürzt, Entwürfe des freien SQL-Labors, Ladereihenfolge | `normalizeState` war bisher nur mittelbar über Browsertests abgedeckt |
+| 292 | Einzige inhaltliche Änderung, in Claudes eigenem Rettungszweig von `loadState`: Bei unlesbarem Lernstand wird jetzt eine tiefe Kopie der Vorgabewerte verwendet (`structuredClone`) statt einer flachen. Vorher hätten sich spätere Einträge in die gemeinsamen Vorgabe-Listen geschrieben | beim Lesen des Codes für die Auslagerung aufgefallen; kein beobachteter Fehler |
+| 293 | Versionsangaben auf `0.39.2`; `CHANGELOG.md`, `README.md`, Wegweiser, `claude2codex.md`, Merkzettel (Tag-Bereich) | |
+| 294 | Eigenen Testserver auf Port 4199 gestartet, nach den Tests beendet | keine fremden Prozesse berührt |
+
+**Prüfung**
+
+- 176 Node-Tests (8 neu) und 2 Python-Tests bestanden.
+- Alle 32 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199),
+  darunter `state-rescue` (unlesbarer Lernstand), `backup-safety`,
+  `study-workflow` und `notebook-drawing` (Sicherung laden und speichern).
+
+**Nicht geprüft:** Schul-PCs; echte Lernstände von Lernenden aus älteren
+Versionen (nur die in den Tests nachgebildeten).
+
+**Stand OPT-16:** `app.js` hatte vor Schritt 1 rund 4590 Zeilen und hat jetzt
+4310, obwohl seither OPT-23 dazukam. Ausgelagert und direkt getestet sind
+SQL-Prüflogik, Prüfsumme und Lernstand-Bereinigung. Offen ist nur noch das
+Aufteilen von `styles.css`.
+
+Nächste Handlungsnummer: 295.
 
 <!-- CLAUDE:END -->
 
