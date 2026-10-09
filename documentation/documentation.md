@@ -2622,7 +2622,7 @@ kann. Beide deckten Mängel auf.
 | Nr. | Handlung | Ergebnis / Ort |
 | ---: | --- | --- |
 | 399 | Hilfsskript `storage.cjs`: drei Zustände nachgestellt (Speichern wirft „Kontingent überschritten“; jeder Zugriff wirft „unsicher“; Speicher wird bei jedem Start geleert) und je zehn Schritte ausgeführt | Aufgabe lösen, freies Labor, Modell-Editor, Wiederholung, Klausurtraining, Einheit und Sicherungsdatei funktionieren in allen drei Zuständen; der Dialog „Speichern & Laden“ nennt den fehlenden Speicher |
-| 400 | **Befund:** Bei gesperrtem oder vollem Speicher brach der Start mit einem Skriptfehler ab; der Profil-Dialog des ersten Besuchs erschien nicht | `app.js`, letzte Zeilen (Codex, seit 0.25.x): Zugriff auf `sessionStorage` ohne Absicherung. Alle anderen 40 Speicherzugriffe waren abgesichert |
+| 400 | **Befund:** Bei gesperrtem oder vollem Speicher brach der Start mit einem Skriptfehler ab; der Profil-Dialog des ersten Besuchs erschien nicht | `app.js`, letzte Zeilen (Codex, seit dem ersten Commit): Zugriff auf `sessionStorage` ohne Absicherung. Alle übrigen Speicherzugriffe waren abgesichert |
 | 401 | `app.js`: beide Zugriffe abgesichert | Dialog erscheint, kein Skriptfehler |
 | 402 | `tests/storage-blocked.browser.cjs` neu: alle drei Zustände, dazu die Klassenübersicht bei gesperrtem Speicher | Gegenprobe: ohne 401 schlägt der Test fehl (Dialog erscheint nicht) |
 
@@ -2652,6 +2652,35 @@ auf Fotos und in Grafiken; die übrigen wählbaren Schrift- und Hintergrundfarbe
 (geprüft sind alle Akzentfarben mit den Standardfarben für Schrift und Grund).
 
 Nächste Handlungsnummer: 414.
+
+### 0.65 Veröffentlichung 0.41.3 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 414 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 415 | Commit `701a3f5` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 416 | Live geprüft: `index.html` mit `v=0.41.3`; `appearance.js` enthält `--on-brand`; `tests/contrast.browser.cjs` (288 Ansichten) und `tests/storage-blocked.browser.cjs` gegen die Live-Seite bestanden | |
+| 417 | Sicherungs-Tag `v0.41.3` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 418 | Berichtigung zu Nr. 400: Die Zahl „40“ und die Angabe „seit 0.25.x“ waren geschätzt. Nachgesehen: `app.js` enthält 27 Zeilen mit Speicherzugriffen, ungesichert waren genau die zwei korrigierten; die Stelle stammt aus dem ersten Commit vom 18.06.2026 (`git log -S`) | Eintrag 0.64 entsprechend geändert |
+| 419 | Eigenen Testserver auf Port 4199 beendet | |
+| 420 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Bilanz der Prüfrunden vom 9. Oktober** (Abschnitte 0.57 bis 0.64): neun
+Messungen, sechs mit Befund. Behoben und durch Tests abgesichert:
+
+| Befund | seit | Release |
+| --- | --- | --- |
+| MySQL-Funktionen fehlten oder rechneten falsch | erster Commit | 0.41.0 |
+| Ausdruck der Klassenübersicht abgeschnitten | 0.27.0 | 0.41.1 |
+| Kasten im Modell-Editor per Finger nicht ziehbar | 0.35.0 | 0.41.2 |
+| Dateifeld ohne Namen; Überschriftensprung in Vorhersage-Aufgaben | erster Commit (18.06.2026); 0.29.0 | 0.41.2 |
+| Start bricht bei gesperrtem Browserspeicher ab | erster Commit | 0.41.3 |
+| Schrift auf der Akzentfarbe im dunklen Design kaum lesbar | erster Commit | 0.41.3 |
+
+Ohne Befund: Wiederholungsrunde über Mitternacht, Zeitzonen, neue Sicherung im
+älteren App-Stand, Datenmenge beim ersten Aufruf.
+
+Nächste Handlungsnummer: 421.
 
 <!-- CLAUDE:END -->
 
