@@ -225,7 +225,61 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass, self-relation rejected, SQL export, persistence per task, not in progress data, moving boxes by mouse and keyboard, optionality, image export, M:N task, removal and reset, desktop/mobile.");
+
+    // Fingerbedienung mit nachgebildeten Berührungen (0.41.2): Ein Kasten folgt dem Finger, die Seite
+    // scrollt dabei nicht, und das Ziehen endet mit pointerup statt pointercancel.
+    for (const viewport of [{ width: 390, height: 844 }, { width: 820, height: 1180 }]) {
+      const context = await browser.newContext({ viewport, hasTouch: true, isMobile: true, deviceScaleFactor: 2 });
+      await context.addInitScript(() => {
+        if (!localStorage.getItem("workbenchlab-v1")) {
+          localStorage.setItem("workbenchlab-v1", JSON.stringify({ name: "TST.QAA", className: "TEST" }));
+          localStorage.setItem("workbenchlab-erm-v1", JSON.stringify({ task: "fahrschule-ort", notation: "n", models: { "fahrschule-ort": { entities: [
+            { id: 1, name: "Ort", attributes: [{ id: 2, name: "ortnr", type: "INT", pk: true, fk: false }] },
+            { id: 3, name: "Fahrschueler", attributes: [{ id: 4, name: "schuelernr", type: "INT", pk: true, fk: false }] }
+          ], relations: [{ id: 6, from: 1, to: 3, card: "1:N" }], nextId: 7 } } }));
+        }
+        window.__ermPointer = [];
+        for (const type of ["pointerdown", "pointerup", "pointercancel"]) {
+          document.addEventListener(type, (event) => { if (event.target.closest?.("#ermDiagram")) window.__ermPointer.push(`${type}:${event.pointerType}`); }, true);
+        }
+      });
+      const page = await context.newPage();
+      const errors = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      const cdp = await context.newCDPSession(page);
+      const touch = (type, points) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: points.map(([x, y]) => ({ x, y, id: 1 })) });
+      const swipe = async (from, to) => {
+        await touch("touchStart", [from]);
+        for (let step = 1; step <= 8; step += 1) {
+          await touch("touchMove", [[from[0] + ((to[0] - from[0]) * step) / 8, from[1] + ((to[1] - from[1]) * step) / 8]]);
+          await page.waitForTimeout(16);
+        }
+        await touch("touchEnd", []);
+        await page.waitForTimeout(150);
+      };
+      await page.goto(base + "#modeling/editor");
+      const box = page.locator('#ermDiagram .erm-entity-box[data-box="1"]');
+      await box.waitFor();
+      await box.scrollIntoViewIfNeeded();
+      const place = () => box.evaluate((element) => { const rect = element.getBoundingClientRect(); return { x: rect.x, y: rect.y, w: rect.width, h: rect.height }; });
+      const before = await place();
+      const scrollBefore = await page.evaluate(() => window.scrollY);
+      const start = [before.x + before.w / 2, before.y + before.h / 2];
+      await swipe(start, [start[0] + 40, start[1] + 60]);
+      const after = await place();
+      assert.ok(Math.abs(after.x - before.x - 40) <= 4 && Math.abs(after.y - before.y - 60) <= 4, `Kasten folgt dem Finger nicht: ${after.x - before.x}/${after.y - before.y} bei ${viewport.width}px`);
+      assert.equal(await page.evaluate(() => window.scrollY), scrollBefore, "Seite scrollt beim Ziehen eines Kastens");
+      assert.deepEqual(await page.evaluate(() => window.__ermPointer.splice(0)), ["pointerdown:touch", "pointerup:touch"]);
+      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("workbenchlab-erm-v1")).models["fahrschule-ort"].entities[0]);
+      assert.ok(Number.isInteger(saved.x) && Number.isInteger(saved.y), "Lage nach dem Ziehen gespeichert");
+      // Tippen auf einen Knopf im Editor funktioniert weiterhin.
+      const entities = await page.locator("#ermDiagram .erm-entity-box").count();
+      await page.locator("#ermEditor button").filter({ hasText: "Entitätstyp" }).first().tap();
+      assert.equal(await page.locator("#ermDiagram .erm-entity-box").count(), entities + 1);
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass, self-relation rejected, SQL export, persistence per task, not in progress data, moving boxes by mouse and keyboard, optionality, image export, M:N task, removal and reset, desktop/mobile, dragging by touch.");
   } finally {
     await browser.close();
   }

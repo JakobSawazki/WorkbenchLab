@@ -2475,7 +2475,7 @@
     let db;
     try {
       db = await createDatabase(practice.schema);
-      const html = practice.preview.map((name) => `<h4><code>${escapeHtml(name)}</code></h4>${renderDataTable(tableFromResult(db.exec(`SELECT * FROM ${name};`)))}`).join("");
+      const html = practice.preview.map((name) => `<h3><code>${escapeHtml(name)}</code></h3>${renderDataTable(tableFromResult(db.exec(`SELECT * FROM ${name};`)))}`).join("");
       const target = document.querySelector("#predictData");
       if (target && parseRoute().id === practice.id) {
         target.className = "predict-tables";

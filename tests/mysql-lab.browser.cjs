@@ -99,7 +99,32 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: MySQL functions in the browser lab (text, date, numbers), local NOW/CURDATE, AUTO_INCREMENT and ENGINE rewritten with note, German hints for MySQL-only syntax and functions, typo suggestion, alias and AVG notes, exercises explain TIMESTAMPDIFF, desktop/mobile.");
+    // Andere Zeitzonen (0.41.2): NOW() und CURDATE() folgen der Uhr des Geräts, auch wenn dort ein anderer Tag ist.
+    for (const timezoneId of ["America/Los_Angeles", "Asia/Tokyo", "Pacific/Kiritimati"]) {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, timezoneId });
+      await context.addInitScript(() => {
+        if (!localStorage.getItem("workbenchlab-v1")) localStorage.setItem("workbenchlab-v1", JSON.stringify({ name: "TST.QAA", className: "TEST" }));
+      });
+      const page = await context.newPage();
+      await page.goto(base + "#sql/frei");
+      await page.locator("#runtimeChip.is-ready").waitFor();
+      await page.locator("#sqlEditor").fill("SELECT NOW(), CURDATE();");
+      await page.locator("#playgroundRunButton").click();
+      await page.locator("#sqlOutput tbody td").first().waitFor();
+      const [now, today] = (await page.locator("#sqlOutput tbody td").allInnerTexts()).map((text) => text.trim());
+      const device = await page.evaluate(() => {
+        const d = new Date();
+        const pad = (value) => String(value).padStart(2, "0");
+        return { date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`, minutes: d.getHours() * 60 + d.getMinutes(), zone: Intl.DateTimeFormat().resolvedOptions().timeZone };
+      });
+      assert.equal(device.zone, timezoneId);
+      const shownMinutes = Number(now.slice(11, 13)) * 60 + Number(now.slice(14, 16));
+      const distance = Math.min(Math.abs(shownMinutes - device.minutes), 1440 - Math.abs(shownMinutes - device.minutes));
+      assert.ok(distance <= 2, `NOW() = ${now} in ${timezoneId}, Gerät bei Minute ${device.minutes}`);
+      if (distance === Math.abs(shownMinutes - device.minutes)) assert.equal(today, device.date, timezoneId);
+      await context.close();
+    }
+    console.log("PASS: MySQL functions in the browser lab (text, date, numbers), local NOW/CURDATE, AUTO_INCREMENT and ENGINE rewritten with note, German hints for MySQL-only syntax and functions, typo suggestion, alias and AVG notes, exercises explain TIMESTAMPDIFF, three time zones, desktop/mobile.");
   } finally {
     await browser.close();
   }

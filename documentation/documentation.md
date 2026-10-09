@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.41.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.41.2** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.41.1)**
+**Aktueller Stand (Release 0.41.2)**
 
 | Thema | Stand |
 | --- | --- |
@@ -51,8 +51,8 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` (mit nachgeprüften Modellaufgaben); Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 190 Node-Tests, 2 Python-Tests, 34 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
-| Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
+| Tests | 190 Node-Tests, 2 Python-Tests, 35 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
+| Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
 
@@ -2556,6 +2556,41 @@ Nächste Handlungsnummer: 374.
 | OPT-15 Test am Schul-PC | Checkliste im Unterricht |
 
 Nächste Handlungsnummer: 381.
+
+### 0.62 Release 0.41.2: Fingerbedienung, Bildschirmleser-Namen, vier Punkte aus „nicht geprüft“ [Claude, 2026-10-09]
+
+Vier Punkte abgearbeitet, die in früheren Einträgen als „nicht geprüft“
+standen. Zwei führten zu Korrekturen.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 381 | **Bildschirmleser, soweit automatisch prüfbar.** Hilfsskript über alle 96 Routen, drei Dialoge und die Klassenübersicht, je 1440 und 390 Pixel: vorlesbarer Name jedes Bedienelements, Alternativtexte, doppelte Kennungen, ARIA- und `label`-Bezüge, Überschriftenfolge | 2 Befunde auf 226 Ansichten |
+| 382 | Befund 1: In den fünf Vorhersage-Aufgaben sprang die Überschrift von h2 auf h4 (Tabellenname im aufklappbaren Bereich) | `app.js`, `loadPredictTables`: h3; `styles-extensions.css` angepasst (Claudes Teile) |
+| 383 | Befund 2: Das unsichtbare Dateifeld `#progressFileInput` im Dialog „Speichern & Laden“ hatte keinen Namen; mit der Tabulatortaste erreichbar | `index.html`: `aria-label="JSON-Sicherung zum Laden auswählen"` (Codex' Zeile, ein Attribut) |
+| 384 | `tests/a11y-names.browser.cjs` neu: dieselbe Prüfung fest eingebaut, zusätzlich in Zuständen nach Bedienung (Ergebnis und Fehlermeldung im freien Labor, Aufgabe nach „Lösung prüfen“, Modell-Editor mit Entwurf, laufendes und ausgewertetes Klausurtraining, Zeichenfläche, Klassenübersicht mit Tabelle) | 242 Ansichten, 0 Befunde. Gegenprobe: ohne die Korrekturen aus 382/383 meldet der Test beide Befunde |
+| 385 | **Fingerbedienung** mit nachgebildeten Berührungen (Hilfsskript `touch.cjs`, DevTools-Protokoll; Telefon 390 und Tablet 820 Pixel) | Klauseln ordnen per Tippen funktioniert; Knöpfe 42 × 42 Pixel |
+| 386 | **Befund:** Im Modell-Editor ließ sich ein Kasten per Finger nicht ziehen. Der Browser scrollte die Seite und brach das Ziehen ab (`pointercancel`); der Kasten bewegte sich 10 statt 40 Pixel | Fehler in Claudes Modell-Editor seit 0.35.0. `touch-action: none` wirkt auf SVG-Gruppen nicht |
+| 387 | `erm-editor.js`, `mount`: Beginnt eine Berührung auf einem Kasten, wird das Scrollen für diese Geste unterbunden (`touchstart`, nicht passiv, nur am Editor) | Kasten folgt dem Finger genau (40/60 Pixel), Ende mit `pointerup`; neben den Kästen scrollt die Seite weiter |
+| 388 | `tests/erm-editor.browser.cjs`: Fingerziehen bei 390 und 820 Pixel, Seite scrollt nicht, Lage gespeichert, Tippen auf Knöpfe geht weiter | Gegenprobe: ohne 387 schlägt der Test fehl („Kasten folgt dem Finger nicht: 10/63“) |
+| 389 | **Andere Zeitzonen:** `tests/mysql-lab.browser.cjs` prüft `NOW()` und `CURDATE()` zusätzlich in Los Angeles, Tokio und Kiritimati (anderer Kalendertag) | bestanden; keine Änderung nötig |
+| 390 | **Neue Sicherung in älterem App-Stand:** Release 0.39.3 in einem vorübergehenden Arbeitsverzeichnis außerhalb des Projektordners ausgecheckt (`git worktree`), auf Port 4198 bereitgestellt, eine Sicherung aus 0.41.1 mit Modell-Entwürfen geladen | lädt ohne Fehler; Prüfsumme gültig; Zusatzblock wird ignoriert. Arbeitsverzeichnis und Server danach entfernt (`git worktree list` zeigt nur den Projektordner) |
+| 391 | Versionsangaben auf `0.41.2`; `CHANGELOG.md`, `README.md`, Wegweiser, `claude2codex.md` (C4, A2), Merkzettel | |
+| 392 | Eigene Testserver auf den Ports 4199 und 4198 gestartet und beendet | keine fremden Prozesse berührt |
+
+**Prüfung**
+
+- 190 Node-Tests und 2 Python-Tests bestanden.
+- Alle 35 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199).
+
+**Weiterhin nicht geprüft**
+
+- Echter Bildschirmleser (NVDA, VoiceOver): Der neue Test prüft Namen und
+  Struktur, nicht, ob die Bedienung verständlich klingt.
+- Echtes Tablet oder Telefon: Die Berührungen sind in Edge nachgebildet.
+  Safari auf dem iPad verhält sich bei Berührungen teils anders.
+- Andere Browser als Edge; Schul-PCs; MySQL 8.
+
+Nächste Handlungsnummer: 393.
 
 <!-- CLAUDE:END -->
 

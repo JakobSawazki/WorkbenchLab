@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.41.1 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.41.2 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -102,6 +102,8 @@ Bitte prüfen und bei Bedarf zurücknehmen:
     `registerMysqlFunctions` auf; `NOW()` liefert Ortszeit statt Weltzeit;
     `explainSqlError`, `translateSqlError` und `sqlErrorHtml` reichen die
     Anweisung durch. Sollergebnisse aller Aufgaben unverändert.
+19. **`index.html`, `#progressFileInput`** hat ein `aria-label` (0.41.2); das
+    Feld war für Bildschirmleser namenlos.
 17. **Dokumentation umgeräumt:** Release- und Abnahmeberichte nach
     `documentation/releases/`, deine Abschnitte 1 bis 12 nach
     `documentation/archiv/` – Inhalt unverändert, nur Verweise angepasst.
@@ -143,7 +145,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`), `Lehrbuch/`
 | `backup.js` | Prüfsumme der JSON-Sicherung, gemeinsam für `app.js` und `teacher-overview.js` | Code von Codex, ausgelagert von Claude |
 | `state.js` | Vorgabewerte, Kürzel/Klasse, Kennungen, `normalizeState`; neue Felder des Lernstands hier ergänzen. `loadState`/`saveState` bleiben in `app.js` | Code von Codex, ausgelagert von Claude |
 | `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
-| `tests/*.test.js`, `tests/*.browser.cjs` | 190 Node-Tests, 34 Browsertests | Codex und Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 190 Node-Tests, 35 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -381,5 +383,9 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
   seit 0.40.1: Modellaufgaben prüft sie aus den Entwürfen selbst nach.
 - An der MariaDB des Sticks geprüft: alle 15 neuen Aufgaben und der
   SQL-Export des Modell-Editors (Abschnitt 0.32 der Dokumentation).
-- Nicht geprüft: Schul-PCs, die Workbench-Oberfläche selbst, echter Bildschirmleser,
-  Touch auf einem echten Gerät, MySQL 8.
+- Nicht geprüft: Schul-PCs, die Workbench-Oberfläche selbst, echter Bildschirmleser
+  (Namen und Struktur prüft `tests/a11y-names.browser.cjs` auf 242 Ansichten),
+  echtes Tablet oder Telefon (Fingerziehen ist in Edge nachgebildet getestet),
+  andere Browser als Edge, MySQL 8.
+- Neue Bedienelemente brauchen einen vorlesbaren Namen und Überschriften dürfen
+  keine Ebene überspringen; sonst schlägt `tests/a11y-names.browser.cjs` fehl.

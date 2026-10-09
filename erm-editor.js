@@ -665,6 +665,15 @@ ${new XMLSerializer().serializeToString(copy)}
     lastCheck = null;
     load();
     container.innerHTML = `<div id="ermEditor" class="erm-editor"></div>`;
+    // Fingerbedienung (0.41.2): Beginnt eine Berührung auf einem Kasten, darf die Seite nicht scrollen –
+    // sonst bricht der Browser das Ziehen mit pointercancel ab. touch-action wirkt auf SVG-Gruppen nicht.
+    // Neben den Kästen bleibt Wischen zum Scrollen möglich.
+    if (!container.dataset.ermTouch) {
+      container.dataset.ermTouch = "1";
+      container.addEventListener("touchstart", (event) => {
+        if (event.target.closest?.("#ermDiagram .erm-entity-box")) event.preventDefault();
+      }, { passive: false });
+    }
     render();
   };
 
