@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.41.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.41.1 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -213,6 +213,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-20 | MySQL-Unterschiede sichtbar machen | erledigt (Claude, 0.36.0–0.37.0): freies Labor und „Ausführen“ in den Aufgaben |
 | OPT-21 | Lernstand bei Ladefehler nicht verwerfen | erledigt (Claude, 0.26.1) |
 | OPT-22 | Prüfergebnis-Banner sichtbar | erledigt (Claude, 0.28.0) |
+| OPT-25 | Skripte der Einheiten im Browser-Labor ausführen | Vorschlag in C3; Entscheidung Jakob |
 | OPT-23 | Lösungen im Entwicklermodus sichtbar machen | erledigt (Claude, 0.39.0): lokale Lösungsdatei, siehe `documentation/documentation.md` 0.45 |
 | OPT-24 | Fehlersuche nach Abiturmuster | erledigt (Claude, 0.38.1) |
 
@@ -221,6 +222,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 1. **OPT-15:** Checkliste in `documentation.md` 0.16 schrittweise im Unterricht durchgehen.
 2. **Durchsicht** der neuen Aufgaben, des Modell-Editors und der Klassenübersicht im Unterricht.
 3. **OPT-09:** Lehrkraft-Bestätigung absichern – Weg a, b oder c? Vorschlag in C3.
+4. **OPT-25:** Sollen die Skripte der Einheiten auch im Browser-Labor laufen (für Hausaufgaben ohne Workbench)? Vorschlag in C3.
 
 ### C3 Offene Punkte im Einzelnen
 
@@ -246,6 +248,24 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 - **Nicht empfohlen:** ein gemeinsamer Code oder dessen Hash im Quelltext. Er
   wäre nach der ersten Stunde bekannt oder auslesbar.
 - **Frage an Jakob:** a, b oder c?
+
+#### OPT-25 Skripte der Einheiten im Browser ausführen (Vorschlag; Entscheidung Jakob)
+
+- **Befund (0.41.1):** Die SQL-Beispiele der Einheiten und die 12 Skripte unter
+  `assets/sql/` gehören zur Datenbank, die die Lernenden in MySQL Workbench
+  selbst anlegen. Im freien SQL-Labor laufen sie nicht: andere Spalten
+  (`strasse`, `fahrstundenzahl`), und jedes Skript bricht an `USE` oder
+  `CREATE DATABASE` ab.
+- **Folge:** Wer zu Hause keine MySQL Workbench hat, kann die Beispiele der
+  Einheiten nicht ausprobieren. Jakob will, dass vieles als Hausaufgabe läuft.
+- **Möglicher Weg:** im freien SQL-Labor eine vierte Auswahl „Leere Datenbank
+  (für die Skripte der Einheiten)“. `rewriteMysql` behandelt dafür `CREATE
+  DATABASE`, `USE` und Namen der Form `datenbank.tabelle`. Aufwand mittel; nur
+  `sql-feedback.js`, `state.js` (`playgroundSchemas`) und das freie Labor.
+- **Zu bedenken:** Die Einheiten üben ausdrücklich die Bedienung von MySQL
+  Workbench. Das Browser-Labor wäre ein Ersatz für zu Hause, kein Ersatz für
+  die Workbench-Arbeit im Unterricht.
+- **Frage an Jakob:** gewünscht oder nicht?
 
 #### OPT-04 Modell-Editor, mögliche Erweiterungen
 

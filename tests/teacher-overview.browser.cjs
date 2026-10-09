@@ -97,6 +97,19 @@ const asFile = (file) => ({ name: path.basename(file), mimeType: "application/js
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
       await page.screenshot({ path: `${artifacts}/teacher-overview-${width}.png`, animations: "disabled", fullPage: true });
 
+      // Ausdruck (0.41.1): Beide Tabellen passen auf A4 quer und hoch (bedruckbare Breite bei 10 mm Rand).
+      for (const [label, printable] of [["quer", 1047], ["hoch", 718]]) {
+        await page.setViewportSize({ width: printable, height: 900 });
+        await page.emulateMedia({ media: "print" });
+        const edges = await page.evaluate(() => Array.from(document.querySelectorAll(".teacher-table")).map((table) => Math.ceil(table.getBoundingClientRect().right)));
+        assert.equal(edges.length, 2);
+        for (const edge of edges) assert.ok(edge <= printable, `Tabelle ragt im Druck (${label}) über den Rand: ${edge} > ${printable}`);
+        assert.equal(await page.locator(".teacher-controls").isVisible(), false);
+        await page.emulateMedia({ media: "screen" });
+      }
+      await page.setViewportSize({ width, height: 900 });
+      assert.match(await page.evaluate(() => Array.from(document.styleSheets).flatMap((sheet) => { try { return Array.from(sheet.cssRules); } catch { return []; } }).filter((rule) => rule.constructor.name === "CSSPageRule").map((rule) => rule.cssText).join(" ")), /landscape/);
+
       // Nichts wird gespeichert oder übertragen.
       assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0);
       assert.deepEqual(foreignRequests, []);
@@ -105,7 +118,7 @@ const asFile = (file) => ({ name: path.basename(file), mimeType: "application/js
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: teacher overview reads a real export, flags a tampered copy, rejects foreign/broken files safely, matrix, duplicate guard, CSV, no storage or foreign requests, desktop/mobile.");
+    console.log("PASS: teacher overview reads a real export, flags a tampered copy, rejects foreign/broken files safely, matrix, duplicate guard, CSV, print fits A4 in both orientations, no storage or foreign requests, desktop/mobile.");
   } finally {
     await browser.close();
   }

@@ -14,12 +14,12 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.41.0">
-  <link rel="stylesheet" href="styles-lesson.css?v=0.41.0">
-  <link rel="stylesheet" href="styles-practice.css?v=0.41.0">
-  <link rel="stylesheet" href="styles-visuals.css?v=0.41.0">
-  <link rel="stylesheet" href="styles-shared.css?v=0.41.0">
-  <link rel="stylesheet" href="styles-extensions.css?v=0.41.0">
+  <link rel="stylesheet" href="styles.css?v=0.41.1">
+  <link rel="stylesheet" href="styles-lesson.css?v=0.41.1">
+  <link rel="stylesheet" href="styles-practice.css?v=0.41.1">
+  <link rel="stylesheet" href="styles-visuals.css?v=0.41.1">
+  <link rel="stylesheet" href="styles-shared.css?v=0.41.1">
+  <link rel="stylesheet" href="styles-extensions.css?v=0.41.1">
   <style>
     /* Klassenübersicht für Lehrkräfte (Claude, OPT-08) */
     body { margin: 0; }
@@ -57,12 +57,24 @@
     .teacher-rejected ul { margin: 0; padding-left: 1.2rem; }
     .teacher-page h2 { margin: 1.5rem 0 0.6rem; font-size: 1.2rem; }
     .teacher-note { color: var(--muted); font-size: 0.92rem; margin-top: 1.25rem; }
+    /* Ausdruck: Querformat; Zellen dürfen umbrechen, damit die Tabelle auf jede Papierbreite passt (0.41.1). */
+    @page { size: A4 landscape; margin: 10mm; }
     @media print {
+      body { background: #fff !important; color: #000 !important; }
+      .teacher-page { max-width: none; padding: 0; }
       .teacher-drop, .teacher-controls, .teacher-head a, .teacher-privacy { display: none !important; }
-      .teacher-table-wrap { overflow: visible; border: 0; }
-      .teacher-table { font-size: 8.5pt; }
-      .teacher-table th, .teacher-table td { padding: 2pt 4pt; border: 1px solid #999; color: #000 !important; }
+      .teacher-stats { grid-template-columns: repeat(6, 1fr); gap: 4pt; }
+      .teacher-stats div { padding: 3pt 5pt; border: 1px solid #999; background: #fff !important; }
+      .teacher-stats strong { font-size: 11pt; }
+      .teacher-stats span { font-size: 7.5pt; color: #000 !important; }
+      .teacher-table-wrap { overflow: visible; border: 0; background: #fff !important; }
+      .teacher-table { font-size: 7.5pt; table-layout: auto; }
+      .teacher-table th, .teacher-table td { padding: 1.5pt 3pt; border: 1px solid #999; color: #000 !important; white-space: normal; overflow-wrap: anywhere; }
+      .teacher-table tbody th, .teacher-table td:first-child { white-space: nowrap; }
       .teacher-table thead th { position: static; background: #eee !important; }
+      .teacher-table tr { break-inside: avoid; }
+      .teacher-table thead { display: table-header-group; }
+      .teacher-page h1, .teacher-page h2, .teacher-note, #teacherStatus { color: #000 !important; }
     }
   </style>
 </head>
@@ -93,14 +105,14 @@
     <p class="teacher-note">Die Prüfsumme zeigt, ob eine Datei nach dem Speichern verändert wurde. Sie ist kein manipulationssicherer Leistungsnachweis: XP, Abschlüsse und der Haken „Lehrkraft hat bestätigt“ werden im Browser der Lernenden gesetzt. Die Spalte „Modelle“ ist davon ausgenommen: Die Entwürfe aus dem Modell-Editor werden hier auf Ihrem Gerät neu geprüft. XP und NAGOLD in dieser Übersicht werden aus den abgeschlossenen Einheiten und Aufgaben neu berechnet; je abgeschlossener Lerneinheit zählen 5 NAGOLD.</p>
   </main>
 
-  <script src="content.js?v=0.41.0"></script>
-  <script src="learning-path.js?v=0.41.0"></script>
-  <script src="practical-exercises.js?v=0.41.0"></script>
-  <script src="debug-exercises.js?v=0.41.0"></script>
-  <script src="predict-exercises.js?v=0.41.0"></script>
-  <script src="order-exercises.js?v=0.41.0"></script>
-  <script src="backup.js?v=0.41.0"></script>
-  <script src="erm-editor.js?v=0.41.0"></script>
-  <script src="teacher-overview.js?v=0.41.0"></script>
+  <script src="content.js?v=0.41.1"></script>
+  <script src="learning-path.js?v=0.41.1"></script>
+  <script src="practical-exercises.js?v=0.41.1"></script>
+  <script src="debug-exercises.js?v=0.41.1"></script>
+  <script src="predict-exercises.js?v=0.41.1"></script>
+  <script src="order-exercises.js?v=0.41.1"></script>
+  <script src="backup.js?v=0.41.1"></script>
+  <script src="erm-editor.js?v=0.41.1"></script>
+  <script src="teacher-overview.js?v=0.41.1"></script>
 </body>
 </html>

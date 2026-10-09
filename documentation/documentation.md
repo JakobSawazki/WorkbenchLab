@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.41.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.41.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.41.0)**
+**Aktueller Stand (Release 0.41.1)**
 
 | Thema | Stand |
 | --- | --- |
@@ -2504,6 +2504,36 @@ der alten Runde öffnet und sie nach Mitternacht löst, bekommt sie nur dann
 angerechnet, wenn sie auch zur neuen Runde gehört.
 
 Nächste Handlungsnummer: 364.
+
+### 0.60 Release 0.41.1: Ausdruck der Klassenübersicht; drei Prüfungen ohne Änderung [Claude, 2026-10-09]
+
+Vier Punkte geprüft, die bisher als „nicht geprüft“ oder offen notiert waren.
+Einer führte zu einer Korrektur.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 364 | **SQL-Beispiele der Einheiten.** 24 Codeblöcke der Einheiten und 17 Beispiele der Befehlskarten gesichtet; die 12 Skripte unter `assets/sql/` im Browser-Labor ausgeführt | Die Beispiele gehören zur Datenbank, die die Lernenden in MySQL Workbench selbst anlegen (andere Spalten als im Browser-Labor, z. B. `strasse`, `fahrstundenzahl`). Alle 12 Skripte brechen im Browser an `USE` bzw. `CREATE DATABASE` ab. Kein Fehler, aber eine Lücke für Hausaufgaben ohne Workbench → Vorschlag OPT-25 in `claude2codex.md`, Entscheidung Jakob |
+| 365 | **Datenmenge beim ersten Aufruf** an der Live-Seite gemessen (Hilfsskript `weight.cjs`, 1440 und 390 Pixel) | Startseite 34 Anfragen, 1,46 MB (davon Landkarte 0,61 MB, SQL-Laufzeit 0,32 MB), rund 1,5 s; freies SQL-Labor 0,67 MB; Einheit L1.1 0,83 MB. Danach aus dem Zwischenspeicher. Nichts geändert |
+| 366 | **Sichtprüfung** des freien SQL-Labors nach 0.41.0 anhand der Testbilder (1440 und 390 Pixel) | unauffällig |
+| 367 | **Klassenübersicht mit ganzer Klasse** simuliert (Hilfsskript `klasse.cjs`: 30 erzeugte Sicherungen, zwei Klassen, eine verfälschte Datei, mit und ohne Modell-Entwürfe) | Einlesen und Anzeige in rund 0,1 s, keine Fehler, kein seitliches Überlaufen am Bildschirm |
+| 368 | **Befund:** Im Druck war die erste Tabelle breiter als das Papier. Hochformat: 905 px bei 794 px Blattbreite – rechts fehlten „Sicherung vom“ und „Prüfsumme“. Bestand schon vor der Spalte „Modelle“ (0.40.1), dadurch aber verschärft | Fehler in Claudes Klassenübersicht seit 0.27.0; bisher nur als „Ausdruck nicht geprüft“ vermerkt |
+| 369 | `lehrkraft.html`, Druckregeln: Querformat als Vorgabe (`@page`), 10 mm Rand, kleinere Schrift, Zellen dürfen umbrechen (Klasse und Kürzel nicht), Kennzahlen in einer Zeile, Tabellenkopf auf jeder Seite, weißer Hintergrund | Tabellen passen quer (1031 von 1047 px) und hoch (702 von 718 px) |
+| 370 | `tests/teacher-overview.browser.cjs`: prüft in der Druckansicht beide Tabellen gegen die bedruckbare Breite von A4 quer und hoch | Gegenprobe: Ohne die Korrektur schlägt der Test fehl („880 > 718“) |
+| 371 | `claude2codex.md`: OPT-25 als Vorschlag aufgenommen; C2 ergänzt | |
+| 372 | Versionsangaben auf `0.41.1`; `CHANGELOG.md`, `README.md`, Wegweiser, Merkzettel | |
+| 373 | Eigenen Testserver auf Port 4199 gestartet, nach den Tests beendet | keine fremden Prozesse berührt |
+
+**Prüfung**
+
+- 190 Node-Tests und 2 Python-Tests bestanden.
+- Alle 34 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199).
+- Ausdruck als Bild der Druckansicht gesichtet (30 Zeilen, beide Tabellen vollständig).
+
+**Nicht geprüft:** Ausdruck auf einem echten Drucker; Druckdialog anderer
+Browser als Edge (Firefox beachtet die Vorgabe „Querformat“ nicht immer – dann
+greift der Umbruch der Zellen).
+
+Nächste Handlungsnummer: 374.
 
 <!-- CLAUDE:END -->
 
