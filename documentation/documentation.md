@@ -2487,6 +2487,24 @@ MySQL geht, liest das in der Meldung.
 
 Nächste Handlungsnummer: 360.
 
+### 0.59 Wiederholungsrunde über Mitternacht geprüft (nur Test) [Claude, 2026-10-09]
+
+Bezug: `claude2codex.md` C4 nannte als ungeprüft „Tageswechsel der
+Wiederholungsrunde bei geöffnetem Fenster“.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 360 | Code gelesen (`readReviewDay`, `reviewPicks`, `markReviewed` in `app.js`): Der Tag wird bei jedem Aufruf neu bestimmt; ein offenes Fenster braucht kein Neuladen | kein Fehler gefunden |
+| 361 | `tests/review.browser.cjs` um den Fall ergänzt: Uhr des Browsers auf 23:59:30 gestellt, Runde des Tages vollständig; eine Minute vorgespult; zur Übersicht und zurück ohne Neuladen | neue Runde mit fünf Aufgaben, keine als wiederholt markiert, gespeicherter Tag ist der neue; Test bestanden |
+| 362 | `claude2codex.md` C4: Punkt aus „nicht geprüft“ entfernt | |
+| 363 | Eigenen Testserver auf Port 4199 gestartet und beendet; Commit ohne Versionsanhebung gepusht (keine Änderung an der App) | Actions-Lauf siehe unten |
+
+**Bekanntes Verhalten, kein Fehler:** Wer kurz vor Mitternacht eine Aufgabe
+der alten Runde öffnet und sie nach Mitternacht löst, bekommt sie nur dann
+angerechnet, wenn sie auch zur neuen Runde gehört.
+
+Nächste Handlungsnummer: 364.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]

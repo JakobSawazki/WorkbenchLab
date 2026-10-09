@@ -362,5 +362,4 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 - An der MariaDB des Sticks geprüft: alle 15 neuen Aufgaben und der
   SQL-Export des Modell-Editors (Abschnitt 0.32 der Dokumentation).
 - Nicht geprüft: Schul-PCs, die Workbench-Oberfläche selbst, echter Bildschirmleser,
-  Touch auf einem echten Gerät, Tageswechsel der Wiederholungsrunde bei
-  geöffnetem Fenster.
+  Touch auf einem echten Gerät, MySQL 8.

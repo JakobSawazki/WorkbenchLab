@@ -109,6 +109,40 @@ async function fix(page, sql) {
       await context.close();
     }
 
+    // Tageswechsel bei geöffnetem Fenster (Claude, 0.41.1): Um Mitternacht beginnt ohne Neuladen eine neue Runde.
+    {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await context.clock.install({ time: new Date("2026-10-09T23:59:30") });
+      await context.addInitScript(([doneLessons, donePractices]) => {
+        if (!localStorage.getItem("workbenchlab-v1")) {
+          localStorage.setItem("workbenchlab-v1", JSON.stringify({ name: "TST.QAA", className: "TEST", completedLessons: doneLessons, completedPractices: donePractices }));
+          localStorage.setItem("workbenchlab-review-v1", JSON.stringify({ day: "2026-10-09", picks: donePractices.slice(0, 5), ids: donePractices.slice(0, 5) }));
+        }
+      }, [lessons, solved]);
+      const page = await context.newPage();
+      const errors = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.goto(base + "#sql/wiederholen");
+      await page.locator(".review-complete").waitFor();
+      assert.equal(await page.locator(".review-list li.is-reviewed").count(), 5);
+      await page.clock.fastForward(60000);
+      assert.equal(await page.evaluate(() => new Date().getDate()), 10);
+      // Dieselbe Seite, kein Neuladen: zur Übersicht und zurück.
+      await page.evaluate(() => { window.location.hash = "sql"; });
+      await page.locator(".review-teaser").waitFor();
+      await page.evaluate(() => { window.location.hash = "sql/wiederholen"; });
+      await page.locator(".review-list li").first().waitFor();
+      assert.equal(await page.locator(".review-complete").count(), 0);
+      assert.equal(await page.locator(".review-list li").count(), 5);
+      assert.equal(await page.locator(".review-list li.is-reviewed").count(), 0);
+      const record = await page.evaluate(() => JSON.parse(localStorage.getItem("workbenchlab-review-v1")));
+      assert.equal(record.day, "2026-10-10");
+      assert.equal(record.picks.length, 5);
+      assert.deepEqual(record.ids || [], []);
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+
     // Ohne gelöste Aufgaben: kein Einstieg, verständlicher Leerzustand.
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     await context.addInitScript(() => {
@@ -121,7 +155,7 @@ async function fix(page, sql) {
     await page.goto(base + "#sql/wiederholen");
     await page.getByText("Noch nichts zu wiederholen").waitFor();
     assert.equal(await page.locator(".review-list li").count(), 0);
-    console.log("PASS: review round teaser, five stable daily picks, return path, progress per solved task, no XP, counts as activity, survives reload, not in progress data, empty state, desktop/mobile.");
+    console.log("PASS: review round teaser, five stable daily picks, return path, progress per solved task, no XP, counts as activity, survives reload, not in progress data, new round after midnight without reload, empty state, desktop/mobile.");
   } finally {
     await browser.close();
   }
