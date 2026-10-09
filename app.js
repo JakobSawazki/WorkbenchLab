@@ -72,6 +72,8 @@
     { min: 1000, title: "Datenbank-Architekt" }
   ];
 
+  // Muss vor loadState() stehen: normalizeState() liest diese Liste (Claude, OPT-01).
+  const playgroundSchemas = ["fahrschule-basic", "fahrschule", "fahrradvermietung"];
   let storageAvailable = true;
   let state = loadState();
   const deviceIdentity = loadDeviceIdentity();
@@ -85,6 +87,10 @@
     storageAvailable = false;
   }
   let practiceFilter = "all";
+  // Freies SQL-Labor (Claude, OPT-01): Datenbank bleibt bis zum Zurücksetzen erhalten.
+  let playgroundSchemaKey = playgroundSchemas[0];
+  let playgroundDb = null;
+  let playgroundDbKey = "";
   let developerMode = false;
   let developerControlRevealed = false;
   let SQLRuntime = null;
@@ -301,7 +307,7 @@
     const lessonWorksheets = {};
 
     Object.entries(candidate.drafts || {}).forEach(([id, value]) => {
-      if (practiceIds.has(id) && typeof value === "string") {
+      if ((practiceIds.has(id) || playgroundSchemas.some((key) => id === `frei-${key}`)) && typeof value === "string") {
         drafts[id] = value.slice(0, 100000);
       }
     });
@@ -1807,6 +1813,14 @@
           <figcaption><i data-lucide="scan-search"></i> Code und Ergebnis gemeinsam prüfen</figcaption>
         </figure>
       </section>
+      <section class="section-band playground-teaser">
+        <div>
+          <p class="eyebrow">Ohne Aufgabe, ohne XP</p>
+          <h2>Freies SQL-Labor</h2>
+          <p>Probiere eigene Abfragen an den Übungsdatenbanken aus. Hier ist nichts gesperrt und nichts wird bewertet.</p>
+        </div>
+        <button class="button button-primary" type="button" data-route="sql/frei"><i data-lucide="flask-conical"></i>Frei ausprobieren</button>
+      </section>
       <div class="section-heading">
         <div>
           <p class="eyebrow">Übungen</p>
@@ -1819,6 +1833,108 @@
       <div class="card-grid">
         ${practices.map(practiceCard).join("")}
       </div>`;
+  }
+
+  function playgroundStarter(schemaKey) {
+    return `SELECT *\nFROM ${content.schemas[schemaKey].tables[0].name};`;
+  }
+
+  function closePlaygroundDb() {
+    try { playgroundDb?.close(); } catch {}
+    playgroundDb = null;
+    playgroundDbKey = "";
+  }
+
+  function renderSqlPlayground() {
+    setHeading("Ohne Aufgabe ausprobieren", "Freies SQL-Labor");
+    activateNav("sql");
+    const schema = content.schemas[playgroundSchemaKey];
+    const draft = state.drafts[`frei-${playgroundSchemaKey}`] ?? playgroundStarter(playgroundSchemaKey);
+    main.innerHTML = `
+      <article class="sql-runner sql-playground">
+        <div class="runner-main">
+          <header class="lesson-head">
+            <div>
+              <p class="eyebrow">Freies SQL-Labor</p>
+              <h2>Eigene Abfragen ausprobieren</h2>
+              <p>Schreibe beliebige SQL-Anweisungen. Änderungen durch INSERT, UPDATE oder DELETE bleiben erhalten, bis du die Datenbank zurücksetzt. Es gibt keine XP und keine Bewertung.</p>
+            </div>
+            <div class="detail-actions">
+              <button class="button button-secondary" type="button" data-route="sql"><i data-lucide="list-checks"></i>SQL-Aufgaben</button>
+            </div>
+          </header>
+          <div class="lesson-body">
+            <div class="playground-schema-row">
+              <label for="playgroundSchema">Übungsdatenbank</label>
+              <select id="playgroundSchema">
+                ${playgroundSchemas.map((key) => `<option value="${key}" ${key === playgroundSchemaKey ? "selected" : ""}>${escapeHtml(content.schemas[key].title)}</option>`).join("")}
+              </select>
+            </div>
+            <label class="sr-only" for="sqlEditor">SQL-Code</label>
+            <textarea class="code-editor" id="sqlEditor" spellcheck="false" data-playground-editor>${escapeHtml(draft)}</textarea>
+            <div class="runner-actions">
+              <button class="button button-primary" type="button" id="playgroundRunButton" title="Ausführen (Strg + Enter)"><i data-lucide="play"></i>Ausführen</button>
+              <button class="button button-secondary" type="button" id="playgroundResetButton"><i data-lucide="database-backup"></i>Datenbank zurücksetzen</button>
+              <button class="icon-button" type="button" id="playgroundDownloadButton" title="SQL-Datei herunterladen" aria-label="SQL-Datei herunterladen"><i data-lucide="download" aria-hidden="true"></i></button>
+            </div>
+            <p class="field-hint">Tipp: <kbd>Strg</kbd> + <kbd>Enter</kbd> führt aus. <code>SHOW TABLES;</code> und <code>DESCRIBE tabelle;</code> funktionieren wie in MySQL Workbench.</p>
+            <div id="sqlOutput" class="console-output" aria-live="polite">Noch keine Abfrage ausgeführt.</div>
+            <div class="callout playground-note">
+              <i data-lucide="info"></i>
+              <p>Das Browser-Labor arbeitet mit SQLite. Die meisten Abfragen laufen in MySQL Workbench genauso; bei Datumsfunktionen und Datentypen kann es Unterschiede geben. Maßgeblich bleibt MySQL Workbench.</p>
+            </div>
+          </div>
+        </div>
+        <aside class="runner-side">
+          <div class="schema-grid">
+            <div>
+              <h3>${escapeHtml(schema.title)}</h3>
+              <p>${escapeHtml(schema.description)}</p>
+            </div>
+            ${schema.tables.map((table) => `
+              <article class="schema-card">
+                <h3><code>${escapeHtml(table.name)}</code></h3>
+                <div class="schema-fields">
+                  ${table.fields.map((field) => `<code>${escapeHtml(field)}</code>`).join("")}
+                </div>
+                <button class="button button-secondary playground-table-button" type="button" data-playground-table="${escapeHtml(table.name)}"><i data-lucide="table-2"></i>Inhalt anzeigen</button>
+              </article>`).join("")}
+          </div>
+        </aside>
+      </article>`;
+  }
+
+  async function runPlayground(sqlOverride) {
+    const editor = document.querySelector("[data-playground-editor]");
+    const runButton = document.querySelector("#playgroundRunButton");
+    if (!editor || !runButton) {
+      return;
+    }
+    runButton.disabled = true;
+    try {
+      const sql = (sqlOverride ?? editor.value).trim();
+      if (!sql) {
+        throw new Error("Schreibe zuerst eine SQL-Anweisung.");
+      }
+      if (!playgroundDb || playgroundDbKey !== playgroundSchemaKey) {
+        closePlaygroundDb();
+        playgroundDb = await createDatabase(playgroundSchemaKey);
+        playgroundDbKey = playgroundSchemaKey;
+      }
+      const resultSets = playgroundDb.exec(window.WORKBENCH_SQL_FEEDBACK.rewriteMysql(sql));
+      const table = tableFromResult(resultSets);
+      if (table.columns.length) {
+        const count = table.values.length;
+        setSqlOutput(`<p class="playground-result-count">${count} Ergebniszeile${count === 1 ? "" : "n"}</p>${renderDataTable(table)}`);
+      } else {
+        const changed = playgroundDb.getRowsModified();
+        setSqlOutput(`<div class="console-output">Befehl ausgeführt. ${changed === 1 ? "1 Datensatz" : `${changed} Datensätze`} betroffen. Kontrolliere das Ergebnis mit SELECT oder „Inhalt anzeigen“.</div>`);
+      }
+    } catch (error) {
+      setSqlOutput(sqlErrorHtml(error, playgroundSchemaKey));
+    } finally {
+      runButton.disabled = false;
+    }
   }
 
   function renderModeling() {
@@ -2618,34 +2734,17 @@
     return problems;
   }
 
-  function translateSqlError(error) {
-    const message = String(error?.message || error || "");
-    let match = message.match(/no such table:\s*([^\s]+)/i);
-    if (match) {
-      return `Die Tabelle ${match[1]} gehört nicht zum Übungsschema. Prüfe FROM und JOIN rechts neben dem Editor.`;
-    }
-    match = message.match(/no such column:\s*([^\s]+)/i);
-    if (match) {
-      return `Die Spalte ${match[1]} wurde nicht gefunden. Prüfe Schreibweise, Tabellenalias und Schema.`;
-    }
-    match = message.match(/ambiguous column name:\s*([^\s]+)/i);
-    if (match) {
-      return `Die Spalte ${match[1]} kommt in mehreren Tabellen vor. Setze den passenden Alias davor, zum Beispiel f.${match[1]}.`;
-    }
-    match = message.match(/near\s+"([^"]+)":\s*syntax error/i);
-    if (match) {
-      return `In der Nähe von „${match[1]}“ stimmt der Satzbau noch nicht. Prüfe die Klausel direkt davor und fehlende Kommas oder Ausdrücke.`;
-    }
-    if (/incomplete input/i.test(message)) {
-      return "Die Anweisung ist noch unvollständig. Prüfe offene Klammern und Klauseln wie WHERE, ON oder HAVING ohne Bedingung.";
-    }
-    if (/unique constraint failed/i.test(message)) {
-      return "Ein Primär- oder eindeutiger Schlüssel ist bereits vergeben. Verwende einen noch nicht vorhandenen Wert.";
-    }
-    if (/foreign key constraint failed/i.test(message)) {
-      return "Ein Fremdschlüssel verweist auf keinen vorhandenen Datensatz der Parent-Tabelle.";
-    }
-    return message || "Die SQL-Anweisung konnte nicht ausgeführt werden. Prüfe Syntax, Tabellen und Spalten.";
+  function explainSqlError(error, schemaKey) {
+    return window.WORKBENCH_SQL_FEEDBACK.explain(error, content.schemas[schemaKey]);
+  }
+
+  function translateSqlError(error, schemaKey) {
+    return explainSqlError(error, schemaKey).text;
+  }
+
+  function sqlErrorHtml(error, schemaKey) {
+    const info = explainSqlError(error, schemaKey);
+    return `<div class="console-output sql-error" role="alert"><strong>SQL-Meldung</strong><p>${escapeHtml(info.text)}</p>${info.original ? `<small>Originalmeldung der Datenbank: <code>${escapeHtml(info.original)}</code></small>` : ""}</div>`;
   }
 
   function coachItem(status, title, detail) {
@@ -2820,8 +2919,8 @@
         showBanner("#practiceResult", false, "Noch nicht ganz", patternProblems[0]?.hint || "Öffne den SQL-Coach für den nächsten gezielten Prüfschritt.");
       }
     } catch (error) {
-      const translated = translateSqlError(error);
-      setSqlOutput(`<div class="console-output"><strong>SQL-Meldung</strong><br>${escapeHtml(error.message || "Die SQL-Anweisung konnte nicht ausgeführt werden.")}</div>`);
+      const translated = translateSqlError(error, practice.schema);
+      setSqlOutput(sqlErrorHtml(error, practice.schema));
       if (useCoach) {
         const sql = editor.value.trim();
         const patternProblems = sql ? checkSqlPatterns(sql, practice.check) : [];
@@ -3166,6 +3265,8 @@
       renderHome();
     } else if (route.name === "path") {
       renderPath();
+    } else if (route.name === "sql" && route.id === "frei") {
+      renderSqlPlayground();
     } else if (route.name === "sql") {
       renderSql();
     } else if (route.name === "modeling") {
@@ -3498,6 +3599,25 @@
         document.querySelector("#practiceResult").className = "result-banner";
       }
     }
+    if (event.target.closest("#playgroundRunButton")) {
+      runPlayground();
+    }
+    const playgroundTable = event.target.closest("[data-playground-table]");
+    if (playgroundTable) {
+      runPlayground(`SELECT * FROM ${playgroundTable.dataset.playgroundTable};`);
+    }
+    if (event.target.closest("#playgroundResetButton")) {
+      closePlaygroundDb();
+      setSqlOutput(`<div class="console-output">Die Übungsdatenbank ist wieder im Ausgangszustand. Dein SQL-Text bleibt erhalten.</div>`);
+    }
+    if (event.target.closest("#playgroundDownloadButton")) {
+      const editor = document.querySelector("[data-playground-editor]");
+      if (editor?.value.trim()) {
+        downloadBlob(new Blob([editor.value], { type: "text/plain;charset=utf-8" }), `workbenchlab-frei-${safeFilePart(playgroundSchemaKey)}.sql`);
+      } else {
+        toast("Schreibe zuerst einen SQL-Entwurf.", "error");
+      }
+    }
     if (event.target.closest("#downloadSqlButton")) {
       const practice = practiceById(parseRoute().id);
       const editor = document.querySelector("#sqlEditor");
@@ -3543,6 +3663,15 @@
         go(`command/${card.dataset.command}`);
       }
     }
+    if (event.target.id === "sqlEditor" && event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      if (event.target.matches("[data-playground-editor]")) {
+        runPlayground();
+      } else {
+        runSqlPractice("run");
+      }
+      return;
+    }
     if (event.target.id === "sqlEditor" && event.key === "Tab") {
       event.preventDefault();
       const editor = event.target;
@@ -3578,7 +3707,10 @@
       });
       document.querySelector("#notebookSearchEmpty").hidden = Boolean(document.querySelector(".notebook-topic:not([hidden])"));
     }
-    if (event.target.id === "sqlEditor") {
+    if (event.target.matches("[data-playground-editor]")) {
+      state.drafts[`frei-${playgroundSchemaKey}`] = event.target.value.slice(0, 100000);
+      saveState();
+    } else if (event.target.id === "sqlEditor") {
       const practice = practiceById(parseRoute().id);
       if (practice) {
         state.drafts[practice.id] = event.target.value.slice(0, 100000);
@@ -3596,6 +3728,14 @@
   });
 
   document.addEventListener("change", (event) => {
+    if (event.target.id === "playgroundSchema" && playgroundSchemas.includes(event.target.value)) {
+      playgroundSchemaKey = event.target.value;
+      closePlaygroundDb();
+      renderSqlPlayground();
+      renderIcons();
+      document.querySelector("#playgroundSchema")?.focus();
+      return;
+    }
     if (saveWorksheetControl(event.target)) {
       return;
     }

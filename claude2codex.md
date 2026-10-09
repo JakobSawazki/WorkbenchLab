@@ -1,6 +1,8 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-08 · Grundlage: Commit `c19193a` (Release 0.25.0) · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.26.0 · Autor: Claude
+
+**Neu am 2026-10-09:** Jakob hat Claude beauftragt, eigenständig weiterzuarbeiten und geeignete Stände zu veröffentlichen. Claude protokolliert seine Abläufe in `documentation/documentation.md`, Abschnitt 0 (gekennzeichnet). Erledigt sind OPT-01, OPT-02 und OPT-13 (Claude) sowie OPT-10 und OPT-11 (Codex). Neu: OPT-21. Sicherung des Codex-Stands: Tag `codex-stand-2026-10-08`.
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie enthält alle
 Rückmeldungen, Vorschläge und Optimierungspunkte. Die Gegenrichtung ist
@@ -19,8 +21,9 @@ Rückmeldungen, Vorschläge und Optimierungspunkte. Die Gegenrichtung ist
   Datum, offene Fragen). Claude überträgt sie beim nächsten Einsatz in die
   Tabelle in Teil C.
 - Fremde uncommittete Änderungen nicht überschreiben. Ein Thema pro Commit.
-- Nicht ohne Auftrag von Jakob committen oder pushen: Jeder Push auf `main`
-  veröffentlicht sofort.
+- Jeder Push auf `main` veröffentlicht nach bestandenem Testlauf. Vor dem Push
+  `git fetch` und `git status`; nie `--force`. Claude testet auf Port 4199 und
+  lässt Prozesse auf anderen Ports unberührt.
 
 ### A2 Was Claude geprüft hat und was nicht
 
@@ -28,9 +31,8 @@ Geprüft: Quelltext, Dokumentation, Git-Verlauf, Live-Seite als Gast und im
 Entwicklermodus (Startseite, Lernpfad, L1.1, SQL-Labor, eine SQL-Aufgabe mit
 fehlerhafter Eingabe, Modellieren). Keine Konsolenfehler auf der Live-Seite.
 
-Nicht geprüft: Node- und Playwright-Tests (kein `node` in Claudes Shell),
-Verhalten auf Schul-PCs, echte MySQL Workbench. Am Anwendungscode hat Claude
-nichts geändert.
+Nicht geprüft: Verhalten auf Schul-PCs, echte MySQL Workbench. Node- und
+Browsertests führt Claude seit 2026-10-09 selbst aus.
 
 ### A3 Reihenfolge
 
@@ -104,14 +106,13 @@ Wichtige Stellen in `app.js`: `normalizeState` (Lernstand-Schema),
 
 ```powershell
 python -m http.server 4174                       # lokal starten
-node --test tests/                               # Node-Tests
+node tools/run-tests.cjs                         # Node-Tests (node --test tests/ scheitert mit Node 24)
 node tests/<name>.browser.cjs                    # einzelner Browsertest (Server muss laufen)
 python -B -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Es gibt keine `package.json`; Playwright muss in der jeweiligen Umgebung
-vorhanden sein. In Claudes Shell war am 2026-10-08 kein `node` im PATH – die
-Tests wurden von Claude daher **nicht** ausgeführt.
+Browsertests lesen die Adresse aus `WORKBENCH_TEST_URL`; Claude nutzt
+`http://127.0.0.1:4199/`.
 
 ### Harte Regeln
 
@@ -127,8 +128,11 @@ Tests wurden von Claude daher **nicht** ausgeführt.
 5. Browser-SQL ist SQLite (`sql.js`), der Unterricht nutzt MariaDB/MySQL
    Workbench 6.3.10. MySQL-spezifische Funktionen müssen in
    `registerSqlFunctions` nachgebildet oder in der Aufgabe benannt werden.
-6. Beim Ändern einer JS-/CSS-Datei den `?v=`-Parameter in `index.html`
-   mitziehen.
+6. Bei jedem Release alle `?v=`-Parameter in `index.html`, `content.version`
+   in `learning-path.js` und `version` in `package.json` gemeinsam anheben; ein
+   Node-Test erzwingt den Gleichstand.
+8. Neue Konstanten, die `normalizeState` liest, müssen in `app.js` **vor**
+   `let state = loadState()` stehen (siehe OPT-21).
 7. Beide Farbmodi und die Breiten 1440/1024/390/320 px prüfen.
 
 ### Bekannte Stolperstellen
@@ -150,8 +154,8 @@ Tests wurden von Claude daher **nicht** ausgeführt.
 
 | ID | Titel | Bereich | Nutzen | Aufwand | Status |
 | --- | --- | --- | --- | --- | --- |
-| OPT-01 | Freier SQL-Spielplatz | Üben | hoch | M | offen |
-| OPT-02 | Fehlermeldungen schon bei „Ausführen“ übersetzen | Üben | hoch | S | offen |
+| OPT-01 | Freier SQL-Spielplatz | Üben | hoch | M | erledigt (Claude, 0.26.0) |
+| OPT-02 | Fehlermeldungen schon bei „Ausführen“ übersetzen | Üben | hoch | S | erledigt (Claude, 0.26.0) |
 | OPT-03 | Neue Aufgabentypen: Fehler finden, SQL-Puzzle, Ergebnis vorhersagen | Üben | hoch | L | offen |
 | OPT-04 | ERM-Editor zum freien Zeichnen | Modellieren | hoch | L | offen |
 | OPT-05 | Einheiten in kürzere Schritte teilen | Motivation | hoch | M | offen |
@@ -159,17 +163,18 @@ Tests wurden von Claude daher **nicht** ausgeführt.
 | OPT-07 | Wiederholung und Klausurtraining | Üben | mittel | M | offen |
 | OPT-08 | Lehrkraft-Übersicht aus JSON-Exporten | Unterricht | hoch | M | offen |
 | OPT-09 | Lehrkraft-Bestätigung per Code | Unterricht | mittel | M | offen |
-| OPT-10 | Tests vor dem Deployment, `package.json` | Technik | hoch | S | offen |
-| OPT-11 | Nur App-Dateien veröffentlichen | Technik | mittel | S | offen |
+| OPT-10 | Tests vor dem Deployment, `package.json` | Technik | hoch | S | erledigt (Codex, c27998d) |
+| OPT-11 | Nur App-Dateien veröffentlichen | Technik | mittel | S | erledigt (Codex, 4c01fb4) |
 | OPT-12 | Musterlösungen aus dem öffentlichen Quelltext | Technik | mittel | M | offen |
-| OPT-13 | Cache-Parameter automatisch setzen | Technik | mittel | S | offen |
+| OPT-13 | Cache-Parameter automatisch setzen | Technik | mittel | S | erledigt als Gleichstand-Test (Claude, 0.26.0) |
 | OPT-14 | Dokumentation zusammenführen | Doku | mittel | M | offen |
 | OPT-15 | Offline-Betrieb und Schul-PC-Test | Unterricht | hoch | M | offen |
 | OPT-16 | `app.js` und `styles.css` aufteilen | Technik | mittel | L | offen |
 | OPT-17 | `.tmp/` aus Google Drive heraushalten | Technik | niedrig | S | offen |
 | OPT-18 | Erster Besuch ohne Profilzwang | Motivation | mittel | S | offen |
 | OPT-19 | Druck- und PDF-Ansicht | Unterricht | niedrig | S | offen |
-| OPT-20 | MySQL-Unterschiede sichtbar machen | Üben | mittel | S | offen |
+| OPT-20 | MySQL-Unterschiede sichtbar machen | Üben | mittel | S | teilweise (Hinweis und SHOW TABLES/DESCRIBE im freien Labor, 0.26.0) |
+| OPT-21 | Lernstand bei Ladefehler nicht still verwerfen | Technik | hoch | S | offen |
 
 
 ### Üben und Motivation
@@ -371,3 +376,16 @@ Tests wurden von Claude daher **nicht** ausgeführt.
   Links kürzen; `documentation.md` in „aktueller Stand“ und „Archiv“ trennen.
   Ein Node-Test vergleicht die Versionsangabe in README, `learning-path.js`
   und `index.html`.
+
+#### OPT-21 Lernstand bei Ladefehler nicht still verwerfen
+
+- **Befund (2026-10-09):** `loadState()` fängt jeden Fehler aus
+  `normalizeState` ab und liefert kommentarlos einen leeren Lernstand. Der
+  nächste `saveState()` überschreibt dann den echten Stand dauerhaft. Claude
+  ist bei OPT-01 selbst in diese Falle gelaufen (Konstante nach `loadState()`
+  definiert); nur der Browsertest hat es vor der Veröffentlichung bemerkt.
+- **Vorschlag:** Im Fehlerfall den Rohwert unter `workbenchlab-v1-rettung`
+  sichern, nicht automatisch speichern und eine sichtbare Meldung mit Hinweis
+  auf die JSON-Sicherung zeigen.
+- **Abnahme:** Browsertest mit absichtlich defektem Lernstand: Rohwert bleibt
+  erhalten, Meldung erscheint, kein stilles Überschreiben.

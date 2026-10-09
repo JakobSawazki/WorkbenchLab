@@ -1,10 +1,12 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 3. Oktober 2026 (Europe/Berlin)
+Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.21.0**
+Aktueller Release-Stand: **0.26.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
-Veröffentlichter Stand: **0.21.0**, Deployment und öffentliche Seite geprüft.
+Veröffentlichter Stand: siehe Abschnitt 0.4.
+
+Mitwirkende: Jakob Sawazki, Codex, seit 8. Oktober 2026 zusätzlich Claude. Claudes Einträge stehen in Abschnitt 0 und sind dort sowie an jeder anderen Stelle mit `[Claude, Datum]` gekennzeichnet.
 
 Repository: `https://github.com/JakobSawazki/WorkbenchLab`
 
@@ -19,6 +21,150 @@ Das Lehrbuch bleibt ein gekennzeichneter Entwurf; Originalmaterialien und
 lokale Testexporte bleiben ausgeschlossen. Die Abnahme dokumentiert den
 vorherigen Veröffentlichungsstand; dieser Nachtrag erweitert den Dateiumfang,
 nicht die Funktionen der App.
+
+<!-- CLAUDE:BEGIN – Alle Einträge zwischen BEGIN und END stammen von Claude (Claude Code). -->
+## 0. Arbeitsprotokoll Claude
+
+> **Kennzeichnung:** Dieser Abschnitt wird ausschließlich von **Claude** gepflegt.
+> Einträge von Claude an anderer Stelle dieser Datei tragen den Vermerk
+> `[Claude, Datum]`. Alles Übrige stammt von Codex. Neueste Einträge stehen oben.
+
+### 0.1 Sicherung der Codex-Stände und Wiederherstellung [Claude, 2026-10-09]
+
+Vor Claudes erster Codeänderung wurde der letzte reine Codex-Stand gesichert:
+
+| Sicherung | Ort | Inhalt |
+| --- | --- | --- |
+| Git-Tag `codex-stand-2026-10-08` | GitHub und lokal | Commit `4dedae1` (Release 0.25.3 mit OPT-10 und OPT-11) |
+| Git-Bündel | `C:\Users\PC\WorkbenchLab-Sicherungen\WorkbenchLab_codex-stand-2026-10-08.bundle` | vollständiger Verlauf aller Zweige und Tags, außerhalb von Google Drive |
+| GitHub-Verlauf | `origin/main` | jeder frühere Commit bleibt einzeln abrufbar |
+
+Wiederherstellen im Notfall:
+
+```powershell
+# Stand nur ansehen (ändert nichts):
+git checkout codex-stand-2026-10-08
+
+# Live-Seite auf den Codex-Stand zurücksetzen, ohne Verlauf zu löschen:
+git checkout main
+git revert --no-edit codex-stand-2026-10-08..HEAD
+git push origin main
+
+# Komplettes Repository aus dem Bündel neu anlegen (falls der Drive-Ordner beschädigt ist):
+git clone "C:\Users\PC\WorkbenchLab-Sicherungen\WorkbenchLab_codex-stand-2026-10-08.bundle" WorkbenchLab-Wiederherstellung
+```
+
+Regel für Claude: Vor jedem größeren Arbeitsblock wird ein neuer Tag
+`sicherung-JJJJ-MM-TT` gesetzt und zu GitHub übertragen. Es wird nie mit
+`--force` gepusht und kein Verlauf umgeschrieben.
+
+### 0.2 Reparatur des Git-Verzeichnisses [Claude, 2026-10-09]
+
+`git fetch` brach mit `fatal: bad object refs/desktop.ini` ab. Ursache: Google
+Drive legt in jedem Ordner eine `desktop.ini` an, auch unter `.git/refs/`, und
+Git liest diese Dateien als Verweise. Claude hat die sieben `desktop.ini` unter
+`.git/refs/` gelöscht; `git fsck` meldet sonst keine Fehler, lokaler und
+entfernter Stand waren identisch. Drive kann die Dateien erneut anlegen. Abhilfe
+dann: `Get-ChildItem .git\refs -Recurse -Force -Filter desktop.ini | Remove-Item -Force`.
+
+### 0.3 Testumgebung und Ports [Claude, 2026-10-09]
+
+- Node.js 24 LTS ist seit 8. Oktober systemweit installiert. Playwright liegt
+  außerhalb von Google Drive unter `C:\Users\PC\.workbenchlab-tools`.
+- Claude testet auf **Port 4199**, damit Codex-Vorschauen (4174, 4177, 4325)
+  unberührt bleiben:
+
+```powershell
+python -m http.server 4199 --bind 127.0.0.1
+$env:NODE_PATH = "$env:USERPROFILE\.workbenchlab-tools\node_modules"
+$env:WORKBENCH_TEST_URL = "http://127.0.0.1:4199/"
+node tools/run-tests.cjs
+node tools/run-browser-tests.cjs
+```
+
+- Am 8. Oktober hat Claude versehentlich einen fremden Server auf Port 4174
+  beendet. Seitdem beendet Claude nur noch selbst gestartete Prozesse.
+
+### 0.4 Release 0.26.0: freies SQL-Labor und deutsche SQL-Meldungen [Claude, 2026-10-09]
+
+Bezug: OPT-01, OPT-02 und OPT-13 aus `claude2codex.md`.
+
+**Neu für Schülerinnen und Schüler**
+
+- **Freies SQL-Labor** unter `#sql/frei`, erreichbar über den neuen Abschnitt
+  oben im SQL-Labor. Ohne Freischaltung, ohne XP, ohne Bewertung. Wählbar sind
+  die drei Übungsdatenbanken (eine Tabelle, Fahrschule mit fünf Tabellen,
+  Fahrradvermietung). Änderungen durch `INSERT`, `UPDATE`, `DELETE` bleiben
+  erhalten, bis „Datenbank zurücksetzen“ gewählt oder die Datenbank gewechselt
+  wird. „Inhalt anzeigen“ zeigt je Tabelle alle Datensätze. Der SQL-Text wird
+  je Datenbank im Lernstand gespeichert und ist Teil der JSON-Sicherung.
+- **Deutsche Fehlermeldungen direkt bei „Ausführen“**, in den Aufgaben und im
+  freien Labor. Beispiel: `SELECT nachnam FROM fahrschueler;` ergibt „Die Spalte
+  nachnam wurde nicht gefunden … Meintest du nachname?“. Die englische
+  Originalmeldung steht klein darunter. Abgedeckt sind unbekannte Tabelle,
+  Spalte und Funktion, Mehrdeutigkeit, Satzbau, unvollständige Eingabe, fehlende
+  Anführungszeichen, Spalten-/Werteanzahl, Pflichtfeld, Schlüssel,
+  referentielle Integrität und Aggregatfunktion in `WHERE`.
+- `SHOW TABLES;` und `DESCRIBE tabelle;` funktionieren im freien Labor wie in
+  MySQL Workbench.
+- `Strg + Enter` führt die Anweisung im Editor aus (Aufgaben und freies Labor).
+
+**Technik**
+
+| Datei | Änderung |
+| --- | --- |
+| `sql-feedback.js` (neu) | reine Logik ohne DOM: `explain`, `closest`, `schemaNames`, `rewriteMysql` |
+| `app.js` | `explainSqlError`, `sqlErrorHtml`, `renderSqlPlayground`, `runPlayground`, Route `sql/frei`, Entwurfsschlüssel `frei-<schema>` in `normalizeState` |
+| `styles.css` | Block am Dateiende, mit Kommentar gekennzeichnet |
+| `index.html` | bindet `sql-feedback.js` ein; alle `?v=`-Parameter einheitlich `0.26.0` |
+| `tools/build-site.cjs` | `sql-feedback.js` in die Liste öffentlicher Dateien aufgenommen |
+| `learning-path.js`, `package.json` | Version `0.26.0` |
+| `tests/sql-feedback.test.js` (neu) | 7 Node-Tests, darunter ein Versionsgleichstand-Test |
+| `tests/sql-playground.browser.cjs` (neu) | Browsertest bei 1440 und 390 px |
+
+**Versionsgleichstand (OPT-13):** `index.html` lud `content.js?v=0.16.1`,
+obwohl die Datei zuletzt mit 0.22.0 geändert wurde; insgesamt gab es sechs
+verschiedene Stände. Jetzt prüft ein Node-Test, dass alle `?v=`-Parameter,
+`content.version` und `package.json` dieselbe Version nennen. Bei jedem Release
+sind diese drei Stellen gemeinsam anzuheben; der Test schlägt sonst fehl und
+verhindert das Deployment.
+
+**Gefundener und behobener Fehler vor Veröffentlichung:** Claudes erste Fassung
+definierte die Liste `playgroundSchemas` in `app.js` nach `let state =
+loadState()`. `normalizeState` griff dadurch zu früh darauf zu; `loadState`
+fing den Fehler stillschweigend ab und lieferte einen **leeren Lernstand**. Der
+Browsertest hat das beim Neuladen bemerkt. Die Liste steht jetzt vor
+`loadState()`, und der Browsertest prüft ausdrücklich, dass Kürzel und XP ein
+Neuladen überstehen. Der Fehler war nie veröffentlicht.
+
+**Hinweis an Codex:** `loadState()` verwirft bei jedem Fehler in
+`normalizeState` kommentarlos den gesamten Lernstand; der nächste
+`saveState()` überschreibt ihn dann dauerhaft. Vorschlag (neu, OPT-21): Im
+Fehlerfall den Rohwert unter `workbenchlab-v1-rettung` ablegen und eine
+sichtbare Meldung zeigen, statt still mit leerem Stand weiterzuarbeiten.
+
+**Prüfung**
+
+- 115 Node-Tests und 2 Python-Tests bestanden (zuvor 108 Node-Tests; 7 neu).
+- Alle 21 Browsertests bestanden, ausgeführt mit Edge gegen Port 4199,
+  darunter der neue `sql-playground.browser.cjs` bei 1440 und 390 px.
+- `tests/xp.browser.cjs` schlug bereits am unveränderten Codex-Stand
+  `codex-stand-2026-10-08` fehl (in einem getrennten Arbeitsverzeichnis auf Port
+  4198 nachgeprüft): Der Test erwartete noch den früheren eingebetteten
+  Profilhinweis `#profileHelp`, den Release 0.25.3 durch den Dialog
+  `#profileHelpDialog` ersetzt hat. Claude hat nur den Test angepasst
+  (Dialog öffnen, schließen, Fokusrückkehr; Subpixel-Toleranz bei der
+  Höhenprüfung). Am Profilverhalten wurde nichts geändert.
+- Manuell im Browser geprüft: Aufgabe L1.5 „Schülerliste alphabetisch“ zeigt bei
+  Tippfehlern in Tabelle und Spalte die deutsche Meldung mit Vorschlag, sowohl
+  bei „Ausführen“ als auch bei „Lösung prüfen“.
+- Heller und dunkler Farbmodus des neuen Bereichs bei 1280 bzw. 1440 px
+  visuell kontrolliert.
+- Nicht geprüft: Schul-PCs und echte MySQL Workbench.
+- Veröffentlichung: Push auf `main` am 9. Oktober 2026; das Ergebnis des
+  Deployments steht in Abschnitt 0.5.
+
+<!-- CLAUDE:END -->
 
 ## 1. Projektziel
 

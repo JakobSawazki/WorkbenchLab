@@ -25,7 +25,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       for (const selector of ["#topProfileName", "#topProfileClass", "#topXp"]) {
         await page.locator(selector).click();
         assert.ok(await dialog.isVisible());
-        assert.ok(await page.locator("#profileHelp").isHidden());
+        assert.ok(await page.locator("#profileHelpDialog").isHidden());
         assert.equal(await page.locator("#xpProgressLabel").innerText(), "12 / 120 XP");
         assert.ok((await page.locator("#xpNextLevel").innerText()).includes("Noch 108 XP bis Level 2"));
         await page.locator("#profileCancelButton").click();
@@ -33,10 +33,12 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       }
       await profile.click();
       await page.locator("#profileInfoButton").click();
-      assert.ok(await page.locator("#profileHelp").isVisible());
-      assert.equal(await page.locator("#profileInfoButton").getAttribute("aria-expanded"), "true");
-      await page.locator("#profileInfoButton").click();
-      assert.ok(await page.locator("#profileHelp").isHidden());
+      // Seit 0.25.3 ist die Hilfe ein eigener modaler Dialog über dem Profil (Test angepasst von Claude, 2026-10-09).
+      assert.ok(await page.locator("#profileHelpDialog").isVisible());
+      await page.locator("#profileHelpCloseButton").click();
+      assert.ok(await page.locator("#profileHelpDialog").isHidden());
+      assert.ok(await dialog.isVisible());
+      assert.ok(await page.locator("#profileInfoButton").evaluate(el => el === document.activeElement));
       await page.screenshot({ path: ".tmp/profile-" + theme + ".png", animations: "disabled" });
       await page.locator("#profileName").fill("BAD");
       await page.locator('#profileForm [type="submit"]').click();
@@ -73,7 +75,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await page.locator('[data-font-size="20"]').click();
       await page.locator("#appearanceDoneButton").click();
       const profileBox = await profile.boundingBox();
-      assert.equal(profileBox.height, (await page.locator("#appearanceButton").boundingBox()).height);
+      assert.ok(Math.abs(profileBox.height - (await page.locator("#appearanceButton").boundingBox()).height) < 0.5); // Subpixel-Toleranz bei 20 px Schrift (Claude, 2026-10-09)
       for (const selector of ["#topProfileName", "#topProfileClass", "#topXp"]) {
         const box = await page.locator(selector).boundingBox();
         assert.ok(box.y >= profileBox.y && box.y + box.height <= profileBox.y + profileBox.height);
@@ -84,8 +86,9 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.ok(await dialog.evaluate(el => el.scrollWidth <= el.clientWidth));
       await page.locator("#profileInfoButton").click();
       assert.ok(await dialog.evaluate(el => el.scrollWidth <= el.clientWidth));
-      await page.keyboard.press("Escape"); await profile.click();
-      assert.ok(await page.locator("#profileHelp").isHidden());
+      await page.keyboard.press("Escape");
+      assert.ok(await page.locator("#profileHelpDialog").isHidden());
+      assert.ok(await dialog.isVisible());
       await page.screenshot({ path: ".tmp/profile-mobile-" + width + ".png", animations: "disabled" });
       await page.keyboard.press("Escape");
     }
@@ -94,9 +97,10 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
     const firstVisit = await fresh.newPage();
     await firstVisit.goto(base + "?v=0.24.1#home");
     await firstVisit.locator("#profileDialog").waitFor();
-    assert.ok(await firstVisit.locator("#profileHelp").isHidden());
+    assert.ok(await firstVisit.locator("#profileHelpDialog").isHidden());
     await firstVisit.locator("#profileInfoButton").click();
-    assert.ok(await firstVisit.locator("#profileHelp").isVisible());
+    assert.ok(await firstVisit.locator("#profileHelpDialog").isVisible());
+    await firstVisit.locator("#profileHelpCloseButton").click();
     await firstVisit.locator("#profileName").fill("jak.saw");
     await firstVisit.locator("#profileClass").fill("BK2-2");
     await firstVisit.locator('#profileForm [type="submit"]').click();
