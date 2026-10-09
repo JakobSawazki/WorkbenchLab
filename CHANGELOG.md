@@ -13,6 +13,7 @@ Jede Version hat einen Git-Tag `v0.xx.y`.
 
 | Version | Von | Inhalt | Abschnitt |
 | --- | --- | --- | --- |
+| 0.40.1 | Cl | Klassenübersicht zeigt bestandene Modellaufgaben, auf dem Gerät der Lehrkraft neu geprüft | 0.55 |
 | 0.40.0 | Cl | Entwürfe des Modell-Editors sind Teil der JSON-Sicherung und werden beim Laden übernommen | 0.53 |
 | 0.39.3 | Cl | Ohne sichtbare Änderung: `styles.css` in sechs Dateien aufgeteilt, Reihenfolge der Regeln unverändert | 0.51 |
 | 0.39.2 | Cl | Ohne sichtbare Änderung: Aufbau und Bereinigung des Lernstands in `state.js`, erstmals direkt getestet | 0.49 |

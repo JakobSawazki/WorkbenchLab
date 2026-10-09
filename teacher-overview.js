@@ -21,7 +21,20 @@
 
   const strings = (value) => (Array.isArray(value) ? [...new Set(value.filter((item) => typeof item === "string"))] : []);
 
-  function summarize(parsed, content) {
+  // Entwürfe aus dem Modell-Editor (in Sicherungen ab 0.40.0). Die Aufgaben werden hier, auf dem
+  // Gerät der Lehrkraft, neu geprüft – das Ergebnis stammt nicht aus der Datei.
+  function summarizeModels(parsed, erm) {
+    if (!erm || !parsed.extras || typeof parsed.extras !== "object" || !("ermDrafts" in parsed.extras)) return null;
+    const store = erm.sanitizeStore(parsed.extras.ermDrafts);
+    const tasks = erm.TASKS.filter((task) => task.target);
+    return {
+      drafts: Object.values(store.models).filter((model) => model.entities.length).length,
+      passed: tasks.filter((task) => store.models[task.id] && erm.checkModel(store.models[task.id], task.target).passed).map((task) => task.title),
+      total: tasks.length
+    };
+  }
+
+  function summarize(parsed, content, erm = globalThis.window?.WORKBENCH_ERM) {
     if (!parsed || typeof parsed !== "object" || parsed.app !== "WorkbenchLab" || !parsed.data || typeof parsed.data !== "object") {
       throw new Error("Keine WorkbenchLab-Sicherung");
     }
@@ -53,6 +66,7 @@
       practicesDone: practices.length,
       practicesTotal: content.practices.length,
       commandsDone: commands.length,
+      models: summarizeModels(parsed, erm),
       modules: content.modules.map((module) => ({
         code: module.code,
         done: module.lessonIds.filter((id) => lessons.includes(id)).length,
@@ -103,10 +117,13 @@
     const lessons = content.modules.flatMap((module) => module.lessonIds)
       .map((id) => content.lessons.find((lesson) => lesson.id === id)).filter(Boolean);
     const head = ["Klasse", "Kürzel", "NAGOLD", "XP", "Einheiten", "von", "Übungen", "von", "Befehlsaufgaben",
+      "Modellaufgaben bestanden", "von", "Modell-Entwürfe",
       ...content.modules.map((module) => module.code), "Aktive Tage", "Letzte Aktivität", "Sicherung vom",
       "Prüfsumme", "Ältere Sicherung", "App-Version", "Gerät", "Datei", ...lessons.map((lesson) => lesson.courseCode)];
     const lines = rows.map((row) => [row.className, row.studentCode, row.nagold, row.xp, row.lessonsDone, row.lessonsTotal,
-      row.practicesDone, row.practicesTotal, row.commandsDone, ...row.modules.map((module) => `${module.done}/${module.total}`),
+      row.practicesDone, row.practicesTotal, row.commandsDone,
+      row.models ? row.models.passed.length : "", row.models ? row.models.total : "", row.models ? row.models.drafts : "",
+      ...row.modules.map((module) => `${module.done}/${module.total}`),
       row.activeDays, row.lastActivity, row.exportedAt.slice(0, 16).replace("T", " "), integrityLabels[row.integrity] || "",
       row.superseded ? "ja" : "nein", row.appVersion, row.deviceCode, row.fileName,
       ...lessons.map((lesson) => (row.lessons.includes(lesson.id) ? "x" : ""))]);
@@ -183,7 +200,7 @@
       <div class="teacher-table-wrap" tabindex="0" role="region" aria-label="Klassenübersicht">
         <table class="teacher-table">
           <thead><tr>
-            <th scope="col">Klasse</th><th scope="col">Kürzel</th><th scope="col">NAGOLD</th><th scope="col">XP</th><th scope="col">Einheiten</th><th scope="col">Übungen</th>
+            <th scope="col">Klasse</th><th scope="col">Kürzel</th><th scope="col">NAGOLD</th><th scope="col">XP</th><th scope="col">Einheiten</th><th scope="col">Übungen</th><th scope="col" title="Geprüfte Aufgaben im Modell-Editor, auf diesem Gerät neu geprüft">Modelle</th>
             ${content.modules.map((module) => `<th scope="col">${escapeHtml(module.code)}</th>`).join("")}
             <th scope="col">Letzte Aktivität</th><th scope="col">Sicherung vom</th><th scope="col">Prüfsumme</th>
           </tr></thead>
@@ -195,6 +212,7 @@
               <td>${row.xp}${row.xpMismatch ? ' <small title="Die Datei nennt einen anderen XP-Wert als die Nachrechnung.">⚠</small>' : ""}</td>
               <td>${row.lessonsDone} / ${row.lessonsTotal}</td>
               <td>${row.practicesDone} / ${row.practicesTotal}</td>
+              <td class="${row.models && row.models.passed.length === row.models.total ? "is-done" : ""}" title="${escapeHtml(row.models ? `Bestanden: ${row.models.passed.join(", ") || "keine"} · Entwürfe mit Inhalt: ${row.models.drafts}` : "Sicherung ohne Modell-Entwürfe (vor 0.40.0)")}">${row.models ? `${row.models.passed.length} / ${row.models.total}` : "–"}</td>
               ${row.modules.map((module) => `<td class="${module.done === module.total ? "is-done" : ""}">${module.done}/${module.total}</td>`).join("")}
               <td>${escapeHtml(row.lastActivity || "–")}</td>
               <td>${escapeHtml(row.exportedAt ? new Date(row.exportedAt).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" }) : "–")}</td>

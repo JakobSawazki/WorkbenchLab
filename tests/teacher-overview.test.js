@@ -9,7 +9,7 @@ const vm = require("node:vm");
 const root = path.resolve(__dirname, "..");
 const context = vm.createContext({ window: {}, TextEncoder, crypto: globalThis.crypto });
 context.globalThis = context;
-for (const file of ["content.js", "learning-path.js", "practical-exercises.js", "backup.js", "teacher-overview.js"]) {
+for (const file of ["content.js", "learning-path.js", "practical-exercises.js", "backup.js", "erm-editor.js", "teacher-overview.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });
 }
 const content = context.window.WORKBENCH_CONTENT;
@@ -117,7 +117,7 @@ test("Die Lehrkraftseite ist öffentlich, versionsgleich und lädt keine fremden
   assert.equal(isPublicFile("lehrkraft.html"), true);
   assert.equal(isPublicFile("teacher-overview.js"), true);
   const stamps = [...html.matchAll(/(?:href|src)="([^"?]+\.(?:js|css))\?v=([^"]+)"/g)];
-  assert.equal(stamps.length, 14);
+  assert.equal(stamps.length, 15);
   // NAGOLD je Einheit muss in App und Klassenübersicht gleich sein.
   assert.equal(Number(fs.readFileSync(path.join(root, "app.js"), "utf8").match(/const nagoldPerLesson = (\d+);/)[1]), teacher.NAGOLD_PER_LESSON);
   for (const [, file, stamp] of stamps) {
@@ -127,4 +127,38 @@ test("Die Lehrkraftseite ist öffentlich, versionsgleich und lädt keine fremden
   assert.doesNotMatch(html, /(?:src|href)="https?:/);
   assert.match(html, /name="robots" content="noindex"/);
   assert.doesNotMatch(fs.readFileSync(path.join(root, "teacher-overview.js"), "utf8"), /fetch\(|XMLHttpRequest|localStorage\.setItem|sendBeacon/);
+});
+
+test("Modellaufgaben werden aus den Entwürfen der Sicherung neu geprüft (0.40.1)", () => {
+  const erm = context.window.WORKBENCH_ERM;
+  const total = erm.TASKS.filter((task) => task.target).length;
+  // Ältere Sicherung ohne Zusatzblock: keine Aussage.
+  assert.equal(teacher.summarize(backup(), content).models, null);
+  // Leerer Block: nichts bestanden, keine Entwürfe.
+  assert.deepEqual(JSON.parse(JSON.stringify(teacher.summarize(backup({ extras: { ermDrafts: {} } }), content).models)), { drafts: 0, passed: [], total });
+  const solved = {
+    entities: [
+      { id: 1, name: "Ort", attributes: [{ id: 2, name: "ortnr", type: "INT", pk: true, fk: false }, { id: 7, name: "ort", type: "VARCHAR(50)", pk: false, fk: false }] },
+      { id: 3, name: "Fahrschueler", attributes: [{ id: 4, name: "schuelernr", type: "INT", pk: true, fk: false }, { id: 5, name: "ortnr", type: "INT", pk: false, fk: true }] }
+    ],
+    relations: [{ id: 6, from: 1, to: 3, card: "1:N" }]
+  };
+  const unfinished = { entities: [{ id: 1, name: "Buch", attributes: [] }], relations: [] };
+  const row = teacher.summarize(backup({ extras: { ermDrafts: { models: { "fahrschule-ort": solved, schulbibliothek: unfinished, frei: unfinished, "gibt-es-nicht": solved } } } }), content);
+  assert.equal(row.models.total, total);
+  assert.equal(row.models.drafts, 3);
+  assert.deepEqual(Array.from(row.models.passed), [erm.TASKS.find((task) => task.id === "fahrschule-ort").title]);
+  // Eine Behauptung in der Datei zählt nicht: nur der Entwurf selbst wird geprüft.
+  const claimed = teacher.summarize(backup({ extras: { ermDrafts: { passed: ["fahrschule-ort"], models: { "fahrschule-ort": unfinished } } } }), content);
+  assert.deepEqual(Array.from(claimed.models.passed), []);
+  // Unbrauchbarer Block wirft nicht.
+  for (const junk of [null, 5, "x", []]) {
+    assert.equal(teacher.summarize(backup({ extras: { ermDrafts: junk } }), content).models.drafts, 0);
+  }
+  row.integrity = "gueltig"; row.fileName = "a.json"; row.superseded = false;
+  const [head, line] = teacher.toCsv([row], content).trim().split("\r\n");
+  const cells = (text) => text.replace(/^\uFEFF/, "").split(";").map((cell) => cell.replace(/^"|"$/g, ""));
+  const at = cells(head).indexOf("Modellaufgaben bestanden");
+  assert.ok(at > 0);
+  assert.deepEqual(cells(line).slice(at, at + 3), ["1", String(total), "3"]);
 });

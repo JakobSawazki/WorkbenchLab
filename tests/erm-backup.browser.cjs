@@ -11,11 +11,11 @@ const asFile = (name, payload) => ({ name, mimeType: "application/json", buffer:
 
 const model = {
   entities: [
-    { id: 1, name: "Ort", attributes: [{ id: 2, name: "ortnr", type: "INT", pk: true, fk: false }] },
+    { id: 1, name: "Ort", attributes: [{ id: 2, name: "ortnr", type: "INT", pk: true, fk: false }, { id: 7, name: "ort", type: "VARCHAR(50)", pk: false, fk: false }] },
     { id: 3, name: "Fahrschueler", attributes: [{ id: 4, name: "schuelernr", type: "INT", pk: true, fk: false }, { id: 5, name: "ortnr", type: "INT", pk: false, fk: true }] }
   ],
   relations: [{ id: 6, from: 1, to: 3, card: "1:N" }],
-  nextId: 7
+  nextId: 8
 };
 const drafts = { task: "fahrschule-ort", notation: "workbench", models: { "fahrschule-ort": model } };
 
@@ -145,7 +145,30 @@ const storedDrafts = (page) => page.evaluate(() => JSON.parse(localStorage.getIt
     }
     assert.deepEqual(b.errors, []);
     await b.context.close();
-    console.log("PASS: model editor drafts are exported with checksum, imported on another device, kept for legacy backups, replaced by new backups, tampering rejected, hostile content sanitised.");
+
+    // Klassenübersicht (0.40.1): prüft den Entwurf selbst nach; ältere Sicherungen zeigen „–“.
+    const teacher = await browser.newContext();
+    const overview = await teacher.newPage();
+    const teacherErrors = [];
+    overview.on("pageerror", (error) => teacherErrors.push(error.message));
+    await overview.goto(base + "lehrkraft.html");
+    const older = sign({ ...structuredClone(legacy), exportedAt: "2026-01-01T08:00:00.000Z" });
+    await overview.locator("#teacherFiles").setInputFiles([asFile("neu.json", exported), asFile("alt.json", older)]);
+    await overview.locator(".teacher-table").first().waitFor();
+    await overview.locator("#teacherNewest").uncheck();
+    const column = await overview.locator(".teacher-table").first().locator("thead th").allInnerTexts();
+    const at = column.findIndex((text) => text.trim().toLowerCase() === "modelle");
+    assert.ok(at > 0, column.join("|"));
+    const cells = overview.locator(".teacher-table").first().locator("tbody tr");
+    const values = [];
+    for (let index = 0; index < await cells.count(); index += 1) values.push((await cells.nth(index).locator("td, th").nth(at).innerText()).trim());
+    assert.deepEqual(values.sort(), ["1 / 3", "–"].sort());
+    assert.match(await overview.locator(".teacher-table").first().locator('td[title^="Bestanden: Fahrschüler"]').getAttribute("title"), /Entwürfe mit Inhalt: 1/);
+    assert.match(await overview.locator(".teacher-note").innerText(), /auf Ihrem Gerät neu geprüft/);
+    assert.ok(await overview.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
+    assert.deepEqual(teacherErrors, []);
+    await teacher.close();
+    console.log("PASS: model editor drafts are exported with checksum, imported on another device, kept for legacy backups, replaced by new backups, tampering rejected, hostile content sanitised, class overview re-checks the models.");
   } finally {
     await browser.close();
   }

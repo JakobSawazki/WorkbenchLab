@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.40.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.40.1 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -139,7 +139,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`), `Lehrbuch/`
 | `backup.js` | Prüfsumme der JSON-Sicherung, gemeinsam für `app.js` und `teacher-overview.js` | Code von Codex, ausgelagert von Claude |
 | `state.js` | Vorgabewerte, Kürzel/Klasse, Kennungen, `normalizeState`; neue Felder des Lernstands hier ergänzen. `loadState`/`saveState` bleiben in `app.js` | Code von Codex, ausgelagert von Claude |
 | `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
-| `tests/*.test.js`, `tests/*.browser.cjs` | 181 Node-Tests, 33 Browsertests | Codex und Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 182 Node-Tests, 33 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -339,7 +339,8 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 - Der Modell-Editor prüft Struktur und Schlüssel, keine Attributnamen.
 - Vorhersage und Klauseln ordnen lassen sich durch Probieren lösen; sie sind
   als Übung gedacht, nicht als Nachweis.
-- Die Klassenübersicht erkennt keine gezielt gefälschte Sicherung.
+- Die Klassenübersicht erkennt keine gezielt gefälschte Sicherung. Ausnahme
+  seit 0.40.1: Modellaufgaben prüft sie aus den Entwürfen selbst nach.
 - An der MariaDB des Sticks geprüft: alle 15 neuen Aufgaben und der
   SQL-Export des Modell-Editors (Abschnitt 0.32 der Dokumentation).
 - Nicht geprüft: Schul-PCs, die Workbench-Oberfläche selbst, echter Bildschirmleser,

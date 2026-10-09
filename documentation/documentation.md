@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.40.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.40.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.40.0)**
+**Aktueller Stand (Release 0.40.1)**
 
 | Thema | Stand |
 | --- | --- |
@@ -48,9 +48,9 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Übungen | 59, alle frei zugänglich: 25 SQL-Schreibaufgaben, 7 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
 | Zusätzliche Übungsformen | freies SQL-Labor, Wiederholungsrunde, Klausurtraining, Modell-Editor |
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
-| Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
+| Lehrkraft | Klassenübersicht `lehrkraft.html` (mit nachgeprüften Modellaufgaben); Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 181 Node-Tests, 2 Python-Tests, 33 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
+| Tests | 182 Node-Tests, 2 Python-Tests, 33 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2341,6 +2341,45 @@ a) lassen und NAGOLD als „gemeldet“ kennzeichnen, b) Bestätigung in der
 Klassenübersicht auf Jakobs Gerät (Empfehlung), c) Code je Schüler und Einheit.
 
 Nächste Handlungsnummer: 327.
+
+### 0.54 Veröffentlichung 0.40.0 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 327 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 328 | Commit `88b5b02` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 329 | Live geprüft: `index.html` mit `v=0.40.0`, `erm-editor.js` enthält `exportDrafts`; `tests/erm-backup.browser.cjs` gegen die Live-Seite bestanden | |
+| 330 | Sicherungs-Tag `v0.40.0` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+
+Nächste Handlungsnummer: 331.
+
+### 0.55 Release 0.40.1: Klassenübersicht zeigt bestandene Modellaufgaben [Claude, 2026-10-09]
+
+Bezug: OPT-08 (Klassenübersicht) und 0.40.0. Für Modellaufgaben gibt es keine
+XP; die Lehrkraft konnte bisher nicht sehen, ob jemand im Modell-Editor
+gearbeitet hat. Seit 0.40.0 stehen die Entwürfe in der Sicherung.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 331 | `teacher-overview.js`: `summarizeModels` bereinigt die Entwürfe aus der Sicherung und prüft die drei geprüften Aufgaben mit derselben Logik wie der Editor (`checkModel`) neu. Neue Spalte „Modelle“ (z. B. „1 / 3“, im Hinweistext die bestandenen Aufgaben und die Zahl der Entwürfe); drei neue CSV-Spalten | Ergebnis stammt nicht aus der Datei, sondern wird auf dem Gerät der Lehrkraft berechnet; Sicherungen vor 0.40.0 zeigen „–“ |
+| 332 | `lehrkraft.html`: lädt zusätzlich `erm-editor.js`; Hinweistext unter der Tabelle ergänzt | die Seitenanbindung des Editors bleibt dort wirkungslos (alle Ereignisse prüfen auf `#ermEditor`) |
+| 333 | Tests: `tests/teacher-overview.test.js` um einen Test ergänzt (ohne Block, leerer Block, gelöst/unfertig, fremde Aufgabe, behauptetes „bestanden“ zählt nicht, unbrauchbarer Block, CSV); `tests/erm-backup.browser.cjs` um die Klassenübersicht ergänzt | |
+| 334 | Fehlgriff: Das Beispielmodell im Test bestand die Prüfung nicht, weil „Ort“ kein beschreibendes Attribut hatte | Prüfung arbeitete richtig; Beispiel in beiden Tests ergänzt |
+| 335 | Versionsangaben auf `0.40.1`; `CHANGELOG.md`, `README.md`, Wegweiser, `claude2codex.md`, Merkzettel (Tag-Bereich) | |
+
+**Prüfung**
+
+- 182 Node-Tests (1 neu) und 2 Python-Tests bestanden.
+- Alle 33 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199).
+
+**Nicht geprüft:** Ansicht mit echten Sicherungen einer Klasse; Ausdruck der
+breiteren Tabelle auf Papier.
+
+**Grenze:** Die Spalte zeigt, dass ein passendes Modell in der Sicherung
+liegt – nicht, wer es gebaut hat. Eine weitergegebene Sicherung lässt sich so
+nicht erkennen.
+
+Nächste Handlungsnummer: 336.
 
 <!-- CLAUDE:END -->
 
