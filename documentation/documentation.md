@@ -2535,6 +2535,27 @@ greift der Umbruch der Zellen).
 
 Nächste Handlungsnummer: 374.
 
+### 0.61 Veröffentlichung 0.41.1 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 374 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 375 | Commit `86ce7d3` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 376 | Live geprüft: `lehrkraft.html` mit `v=0.41.1` und der Querformat-Vorgabe; `tests/teacher-overview.browser.cjs` gegen die Live-Seite bestanden | |
+| 377 | Sicherungs-Tag `v0.41.1` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 378 | Eigenen Testserver auf Port 4199 beendet | |
+| 379 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Offen, wartet auf Jakob** (alle drei mit Vorschlag in `claude2codex.md` C3 bzw. Abschnitt 0.16):
+
+| Punkt | Frage |
+| --- | --- |
+| OPT-09 Lehrkraft-Bestätigung | Weg a, b oder c? (Empfehlung b) |
+| OPT-25 Skripte der Einheiten im Browser | gewünscht oder nicht? |
+| OPT-15 Test am Schul-PC | Checkliste im Unterricht |
+
+Nächste Handlungsnummer: 380.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
