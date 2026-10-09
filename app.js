@@ -277,9 +277,17 @@
     return content.commands.find((command) => command.id === id);
   }
 
+  // Vorhersage-Aufgaben sind Auswahlaufgaben, gehören thematisch aber ins SQL-Labor (Claude, OPT-03c).
+  function isSqlTopic(practice) {
+    return practice.type === "sql" || practice.variant === "predict";
+  }
+
   function practiceKind(practice) {
     if (practice.variant === "debug") {
       return "Fehlersuche";
+    }
+    if (practice.variant === "predict") {
+      return "Vorhersage";
     }
     if (practice.type === "sql") {
       return "SQL";
@@ -829,7 +837,7 @@
     const completed = state.completedPractices.includes(practice.id);
     const lesson = lessonById(practice.lessonId);
     const unlocked = isPracticeUnlocked(practice);
-    const icon = practice.variant === "debug" ? "bug" : practice.type === "sql" ? "database" : practice.type === "slots" ? "network" : "circle-help";
+    const icon = practice.variant === "debug" ? "bug" : practice.variant === "predict" ? "eye" : practice.type === "sql" ? "database" : practice.type === "slots" ? "network" : "circle-help";
     return `
       <article class="practice-card ${unlocked ? "" : "is-locked"}" tabindex="0" role="button" data-practice="${practice.id}"
         aria-disabled="${String(!unlocked)}" aria-label="${escapeHtml(unlocked ? `${practice.title} öffnen` : `Gesperrt: zuerst ${lesson?.courseCode || "die Lerneinheit"} freischalten`)}">
@@ -1819,10 +1827,11 @@
       { id: "easy", label: "Grundlage" },
       { id: "medium", label: "Vertiefung" },
       { id: "plus", label: "Abitur-Plus" },
-      { id: "debug", label: "Fehlersuche" }
+      { id: "debug", label: "Fehlersuche" },
+      { id: "predict", label: "Vorhersage" }
     ];
-    const practices = sqlPractices().filter((practice) => practiceFilter === "all"
-      || (practiceFilter === "debug" ? practice.variant === "debug" : practice.difficulty === practiceFilter));
+    const practices = content.practices.filter(isSqlTopic).filter((practice) => practiceFilter === "all"
+      || (["debug", "predict"].includes(practiceFilter) ? practice.variant === practiceFilter : practice.difficulty === practiceFilter));
     main.innerHTML = `
       <section class="section-band sql-intro-band">
         <div class="sql-intro-copy">
@@ -1968,7 +1977,7 @@
   function renderModeling() {
     setHeading("eERM, Schlüssel und Normalisierung", "Modellieren");
     activateNav("modeling");
-    const practices = content.practices.filter((practice) => practice.type !== "sql");
+    const practices = content.practices.filter((practice) => !isSqlTopic(practice));
     const modelingLessonIds = [
       "eerm-grundlagen",
       "erm-sachtext-analyse",
@@ -2056,7 +2065,7 @@
       return;
     }
     setHeading(practiceKind(practice), practice.title);
-    activateNav(practice.type === "sql" ? "sql" : "modeling");
+    activateNav(isSqlTopic(practice) ? "sql" : "modeling");
     if (practice.type === "sql") {
       renderSqlPractice(practice, lesson);
     } else if (practice.type === "diagram") {
@@ -2159,6 +2168,10 @@
         ${renderPracticeHeader(practice, lesson)}
         <div class="lesson-body">
           <section class="practice-panel">
+            ${practice.variant === "predict" ? `
+            <div class="callout predict-callout"><i data-lucide="eye"></i><p>${escapeHtml(content.predictIntro)}</p></div>
+            <pre class="code-block predict-code"><code>${escapeHtml(practice.sql)}</code></pre>
+            <details class="predict-data"><summary>Tabelleninhalt ansehen: ${practice.preview.map((name) => escapeHtml(name)).join(", ")}</summary><div id="predictData" class="console-output">Daten werden geladen …</div></details>` : ""}
             <form id="choicePracticeForm" data-practice-id="${practice.id}">
               ${practice.questions.map((question, questionIndex) => `
                 <div>
@@ -2179,9 +2192,48 @@
             <div class="result-banner ${completed ? "is-visible is-success" : ""}" id="practiceResult">
               ${completed ? `<i data-lucide="circle-check"></i><div><strong>Bereits gelöst</strong><p>Du kannst die Übung weiter wiederholen.</p></div>` : ""}
             </div>
+            ${practice.variant === "predict" ? `<div id="predictResult" class="predict-result" hidden></div>` : ""}
           </section>
         </div>
       </article>`;
+    if (practice.variant === "predict") {
+      loadPredictTables(practice);
+    }
+  }
+
+  async function loadPredictTables(practice) {
+    let db;
+    try {
+      db = await createDatabase(practice.schema);
+      const html = practice.preview.map((name) => `<h4><code>${escapeHtml(name)}</code></h4>${renderDataTable(tableFromResult(db.exec(`SELECT * FROM ${name};`)))}`).join("");
+      const target = document.querySelector("#predictData");
+      if (target && parseRoute().id === practice.id) {
+        target.className = "predict-tables";
+        target.innerHTML = html;
+      }
+    } catch {
+      const target = document.querySelector("#predictData");
+      if (target) target.textContent = "Die Tabelle konnte nicht geladen werden. Die Aufgabe lässt sich trotzdem bearbeiten.";
+    } finally {
+      db?.close();
+    }
+  }
+
+  async function showPredictResult(practice) {
+    const target = document.querySelector("#predictResult");
+    if (!target) {
+      return;
+    }
+    let db;
+    try {
+      db = await createDatabase(practice.schema);
+      const table = tableFromResult(db.exec(practice.sql));
+      if (parseRoute().id !== practice.id) return;
+      target.innerHTML = `<h3>Tatsächliches Ergebnis</h3><p>${table.values.length} Ergebniszeile${table.values.length === 1 ? "" : "n"}</p>${renderDataTable(table)}`;
+      target.hidden = false;
+    } catch {} finally {
+      db?.close();
+    }
   }
 
   function renderSlotPractice(practice, lesson) {
@@ -2985,8 +3037,13 @@
       showBanner("#practiceResult", true, "Übung gelöst", firstCompletion
         ? `${practice.xp} XP wurden gutgeschrieben. ${practice.questions.at(-1).feedback}`
         : practice.questions.at(-1).feedback);
+      if (practice.variant === "predict") {
+        showPredictResult(practice);
+      }
     } else {
-      showBanner("#practiceResult", false, "Noch nicht ganz", "Lies die Situation noch einmal und achte auf den fachlichen Begriff.");
+      showBanner("#practiceResult", false, "Noch nicht ganz", practice.variant === "predict"
+        ? content.predictRetry
+        : "Lies die Situation noch einmal und achte auf den fachlichen Begriff.");
     }
   }
 

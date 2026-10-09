@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.28.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.29.0 · Autor: Claude
 
 **Neu am 2026-10-09:** Jakob hat Claude beauftragt, eigenständig weiterzuarbeiten und geeignete Stände zu veröffentlichen. Claude protokolliert seine Abläufe in `documentation/documentation.md`, Abschnitt 0 (gekennzeichnet). Erledigt sind OPT-01, OPT-02, OPT-08, OPT-13, OPT-19 und OPT-21 (Claude) sowie OPT-10 und OPT-11 (Codex). Sicherung des Codex-Stands: Tag `codex-stand-2026-10-08`.
 
@@ -156,7 +156,7 @@ Browsertests lesen die Adresse aus `WORKBENCH_TEST_URL`; Claude nutzt
 | --- | --- | --- | --- | --- | --- |
 | OPT-01 | Freier SQL-Spielplatz | Üben | hoch | M | erledigt (Claude, 0.26.0) |
 | OPT-02 | Fehlermeldungen schon bei „Ausführen“ übersetzen | Üben | hoch | S | erledigt (Claude, 0.26.0) |
-| OPT-03 | Neue Aufgabentypen: Fehler finden, SQL-Puzzle, Ergebnis vorhersagen | Üben | hoch | L | teilweise: Fehlersuche erledigt (Claude, 0.28.0); Puzzle und Vorhersage offen |
+| OPT-03 | Neue Aufgabentypen: Fehler finden, SQL-Puzzle, Ergebnis vorhersagen | Üben | hoch | L | teilweise: Fehlersuche (0.28.0) und Vorhersage (0.29.0) erledigt (Claude); Klauseln ordnen offen |
 | OPT-04 | ERM-Editor zum freien Zeichnen | Modellieren | hoch | L | offen |
 | OPT-05 | Einheiten in kürzere Schritte teilen | Motivation | hoch | M | offen |
 | OPT-06 | Freischaltung lockern, Üben ohne Lehrkraft-Haken | Motivation | hoch | S | offen |
@@ -168,7 +168,7 @@ Browsertests lesen die Adresse aus `WORKBENCH_TEST_URL`; Claude nutzt
 | OPT-12 | Musterlösungen aus dem öffentlichen Quelltext | Technik | mittel | M | offen |
 | OPT-13 | Cache-Parameter automatisch setzen | Technik | mittel | S | erledigt als Gleichstand-Test (Claude, 0.26.0) |
 | OPT-14 | Dokumentation zusammenführen | Doku | mittel | M | offen |
-| OPT-15 | Offline-Betrieb und Schul-PC-Test | Unterricht | hoch | M | offen |
+| OPT-15 | Offline-Betrieb und Schul-PC-Test | Unterricht | hoch | M | teilweise: Checkliste in `documentation.md` 0.16 (Claude); Test vor Ort und Offline-Betrieb offen |
 | OPT-16 | `app.js` und `styles.css` aufteilen | Technik | mittel | L | offen |
 | OPT-17 | `.tmp/` aus Google Drive heraushalten | Technik | niedrig | S | offen |
 | OPT-18 | Erster Besuch ohne Profilzwang | Motivation | mittel | S | offen |

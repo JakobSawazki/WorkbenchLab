@@ -4622,3 +4622,14 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 
 /* Aufgabentyp Fehlersuche (Claude, OPT-03a) */
 .debug-callout { margin-bottom: 0.9rem; border-left: 4px solid var(--amber); }
+
+/* Aufgabentyp Vorhersage (Claude, OPT-03c) */
+.predict-callout { margin-bottom: 0.9rem; border-left: 4px solid var(--blue); }
+.predict-code { margin: 0 0 0.9rem; white-space: pre; overflow-x: auto; font-family: var(--mono); font-size: 0.95rem; line-height: 1.55; }
+.predict-data { margin-bottom: 1.1rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; }
+.predict-data summary { cursor: pointer; font-weight: 700; }
+.predict-data[open] summary { margin-bottom: 0.6rem; }
+.predict-tables h4 { margin: 0.6rem 0 0.35rem; }
+.predict-result { margin-top: 1rem; }
+.predict-result h3 { margin: 0 0 0.2rem; }
+.predict-result p { margin: 0 0 0.5rem; font-size: 0.9rem; opacity: 0.85; }

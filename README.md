@@ -1,6 +1,8 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.28.0
+**Aktueller Release:** 0.29.0
+
+**Vorhersage:** Fünf Aufgaben, in denen das Ergebnis einer Abfrage zuerst im Kopf bestimmt wird; nach der richtigen Antwort zeigt die App das tatsächliche Ergebnis.
 
 **Fehlersuche:** Sechs neue SQL-Aufgaben, in denen eine fehlerhafte Abfrage zu reparieren ist (fehlendes Komma, fehlende Anführungszeichen, AND statt OR, WHERE statt HAVING, Klauselreihenfolge, JOIN ohne Bedingung).
 

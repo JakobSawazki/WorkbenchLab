@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.28.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.29.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -583,6 +583,133 @@ anderes vorgibt):**
 Weiterhin auf Jakobs Entscheidung warten OPT-06, OPT-09 und OPT-12.
 
 Nächste Handlungsnummer: 66.
+
+### 0.15 Release 0.29.0: Aufgabentyp „Vorhersage“ [Claude, 2026-10-09]
+
+Bezug: OPT-03, Teil (c), aus `claude2codex.md`. Auftrag: eigenständige
+Weiterarbeit.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 66 | Commit `cdedc28` (Eintrag 0.14, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 67 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 68 | `renderChoicePractice`, `checkChoicePractice` und die Übungsdaten gelesen; Daten der Übungsdatenbanken per Einmal-Skript abgefragt, um die Antworten festzulegen | Skript nur im temporären Sitzungsordner |
+| 69 | `predict-exercises.js` angelegt; `app.js`, `styles.css`, `index.html`, `lehrkraft.html`, `tools/build-site.cjs`, Versionsangaben, README angepasst | siehe unten |
+| 70 | `tests/predict-exercises.test.js` (4 Node-Tests) und `tests/predict-exercises.browser.cjs` angelegt; in `tests/teacher-overview.test.js` die Zahl der Einbindungen von 6 auf 7 erhöht | |
+| 71 | Testserver auf Port 4199 gestartet; alle Tests ausgeführt; Bildschirmfoto gesichtet | siehe Prüfung |
+| 72 | Ein Fehlversuch im Browsertest: Die Überschriftenzeile wird per CSS in Großbuchstaben gezeigt; der Test vergleicht jetzt den Text statt der Darstellung | nur Testcode |
+| 73 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.29.0` ergänzt | außerhalb des Repos, vor diesem Eintrag |
+| 74 | Checkliste für den Schul-PC-Test geschrieben | Abschnitt 0.16 |
+
+**Neu für Schülerinnen und Schüler**
+
+Fünf Aufgaben, in denen eine fertige Abfrage gezeigt wird. Die Lernenden
+bestimmen das Ergebnis im Kopf und wählen eine Antwort. Es gibt keinen Editor.
+
+| Aufgabe | Einheit | Fragen |
+| --- | --- | --- |
+| Wer steht oben? | L1.5 | erste Zeile bei `ORDER BY … DESC`; Zeilenzahl |
+| Zwei Bedingungen | L1.6 | Zeilenzahl bei `WHERE … AND …` |
+| DISTINCT | L1.7 | Zeilenzahl; wie oft erscheint ein Wert |
+| Gruppen und HAVING | L1.8 | Zeilenzahl nach `HAVING`; erste Zeile |
+| JOIN mit und ohne ON | L2.4 | Zeilenzahl mit `ON`; Zeilenzahl des Kreuzprodukts |
+
+- Der Tabelleninhalt lässt sich aufklappen.
+- Bei falscher Antwort erscheint eine Denkhilfe („Klausel für Klausel“), das
+  Ergebnis bleibt verborgen.
+- Bei richtiger Antwort erscheinen eine fachliche Erklärung und das
+  tatsächliche Ergebnis der Abfrage als Tabelle.
+- Je Aufgabe 15 XP. Freischaltung wie bei allen Übungen der Einheit.
+- Die Aufgaben stehen im SQL-Labor (neuer Filter „Vorhersage“) und in den
+  Übungslisten ihrer Einheiten, nicht unter „Modellieren“.
+
+**Auswirkungen auf Bestehendes**
+
+- Die Zahl der Übungen steigt von 49 auf 54, die erreichbaren XP um 75.
+- Der Erfolg „alle Übungen“ setzt fünf Aufgaben mehr voraus. Erfolge, die
+  SQL-Aufgaben zählen, sind nicht betroffen: Vorhersagen sind technisch
+  Auswahlaufgaben und zählen dort nicht mit.
+- Im SQL-Labor stehen jetzt neben Schreibaufgaben auch Auswahlaufgaben; die
+  Seite „Modellieren“ listet weiterhin nur Modell- und Begriffsaufgaben.
+- Lernstand-Format unverändert.
+
+**Technik:** `predict-exercises.js` hängt Auswahlaufgaben mit
+`variant: "predict"` und den Zusatzfeldern `sql`, `schema`, `preview` an.
+Jede Frage trägt ein `verifySql`; ein Node-Test führt es aus und vergleicht das
+Ergebnis mit der als richtig markierten Antwort, sodass sich Daten und
+Antworten nicht unbemerkt auseinanderentwickeln. In `app.js`: `isSqlTopic`,
+`loadPredictTables`, `showPredictResult` sowie Ergänzungen in `practiceKind`,
+`practiceCard`, `renderSql`, `renderModeling`, `renderPractice`,
+`renderChoicePractice` und `checkChoicePractice`. Versionsangaben auf `0.29.0`.
+
+**Prüfung**
+
+- 131 Node-Tests (4 neu) und 2 Python-Tests bestanden. Ein Node-Test führt zu
+  jeder Frage das zugehörige `verifySql` aus und vergleicht es mit der als
+  richtig markierten Antwort.
+- Alle 26 Browsertests bestanden (Edge, Port 4199). Der neue
+  `predict-exercises.browser.cjs` prüft bei 1440 und 390 px: Filter, Einordnung
+  im SQL-Labor statt unter „Modellieren“, Tabellenvorschau, Denkhilfe bei
+  falscher Antwort ohne Ergebnis, Erklärung und echtes Ergebnis bei richtiger
+  Antwort, einmalige XP, Aufgabe mit zwei Fragen, unveränderte Sperrlogik.
+- Bildschirmfoto bei 1440 px im dunklen Modus gesichtet.
+- Nicht geprüft: heller Modus der neuen Elemente, Wirkung im Unterricht,
+  Schul-PCs. Die Checkliste in 0.16 ist ungetestet geschrieben; Menünamen und
+  Port stammen aus den vorhandenen Texten der Lernplattform.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.17.
+
+### 0.16 Checkliste für den Test an einem Schul-PC [Claude, 2026-10-09]
+
+Bezug: OPT-15, erster Teil. Diese Prüfung kann nur vor Ort erfolgen; sie ist
+seit Release 0.22.0 als offen vermerkt. Ergebnisse bitte hier eintragen
+(Jakob oder Codex), dann kann der Offline-Betrieb gezielt umgesetzt werden.
+
+Geprüft am: ________ · Raum/PC: ________ · Browser und Version: ________
+
+**A. Lernplattform im Schulnetz**
+
+| Nr. | Schritt | Erwartung | Ergebnis |
+| ---: | --- | --- | --- |
+| A1 | <https://jakobsawazki.github.io/WorkbenchLab/> öffnen | Seite lädt ohne Filter- oder Zertifikatsmeldung | |
+| A2 | Datenbanksymbol oben rechts ansehen | grüner Punkt, „SQL ist bereit“ (sonst blockiert das Netz `.wasm`-Dateien) | |
+| A3 | SQL-Labor → „Frei ausprobieren“ → „Ausführen“ | Tabelle mit 11 Zeilen | |
+| A4 | Kürzel und Klasse eintragen, Seite neu laden | Angaben bleiben erhalten (sonst löscht der PC den Browserspeicher) | |
+| A5 | PC ab- und wieder anmelden, Seite öffnen | Angaben noch vorhanden? Wenn nein: JSON-Sicherung ist Pflicht am Stundenende | |
+| A6 | Diskettensymbol → „Speichern“ | JSON-Datei landet in einem für Lernende erreichbaren Ordner | |
+| A7 | Diskettensymbol → „Laden“ mit dieser Datei | Lernstand wird übernommen | |
+| A8 | In einer Einheit das Druckersymbol wählen | Druckvorschau hell, alle Abschnitte geöffnet | |
+| A9 | Video der Startanleitung unter „Nachschlagen“ starten | spielt mit Untertiteln | |
+| A10 | Seite bei getrennter Netzverbindung neu laden | derzeit erwartet: lädt nicht (Grundlage für die Entscheidung über den Offline-Betrieb) | |
+
+**B. Informatik-Stick und MySQL Workbench**
+
+| Nr. | Schritt | Erwartung | Ergebnis |
+| ---: | --- | --- | --- |
+| B1 | Stick starten, „MySQL starten“ | Konsole zeigt `ready for connections` | |
+| B2 | Workbench öffnen; Version notieren | Schule: 6.3.10 erwartet | |
+| B3 | Verbindung `127.0.0.1`, Port laut Startanleitung (üblich 3306), Benutzer `root` testen | Verbindung erfolgreich | |
+| B4 | `SELECT VERSION();` ausführen | MariaDB-Version wird angezeigt; notieren | |
+| B5 | `assets/sql/l1-1-workbench-einstieg.sql` über die Lernplattform laden und in Workbench ausführen | läuft ohne Fehler | |
+| B6 | Ein EER-Modell anlegen, als `.mwb` speichern, schließen, wieder öffnen | Modell unverändert | |
+| B7 | Forward Engineering bzw. Synchronisierung aus L1.4 durchführen | Schema entsteht | |
+| B8 | Eine Abfrage aus dem freien SQL-Labor unverändert in Workbench ausführen | gleiches Ergebnis; Abweichungen notieren | |
+
+**C. Klassenübersicht**
+
+| Nr. | Schritt | Erwartung | Ergebnis |
+| ---: | --- | --- | --- |
+| C1 | <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html> öffnen | Seite lädt | |
+| C2 | Zwei bis drei echte Sicherungen einlesen | Zeilen erscheinen, Prüfsumme „gültig“ | |
+| C3 | CSV herunterladen und in Excel öffnen | Umlaute korrekt, Spalten getrennt | |
+
+**Auswertung für den Offline-Betrieb:** Scheitert A2, braucht die Schule eine
+Freigabe für `.wasm`. Scheitert A4 oder A5, muss die JSON-Sicherung im
+Unterrichtsablauf fest verankert werden. Zeigt A10, dass Netzausfälle im
+Unterricht realistisch sind, lohnt ein Zwischenspeicher (Service Worker); er
+wird dann mit Versionsprüfung umgesetzt, damit keine veralteten Stände
+ausgeliefert werden.
 
 <!-- CLAUDE:END -->
 
