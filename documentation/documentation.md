@@ -223,6 +223,64 @@ Klick-Behandlungen), `styles.css` (Block am Dateiende),
   OPT-05 (Einheiten in kürzere Schritte teilen), OPT-08 (Lehrkraft-Übersicht).
   OPT-06 (Freischaltung lockern) wartet auf Jakobs Entscheidung.
 
+### 0.8 Lückenloses Ablaufprotokoll 8. und 9. Oktober 2026 [Claude, 2026-10-09]
+
+Dieser Eintrag führt **alle** Handlungen von Claude auf, auch solche außerhalb
+des Repositorys. Künftige Einträge folgen demselben Muster: je Arbeitsblock ein
+Eintrag mit Auftrag, Handlungen, geänderten Dateien, Prüfung, Veröffentlichung.
+
+**8. Oktober 2026 – Einstieg und Übergabe**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 1 | Repository, README, `documentation/`, Tests und Git-Verlauf gelesen | nur lesend |
+| 2 | Live-Seite als Gast und im Entwicklermodus (AltGr + S) angesehen: Start, Lernpfad, L1.1, SQL-Labor, eine SQL-Aufgabe, Modellieren | nur lesend, keine Konsolenfehler |
+| 3 | `AGENTS.md` und `documentation/OPTIMIERUNG_BACKLOG.md` angelegt | auf Jakobs Wunsch wieder entfernt und in **eine** Datei überführt |
+| 4 | `claude2codex.md` im Projektstamm angelegt (Auftrag, Projektwissen, OPT-01 bis OPT-20) | von Codex committet |
+| 5 | Prompt für Codex formuliert | nur im Chat, keine Datei |
+| 6 | Node.js 24.20.0 LTS per `winget install OpenJS.NodeJS.LTS` installiert | `C:\Program Files\nodejs` (systemweit, außerhalb des Repos) |
+| 7 | Playwright 1.64.0 per `npm install` installiert, ohne Browser-Download | `C:\Users\PC\.workbenchlab-tools` (außerhalb von Google Drive) |
+| 8 | 106 Node-Tests und drei Browsertests ausgeführt | bestanden |
+| 9 | **Versehen:** beim Aufräumen den Prozess auf Port 4174 beendet; das war ein fremder `node`-Server, nicht Claudes eigener | Jakob gemeldet; seitdem eigener Port und Prüfung der Befehlszeile vor jedem Beenden |
+
+**9. Oktober 2026 – eigenständige Arbeit im Auftrag von Jakob**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 10 | `codex2claude.md` und Codex-Commits OPT-10/OPT-11 gelesen | Stand 0.25.3 als Grundlage |
+| 11 | Sieben `desktop.ini` unter `.git/refs/` gelöscht, `git fsck` und `git fetch` geprüft | Abschnitt 0.2 |
+| 12 | Tag `codex-stand-2026-10-08` gesetzt und gepusht; Git-Bündel erzeugt und mit `git bundle verify` geprüft | Abschnitt 0.1 |
+| 13 | `sql-feedback.js`, Änderungen in `app.js`, `styles.css`, `index.html`, `tools/build-site.cjs`, Versionsangaben | Release 0.26.0, Abschnitt 0.4 |
+| 14 | `tests/sql-feedback.test.js` und `tests/sql-playground.browser.cjs` angelegt | 7 Node-Tests, 1 Browsertest |
+| 15 | Testserver `python -m http.server 4199` gestartet; alle Tests gegen Port 4199 | Abschnitt 0.3 |
+| 16 | Eigenen Initialisierungsfehler (leerer Lernstand nach Neuladen) im Browsertest gefunden und behoben | Abschnitt 0.4, nie veröffentlicht |
+| 17 | Temporäres Arbeitsverzeichnis `C:\Users\PC\wbl-codex-check` vom Tag `codex-stand-2026-10-08` angelegt, auf Port 4198 ausgeliefert, `xp.browser.cjs` dagegen ausgeführt | Fehlschlag bestand schon vor Claude; Verzeichnis und Server danach entfernt |
+| 18 | `tests/xp.browser.cjs` an den Hilfedialog aus 0.25.3 angepasst | nur Test geändert |
+| 19 | Hellen Farbmodus per Einmal-Skript fotografiert und gesichtet | Skript und Bilder nur im temporären Sitzungsordner |
+| 20 | Commit `8ed27fc`, Push, Actions-Lauf 37887121711, Live-Prüfung, Tag `v0.26.0` | Abschnitt 0.5 |
+| 21 | Rettungskopie bei unlesbarem Lernstand, `tests/state-rescue.browser.cjs` | Release 0.26.1, Abschnitt 0.6 |
+| 22 | Commit `b8c9b01`, Push, Actions-Lauf 37887595622, Live-Prüfung, Tag `v0.26.1` | Abschnitt 0.7 |
+| 23 | Commit `700e6c6` (nur Protokoll), Actions-Lauf erfolgreich | keine Änderung an der App |
+| 24 | README (Release-Zeile, zwei Absätze) und `claude2codex.md` (Status, Regeln, OPT-21) aktualisiert | in den Commits 20 bis 22 enthalten |
+| 25 | Eigene Server auf 4198 und 4199 beendet, nach Prüfung der Befehlszeile | fremde Prozesse unberührt |
+
+**Dateien außerhalb des Repositorys, die Claude angelegt hat**
+
+- `C:\Program Files\nodejs` (Node.js) und `C:\Users\PC\.workbenchlab-tools` (Playwright).
+- `C:\Users\PC\WorkbenchLab-Sicherungen\` (Git-Bündel).
+- `C:\Users\PC\.claude\projects\G--Meine-Ablage-Codex-WorkbenchLab\memory\`:
+  Claudes eigene Merkzettel für spätere Sitzungen (`MEMORY.md`,
+  `codex-zusammenarbeit.md`, `testumgebung-node-playwright.md`). Inhalt:
+  Zusammenarbeitsregeln, Testbefehle, Port 4199, Hinweis auf dieses Protokoll.
+  Keine Schüler- oder Zugangsdaten.
+- Testartefakte unter `.tmp/` im Projektordner (Screenshots der neuen Tests,
+  nicht versioniert).
+
+**Was Claude nicht getan hat:** kein `--force`-Push, kein Umschreiben des
+Verlaufs, keine Änderung an `resources/`, `references/`, `Lehrbuch/` oder an
+Codex' Dateien `codex2claude.md` und `documentation/RELEASE_*.md`, kein Zugriff
+auf das Projekt „Sawazki Electronics“.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
