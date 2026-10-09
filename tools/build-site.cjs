@@ -5,7 +5,7 @@ const { execFileSync } = require("node:child_process");
 const publicRootFiles = new Set([
   "index.html", "styles.css", "app.js", "content.js", "learning-path.js",
   "lesson-openings.js", "practical-exercises.js", "study-tools.js", "appearance.js",
-  "drawing.js", "command-search.js", "reference-search.js", "sql-check.js", "sql-feedback.js", "review.js", "erm-editor.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "expected-results.js", "lehrkraft.html", "teacher-overview.js",
+  "drawing.js", "command-search.js", "reference-search.js", "sql-check.js", "backup.js", "sql-feedback.js", "review.js", "erm-editor.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "expected-results.js", "lehrkraft.html", "teacher-overview.js",
 ]);
 function isPublicFile(file) {
   return !file.split("/").some((part) => part.startsWith(".") || part === "desktop.ini")

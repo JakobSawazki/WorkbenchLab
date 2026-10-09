@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.39.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.39.1 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -122,8 +122,9 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `erm-editor.js` | Modell-Editor, Logik und Seitenanbindung | Claude |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht | Claude |
 | `tools/build-site.cjs` | Liste der öffentlichen Dateien; neue Dateien dort eintragen | Codex |
+| `backup.js` | Prüfsumme der JSON-Sicherung, gemeinsam für `app.js` und `teacher-overview.js` | Code von Codex, ausgelagert von Claude |
 | `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
-| `tests/*.test.js`, `tests/*.browser.cjs` | 164 Node-Tests, 32 Browsertests | Codex und Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 168 Node-Tests, 32 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -186,7 +187,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-13 | Versionsgleichstand | erledigt als Test (Claude, 0.26.0) |
 | OPT-14 | Dokumentation zusammenführen | erledigt (Claude, 2026-10-09): `CHANGELOG.md`, `documentation/releases/`, `documentation/archiv/`, README neu, Wegweiser |
 | OPT-15 | Offline-Betrieb und Schul-PC-Test | Checkliste erledigt (Claude, `documentation.md` 0.16); Test vor Ort und Offline-Betrieb offen |
-| OPT-16 | `app.js` und `styles.css` aufteilen | Schritt 1 erledigt (Claude, 0.38.2): SQL-Prüflogik in `sql-check.js`; nächste Schritte Sicherung/Import und Lernstand offen |
+| OPT-16 | `app.js` und `styles.css` aufteilen | Schritt 1 (0.38.2): SQL-Prüflogik in `sql-check.js`; Schritt 2 (0.39.1): Prüfsumme der Sicherung in `backup.js`; offen: Lernstand nach `state.js`, `styles.css` aufteilen |
 | OPT-17 | `.tmp/` aus Google Drive heraushalten | `.tmp/` am 2026-10-09 geleert (991 MB, Freigabe Jakob); Claudes Tests schreiben nach `%TEMP%`; Codex' Tests schreiben weiter nach `.tmp/` |
 | OPT-18 | Erstbesuch ohne Profildialog | verworfen (Jakob, 2026-10-09): Dialog bleibt |
 | OPT-19 | Druckansicht | erledigt (Claude, 0.26.2) |

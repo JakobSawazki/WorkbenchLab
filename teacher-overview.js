@@ -6,21 +6,8 @@
   const MAX_FILE_BYTES = 12 * 1024 * 1024;
   const NAGOLD_PER_LESSON = 5; // wie nagoldPerLesson in app.js
 
-  function stableStringify(value) {
-    if (Array.isArray(value)) {
-      return `[${value.map(stableStringify).join(",")}]`;
-    }
-    if (value && typeof value === "object") {
-      return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`;
-    }
-    return JSON.stringify(value);
-  }
-
-  async function sha256Hex(value) {
-    const bytes = new TextEncoder().encode(value);
-    const digest = await globalThis.crypto.subtle.digest("SHA-256", bytes);
-    return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-  }
+  // Dieselbe Prüfsumme wie die Lernplattform (backup.js).
+  const { stableStringify, sha256Hex } = window.WORKBENCH_BACKUP;
 
   // Ergebnis: "gueltig" | "veraendert" | "alt" | "unpruefbar"
   async function integrityStatus(parsed) {

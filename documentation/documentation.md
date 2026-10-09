@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.39.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.39.1** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.39.0)**
+**Aktueller Stand (Release 0.39.1)**
 
 | Thema | Stand |
 | --- | --- |
@@ -50,7 +50,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 164 Node-Tests, 2 Python-Tests, 32 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
+| Tests | 168 Node-Tests, 2 Python-Tests, 32 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2114,6 +2114,40 @@ abgelehnt OPT-05, 18; bei Jakob im Unterricht OPT-15; offen OPT-09
 Schritte von OPT-16 (`app.js` und `styles.css` aufteilen).
 
 Nächste Handlungsnummer: 274.
+
+### 0.47 Release 0.39.1: `app.js` aufteilen, Schritt 2 [Claude, 2026-10-09]
+
+Bezug: OPT-16. Keine sichtbare Änderung. Die Prüfsumme der JSON-Sicherung gab es
+zweimal (in `app.js` von Codex und als Kopie in `teacher-overview.js` von
+Claude); ein Test verglich bisher nur die Texte der beiden Kopien.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 274 | `backup.js` neu: `stableStringify`, `sha256Hex`, `verifyBackupIntegrity` unverändert aus `app.js` übernommen (Verfasser Codex) → `window.WORKBENCH_BACKUP` | ohne DOM, ohne Lernstand |
+| 275 | `app.js`: die drei Funktionen entfernt, eine Zeile bindet `backup.js` ein | 4539 → 4515 Zeilen (inklusive OPT-23) |
+| 276 | `teacher-overview.js`: eigene Kopie entfernt, nutzt `backup.js` | eine Quelle statt zwei |
+| 277 | `index.html`, `lehrkraft.html`: `backup.js` vor `app.js` bzw. `teacher-overview.js` geladen; `tools/build-site.cjs`: in die Liste der öffentlichen Dateien aufgenommen (je eine Zeile in Codex-Dateien) | |
+| 278 | `tests/backup.test.js` neu (4 Tests: Schlüsselreihenfolge, SHA-256 mit Umlauten, gültig/verändert/ohne Prüfsumme/altes Format, Ladereihenfolge und einzige Kopie); `tests/teacher-overview.test.js` angepasst | die Prüfsumme war bisher nur über Browsertests abgedeckt |
+| 279 | Fehlgriff: Ein Test zählt die Skripte der Lehrkraftseite fest (8); mit `backup.js` sind es 9 | Zahl im Test angepasst |
+| 280 | Versionsangaben auf `0.39.1`; `CHANGELOG.md`, `README.md`, Wegweiser, `claude2codex.md`, Merkzettel (Tag-Bereich) | |
+| 281 | Eigenen Testserver auf Port 4199 gestartet, nach den Tests beendet | keine fremden Prozesse berührt |
+
+**Prüfung**
+
+- 168 Node-Tests (4 neu) und 2 Python-Tests bestanden.
+- Alle 32 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199),
+  darunter die drei, die Sicherungen exportieren, verändern und wieder laden
+  (`backup-safety`, `study-workflow`, `notebook-drawing`) und die Klassenübersicht.
+
+**Nicht geprüft:** Schul-PCs. Sicherungsdateien aus älteren Versionen wurden nur
+über die vorhandenen Tests (Format 2 und 3) geprüft, nicht mit echten Dateien von
+Lernenden.
+
+**Nächste Schritte von OPT-16:** Lernstand (`normalizeState`, `loadState`,
+`saveState`) nach `state.js`; `styles.css` aufteilen. Beides greift tiefer in
+Codex' Teile ein und sollte jeweils ein eigener Release bleiben.
+
+Nächste Handlungsnummer: 282.
 
 <!-- CLAUDE:END -->
 

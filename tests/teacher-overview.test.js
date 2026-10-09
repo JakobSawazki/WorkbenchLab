@@ -9,7 +9,7 @@ const vm = require("node:vm");
 const root = path.resolve(__dirname, "..");
 const context = vm.createContext({ window: {}, TextEncoder, crypto: globalThis.crypto });
 context.globalThis = context;
-for (const file of ["content.js", "learning-path.js", "practical-exercises.js", "teacher-overview.js"]) {
+for (const file of ["content.js", "learning-path.js", "practical-exercises.js", "backup.js", "teacher-overview.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });
 }
 const content = context.window.WORKBENCH_CONTENT;
@@ -64,11 +64,11 @@ test("Prüfsumme: gültig, verändert und altes Format werden unterschieden", as
   assert.equal(await teacher.integrityStatus({ app: "WorkbenchLab", formatVersion: 2, data: {} }), "alt");
 });
 
-test("Die Prüfsumme stimmt mit dem Verfahren der Lernplattform überein", () => {
-  const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
-  const overview = fs.readFileSync(path.join(root, "teacher-overview.js"), "utf8");
-  const body = (source) => source.slice(source.indexOf("function stableStringify(value) {"), source.indexOf("async function sha256Hex")).replace(/\s+/g, "");
-  assert.equal(body(overview), body(app));
+test("Die Prüfsumme stammt aus backup.js, derselben Datei wie bei der Lernplattform", () => {
+  assert.equal(teacher.stableStringify, context.window.WORKBENCH_BACKUP.stableStringify);
+  for (const file of ["app.js", "teacher-overview.js"]) {
+    assert.doesNotMatch(fs.readFileSync(path.join(root, file), "utf8"), /function stableStringify/, file);
+  }
 });
 
 test("Fremde und unvollständige Dateien werden abgelehnt; fehlende Angaben bleiben sichtbar", () => {
@@ -117,7 +117,7 @@ test("Die Lehrkraftseite ist öffentlich, versionsgleich und lädt keine fremden
   assert.equal(isPublicFile("lehrkraft.html"), true);
   assert.equal(isPublicFile("teacher-overview.js"), true);
   const stamps = [...html.matchAll(/(?:href|src)="([^"?]+\.(?:js|css))\?v=([^"]+)"/g)];
-  assert.equal(stamps.length, 8);
+  assert.equal(stamps.length, 9);
   // NAGOLD je Einheit muss in App und Klassenübersicht gleich sein.
   assert.equal(Number(fs.readFileSync(path.join(root, "app.js"), "utf8").match(/const nagoldPerLesson = (\d+);/)[1]), teacher.NAGOLD_PER_LESSON);
   for (const [, file, stamp] of stamps) {
