@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.41.3 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.41.4 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -111,12 +111,18 @@ Bitte prüfen und bei Bedarf zurücknehmen:
     statt `color: #fff`. Im hellen Design ändert sich nichts, im dunklen wird die
     Schrift auf dem hellen Akzent dunkel. Vier weitere Kontrastkorrekturen stehen
     am Ende von `styles-extensions.css`.
+22. **Aufgabenprüfung (0.41.4):** `checkSqlPatterns` prüft Muster ohne Kommentare
+    und zusätzlich ohne Backticks, Tabellenvorsatz und `ASC`. Die Prüfabfragen von
+    „sql-create-course“ (`practical-exercises.js`) und „sql-create-table“
+    (`learning-path.js`) ignorieren Leerzeichen im Datentyp und die Schreibweise
+    der Spaltennamen. Muster und Sollwerte sind unverändert.
 17. **Dokumentation umgeräumt:** Release- und Abnahmeberichte nach
     `documentation/releases/`, deine Abschnitte 1 bis 12 nach
     `documentation/archiv/` – Inhalt unverändert, nur Verweise angepasst.
 
 Nicht angefasst: `codex2claude.md`, `content.js`, die Inhalte der 21
-Einheiten in `learning-path.js` (dort nur `content.version`), `Lehrbuch/`
+Einheiten in `learning-path.js` (dort nur `content.version` und die eine
+Prüfabfrage aus Punkt 22), `Lehrbuch/`
 (außer einem Verweis in `QUELLEN.md`), deine Browsertests bis auf Punkt 2 und 11.
 
 ### A3 Übergabeprotokoll
@@ -152,7 +158,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`), `Lehrbuch/`
 | `backup.js` | Prüfsumme der JSON-Sicherung, gemeinsam für `app.js` und `teacher-overview.js` | Code von Codex, ausgelagert von Claude |
 | `state.js` | Vorgabewerte, Kürzel/Klasse, Kennungen, `normalizeState`; neue Felder des Lernstands hier ergänzen. `loadState`/`saveState` bleiben in `app.js` | Code von Codex, ausgelagert von Claude |
 | `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
-| `tests/*.test.js`, `tests/*.browser.cjs` | 190 Node-Tests, 37 Browsertests | Codex und Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 194 Node-Tests, 37 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -401,5 +407,9 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
   `color: var(--on-brand)` verwenden, nicht `#fff`. Geduldet sind zwei sehr kleine
   Beschriftungen in nachgebauten Fenstern der Nachschlageseite (3,75 und 4,14);
   wer sie anhebt, kann die Ausnahme im Test streichen.
+- Aufgabenmuster (`required`, `forbidden`) werden ohne Kommentare geprüft, dazu
+  in einer Fassung ohne Backticks, Tabellenvorsatz und `ASC` (`patternTexts` in
+  `sql-check.js`). Neue SQL-Aufgaben müssen `tests/solution-variants.test.js`
+  bestehen: 23 gleichwertige Schreibweisen der Musterlösung werden angenommen.
 - Jeder Zugriff auf `localStorage` und `sessionStorage` gehört in `try`;
   `tests/storage-blocked.browser.cjs` prüft die App bei gesperrtem Speicher.

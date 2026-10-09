@@ -13,6 +13,7 @@ Jede Version hat einen Git-Tag `v0.xx.y`.
 
 | Version | Von | Inhalt | Abschnitt |
 | --- | --- | --- | --- |
+| 0.41.4 | Cl | Aufgabenprüfung nimmt gleichwertige Schreibweisen an (`ASC`, Backticks, Tabellenvorsatz, Kommentare, Leerzeichen und Großschreibung bei `CREATE TABLE`); Test über alle 32 SQL-Aufgaben | 0.66 |
 | 0.41.3 | Cl | Lesbarkeit: Schrift auf der Akzentfarbe im dunklen Design (u. a. aktiver Reiter jeder SQL-Aufgabe); Start bei gesperrtem Browserspeicher; Tests für Kontrast und Speicher | 0.64 |
 | 0.41.2 | Cl | Modell-Editor: Kästen lassen sich per Finger ziehen; zwei Korrekturen für Bildschirmleser; neuer Test zur Bedienbarkeit über 242 Ansichten | 0.62 |
 | 0.41.1 | Cl | Ausdruck der Klassenübersicht passt aufs Papier (Querformat, Umbruch); vorher fehlten rechts Spalten | 0.60 |

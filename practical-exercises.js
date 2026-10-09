@@ -37,7 +37,8 @@
       ],
       check: {
         type: "mutation",
-        verifySql: "SELECT name, UPPER(type) AS datentyp, [notnull] AS pflicht, pk FROM pragma_table_info('kurse') ORDER BY cid;",
+        // Leerzeichen im Datentyp und Groß-/Kleinschreibung der Spaltennamen zählen nicht, wie in MySQL (Claude, 0.41.4).
+        verifySql: "SELECT LOWER(name) AS name, REPLACE(UPPER(type), ' ', '') AS datentyp, [notnull] AS pflicht, pk FROM pragma_table_info('kurse') ORDER BY cid;",
         expected: { columns: ["name", "datentyp", "pflicht", "pk"], values: [["kursnr", "INT", 1, 1], ["titel", "VARCHAR(60)", 1, 0], ["startdatum", "DATE", 1, 0]] },
         required: ["create\\s+table", "primary\\s+key", "not\\s+null"]
       }

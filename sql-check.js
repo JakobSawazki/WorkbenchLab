@@ -227,20 +227,39 @@
     };
   }
 
+  // Texte, an denen die Aufgabenmuster geprüft werden (Claude, 0.41.4). Kommentare gehören nicht zur
+  // Lösung. Die zweite Fassung lässt weg, was die Bedeutung nicht ändert – Backticks um Namen, den
+  // Tabellenvorsatz („f.“ oder „fahrschueler.“) und ausdrückliches ASC –, damit gleichwertige Schreibweisen
+  // wie ORDER BY f.nachname ASC, f.vorname ASC ein Muster „order by nachname, vorname“ erfüllen.
+  // Textwerte in einfachen Anführungszeichen bleiben in beiden Fassungen unverändert.
+  function patternTexts(sql) {
+    const tokens = String(sql ?? "").split(/('(?:[^']|'')*'|--[^\n]*|\/\*[\s\S]*?\*\/)/);
+    const keep = (token) => (token.startsWith("'") ? token : " ");
+    const plain = tokens.map((token, index) => (index % 2 ? keep(token) : token)).join("");
+    const simple = tokens.map((token, index) => (index % 2 ? keep(token) : token
+      .replace(/`/g, "")
+      .replace(/\b[A-Za-z_]\w*\.(?=[A-Za-z_*])/g, "")
+      .replace(/\s+ASC\b/gi, ""))).join("");
+    return [plain, simple];
+  }
+
   function checkSqlPatterns(sql, check) {
     const problems = [];
+    const texts = patternTexts(sql);
     (check.required || []).forEach((pattern) => {
-      if (!new RegExp(pattern, "i").test(sql)) {
+      const expression = new RegExp(pattern, "i");
+      if (!texts.some((text) => expression.test(text))) {
         problems.push({ pattern, ...sqlPatternInfo(pattern) });
       }
     });
     (check.forbidden || []).forEach((pattern) => {
-      if (new RegExp(pattern, "i").test(sql)) {
+      const expression = new RegExp(pattern, "i");
+      if (texts.some((text) => expression.test(text))) {
         problems.push({ pattern, forbidden: true, ...sqlPatternInfo(pattern, true) });
       }
     });
     return problems;
   }
 
-  window.WORKBENCH_SQL_CHECK = { parseDateParts, parseDateTime, localDate, localDateTime, dateFormat, timestampDiff, mysqlFunctions, registerSqlFunctions, tableFromResult, normalizeCell, normalizedRows, sameTable, sqlCoachPatterns, sqlPatternInfo, checkSqlPatterns };
+  window.WORKBENCH_SQL_CHECK = { parseDateParts, parseDateTime, localDate, localDateTime, dateFormat, timestampDiff, mysqlFunctions, registerSqlFunctions, tableFromResult, normalizeCell, normalizedRows, sameTable, sqlCoachPatterns, sqlPatternInfo, patternTexts, checkSqlPatterns };
 })();

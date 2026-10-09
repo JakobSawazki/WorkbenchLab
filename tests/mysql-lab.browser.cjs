@@ -95,6 +95,13 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await page.locator("#runSqlButton").click();
       await output.locator(".sql-error").waitFor();
       assert.match(await output.locator(".sql-error").innerText(), /TIMESTAMPDIFF ist gültiges MySQL\. In den Übungsaufgaben kennt es das Browser-Labor nicht/);
+      // Gleichwertige Schreibweise einer richtigen Lösung wird angenommen (0.41.4): Kommentar, Backticks,
+      // Tabellenvorsatz und ausdrückliches ASC – so, wie es die Einheit L1.5 selbst zeigt.
+      await page.goto(base + "#practice/sql-projection-gleichstand");
+      await page.locator("#checkSqlButton").waitFor();
+      await editor.fill(["-- sortiert nach Name", "select schuelernr, vorname, nachname", "from `fahrschueler`", "order by fahrschueler.nachname ASC, vorname ASC"].join("\n"));
+      await page.locator("#checkSqlButton").click();
+      await page.locator("#practiceResult.is-success").waitFor();
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf in der Aufgabe bei ${width}px`);
       assert.deepEqual(errors, []);
       await context.close();

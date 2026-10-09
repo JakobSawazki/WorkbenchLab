@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.41.3** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.41.4** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.41.3)**
+**Aktueller Stand (Release 0.41.4)**
 
 | Thema | Stand |
 | --- | --- |
@@ -51,7 +51,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` (mit nachgeprüften Modellaufgaben); Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 190 Node-Tests, 2 Python-Tests, 37 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
+| Tests | 194 Node-Tests, 2 Python-Tests, 37 Browsertests; zusätzlich von Hand 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2681,6 +2681,47 @@ Ohne Befund: Wiederholungsrunde über Mitternacht, Zeitzonen, neue Sicherung im
 älteren App-Stand, Datenmenge beim ersten Aufruf.
 
 Nächste Handlungsnummer: 421.
+
+### 0.66 Release 0.41.4: Richtige Lösungen in anderer Schreibweise werden angenommen [Claude, 2026-10-09]
+
+Frage: Lehnt die Aufgabenprüfung richtige Lösungen ab, nur weil sie anders
+geschrieben sind als die Musterlösung?
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 421 | Hilfsskript `variants.cjs`: Die Musterlösung jeder der 32 SQL-Aufgaben mechanisch in 19 gleichwertige Schreibweisen gebracht und so geprüft wie im Browser (Aufgabenmuster und Ergebnisvergleich) | 371 Schreibweisen, 3 abgelehnt |
+| 422 | **Befund 1:** `ORDER BY nachname ASC, vorname` fiel in „sql-projection-gleichstand“ durch – das Muster verlangte die Spalten ohne `ASC`. Die Einheit L1.5 zeigt selbst `ORDER BY nachname ASC, vorname ASC` | richtige Lösung nach Vorbild der Einheit wurde abgelehnt |
+| 423 | **Befund 2:** Backticks um Tabellennamen (wie sie MySQL Workbench erzeugt) ließen „sql-rental-history“ durchfallen | Muster `join\s+kunden` traf `` JOIN `kunden` `` nicht |
+| 424 | **Befund 3:** In „sql-create-course“ fiel `VARCHAR( 60 )` durch (Leerzeichen im Datentyp) | Vergleich des Datentyps war zeichengenau |
+| 425 | Beim Lesen aufgefallen: Die Muster wurden auch an Kommentaren geprüft. Ein verlangtes Wort im Kommentar erfüllte das Muster; `SELECT *` im Kommentar löste das Verbot aus | |
+| 426 | `sql-check.js`, `checkSqlPatterns` (Codex' Funktion): Muster werden an zwei Fassungen der Anweisung geprüft – ohne Kommentare, und zusätzlich ohne Backticks, Tabellenvorsatz (`f.`) und ausdrückliches `ASC`. Verlangtes gilt als vorhanden, wenn es in einer Fassung steht; Verbotenes als Verstoß, wenn es in einer steht. Textwerte bleiben unberührt | keine Aufgabe und kein Muster geändert |
+| 427 | `practical-exercises.js` und `learning-path.js`: Die Prüfabfragen der beiden `CREATE TABLE`-Aufgaben ignorieren Leerzeichen im Datentyp und die Groß-/Kleinschreibung der Spaltennamen (wie MySQL) | je eine Zeile in Codex' Aufgaben; die Sollwerte sind unverändert |
+| 428 | `tests/solution-variants.test.js` neu (4 Tests): jede Musterlösung besteht; 23 Schreibweisen je Aufgabe werden angenommen (darunter „`ASC` bei jeder Spalte“, „Sortierspalten mit Tabellennamen“, „alles groß“, „Leerzeichen vor Klammern“, Kommentare mit Apostroph); Kommentare zählen nicht; falsche Lösungen fallen weiter durch (`SELECT *`, fehlendes `ORDER BY`, falsche Reihenfolge, falscher Datentyp, `UPDATE` ohne `WHERE`) | über 350 Schreibweisen, 0 abgelehnt |
+| 429 | `tests/mysql-lab.browser.cjs`: im echten Browser eine Lösung mit Kommentar, Backticks, Tabellenvorsatz und `ASC` geprüft | „Aufgabe gelöst“ |
+| 430 | Fehlgriff: Beim Ergänzen dieses Browsertests gingen in einem Shell-Befehl Rückstriche verloren (bekannte Falle, selbst gesetzte Regel missachtet); die Testdatei hatte einen Syntaxfehler | vor dem Commit bemerkt, per Skriptdatei berichtigt; die App war nicht betroffen |
+| 431 | `node tools/build-expected.cjs`: Sollergebnisse unverändert | |
+| 432 | Versionsangaben auf `0.41.4`; `CHANGELOG.md`, `README.md`, Wegweiser, `claude2codex.md` (A2 Punkt 22, Hinweis für neue Muster), Merkzettel | |
+| 433 | Eigenen Testserver auf Port 4199 gestartet, nach den Tests beendet | keine fremden Prozesse berührt |
+| 434 | **Fehlgriff, eigener Prozess:** Im Befehl aus Nr. 430 war ein Testserver mit `&` gestartet worden (15:12 Uhr). Er lief weiter, als um 16:52 Uhr der reguläre Testserver startete – zwei eigene Server auf Port 4199 (Windows lässt das bei Python zu). Bemerkt, weil die Testreihe über 30 statt rund 8 Minuten brauchte | überzähligen Prozess 22636 nach Prüfung der Befehlszeile beendet; Codex' Server auf Port 4325 (Prozess 10692) nicht berührt. Beide Server lieferten denselben Ordner aus; die Testergebnisse sind davon nicht betroffen |
+| 435 | **Berichtigung früherer Einträge:** Die Angabe „Port 4199 frei“ am Ende vieler Einträge beruhte auf `netstat` mit Suche nach „LISTEN“. Das deutsche Windows schreibt „ABHÖREN“; die Suche traf nie. Die Server wurden jeweils über das Werkzeug beendet und das wurde bestätigt, die Portprüfung selbst war aber wirkungslos | ab jetzt Prüfung mit `Get-NetTCPConnection` und Befehlszeile (PowerShell) |
+| 436 | Ursache der übrigen Verzögerung gemessen: Google Drive synchronisierte; das Lesen von `app.js` vom Laufwerk G: dauerte 1,3 s | kein Fehler der App; Hinweis im Merkzettel |
+| 437 | Merkzettel `testumgebung-node-playwright.md` um Portprüfung, Serverstart und Drive-Verzögerung ergänzt | außerhalb des Repositorys |
+
+**Prüfung**
+
+- 194 Node-Tests (4 neu) und 2 Python-Tests bestanden.
+- Alle 37 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199; Laufzeit wegen Nr. 434 und 436 rund 40 Minuten).
+
+**Nicht geprüft / bewusst nicht geändert**
+
+- Inhaltlich andere, aber ebenfalls richtige Lösungswege (zum Beispiel eine
+  Unterabfrage statt eines Joins, `WHERE`-Verknüpfung statt `JOIN`): Einige
+  Aufgaben verlangen ihr Sprachmittel ausdrücklich. Ob das jeweils gewollt ist,
+  kann nur Jakob im Unterricht beurteilen.
+- `kursnr INTEGER` statt `INT` in „sql-create-course“ fällt weiter durch; die
+  Aufgabe nennt den Datentyp ausdrücklich.
+
+Nächste Handlungsnummer: 438.
 
 <!-- CLAUDE:END -->
 

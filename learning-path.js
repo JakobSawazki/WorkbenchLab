@@ -6,7 +6,7 @@
     return;
   }
 
-  content.version = "0.41.3";
+  content.version = "0.41.4";
   content.updated = "2026-10-08";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
@@ -2260,7 +2260,7 @@
       ],
       check: {
         type: "mutation",
-        verifySql: "SELECT COUNT(*) AS anzahl FROM pragma_table_info('pruefungen') WHERE (name = 'pruefungsnr' AND pk = 1) OR (name = 'datum' AND [notnull] = 1);",
+        verifySql: "SELECT COUNT(*) AS anzahl FROM pragma_table_info('pruefungen') WHERE (LOWER(name) = 'pruefungsnr' AND pk = 1) OR (LOWER(name) = 'datum' AND [notnull] = 1);",
         expected: { columns: ["anzahl"], values: [[2]] },
         required: ["create\\s+table", "primary\\s+key", "not\\s+null"]
       }
