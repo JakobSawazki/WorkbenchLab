@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.38.2** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.39.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -40,7 +40,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.38.2)**
+**Aktueller Stand (Release 0.39.0)**
 
 | Thema | Stand |
 | --- | --- |
@@ -48,9 +48,9 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Übungen | 59, alle frei zugänglich: 25 SQL-Schreibaufgaben, 7 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
 | Zusätzliche Übungsformen | freies SQL-Labor, Wiederholungsrunde, Klausurtraining, Modell-Editor |
 | Bewertung | XP als Motivation; 5 NAGOLD je abgeschlossener Einheit für die kontinuierlich erbrachte Leistung |
-| Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S` |
-| Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden |
-| Tests | 161 Node-Tests, 2 Python-Tests, 31 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
+| Lehrkraft | Klassenübersicht `lehrkraft.html`; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
+| Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
+| Tests | 164 Node-Tests, 2 Python-Tests, 32 Browsertests; zusätzlich von Hand 49 Prüfungen gegen die MariaDB des Informatik-Sticks |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser, Touch auf einem echten Gerät |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -2052,6 +2052,50 @@ Damit ist OPT-14 erledigt. Die Dokumentation besteht jetzt aus:
 | übrige Dateien in `documentation/` | Konzepte, Bildherkunft, Berichte zu OPT-10 und OPT-11 |
 
 Nächste Handlungsnummer: 258.
+
+### 0.45 Release 0.39.0: Lösungen für die Lehrkraft im Entwicklermodus [Claude, 2026-10-09]
+
+Bezug: OPT-23 (Idee von Jakob, 9. Oktober). Grundsatz bleibt: Die veröffentlichte
+Lernseite enthält keine Lösungen. Sichtbar werden sie nur, wenn die Lehrkraft im
+Entwicklermodus eine Datei von ihrem eigenen Rechner lädt.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 258 | `tools/build-solutions.cjs` neu: sammelt je Aufgabe die Lösung (SQL-Anweisung, richtige Reihenfolge, richtige Antwort, Diagrammfelder) und schreibt `resources/workbenchlab-loesungen.json` | 59 von 59 Aufgaben; Ordner `resources/` ist nicht versioniert und wird nicht veröffentlicht |
+| 259 | `index.html`: Knopf „Lösungsdatei laden“ und Dateifeld im Profildialog, nur bei eingeschaltetem Entwicklermodus sichtbar | hinter dem Knopf für den Entwicklermodus (Codex-Datei, 5 Zeilen ergänzt) |
+| 260 | `app.js`: `teacherSolutions` (nur Arbeitsspeicher), `loadSolutionFile` (Prüfung von Kennung, Größe, Aufgabenkennungen; Text wird maskiert), `teacherSolutionHtml`; Anzeige eingeklappt am Ende jeder Aufgabe; Entwicklermodus aus → Lösungen verworfen | nichts davon in `localStorage` |
+| 261 | `styles.css`: Block am Ende; im Druck ausgeblendet | |
+| 262 | Tests neu: `tests/teacher-solutions.test.js` (3), `tests/teacher-solutions.browser.cjs` | siehe Prüfung |
+| 263 | Fehlgriff: Der Browsertest las zuerst den sichtbaren Text eines eingeklappten Bereichs und fand deshalb nur die Überschrift | Test auf den vollständigen Text umgestellt; App unverändert |
+| 264 | Versionsangaben auf `0.39.0`; `CHANGELOG.md`, `README.md`, Wegweiser dieser Datei, `claude2codex.md` (OPT-23 erledigt, Zählungen) | |
+| 265 | Lösungsdatei für Jakob erzeugt: `node tools/build-solutions.cjs` | `resources/workbenchlab-loesungen.json` |
+| 266 | Merkzettel `codex-zusammenarbeit.md` um Tag `v0.39.0` und den Weg zur Lösungsdatei ergänzt | außerhalb des Repositorys |
+| 267 | Eigenen Testserver auf Port 4199 gestartet und nach den Tests beendet | keine fremden Prozesse berührt |
+
+**Bedienung für die Lehrkraft:** Profil öffnen → `AltGr + S` → „Entwicklermodus
+einschalten“ → „Lösungsdatei laden“ → `resources/workbenchlab-loesungen.json`
+wählen. Bei jeder Aufgabe steht dann unten „Lösung für die Lehrkraft“. Nach dem
+Neuladen der Seite oder dem Ausschalten des Entwicklermodus sind die Lösungen weg.
+Nach Änderungen an Aufgaben die Datei mit `node tools/build-solutions.cjs` neu erzeugen.
+
+**Prüfung**
+
+- 164 Node-Tests (3 neu) und 2 Python-Tests bestanden.
+- Alle 32 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199),
+  darunter `public-site.browser.cjs`: Die gebaute Seite enthält weiterhin keine Lösungen.
+- Der neue Browsertest prüft bei 1440 und 390 Pixeln: kein Knopf ohne
+  Entwicklermodus; drei ungültige Dateien abgelehnt; HTML in der Datei bleibt
+  Text; SQL-, Vorhersage-, Ordnungs- und Diagrammaufgabe zeigen die Lösung; nichts
+  im Browserspeicher; weg nach Neuladen und nach Ausschalten.
+
+**Nicht geprüft:** Bedienung durch Jakob am eigenen Gerät; Anzeige am Beamer.
+Der Dateidialog des Betriebssystems selbst ist im Test durch direktes Setzen der
+Datei ersetzt.
+
+**Bekannte Grenze:** Die Lösungen stehen weiterhin im öffentlichen Repository
+(nicht auf der Lernseite), weil die Tests sie brauchen (siehe OPT-12 in `claude2codex.md`).
+
+Nächste Handlungsnummer: 268.
 
 <!-- CLAUDE:END -->
 

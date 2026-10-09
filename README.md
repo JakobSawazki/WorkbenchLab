@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.38.2 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
+**Aktueller Release:** 0.39.0 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
 **Repository:** <https://github.com/JakobSawazki/WorkbenchLab>
 
 WorkbenchLab ist eine browserbasierte Lernumgebung für Jahrgangsstufe 1 im
@@ -33,7 +33,7 @@ Entwickelt von Jakob Sawazki gemeinsam mit zwei KI-Agenten (Codex und Claude).
 | Nachschlagen | SQL-Befehle mit Suche, Startanleitung für Informatik-Stick und Workbench, Videos, Quellen |
 | Lernstand | lokal im Browser; Sicherung und Übertragung als JSON-Datei; Notizen, Markierungen, Zeichnungen; Druckansicht |
 | Motivation | XP, Level, Erfolge, Aktivitätstage; NAGOLD je abgeschlossener Einheit |
-| Lehrkraft | Klassenübersicht aus JSON-Sicherungen unter <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html>; Entwicklermodus im Profil mit `AltGr + S` |
+| Lehrkraft | Klassenübersicht aus JSON-Sicherungen unter <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html>; Entwicklermodus im Profil mit `AltGr + S`, dort auch „Lösungsdatei laden“ (Datei erzeugen mit `node tools/build-solutions.cjs`) |
 
 ![WorkbenchLab Übersicht](documentation/screenshots/workbenchlab-visuals-desktop.png)
 
@@ -110,7 +110,7 @@ Icons und Browser-SQL werden lokal mitgeliefert.
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht |
 | `styles.css` | gesamtes Styling |
 | `assets/`, `vendor/` | Bilder, SQL-Downloads, Video; Lucide und `sql.js` |
-| `tests/`, `tools/` | 155 Node-Tests, 31 Browsertests, Prüf- und Bauwerkzeuge |
+| `tests/`, `tools/` | 164 Node-Tests, 32 Browsertests, Prüf- und Bauwerkzeuge |
 | `resources/`, `references/` | lokales Originalmaterial, **nicht** versioniert und nicht veröffentlicht |
 
 ## Veröffentlichung

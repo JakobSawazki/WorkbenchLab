@@ -13,6 +13,7 @@ Jede Version hat einen Git-Tag `v0.xx.y`.
 
 | Version | Von | Inhalt | Abschnitt |
 | --- | --- | --- | --- |
+| 0.39.0 | Cl | Lösungen für die Lehrkraft im Entwicklermodus über eine lokale Lösungsdatei | 0.45 |
 | 0.38.2 | Cl | Ohne sichtbare Änderung: SQL-Prüflogik aus `app.js` in `sql-check.js` ausgelagert (OPT-16, Schritt 1) | 0.42 |
 | 0.38.1 | Cl | Siebte Fehlersuche-Aufgabe nach Abiturmuster: `AND`/`OR` ohne Klammern bei Tabellenverbund über `WHERE` | 0.40 |
 | 0.38.0 | Cl | Jakobs Entscheidungen: Übungen frei zugänglich, Einheiten weiter in Reihenfolge; 5 NAGOLD je abgeschlossener Einheit; keine Lösungsanweisungen in der veröffentlichten Fassung; Schreibweise `1 : ∞` im Modell-Editor | 0.37 |

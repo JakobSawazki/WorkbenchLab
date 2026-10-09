@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.38.2 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.39.0 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -122,7 +122,8 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `erm-editor.js` | Modell-Editor, Logik und Seitenanbindung | Claude |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht | Claude |
 | `tools/build-site.cjs` | Liste der öffentlichen Dateien; neue Dateien dort eintragen | Codex |
-| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 161 Node-Tests, 31 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
+| `tools/build-solutions.cjs` | erzeugt die Lösungsdatei der Lehrkraft unter `resources/` (nicht veröffentlicht) | Claude |
+| `tests/*.test.js`, `tests/*.browser.cjs` | 164 Node-Tests, 32 Browsertests | Codex und Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -192,7 +193,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-20 | MySQL-Unterschiede sichtbar machen | erledigt (Claude, 0.36.0–0.37.0): freies Labor und „Ausführen“ in den Aufgaben |
 | OPT-21 | Lernstand bei Ladefehler nicht verwerfen | erledigt (Claude, 0.26.1) |
 | OPT-22 | Prüfergebnis-Banner sichtbar | erledigt (Claude, 0.28.0) |
-| OPT-23 | Lösungen im Entwicklermodus sichtbar machen | offen (Idee Jakob, 2026-10-09) |
+| OPT-23 | Lösungen im Entwicklermodus sichtbar machen | erledigt (Claude, 0.39.0): lokale Lösungsdatei, siehe `documentation/documentation.md` 0.45 |
 | OPT-24 | Fehlersuche nach Abiturmuster | erledigt (Claude, 0.38.1) |
 
 ### C2 Was noch bei Jakob liegt
@@ -224,10 +225,12 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 #### OPT-23 Lösungen im Entwicklermodus
 
 - **Idee (Jakob):** Im Entwicklermodus könnten die Musterlösungen sichtbar sein.
-- **Zu klären:** Der Entwicklermodus läuft im Browser der Lernenden. Was dort
-  sichtbar werden soll, muss ausgeliefert werden und wäre damit wieder für alle
-  lesbar. Möglicher Weg: Die Lehrkraft lädt im Entwicklermodus eine lokale
-  Lösungsdatei, die nicht veröffentlicht wird.
+- **Umsetzung (0.39.0):** Die Lernseite liefert weiterhin keine Lösungen aus.
+  Die Lehrkraft lädt im Entwicklermodus über „Lösungsdatei laden“ die Datei
+  `resources/workbenchlab-loesungen.json` (erzeugt mit `node tools/build-solutions.cjs`).
+  Die Lösungen liegen nur im Arbeitsspeicher und sind nach dem Neuladen weg.
+- **Für Codex:** Nach Änderungen an Aufgaben die Datei neu erzeugen. In
+  `app.js`: `teacherSolutions`, `loadSolutionFile`, `teacherSolutionHtml`.
 
 #### OPT-24 Fehlersuche nach Abiturmuster
 

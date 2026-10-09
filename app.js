@@ -95,6 +95,9 @@
   let playgroundDbKey = "";
   let developerMode = false;
   let developerControlRevealed = false;
+  // Lösungen der Lehrkraft (OPT-23, Claude): nur im Arbeitsspeicher, nie gespeichert, nie veröffentlicht.
+  // Sie stammen aus einer lokalen Datei, die tools/build-solutions.cjs erzeugt.
+  let teacherSolutions = null;
   let SQLRuntime = null;
   let sqlReadyPromise = null;
   let selectedTextAnchors = [];
@@ -903,10 +906,54 @@
     developerModeButton.setAttribute("aria-label", developerMode ? "Entwicklermodus deaktivieren" : "Entwicklermodus aktivieren");
     developerModeButton.title = developerMode ? "Entwicklermodus deaktivieren" : "Entwicklermodus: alle Einheiten freischalten";
     document.querySelector("#developerModeLabel").textContent = developerMode ? "Entwicklermodus ausschalten" : "Entwicklermodus einschalten";
+    const solutionButton = document.querySelector("#solutionFileButton");
+    if (solutionButton) {
+      solutionButton.hidden = !(developerControlRevealed && developerMode);
+      const count = teacherSolutions ? Object.keys(teacherSolutions).length : 0;
+      document.querySelector("#solutionFileLabel").textContent = count ? `Lösungsdatei geladen (${count} Aufgaben)` : "Lösungsdatei laden";
+    }
+  }
+
+  async function loadSolutionFile(file) {
+    try {
+      if (!file || file.size > 2 * 1024 * 1024) {
+        throw new Error("zu groß");
+      }
+      const parsed = JSON.parse(await file.text());
+      if (parsed?.app !== "WorkbenchLab-Loesungen" || !parsed.solutions || typeof parsed.solutions !== "object") {
+        throw new Error("falsches Format");
+      }
+      const loaded = {};
+      Object.entries(parsed.solutions).forEach(([id, entry]) => {
+        if (practiceById(id) && Array.isArray(entry?.lines)) {
+          loaded[id] = entry.lines.filter((line) => typeof line === "string").slice(0, 20).map((line) => line.slice(0, 4000));
+        }
+      });
+      if (!Object.keys(loaded).length) {
+        throw new Error("keine passenden Aufgaben");
+      }
+      teacherSolutions = loaded;
+      updateDeveloperControl();
+      renderRoute();
+      toast(`Lösungsdatei geladen: ${Object.keys(loaded).length} Aufgaben. Die Lösungen bleiben nur bis zum Neuladen der Seite sichtbar.`);
+    } catch {
+      toast("Das ist keine gültige WorkbenchLab-Lösungsdatei.", "error");
+    }
+  }
+
+  function teacherSolutionHtml(practice) {
+    const lines = developerMode && teacherSolutions?.[practice.id];
+    if (!lines) {
+      return "";
+    }
+    return `<details class="teacher-solution"><summary><i data-lucide="key-round" aria-hidden="true"></i>Lösung für die Lehrkraft</summary><p class="field-hint">Nur im Entwicklermodus und nur aus der lokal geladenen Lösungsdatei. Auf der Lernseite selbst sind keine Lösungen gespeichert.</p>${lines.map((line) => `<pre class="code-block">${escapeHtml(line)}</pre>`).join("")}</details>`;
   }
 
   function setDeveloperMode(active) {
     developerMode = Boolean(active);
+    if (!developerMode) {
+      teacherSolutions = null;
+    }
     try {
       sessionStorage.setItem(developerStorageKey, developerMode ? "active" : "inactive");
     } catch {}
@@ -2415,6 +2462,10 @@
       renderOrderPractice(practice, lesson);
     } else {
       renderChoicePractice(practice, lesson);
+    }
+    const solution = teacherSolutionHtml(practice);
+    if (solution) {
+      (main.querySelector(".lesson-body") || main).insertAdjacentHTML("beforeend", solution);
     }
   }
 
@@ -4442,6 +4493,12 @@
     location.hash = "sql";
   });
   developerModeButton?.addEventListener("click", () => setDeveloperMode(!developerMode));
+  document.querySelector("#solutionFileButton")?.addEventListener("click", () => document.querySelector("#solutionFileInput").click());
+  document.querySelector("#solutionFileInput")?.addEventListener("change", (event) => {
+    const [file] = event.target.files;
+    event.target.value = "";
+    loadSolutionFile(file);
+  });
   window.addEventListener("hashchange", renderRoute);
 
   // Druckansicht (Claude, OPT-19): helle Farben, alle Abschnitte geöffnet, Antwortfelder

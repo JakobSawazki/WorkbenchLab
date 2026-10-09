@@ -16,7 +16,7 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.38.2">
+  <link rel="stylesheet" href="styles.css?v=0.39.0">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -147,6 +147,11 @@
         title="Entwicklermodus: alle Einheiten freischalten" aria-label="Entwicklermodus aktivieren" aria-pressed="false">
         <i data-lucide="code-2"></i><span id="developerModeLabel">Entwicklermodus einschalten</span>
       </button>
+      <button class="button button-secondary developer-mode-button" id="solutionFileButton" type="button" hidden
+        title="Lösungsdatei der Lehrkraft laden">
+        <i data-lucide="key-round"></i><span id="solutionFileLabel">Lösungsdatei laden</span>
+      </button>
+      <input class="sr-only" id="solutionFileInput" type="file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
       <div class="dialog-actions">
         <button class="button button-primary" value="save" type="submit">
           <i data-lucide="check"></i>
@@ -214,23 +219,23 @@
 
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
-  <script src="content.js?v=0.38.2"></script>
-  <script src="learning-path.js?v=0.38.2"></script>
-  <script src="lesson-openings.js?v=0.38.2"></script>
-  <script src="practical-exercises.js?v=0.38.2"></script>
-  <script src="debug-exercises.js?v=0.38.2"></script>
-  <script src="predict-exercises.js?v=0.38.2"></script>
-  <script src="order-exercises.js?v=0.38.2"></script>
-  <script src="study-tools.js?v=0.38.2"></script>
-  <script src="appearance.js?v=0.38.2"></script>
-  <script src="drawing.js?v=0.38.2"></script>
-  <script src="command-search.js?v=0.38.2"></script>
-  <script src="reference-search.js?v=0.38.2"></script>
-  <script src="expected-results.js?v=0.38.2"></script>
-  <script src="sql-check.js?v=0.38.2"></script>
-  <script src="sql-feedback.js?v=0.38.2"></script>
-  <script src="review.js?v=0.38.2"></script>
-  <script src="erm-editor.js?v=0.38.2"></script>
-  <script src="app.js?v=0.38.2"></script>
+  <script src="content.js?v=0.39.0"></script>
+  <script src="learning-path.js?v=0.39.0"></script>
+  <script src="lesson-openings.js?v=0.39.0"></script>
+  <script src="practical-exercises.js?v=0.39.0"></script>
+  <script src="debug-exercises.js?v=0.39.0"></script>
+  <script src="predict-exercises.js?v=0.39.0"></script>
+  <script src="order-exercises.js?v=0.39.0"></script>
+  <script src="study-tools.js?v=0.39.0"></script>
+  <script src="appearance.js?v=0.39.0"></script>
+  <script src="drawing.js?v=0.39.0"></script>
+  <script src="command-search.js?v=0.39.0"></script>
+  <script src="reference-search.js?v=0.39.0"></script>
+  <script src="expected-results.js?v=0.39.0"></script>
+  <script src="sql-check.js?v=0.39.0"></script>
+  <script src="sql-feedback.js?v=0.39.0"></script>
+  <script src="review.js?v=0.39.0"></script>
+  <script src="erm-editor.js?v=0.39.0"></script>
+  <script src="app.js?v=0.39.0"></script>
 </body>
 </html>
