@@ -2,7 +2,7 @@
 
 Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
 
-Aktueller Release-Stand: **0.36.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
+Aktueller Release-Stand: **0.37.0** [Claude, 2026-10-09; zuvor stand hier 0.21.0, tatsächlich war 0.25.3 veröffentlicht]
 
 Veröffentlichter Stand: siehe Abschnitt 0.4.
 
@@ -1515,6 +1515,81 @@ Hand 43 Prüfungen gegen MariaDB.
 | braucht Abstimmung mit Codex | OPT-05, OPT-14 (Rest), OPT-16; MySQL-Hinweise auch in den Aufgaben (OPT-20, Eingriff in `runSqlPractice`) |
 
 Nächste Handlungsnummer: 185.
+
+### 0.34 Release 0.37.0: Optionalität im Modell-Editor, MySQL-Hinweise in den Aufgaben, Testartefakte außerhalb von Google Drive [Claude, 2026-10-09]
+
+Bezug: OPT-04 (Rest), OPT-20 (Rest), OPT-17 (Claudes Anteil).
+
+**Vorbemerkung:** Claude hatte zwei dieser Punkte als blockiert gemeldet. Beide
+Einstufungen waren falsch:
+
+- „Die Schreibweise der Optionalität braucht Jakobs Vorgabe“: Die Lerneinheit
+  zu Kardinalitäten in `content.js` legt sie bereits fest (`0..1`, `1..1`,
+  `0..N`, `1..N`). Der Editor verwendet jetzt genau diese Schreibweise.
+- „MySQL-Hinweise in den Aufgaben brauchen Abstimmung mit Codex“: Es ist eine
+  Zeile nach der Ergebnisanzeige bei „Ausführen“; Prüfung, Coach und XP bleiben
+  unberührt. Die Stelle ist unten benannt, damit Codex sie zurücknehmen kann.
+
+**Handlungen**
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 185 | Commit `7b4a487` (Eintrag 0.33, nur Protokoll) gepusht, Actions-Lauf erfolgreich | keine Änderung an der App |
+| 186 | `git fetch`, `git status`: Stand identisch mit GitHub, keine fremden Änderungen | vor Arbeitsbeginn |
+| 187 | In `content.js` und `learning-path.js` nach der vorhandenen Schreibweise der Optionalität gesucht | nur lesend |
+| 188 | `erm-editor.js`: Optionalität je Beziehungsseite, Beschriftung im Diagramm, optionaler Fremdschlüssel im SQL-Export | siehe unten |
+| 189 | `app.js`: gemeinsame Funktion `mysqlNotesHtml`; Hinweis auch nach „Ausführen“ in Abfrage-Aufgaben (`runSqlPractice`) | Eingriff in Codex' Aufgabenansicht, eine Einfügung |
+| 190 | Neun eigene Browsertests schreiben Bildschirmfotos, PDF und Downloads jetzt in `%TEMP%\workbenchlab-tests` statt nach `.tmp/` | Codex' Tests unverändert |
+| 191 | Tests erweitert: `erm-editor.test.js` (jetzt 10), `erm-editor.browser.cjs`, `debug-exercises.browser.cjs`; `tools/verify-claude-native.cjs` um drei Prüfungen zur Optionalität | |
+| 192 | Änderungen diesmal ausschließlich über Skriptdateien eingespielt (Lehre aus Handlung 177); danach alle geänderten Dateien mit `node --check` und auf Steuerzeichen geprüft | keine Auffälligkeit |
+| 193 | Testserver auf Port 4199 und eigene MariaDB-Instanz auf Port 33399 gestartet; alle Tests ausgeführt; MariaDB-Instanz beendet, kein `mysqld` zurückgeblieben | siehe Prüfung |
+| 194 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.37.0` und die Regel ergänzt, vor der Aussage „blockiert“ erst Repo, `resources/` und Stick zu prüfen | außerhalb des Repos, vor diesem Eintrag |
+
+**Neu im Modell-Editor**
+
+- Unter jeder Beziehung stehen zwei Kästchen: „linke Seite optional (0
+  erlaubt)“ und „rechte Seite optional (0 erlaubt)“.
+- Ist eine Seite optional, zeigt das Diagramm beide Enden in der Schreibweise
+  der Lerneinheit: `0..1`, `1..1`, `0..N`, `1..N`. Ohne Optionalität bleibt die
+  kurze Form `1`, `N`, `M`.
+- Die Angabe an einem Entitätstyp sagt, wie viele seiner Datensätze zu einem
+  Datensatz der anderen Seite gehören. `0..1` am Ort bedeutet: Ein Fahrschüler
+  darf auch ohne Ort gespeichert sein.
+- Im SQL-Export bleibt ein solcher Fremdschlüssel ohne `NOT NULL`. Optionalität
+  an der N-Seite ändert die Tabellen nicht.
+- Die Prüfung der drei Aufgaben hängt nicht an der Optionalität.
+
+**Neu in den Aufgaben:** Nach „Ausführen“ erscheint unter dem Ergebnis einer
+Abfrage-Aufgabe derselbe Hinweis „In MySQL Workbench anders: …“ wie im freien
+Labor, wenn die Anweisung einen der drei gemessenen Unterschiede betreffen
+kann. Bei „Coach-Tipp“ und „Lösung prüfen“ erscheint er nicht.
+
+**Stelle zum Zurücknehmen:** in `runSqlPractice` der Block
+`if (practice.check.type === "query") { … mysqlNotesHtml … }` direkt nach
+`if (!useCoach) {`.
+
+**Grenzen**
+
+- Die Lerneinheit nennt auch die Krähenfuß-Notation; der Editor zeichnet sie
+  nicht, sondern schreibt Zahlen.
+- Ob `0..1` am Ort oder am Fahrschüler stehen soll, wird in Lehrwerken
+  unterschiedlich gelesen. Der Editor erklärt seine Leserichtung im
+  Hinweistext; Jakob sollte prüfen, ob sie zu seinem Unterricht passt.
+- `.tmp/` selbst (rund 1 GB, überwiegend von Codex' Tests) ist unverändert;
+  das Leeren braucht weiterhin Jakobs Freigabe.
+
+**Prüfung**
+
+- 152 Node-Tests (1 neu) und 2 Python-Tests bestanden.
+- Alle 30 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199),
+  jeder beim ersten Versuch.
+- `tools/verify-claude-native.cjs`: 46 Prüfungen gegen MariaDB 10.4.13
+  bestanden, darunter neu: Ein optionaler Fremdschlüssel aus dem Export darf
+  leer bleiben und prüft vorhandene Werte weiterhin; ein verpflichtender darf
+  nicht leer bleiben.
+- Nicht geprüft: heller Modus der beiden Kästchen, Touch auf einem echten
+  Gerät, Schul-PCs.
+- Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.35.
 
 <!-- CLAUDE:END -->
 

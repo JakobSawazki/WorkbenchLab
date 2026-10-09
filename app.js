@@ -2251,15 +2251,11 @@
       const table = tableFromResult(resultSets);
       if (table.columns.length) {
         const count = table.values.length;
-        const notes = window.WORKBENCH_SQL_FEEDBACK.mysqlNotes(sql, count)
-          .map((id) => window.WORKBENCH_SQL_FEEDBACK.MYSQL_DIFFERENCES.find((item) => item.id === id));
-        setSqlOutput(`<p class="playground-result-count">${count} Ergebniszeile${count === 1 ? "" : "n"}</p>${renderDataTable(table)}${notes.map((note) => `<div class="callout mysql-note" role="note"><i data-lucide="triangle-alert"></i><p><strong>In MySQL Workbench anders: ${escapeHtml(note.title)}.</strong> ${escapeHtml(note.text)}</p></div>`).join("")}`);
+        setSqlOutput(`<p class="playground-result-count">${count} Ergebniszeile${count === 1 ? "" : "n"}</p>${renderDataTable(table)}${mysqlNotesHtml(sql, count)}`);
         renderIcons();
       } else if (/^\s*(?:select|with)\b/i.test(sql.replace(/^(?:\s*--[^\n]*\n)+/, ""))) {
         // Eine Abfrage ohne Treffer liefert in sql.js keine Ergebnistabelle (Claude, OPT-20).
-        const notes = window.WORKBENCH_SQL_FEEDBACK.mysqlNotes(sql, 0)
-          .map((id) => window.WORKBENCH_SQL_FEEDBACK.MYSQL_DIFFERENCES.find((item) => item.id === id));
-        setSqlOutput(`<p class="playground-result-count">0 Ergebniszeilen</p><div class="console-output">Die Abfrage ist gültig, findet aber keinen Datensatz. Prüfe die Bedingung.</div>${notes.map((note) => `<div class="callout mysql-note" role="note"><i data-lucide="triangle-alert"></i><p><strong>In MySQL Workbench anders: ${escapeHtml(note.title)}.</strong> ${escapeHtml(note.text)}</p></div>`).join("")}`);
+        setSqlOutput(`<p class="playground-result-count">0 Ergebniszeilen</p><div class="console-output">Die Abfrage ist gültig, findet aber keinen Datensatz. Prüfe die Bedingung.</div>${mysqlNotesHtml(sql, 0)}`);
         renderIcons();
       } else {
         const changed = playgroundDb.getRowsModified();
@@ -3230,6 +3226,14 @@
     return explainSqlError(error, schemaKey).text;
   }
 
+  // Hinweise auf an MariaDB gemessene Unterschiede (Claude, OPT-20).
+  function mysqlNotesHtml(sql, rowCount) {
+    return window.WORKBENCH_SQL_FEEDBACK.mysqlNotes(sql, rowCount)
+      .map((id) => window.WORKBENCH_SQL_FEEDBACK.MYSQL_DIFFERENCES.find((item) => item.id === id))
+      .map((note) => `<div class="callout mysql-note" role="note"><i data-lucide="triangle-alert"></i><p><strong>In MySQL Workbench anders: ${escapeHtml(note.title)}.</strong> ${escapeHtml(note.text)}</p></div>`)
+      .join("");
+  }
+
   function sqlErrorHtml(error, schemaKey) {
     const info = explainSqlError(error, schemaKey);
     return `<div class="console-output sql-error" role="alert"><strong>SQL-Meldung</strong><p>${escapeHtml(info.text)}</p>${info.original ? `<small>Originalmeldung der Datenbank: <code>${escapeHtml(info.original)}</code></small>` : ""}</div>`;
@@ -3363,6 +3367,10 @@
       setSqlOutput(renderDataTable(table));
 
       if (!useCoach) {
+        if (practice.check.type === "query") {
+          document.querySelector("#sqlOutput")?.insertAdjacentHTML("beforeend", mysqlNotesHtml(sql, table.values.length));
+          renderIcons();
+        }
         setSqlCoach(
           [coachItem("success", "SQL ist ausführbar", `Die Anweisung liefert ${table.values.length} Ergebniszeile${table.values.length === 1 ? "" : "n"}.`) ],
           "Die Ausführung war technisch erfolgreich. Fordere einen Coach-Tipp an, um Aufbau und Ergebnismenge mit der Aufgabe abzugleichen."

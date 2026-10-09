@@ -54,6 +54,16 @@ const firstLessons = ["warum-datenbanken", "relation-und-schluessel", "eerm-grun
       await banner("besteht die Prüfung weiterhin");
       assert.equal(Number.parseInt(await page.locator("#topXp").innerText(), 10), xpStart + 20);
 
+      // Hinweis auf einen gemessenen MySQL-Unterschied auch bei „Ausführen“ in einer Aufgabe (OPT-20).
+      assert.equal(await page.locator("#sqlOutput .mysql-note").count(), 0);
+      await editor.fill("SELECT fahrstunden / 4 FROM fahrschueler;");
+      await page.locator("#runSqlButton").click();
+      await page.locator("#sqlOutput .mysql-note").waitFor();
+      assert.match(await page.locator("#sqlOutput .mysql-note").innerText(), /In MySQL Workbench anders: Division ganzer Zahlen/);
+      await page.locator("#checkSqlButton").click();
+      await banner("Noch nicht ganz");
+      assert.equal(await page.locator("#sqlOutput .mysql-note").count(), 0);
+
       // Zurücksetzen stellt den fehlerhaften Startcode wieder her.
       await page.locator("#resetSqlButton").click();
       assert.equal(await editor.inputValue(), starter);
@@ -76,7 +86,7 @@ const firstLessons = ["warum-datenbanken", "relation-und-schluessel", "eerm-grun
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: six debug exercises, filter and label, wrong-result and error symptoms, fix earns XP once, reset restores bug, locking unchanged, desktop/mobile.");
+    console.log("PASS: six debug exercises, filter and label, wrong-result and error symptoms, fix earns XP once, MySQL difference note on run, reset restores bug, locking unchanged, desktop/mobile.");
   } finally {
     await browser.close();
   }

@@ -1,4 +1,6 @@
 // Claude, OPT-07: Wiederholungsrunde im Browser.
+const artifacts = require("node:path").join(require("node:os").tmpdir(), "workbenchlab-tests");
+require("node:fs").mkdirSync(artifacts, { recursive: true });
 const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
@@ -102,7 +104,7 @@ async function fix(page, sql) {
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
       await page.goto(base + "#sql/wiederholen");
       await page.locator(".review-complete").waitFor();
-      await page.screenshot({ path: `.tmp/review-${width}.png`, animations: "disabled" });
+      await page.screenshot({ path: `${artifacts}/review-${width}.png`, animations: "disabled" });
       assert.deepEqual(errors, []);
       await context.close();
     }

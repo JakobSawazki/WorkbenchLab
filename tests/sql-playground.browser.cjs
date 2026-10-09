@@ -1,4 +1,6 @@
 // Claude, OPT-01/OPT-02: freies SQL-Labor und deutsche Fehlermeldungen direkt bei „Ausführen“.
+const artifacts = require("node:path").join(require("node:os").tmpdir(), "workbenchlab-tests");
+require("node:fs").mkdirSync(artifacts, { recursive: true });
 const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
@@ -92,7 +94,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       // Keine XP, kein horizontales Überlaufen, keine Skriptfehler.
       assert.equal(await page.locator("#topXp").innerText(), xpBefore);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
-      await page.screenshot({ path: `.tmp/sql-playground-${width}.png`, animations: "disabled" });
+      await page.screenshot({ path: `${artifacts}/sql-playground-${width}.png`, animations: "disabled" });
       assert.deepEqual(errors, []);
       await context.close();
     }

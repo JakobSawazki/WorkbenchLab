@@ -210,3 +210,35 @@ test("von Hand verschobene Kästen behalten ihren Platz; Positionen werden begre
   assert.deepEqual([stored[1].x, stored[1].y], [erm.CANVAS.maxX, 0]);
   assert.ok(!("x" in stored[2]) && !("y" in stored[2]) && !("x" in stored[3]));
 });
+
+test("Optionalität: Schreibweise 0..1/1..N wie in der Lerneinheit, optionaler Fremdschlüssel ohne NOT NULL", () => {
+  assert.deepEqual(Array.from(erm.ends({ card: "1:N" })), ["1", "N"]);
+  assert.deepEqual(Array.from(erm.ends({ card: "M:N" })), ["M", "N"]);
+  assert.deepEqual(Array.from(erm.ends({ card: "1:N", fromOptional: true })), ["0..1", "1..N"]);
+  assert.deepEqual(Array.from(erm.ends({ card: "1:N", toOptional: true })), ["1..1", "0..N"]);
+  assert.deepEqual(Array.from(erm.ends({ card: "N:1", fromOptional: true, toOptional: true })), ["0..N", "0..1"]);
+  assert.deepEqual(Array.from(erm.ends({ card: "M:N", fromOptional: true })), ["0..N", "1..N"]);
+
+  const required = fahrschule("1:N");
+  assert.match(erm.toSql(required.model), /ortnr INT NOT NULL,\n {2}PRIMARY KEY \(schuelernr\)/);
+  const optional = fahrschule("1:N");
+  optional.model.relations[0].fromOptional = true;
+  const sql = erm.toSql(optional.model);
+  assert.match(sql, /\n {2}ortnr INT,\n {2}PRIMARY KEY \(schuelernr\)/);
+  assert.match(sql, /schuelernr INT NOT NULL/);
+  assert.match(sql, /FOREIGN KEY \(ortnr\) REFERENCES ort\(ortnr\)/);
+  // Optional an der N-Seite ändert die Tabellen nicht: Ein Ort darf ohne Fahrschüler bestehen.
+  const manySide = fahrschule("1:N");
+  manySide.model.relations[0].toOptional = true;
+  assert.equal(erm.toSql(manySide.model), erm.toSql(fahrschule("1:N").model).replace(/x/g, "x"));
+  const swapped = fahrschule("N:1", true);
+  swapped.model.relations[0].toOptional = true;
+  assert.match(erm.toSql(swapped.model), /\n {2}ortnr INT,\n/);
+
+  // Die Prüfung der Aufgaben hängt nicht an der Optionalität; gespeichert wird nur ein echtes true.
+  assert.equal(erm.checkModel(optional.model, task("fahrschule-ort").target).passed, true);
+  const stored = plain(erm.sanitize({ entities: [{ id: 1, name: "a" }, { id: 2, name: "b" }], relations: [
+    { id: 3, from: 1, to: 2, card: "1:N", fromOptional: true, toOptional: "ja" }, { id: 4, from: 2, to: 1, card: "1:N", fromOptional: false }
+  ] })).relations;
+  assert.deepEqual(stored, [{ id: 3, from: 1, to: 2, card: "1:N", fromOptional: true }, { id: 4, from: 2, to: 1, card: "1:N" }]);
+});

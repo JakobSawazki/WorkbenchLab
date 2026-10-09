@@ -1,10 +1,12 @@
 // Claude, OPT-08: Klassenübersicht liest echte Sicherungen der Lernplattform lokal ein.
+const artifacts = require("node:path").join(require("node:os").tmpdir(), "workbenchlab-tests");
+require("node:fs").mkdirSync(artifacts, { recursive: true });
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
-const dir = path.resolve(".tmp", "teacher-overview");
+const dir = path.resolve(artifacts, "teacher-overview");
 const asFile = (file) => ({ name: path.basename(file), mimeType: "application/json", buffer: fs.readFileSync(file) });
 (async () => {
   fs.rmSync(dir, { recursive: true, force: true });
@@ -92,7 +94,7 @@ const asFile = (file) => ({ name: path.basename(file), mimeType: "application/js
 
       // Layout: Tabellen scrollen in ihrem Rahmen, die Seite läuft nicht über.
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
-      await page.screenshot({ path: `.tmp/teacher-overview-${width}.png`, animations: "disabled", fullPage: true });
+      await page.screenshot({ path: `${artifacts}/teacher-overview-${width}.png`, animations: "disabled", fullPage: true });
 
       // Nichts wird gespeichert oder übertragen.
       assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0);

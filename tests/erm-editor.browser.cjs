@@ -1,4 +1,6 @@
 // Claude, OPT-04: Modell-Editor im Browser.
+const artifacts = require("node:path").join(require("node:os").tmpdir(), "workbenchlab-tests");
+require("node:fs").mkdirSync(artifacts, { recursive: true });
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -89,8 +91,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       // SQL-Export.
       const [download] = await Promise.all([page.waitForEvent("download"), page.locator("#ermSql").click()]);
       assert.equal(download.suggestedFilename(), "workbenchlab-modell-fahrschule-ort.sql");
-      fs.mkdirSync(".tmp", { recursive: true });
-      const file = path.resolve(".tmp", `erm-export-${width}.sql`);
+        const file = path.resolve(artifacts, `erm-export-${width}.sql`);
       await download.saveAs(file);
       const sql = fs.readFileSync(file, "utf8");
       assert.match(sql, /CREATE TABLE ort \(\n {2}ortnr INT NOT NULL,\n {2}ort VARCHAR\(50\),\n {2}PRIMARY KEY \(ortnr\)\n\);/);
@@ -98,7 +99,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.ok(sql.indexOf("CREATE TABLE ort") < sql.indexOf("CREATE TABLE fahrschueler"));
 
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
-      await page.screenshot({ path: `.tmp/erm-editor-${width}.png`, animations: "disabled", fullPage: true });
+      await page.screenshot({ path: `${artifacts}/erm-editor-${width}.png`, animations: "disabled", fullPage: true });
 
       // Entwurf übersteht Neuladen; je Aufgabe ein eigenes Modell; nicht im Lernstand.
       await page.reload();
@@ -143,10 +144,25 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.deepEqual(await place(0), startPlace);
       await page.locator("#ermCheck").click();
 
+      // Optionalität: Schreibweise 0..1 / 1..N im Diagramm, Fremdschlüssel im Export ohne NOT NULL.
+      assert.deepEqual(await page.locator("#ermDiagram .erm-card").allTextContents(), ["1", "N"]);
+      await page.locator('.erm-relation [data-erm-optional="from"]').check();
+      assert.deepEqual(await page.locator("#ermDiagram .erm-card").allTextContents(), ["0..1", "1..N"]);
+      const [optionalSql] = await Promise.all([page.waitForEvent("download"), page.locator("#ermSql").click()]);
+      const optionalFile = path.resolve(artifacts, `erm-export-optional-${width}.sql`);
+      await optionalSql.saveAs(optionalFile);
+      assert.match(fs.readFileSync(optionalFile, "utf8"), /\n {2}ortnr INT,\n {2}PRIMARY KEY \(schuelernr\)/);
+      await page.reload();
+      await page.locator("#ermDiagram .erm-entity-box").first().waitFor();
+      assert.ok(await page.locator('.erm-relation [data-erm-optional="from"]').isChecked());
+      await page.locator('.erm-relation [data-erm-optional="from"]').uncheck();
+      assert.deepEqual(await page.locator("#ermDiagram .erm-card").allTextContents(), ["1", "N"]);
+      await page.locator("#ermCheck").click();
+
       // Diagramm als eigenständige Bilddatei.
       const [image] = await Promise.all([page.waitForEvent("download"), page.locator("#ermImage").click()]);
       assert.equal(image.suggestedFilename(), "workbenchlab-modell-fahrschule-ort.svg");
-      const imageFile = path.resolve(".tmp", `erm-export-${width}.svg`);
+      const imageFile = path.resolve(artifacts, `erm-export-${width}.svg`);
       await image.saveAs(imageFile);
       const svg = fs.readFileSync(imageFile, "utf8");
       assert.ok(svg.startsWith('<?xml version="1.0" encoding="UTF-8"?>'));
@@ -199,7 +215,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass, self-relation rejected, SQL export, persistence per task, not in progress data, moving boxes by mouse and keyboard, image export, M:N task, removal and reset, desktop/mobile.");
+    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass, self-relation rejected, SQL export, persistence per task, not in progress data, moving boxes by mouse and keyboard, optionality, image export, M:N task, removal and reset, desktop/mobile.");
   } finally {
     await browser.close();
   }

@@ -1,4 +1,6 @@
 // Claude, OPT-21: Ein unlesbarer Lernstand wird nie still verworfen.
+const artifacts = require("node:path").join(require("node:os").tmpdir(), "workbenchlab-tests");
+require("node:fs").mkdirSync(artifacts, { recursive: true });
 const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
@@ -38,7 +40,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 
       const [download] = await Promise.all([page.waitForEvent("download"), page.locator("[data-rescue-download]").click()]);
       assert.equal(download.suggestedFilename(), "workbenchlab-rettungskopie.json");
-      await page.screenshot({ path: `.tmp/state-rescue-${width}.png`, animations: "disabled" });
+      await page.screenshot({ path: `${artifacts}/state-rescue-${width}.png`, animations: "disabled" });
       await page.locator("[data-rescue-close]").click();
       assert.equal(await notice.count(), 0);
 

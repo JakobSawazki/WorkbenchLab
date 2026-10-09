@@ -1,4 +1,6 @@
 // Claude, OPT-19: Druckansicht einer Einheit mit ausgefüllten Antworten.
+const artifacts = require("node:path").join(require("node:os").tmpdir(), "workbenchlab-tests");
+require("node:fs").mkdirSync(artifacts, { recursive: true });
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const { chromium } = require("playwright");
@@ -41,8 +43,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       };
     });
     assert.deepEqual(during, { theme: "light", closed: 0, fits: true, sidebar: false, actions: false, tools: false, printButton: false, heading: true, content: true });
-    fs.mkdirSync(".tmp", { recursive: true });
-    const pdf = await page.pdf({ path: ".tmp/print-view-l1-1.pdf", format: "A4" });
+    const pdf = await page.pdf({ path: `${artifacts}/print-view-l1-1.pdf`, format: "A4" });
     assert.ok(pdf.length > 20000);
 
     // Danach ist alles wie vorher; die Eingabe bleibt gespeichert.

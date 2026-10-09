@@ -134,6 +134,15 @@ const erm = context.window.WORKBENCH_ERM;
       const foreign = Number(mysql(`SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA='${database}' AND CONSTRAINT_TYPE='FOREIGN KEY';`));
       check(`${database}: Tabellen, Primär- und Fremdschlüssel angelegt`, tables === model.entities.length && keys === model.entities.length && foreign === model.relations.length);
     }
+    // Optionalität: 0..1 an der 1-Seite lässt den Fremdschlüssel leer zu, sonst nicht.
+    const ortO = entity("Ort", [attribute("ortnr", "INT", { pk: true }), attribute("ort", "VARCHAR(50)")]);
+    const schuelerO = entity("Fahrschüler", [attribute("schuelernr", "INT", { pk: true }), attribute("ortnr", "INT", { fk: true })]);
+    const optionalRelation = relation(ortO, schuelerO, "1:N");
+    optionalRelation.fromOptional = true;
+    mysql(`CREATE DATABASE wbl_erm_optional CHARACTER SET utf8mb4; USE wbl_erm_optional; ${erm.toSql({ entities: [ortO, schuelerO], relations: [optionalRelation] })}`);
+    check("optionaler Fremdschlüssel darf in MariaDB leer bleiben", !mysql("USE wbl_erm_optional; INSERT INTO fahrschueler (schuelernr, ortnr) VALUES (1, NULL);", true).failed);
+    check("optionaler Fremdschlüssel prüft vorhandene Werte weiterhin", mysql("USE wbl_erm_optional; INSERT INTO fahrschueler (schuelernr, ortnr) VALUES (2, 999);", true).failed);
+    check("verpflichtender Fremdschlüssel darf in MariaDB nicht leer bleiben", mysql("USE wbl_erm_1n; INSERT INTO fahrschueler (schuelernr, ortnr) VALUES (3, NULL);", true).failed);
     check("Fremdschlüssel aus dem Export wird von MariaDB durchgesetzt", mysql("USE wbl_erm_1n; INSERT INTO fahrschueler (schuelernr, ortnr) VALUES (1, 999);", true).failed);
 
     // 5. SHOW TABLES und DESCRIBE aus dem freien Labor gibt es in MariaDB wirklich.

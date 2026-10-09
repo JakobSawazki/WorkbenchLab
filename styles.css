@@ -4737,3 +4737,7 @@ dialog, .path-quick-menu, .path-lesson-submenu { box-shadow: inset 0 1px 0 #ffff
 .mysql-differences dl { margin: 0.7rem 0 0.4rem; }
 .mysql-differences dt { font-weight: 700; margin-top: 0.6rem; }
 .mysql-differences dd { margin: 0.15rem 0 0; }
+
+/* Modell-Editor: Optionalität (Claude, OPT-04) */
+.erm-optional { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; margin: -0.1rem 0 0.3rem; font-weight: 400; }
+.erm-optional .erm-flag { font-weight: 400; white-space: normal; }

@@ -1,4 +1,6 @@
 // Claude, OPT-07: Klausurtraining im Browser.
+const artifacts = require("node:path").join(require("node:os").tmpdir(), "workbenchlab-tests");
+require("node:fs").mkdirSync(artifacts, { recursive: true });
 const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
@@ -116,7 +118,7 @@ async function solve(page, id) {
       assert.match(await page.locator(".review-list").innerText(), /nach der Zeit gelöst/);
       assert.ok(await page.locator("#examRestart").evaluate((button) => button === document.activeElement));
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
-      await page.screenshot({ path: `.tmp/exam-${width}.png`, animations: "disabled" });
+      await page.screenshot({ path: `${artifacts}/exam-${width}.png`, animations: "disabled" });
 
       // Nicht im Lernstand; neue Runde beginnt beim Startbildschirm.
       assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1").includes("startedAt")), false);

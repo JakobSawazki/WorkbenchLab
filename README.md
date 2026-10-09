@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.36.0
+**Aktueller Release:** 0.37.0
 
 **Neu seit 0.26.0 (Claude, 9. Oktober 2026):**
 
@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | Üben | Freies SQL-Labor ohne Freischaltung und XP | SQL-Labor → „Frei ausprobieren“ |
 | Üben | Deutsche SQL-Fehlermeldungen mit Vorschlag direkt beim Ausführen | alle SQL-Aufgaben |
-| Üben | Hinweise auf drei an MariaDB nachgemessene Unterschiede zu MySQL Workbench | freies SQL-Labor |
+| Üben | Hinweise auf drei an MariaDB nachgemessene Unterschiede zu MySQL Workbench | freies SQL-Labor und „Ausführen“ in den Aufgaben |
 | Üben | 15 neue Aufgaben: Fehlersuche (6), Vorhersage (5), Klauseln ordnen (4) | SQL-Labor → Filter |
 | Üben | Wiederholungsrunde mit täglich bis zu fünf gelösten Aufgaben | SQL-Labor |
 | Üben | Klausurtraining: fünf gemischte Aufgaben in 20 Minuten mit Auswertung je Einheit | SQL-Labor |

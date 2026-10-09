@@ -1,6 +1,6 @@
 # claude2codex.md – Übergabe von Claude an Codex
 
-Stand: 2026-10-09 · Grundlage: Release 0.36.0 · Autor: Claude
+Stand: 2026-10-09 · Grundlage: Release 0.37.0 · Autor: Claude
 
 Diese Datei ist die **einzige** Übergabedatei von Claude. Sie wurde am
 2026-10-09 vollständig neu gefasst, weil die erste Fassung vom 8. Oktober nach
@@ -30,6 +30,7 @@ veröffentlichen.
 | 0.34.0 | Klausurtraining `#sql/klausur` | `review.js`, `app.js` |
 | 0.35.0 | Modell-Editor: Kästen verschieben, dritte Aufgabe | `erm-editor.js` |
 | 0.36.0 | Prüfung an MariaDB; Hinweise auf drei gemessene MySQL-Unterschiede; „0 Ergebniszeilen“ im freien Labor | `tools/verify-claude-native.cjs`, `sql-feedback.js`, `app.js` |
+| 0.37.0 | Modell-Editor: Optionalität; MySQL-Hinweise nach „Ausführen“ in Aufgaben; Claudes Testartefakte nach `%TEMP%` | `erm-editor.js`, `app.js`, `tests/*.browser.cjs` |
 
 Jede Version hat einen Tag `v0.xx.y`. Zurücksetzen: siehe
 `documentation/documentation.md`, Abschnitt 0.1.
@@ -51,7 +52,11 @@ Bitte prüfen und bei Bedarf zurücknehmen:
    und Klauseln ordnen nicht.
 5. **`.git/refs/desktop.ini`**: Google Drive legt diese Dateien an und bricht
    damit `git fetch`. Claude hat sie gelöscht; sie können wiederkommen.
-6. **Kopfzeilen von `documentation/documentation.md`** (Stand, Release) und
+6. **Hinweis nach „Ausführen“ in Abfrage-Aufgaben**: in `runSqlPractice` der
+   Block `if (practice.check.type === "query") { … mysqlNotesHtml … }` direkt
+   nach `if (!useCoach) {`. Er zeigt gemessene MySQL-Unterschiede; Prüfung,
+   Coach und XP sind unberührt.
+7. **Kopfzeilen von `documentation/documentation.md`** (Stand, Release) und
    der Kopf der README.
 
 Nicht angefasst: `codex2claude.md`, `documentation/RELEASE_*.md`,
@@ -87,7 +92,7 @@ Einheiten in `learning-path.js` (dort nur `content.version`).
 | `erm-editor.js` | Modell-Editor, Logik und Seitenanbindung | Claude |
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht | Claude |
 | `tools/build-site.cjs` | Liste der öffentlichen Dateien; neue Dateien dort eintragen | Codex |
-| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 151 Node-Tests, 30 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
+| `tests/*.test.js` (29), `tests/*.browser.cjs` (30) | 152 Node-Tests, 30 Browsertests | je 20 von Codex, 9 bzw. 10 von Claude |
 
 Neue Routen: `#sql/frei`, `#sql/wiederholen`, `#sql/klausur`, `#modeling/editor`.
 Neue Speicher-Schlüssel außerhalb des Lernstands: `workbenchlab-v1-rettung`,
@@ -138,7 +143,7 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-01 | Freies SQL-Labor | erledigt (Claude, 0.26.0) |
 | OPT-02 | Deutsche Fehlermeldungen bei „Ausführen“ | erledigt (Claude, 0.26.0) |
 | OPT-03 | Neue Aufgabentypen | erledigt (Claude, 0.28.0–0.30.0) |
-| OPT-04 | Modell-Editor | erledigt bis auf Optionalität (Claude, 0.32.0–0.35.0); Notation der Optionalität braucht Jakobs Vorgabe |
+| OPT-04 | Modell-Editor | erledigt (Claude, 0.32.0–0.37.0); Optionalität in der Schreibweise der Lerneinheit (`0..1`, `1..N`) |
 | OPT-05 | Einheiten in kürzere Schritte teilen | offen, Abstimmung nötig |
 | OPT-06 | Freischaltung lockern | offen, Entscheidung Jakob |
 | OPT-07 | Wiederholung und Klausurtraining | erledigt (Claude, 0.31.0 und 0.34.0) |
@@ -151,10 +156,10 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 | OPT-14 | Dokumentation zusammenführen | offen, Abstimmung nötig |
 | OPT-15 | Offline-Betrieb und Schul-PC-Test | Checkliste erledigt (Claude, `documentation.md` 0.16); Test vor Ort und Offline-Betrieb offen |
 | OPT-16 | `app.js` und `styles.css` aufteilen | offen, Abstimmung nötig |
-| OPT-17 | `.tmp/` aus Google Drive heraushalten | offen, Freigabe Jakob |
+| OPT-17 | `.tmp/` aus Google Drive heraushalten | Claudes Tests schreiben nach `%TEMP%\workbenchlab-tests` (0.37.0); Codex' Tests und das Leeren von `.tmp/` offen, Freigabe Jakob |
 | OPT-18 | Erstbesuch ohne Profildialog | offen, Entscheidung Jakob |
 | OPT-19 | Druckansicht | erledigt (Claude, 0.26.2) |
-| OPT-20 | MySQL-Unterschiede sichtbar machen | erledigt für das freie Labor (Claude, 0.36.0); Hinweise in den Aufgaben offen |
+| OPT-20 | MySQL-Unterschiede sichtbar machen | erledigt (Claude, 0.36.0–0.37.0): freies Labor und „Ausführen“ in den Aufgaben |
 | OPT-21 | Lernstand bei Ladefehler nicht verwerfen | erledigt (Claude, 0.26.1) |
 | OPT-22 | Prüfergebnis-Banner sichtbar | erledigt (Claude, 0.28.0) |
 
@@ -174,16 +179,15 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
 
 ### C3 Offene Punkte im Einzelnen
 
-#### OPT-04 Modell-Editor, Rest
+#### OPT-04 Modell-Editor, mögliche Erweiterungen
 
-- **Stand:** Formular-Editor mit verschiebbarem Diagramm, drei geprüften
-  Aufgaben (1:N, M:N auflösen, Transfer mit vier Entitätstypen), freiem Modell,
-  SQL- und SVG-Export.
-- **Offen:** Optionalität (0 oder 1) in der Notation der Unterrichtsmaterialien;
-  Entwürfe in die JSON-Sicherung aufnehmen (verlangt eine Formatänderung); XP
-  für bestandene Modellaufgaben.
-- **Nicht geprüft:** Import des exportierten SQL in eine echte MySQL
-  Workbench.
+- **Stand:** Formular-Editor mit verschiebbarem Diagramm, Optionalität, drei
+  geprüften Aufgaben, freiem Modell, SQL- und SVG-Export. Der Export ist an der
+  MariaDB des Sticks geprüft.
+- **Offen:** Entwürfe in die JSON-Sicherung aufnehmen (verlangt eine
+  Formatänderung); XP für bestandene Modellaufgaben; Krähenfuß-Darstellung.
+- **Bitte prüfen (Jakob):** Leserichtung der Optionalität. Der Editor schreibt
+  `0..1` an den Entitätstyp, von dem höchstens ein Datensatz zugeordnet ist.
 
 #### OPT-05 Einheiten in kürzere Schritte teilen
 
@@ -256,15 +260,14 @@ node tools/verify-claude-native.cjs # Claudes Aufgaben und Modell-Export gegen d
   mehrfach überarbeitet; ob er sofort erscheinen soll, ist eine bewusste
   Festlegung. `tests/xp.browser.cjs` prüft den Erstbesuch.
 
-#### OPT-20 MySQL-Unterschiede, Rest
+#### OPT-20 MySQL-Unterschiede, mögliche Erweiterungen
 
 - **Stand:** Drei Unterschiede an der MariaDB 10.4.13 des Sticks gemessen
-  (Ganzzahl-Division, Groß-/Kleinschreibung bei `=`, `||`). Das freie Labor
-  zeigt dazu Hinweise. Messwerte und gleich laufende Fälle stehen in
+  (Ganzzahl-Division, Groß-/Kleinschreibung bei `=`, `||`). Hinweise im freien
+  Labor und nach „Ausführen“ in Abfrage-Aufgaben. Messwerte in
   `documentation.md`, Abschnitt 0.32.
-- **Offen:** dieselben Hinweise in den Aufgaben (Eingriff in
-  `runSqlPractice`); weitere Fälle messen, etwa Datumsfunktionen und
-  `sql_mode` der Schul-PCs. Neue Aussagen erst nach Messung mit
+- **Offen:** weitere Fälle messen, etwa Datumsfunktionen und der `sql_mode`
+  der Schul-PCs. Neue Aussagen erst nach Messung mit
   `tools/verify-claude-native.cjs` aufnehmen.
 
 ### C4 Bekannte Schwächen in Claudes Teilen

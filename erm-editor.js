@@ -53,16 +53,26 @@
       if (!relation || !entityIds.has(relation.from) || !entityIds.has(relation.to) || relation.from === relation.to || !CARDS.includes(relation.card)) return;
       const id = takeId(relation.id);
       if (!id) return;
-      model.relations.push({ id, from: relation.from, to: relation.to, card: relation.card });
+      model.relations.push({ id, from: relation.from, to: relation.to, card: relation.card, ...(relation.fromOptional === true ? { fromOptional: true } : {}), ...(relation.toOptional === true ? { toOptional: true } : {}) });
     });
     model.nextId = Math.max(0, ...ids) + 1;
     return model;
   }
 
+  // Beschriftung der beiden Enden. Ohne Optionalität die kurze Form (1, N, M); sobald eine
+  // Seite optional ist, beide Enden in der Schreibweise der Lerneinheit: 0..1, 1..1, 0..N, 1..N.
+  // Die Angabe an einem Entitätstyp sagt, wie viele seiner Datensätze zu einem der anderen Seite gehören.
+  function ends(relation) {
+    const [left, right] = relation.card.split(":");
+    if (!relation.fromOptional && !relation.toOptional) return [left, right];
+    const full = (max, optional) => `${optional ? 0 : 1}..${max === "1" ? "1" : "N"}`;
+    return [full(left, relation.fromOptional), full(right, relation.toOptional)];
+  }
+
   // Liefert für jede Beziehung die Sicht „ein Datensatz von one gehört zu vielen von many“.
   function oneToMany(relation) {
-    if (relation.card === "1:N") return { one: relation.from, many: relation.to };
-    if (relation.card === "N:1") return { one: relation.to, many: relation.from };
+    if (relation.card === "1:N") return { one: relation.from, many: relation.to, oneOptional: relation.fromOptional === true };
+    if (relation.card === "N:1") return { one: relation.to, many: relation.from, oneOptional: relation.toOptional === true };
     return null;
   }
 
@@ -150,7 +160,7 @@
       const used = references.get(view.many).map((reference) => reference.column);
       const candidates = byId.get(view.many).entity.attributes.filter((attribute) => attribute.fk && identifier(attribute.name) && !used.includes(identifier(attribute.name)));
       const column = candidates.find((attribute) => norm(attribute.name) === norm(parentKey.name)) || candidates[0];
-      if (column) references.get(view.many).push({ column: identifier(column.name), table: parent.name, key: identifier(parentKey.name), parentId: view.one });
+      if (column) references.get(view.many).push({ column: identifier(column.name), table: parent.name, key: identifier(parentKey.name), parentId: view.one, optional: view.oneOptional });
     });
     const ordered = [];
     const visit = (table, trail = new Set()) => {
@@ -162,7 +172,9 @@
     tables.forEach((table) => visit(table));
     const statements = ordered.map((table) => {
       const columns = table.entity.attributes.filter((attribute) => identifier(attribute.name));
-      const lines = columns.map((attribute) => `  ${identifier(attribute.name)} ${attribute.type}${attribute.pk || attribute.fk ? " NOT NULL" : ""}`);
+      // Darf ein Datensatz ohne Zuordnung bleiben (0..1 an der 1-Seite), bleibt der Fremdschlüssel ohne NOT NULL.
+      const nullable = new Set(references.get(table.entity.id).filter((reference) => reference.optional).map((reference) => reference.column));
+      const lines = columns.map((attribute) => `  ${identifier(attribute.name)} ${attribute.type}${attribute.pk || (attribute.fk && !nullable.has(identifier(attribute.name))) ? " NOT NULL" : ""}`);
       const keys = columns.filter((attribute) => attribute.pk).map((attribute) => identifier(attribute.name));
       if (keys.length) lines.push(`  PRIMARY KEY (${keys.join(", ")})`);
       references.get(table.entity.id).forEach((reference) => lines.push(`  FOREIGN KEY (${reference.column}) REFERENCES ${reference.table}(${reference.key})`));
@@ -252,7 +264,7 @@
     }
   });
 
-  window.WORKBENCH_ERM = { TYPES, CARDS, TASKS, LIMITS, CANVAS, norm, identifier, emptyModel, sanitize, checkModel, toSql, layout, oneToMany };
+  window.WORKBENCH_ERM = { TYPES, CARDS, TASKS, LIMITS, CANVAS, norm, identifier, emptyModel, sanitize, checkModel, toSql, layout, oneToMany, ends };
 
   if (typeof document === "undefined") return;
 
@@ -298,7 +310,7 @@
       };
       const start = edge(a, bx - ax, by - ay);
       const end = edge(b, ax - bx, ay - by);
-      const [left, right] = relation.card.split(":");
+      const [left, right] = ends(relation);
       const label = (from, to, text) => `<text class="erm-card" x="${from.x + (to.x - from.x) * 0.18}" y="${from.y + (to.y - from.y) * 0.18 - 6}" text-anchor="middle">${text}</text>`;
       return `<line class="erm-line" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"></line>${label(start, end, left)}${label(end, start, right)}`;
     }).join("");
@@ -361,9 +373,13 @@
               <label class="sr-only" for="ermTo${relation.id}">zweiter Entitätstyp</label>
               <select id="ermTo${relation.id}" data-erm-relation-to>${entityOptions(relation.to)}</select>
               <button class="icon-button" type="button" data-erm-remove-relation title="Beziehung entfernen" aria-label="Beziehung ${relationIndex + 1} entfernen"><i data-lucide="x" aria-hidden="true"></i></button>
+              <span class="erm-optional">
+                <label class="erm-flag"><input type="checkbox" data-erm-optional="from" ${relation.fromOptional ? "checked" : ""}> linke Seite optional (0 erlaubt)</label>
+                <label class="erm-flag"><input type="checkbox" data-erm-optional="to" ${relation.toOptional ? "checked" : ""}> rechte Seite optional (0 erlaubt)</label>
+              </span>
             </div>`).join("")}
           <button class="button button-secondary" type="button" id="ermAddRelation" ${current.entities.length < 2 || current.relations.length >= LIMITS.relations ? "disabled" : ""}><i data-lucide="plus"></i>Beziehung hinzufügen</button>
-          <p class="field-hint">Lies eine Beziehung von links nach rechts: „Ort 1:N Fahrschüler“ heißt, zu einem Ort gehören viele Fahrschüler.</p>
+          <p class="field-hint">Lies eine Beziehung von links nach rechts: „Ort 1:N Fahrschüler“ heißt, zu einem Ort gehören viele Fahrschüler. „Optional“ an einer Seite bedeutet: Ein Datensatz der anderen Seite darf auch ohne Zuordnung bleiben. Das Diagramm zeigt dann 0..1 oder 0..N.</p>
         </section>
 
         <section class="erm-preview" aria-label="Diagramm und Prüfung">
@@ -469,6 +485,11 @@ ${new XMLSerializer().serializeToString(copy)}
       changed(false);
     } else if (target.matches("[data-erm-fk]")) {
       attributeOf(target).fk = target.checked;
+      changed(false);
+    } else if (target.matches("[data-erm-optional]")) {
+      const relation = relationOf(target);
+      const key = target.dataset.ermOptional === "from" ? "fromOptional" : "toOptional";
+      if (target.checked) relation[key] = true; else delete relation[key];
       changed(false);
     } else if (target.matches("[data-erm-relation-from], [data-erm-relation-to], [data-erm-relation-card]")) {
       const relation = relationOf(target);
