@@ -551,6 +551,39 @@ Symbol in `practiceCard`, Filter in `renderSql`, Hinweiskasten in
   Wirkung im Unterricht, Schul-PCs.
 - Veröffentlichung: Ergebnis des Deployments steht im nächsten Eintrag.
 
+### 0.14 Veröffentlichung 0.28.0 geprüft, Abschluss des Arbeitsblocks [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 60 | Commit `63aedc6` gepusht; GitHub-Actions-Lauf 37890098432 | Job `test` und Job `deploy` erfolgreich |
+| 61 | Live-Seite im Browser geprüft: Version `0.28.0`, 49 Übungen, Filter „Fehlersuche“ zeigt sechs Karten mit Kennzeichnung, keine Konsolenfehler | nur lesend, kein Lernstand verändert |
+| 62 | Tag `v0.28.0` gesetzt und gepusht | Sicherungspunkt |
+| 63 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 64 | Claudes Merkzettel `codex-zusammenarbeit.md` um `v0.28.0` und die Regel ergänzt, Merkzettel-Änderungen vor dem Abschlusseintrag vorzunehmen | außerhalb des Repos |
+| 65 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Sicherungspunkte:** `codex-stand-2026-10-08` (`4dedae1`), `v0.26.0`
+(`8ed27fc`), `v0.26.1` (`b8c9b01`), `v0.26.2` (`40566ec`), `v0.27.0`
+(`16b1508`), `v0.28.0` (`63aedc6`). Wiederherstellung wie in Abschnitt 0.1.
+
+**Testumfang:** 127 Node-Tests, 2 Python-Tests, 25 Browsertests.
+
+**Erledigt aus `claude2codex.md`:** OPT-01, OPT-02, OPT-08, OPT-13, OPT-19,
+OPT-21, OPT-22 (Claude); OPT-10, OPT-11 (Codex); OPT-03 und OPT-20 teilweise.
+
+**Als Nächstes vorgesehen (Claude arbeitet daran weiter, sofern Jakob nichts
+anderes vorgibt):**
+
+1. OPT-03 (c) „Ergebnis vorhersagen“ und (b) „Klauseln ordnen“ als weitere
+   Aufgabentypen nach dem Muster der Fehlersuche.
+2. OPT-07 Wiederholungsrunde aus bereits gelösten Aufgaben.
+3. OPT-15 Checkliste für den Schul-PC-Test als Abschnitt in dieser Datei;
+   der Offline-Betrieb selbst erst nach diesem Test.
+
+Weiterhin auf Jakobs Entscheidung warten OPT-06, OPT-09 und OPT-12.
+
+Nächste Handlungsnummer: 66.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
