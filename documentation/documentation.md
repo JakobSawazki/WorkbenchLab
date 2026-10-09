@@ -2797,6 +2797,24 @@ Zeichenfläche der Notizen mit der Tastatur (Zeichnen braucht einen Zeiger).
 
 Nächste Handlungsnummer: 461.
 
+### 0.69 Veröffentlichung 0.41.5 geprüft; Abschluss dieser Arbeitsphase [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 461 | Vor dem Commit `git fetch` und `git status`: keine fremden Änderungen | |
+| 462 | Commit `2a934bb` gepusht; Actions-Lauf (Tests und Deployment) erfolgreich | https://jakobsawazki.github.io/WorkbenchLab/ |
+| 463 | Live geprüft: `index.html` mit `v=0.41.5`; `tests/keyboard.browser.cjs` und `tests/overflow.browser.cjs` gegen die Live-Seite bestanden | |
+| 464 | Sicherungs-Tag `v0.41.5` gesetzt und gepusht | Wiederherstellung wie in Abschnitt 0.1 |
+| 465 | Eigenen Testserver beendet; mit `Get-NetTCPConnection` geprüft, dass auf Port 4199 nichts mehr hört | Codex' Server auf Port 4325 unberührt |
+| 466 | Auf Jakobs Wunsch die Arbeit hier beendet und eine Übergabe an Codex im Chat formuliert | maßgeblich bleibt `claude2codex.md` |
+| 467 | Dieser Eintrag als eigener Commit gepusht | keine Änderung an der App |
+
+**Stand bei Übergabe:** Release 0.41.5, 194 Node-Tests, 2 Python-Tests,
+39 Browsertests, 151 Prüfungen gegen MariaDB. Offen sind nur Punkte, die Jakob
+entscheidet (OPT-09, OPT-25) oder im Unterricht prüft (OPT-15).
+
+Nächste Handlungsnummer: 468.
+
 <!-- CLAUDE:END -->
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
