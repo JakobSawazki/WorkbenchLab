@@ -1281,6 +1281,30 @@ Hindernis. Claude hat deshalb weitergearbeitet.
   der Rechner in den Ruhezustand geht, Schul-PCs.
 - Veröffentlichung: Ergebnis des Deployments steht im Eintrag 0.29.
 
+### 0.29 Veröffentlichung 0.34.0 geprüft [Claude, 2026-10-09]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 154 | Commit `f262a72` gepusht; GitHub-Actions-Lauf 37900210801 | Job `test` und Job `deploy` erfolgreich |
+| 155 | Live-Seite im Browser geprüft: Version `0.34.0`, `#sql/klausur` öffnet das Klausurtraining und zeigt ohne freigeschaltete Aufgaben den Hinweis, keine Konsolenfehler | nur lesend |
+| 156 | Tag `v0.34.0` gesetzt und gepusht | Sicherungspunkt `f262a72` |
+| 157 | Eigenen Testserver auf Port 4199 beendet (Befehlszeile vorher geprüft) | fremde Prozesse unberührt |
+| 158 | Dieser Eintrag als eigener Commit gepusht (nur Protokoll) | Deployment ohne App-Änderung |
+
+**Testumfang:** 147 Node-Tests, 2 Python-Tests, 30 Browsertests.
+
+**Stand der Punkte aus `claude2codex.md`**
+
+| Status | Punkte |
+| --- | --- |
+| erledigt (Claude) | OPT-01, OPT-02, OPT-03, OPT-07, OPT-08, OPT-13, OPT-19, OPT-21, OPT-22 |
+| erledigt (Codex) | OPT-10, OPT-11 |
+| erste Stufe erledigt | OPT-04 (Modell-Editor), OPT-15 (Checkliste), OPT-20 |
+| braucht eine Entscheidung von Jakob | OPT-06, OPT-09, OPT-12, OPT-17, OPT-18; Durchführung der Checkliste 0.16 |
+| braucht Abstimmung mit Codex | OPT-05, OPT-14 (Rest), OPT-16 |
+
+Nächste Handlungsnummer: 159.
+
 <!-- CLAUDE:END -->
 
 ## 1. Projektziel
