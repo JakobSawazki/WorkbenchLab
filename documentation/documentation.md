@@ -3229,6 +3229,18 @@ Rest OPT-12 und echte Vor-Ort-Abnahmen sind weiterhin offen.
 Manifest). ZIP: 71 Einträge, 10.941.291 Bytes, SHA-256
 `3846c6c7877e73a4a7fc4e65fffa29690d968fbe113126e6e1ff0c4a375adbf7`.
 
+Veröffentlicht als Commit `1498898`, Tag `v0.45.0`; GitHub-Pages-Lauf
+[`38029563457`](https://github.com/JakobSawazki/WorkbenchLab/actions/runs/38029563457)
+erfolgreich. GitHub-Release mit ZIP und identischer Asset-Prüfsumme vorhanden.
+Anonymer tatsächlicher ZIP-Download erneut auf Größe und Hash geprüft. Live:
+alle 66 Cache-Dateien gegen das veröffentlichte Manifest geprüft, Buildkennung
+aus Version/Dateiliste/Worker nachgerechnet; private Lösungen, Übergabe,
+Testdatei, ungenutztes PNG, desktop.ini und Offline-Payload jeweils 404.
+Frischer isolierter Edge-Kontext bei 360 Pixeln: ausdrückliche Vorbereitung
+auf GitHub Pages, Offline-Neuladen mit Notiz, SELECT-Ergebnis 42, lokales Video
+bei 70 Sekunden und Untertitel erfolgreich. Kontext anschließend geschlossen;
+keine Registrierung im bestehenden Browserprofil des Nutzers hinterlassen.
+
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
 
 Die früheren Abschnitte dieser Datei (Verfasser: Codex, Stand 3. Oktober 2026, bis Release 0.21.0)

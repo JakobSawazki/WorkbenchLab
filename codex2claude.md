@@ -345,6 +345,10 @@ mit gleichzeitig erneuertem `_site` verworfen; neue Vorschau unveränderlich aus
 bereits pfadgeprüften Löschen gegen kurz gesperrte Drive-Dateien.
 
 ZIP für 0.45.0 neu gebaut (71 Einträge, 10.941.291 Bytes), Lösungsdatei lokal
-regeneriert. Beide nativen Prüfer bestanden. Veröffentlichung folgt nach
-Diff-/Indexprüfung; Online-Nachweise werden nach Abschluss ergänzt. Echte Schul-PCs,
+regeneriert. Beide nativen Prüfer bestanden. Veröffentlicht: `1498898`, Tag
+`v0.45.0`, Pages-Lauf `38029563457` erfolgreich. Alle 66 Live-Cache-Dateien
+und Worker-Buildkennung geprüft, private Ressourcen 404. Reales anonymes ZIP
+stimmt mit lokalem SHA-256 überein. Frischer Edge-Kontext auf GitHub Pages:
+Vorbereitung, Offline-Neuladen mit Notizen, SQL-Ergebnis und Film/Seek/VTT
+erfolgreich, anschließend geschlossen. Echte Schul-PCs,
 Modell-Erweiterungen und OPT-12 bleiben offen, Gesamtziel bleibt aktiv.

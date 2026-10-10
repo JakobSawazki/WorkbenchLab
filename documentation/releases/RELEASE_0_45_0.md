@@ -59,7 +59,13 @@ und Fremdschlüsseln bestanden. Mobile Ansichten beider Farbmodi visuell geprüf
 
 68 öffentliche Dateien, 66 Cache-Nutzdateien. ZIP: 71 Einträge, 10.941.291 Bytes,
 SHA-256 `3846c6c7877e73a4a7fc4e65fffa29690d968fbe113126e6e1ff0c4a375adbf7`.
-Veröffentlichungsnachweise folgen im Projektprotokoll nach Online-Abnahme.
+Veröffentlicht als `1498898`, Tag `v0.45.0`; Pages-Lauf
+[`38029563457`](https://github.com/JakobSawazki/WorkbenchLab/actions/runs/38029563457)
+erfolgreich. Alle 66 Cache-Dateien und die Worker-Buildkennung live geprüft,
+private Ressourcen 404; reales anonym heruntergeladenes ZIP mit identischem
+Hash. Isolierter Edge-Kontext auf GitHub Pages: Vorbereitung, Offline-Neuladen
+mit Notizen, SQL-Ergebnis und Video/Seek/Untertitel erfolgreich. Weitere
+Einzelheiten stehen im Projektprotokoll.
 
 ## Grenzen
 
