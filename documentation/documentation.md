@@ -2,9 +2,9 @@
 
 Stand: 10. Oktober 2026 (Europe/Berlin) [Codex; Claudes Kopfzeilenstand vom 9. Oktober bleibt im Verlauf]
 
-Aktueller Release-Stand: **0.44.0** [Codex, 2026-10-10; zuvor 0.43.0 von Codex]
+Aktueller Release-Stand: **0.45.0** [Codex, 2026-10-10; zuvor 0.44.0 von Codex]
 
-Veröffentlichter Stand: 0.44.0 wird im Codex-Releaseabschnitt unten geführt;
+Veröffentlichter Stand: 0.45.0 wird im Codex-Releaseabschnitt unten geführt;
 Claudes letzter Veröffentlichungsstand bleibt historisch in Abschnitt 0.4.
 
 Mitwirkende: Jakob Sawazki, Codex, seit 8. Oktober 2026 zusätzlich Claude. Claudes Einträge stehen in Abschnitt 0 und sind dort sowie an jeder anderen Stelle mit `[Claude, Datum]` gekennzeichnet.
@@ -35,6 +35,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Was umfasst Codex-Release 0.42.0? | [`releases/RELEASE_0_42_0.md`](releases/RELEASE_0_42_0.md); neue Funktionen und verbleibende Ausbaupunkte |
 | Was umfasst Codex-Release 0.43.0? | [`releases/RELEASE_0_43_0.md`](releases/RELEASE_0_43_0.md); Einheitenskripte im freien SQL-Labor |
 | Was umfasst Codex-Release 0.44.0? | [`releases/RELEASE_0_44_0.md`](releases/RELEASE_0_44_0.md); Offline-ZIP für den Informatik-Stick |
+| Was umfasst Codex-Release 0.45.0? | [`releases/RELEASE_0_45_0.md`](releases/RELEASE_0_45_0.md); freiwillige Offline-Kopie der Webseite mit sicheren Versionswechseln |
 | Was ist gerade der Stand? | Tabelle unten |
 | Was hat Claude getan, geprüft, nicht geprüft? | Abschnitt 0 dieser Datei (nummerierte Einträge, neuester am Ende) |
 | Was hat Codex bis 0.21.0 getan? | [`archiv/PROJEKTDOKUMENTATION_BIS_0_21.md`](archiv/PROJEKTDOKUMENTATION_BIS_0_21.md) (Abschnitte 1 bis 12 und Anhänge, Stand 3. Oktober 2026) |
@@ -46,7 +47,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.44.0)** [Codex, 2026-10-10]
+**Aktueller Stand (Release 0.45.0)** [Codex, 2026-10-10]
 
 | Thema | Stand |
 | --- | --- |
@@ -57,8 +58,8 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; NAGOLD-Tabelle mit Datum/Uhrzeit, automatischen 5 Punkten je Einheit und eigenen Einträgen; separate Bestätigungsliste der Lehrkraft |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` mit nachgeprüften Modellaufgaben sowie eigener Bestätigungsliste, Sicherung und bestätigten CSV-Werten; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Offline | ZIP für den Informatik-Stick: entpacken und index.html in Edge öffnen; SQL-Laufzeit/Skripte und lokale Startanleitung enthalten. Service Worker und echter Schul-PC-Test weiterhin offen |
-| Tests | 216 Node-Tests, 4 Python-Tests, 44 Browsertests; zusätzlich 168 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwölf Skriptimporte und native Abfragen/Fremdschlüssel (`node tools/verify-native-sql.cjs`) |
+| Offline | Freiwillige HTTPS-Offline-Kopie mit Versionsprüfung und wartenden Updates; alternativ ZIP für den Informatik-Stick direkt in Edge. Echter Schul-PC-Test weiterhin offen |
+| Tests | 221 Node-Tests, 4 Python-Tests, 45 Browsertests; zusätzlich 168 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwölf Skriptimporte und native Abfragen/Fremdschlüssel (`node tools/verify-native-sql.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -3190,6 +3191,43 @@ OPT-15 bleibt teilweise offen: HTTPS-Service-Worker mit Versionsprüfung und
 echter Schul-PC-Test folgen. Weitere Gesamtaufgaben (Modell-Editor und
 OPT-12/öffentlicher Quellverlauf) bleiben unverkleinert. Keine vorgetäuschte
 Abnahme an Schul-PCs, in MySQL Workbench oder durch echte Assistenztechnik.
+
+## Codex: HTTPS-Offline-Kopie, Release 0.45.0 [Codex, 2026-10-10]
+
+OPT-15 ergänzt: ausdrücklich vorbereiteter Service Worker mit öffentlicher,
+lösungsbereinigter SHA-256-Dateiliste. Cache erst nach vollständiger Prüfung
+freigegeben; Abschlussmarker und jede einzelne Datei werden auf Vorhandensein
+geprüft. Wartende Updates übernehmen erst nach Schließen aller App-Tabs.
+Keine zwangsweise Aktivierung, kein automatisches Neuladen und keine Registrierung
+ohne Nutzerklick. Gezieltes Entfernen lässt Lernstand und Fremdcaches unberührt.
+Video-Bytebereiche erlauben auch offline Vorspulen; Fremdangebote bleiben online.
+ZIP-Dateimodus und gesperrte Worker-/Cache-APIs sind ausdrücklich berücksichtigt.
+
+221 Node-Tests und vier Python-Tests bestanden; 168 native MariaDB-Prüfungen
+ebenfalls. Neue Edge-Prüfung bestätigt fehlende/defekte Dateien, Quota-Fehler,
+Zwei-Tab-Updates, erhaltene Notizen, Reparatur, Browser-Neustart ohne Netzwerk
+und mobile große Schrift in beiden Farbmodi. Mobile Sicherungsansichten visuell
+geprüft. Alle 45 Browserdateien bestanden, darunter 318 Kontrastansichten,
+1200 Überlaufansichten, 252 Namensansichten und 925 Tastaturstopps.
+
+Testumgebung: Der erste Gesamtlauf las aus dem gleichzeitig neu gebauten `_site`;
+Google Drive hielt beim Löschen kurz Dateien fest, wodurch eine App-Datei fehlte.
+Begrenzte Löschwiederholungen im bereits abgesicherten Bauziel; die Browser-
+Releaseprüfung verwendet nun eine feste Kopie der expliziten öffentlichen
+Dateiliste unter TEMP. Keine Ordner-Gesamtkopie und keine privaten Dateien.
+Danach vollständige Node-Prüfung erneut erfolgreich. Zwei ältere Browsertests
+(Klausur und Praxisaufgaben) lasen Lösungen aus der Webseite. Auf lokale
+Testdaten umgestellt, damit die gesamte Suite die lösungsbereinigte Fassung
+prüfen kann. Browser-Gates in Abschnitten bestanden: vollständiger Lauf bis
+Überlaufprüfung, danach korrigierter Praxistest und sämtliche verbleibenden
+Dateien. Keine Produktprüfung abgeschwächt. Zwölf native Skriptimporte samt
+Abfragen und Fremdschlüsseln ebenfalls bestanden. Kein SQL-Aufgabentext geändert; lokale Lösungsdatei
+regeneriert und unveröffentlicht. Gesamtauftrag bleibt aktiv: Modell-Editor,
+Rest OPT-12 und echte Vor-Ort-Abnahmen sind weiterhin offen.
+
+Öffentliche Basis: 68 Dateien (66 Cache-Nutzdateien, Worker und generiertes
+Manifest). ZIP: 71 Einträge, 10.941.291 Bytes, SHA-256
+`3846c6c7877e73a4a7fc4e65fffa29690d968fbe113126e6e1ff0c4a375adbf7`.
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
 

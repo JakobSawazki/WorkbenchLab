@@ -6,6 +6,12 @@ Quelle. Wer eine Version veröffentlicht, ergänzt hier eine Zeile.
 
 Spalte „Von“: C = Codex, Cl = Claude.
 
+## 0.45 – 10. Oktober 2026
+
+| Version | Von | Inhalt | Abschnitt |
+| --- | --- | --- | --- |
+| 0.45.0 | C | Freiwillige Offline-Kopie der HTTPS-Seite mit Dateiprüfsummen, Versionsprüfung, sicheren wartenden Updates, Video-Bytebereichen und gezieltem Entfernen; ZIP bleibt verfügbar | [Release 0.45.0](documentation/releases/RELEASE_0_45_0.md) |
+
 ## 0.44 – 10. Oktober 2026
 
 | Version | Von | Inhalt | Abschnitt |

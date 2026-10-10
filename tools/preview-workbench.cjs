@@ -59,5 +59,5 @@ module.exports = { createPreviewServer };
 if (require.main === module) {
   const port = Number(process.env.PORT || 4174);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("Invalid preview port");
-  createPreviewServer().listen(port, "127.0.0.1", () => console.log(`WorkbenchLab: http://127.0.0.1:${port}`));
+  createPreviewServer(process.env.WORKBENCH_PREVIEW_DIR || undefined).listen(port, "127.0.0.1", () => console.log(`WorkbenchLab: http://127.0.0.1:${port}`));
 }

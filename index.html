@@ -16,12 +16,12 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.44.0">
-  <link rel="stylesheet" href="styles-lesson.css?v=0.44.0">
-  <link rel="stylesheet" href="styles-practice.css?v=0.44.0">
-  <link rel="stylesheet" href="styles-visuals.css?v=0.44.0">
-  <link rel="stylesheet" href="styles-shared.css?v=0.44.0">
-  <link rel="stylesheet" href="styles-extensions.css?v=0.44.0">
+  <link rel="stylesheet" href="styles.css?v=0.45.0">
+  <link rel="stylesheet" href="styles-lesson.css?v=0.45.0">
+  <link rel="stylesheet" href="styles-practice.css?v=0.45.0">
+  <link rel="stylesheet" href="styles-visuals.css?v=0.45.0">
+  <link rel="stylesheet" href="styles-shared.css?v=0.45.0">
+  <link rel="stylesheet" href="styles-extensions.css?v=0.45.0">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -237,6 +237,16 @@
       </div>
       <label class="auto-download-option"><input id="autoDownloadBackup" type="checkbox"><span>Nach jeder Einheit automatisch herunterladen</span></label>
       <p id="offlinePackageOption" hidden><a class="button button-secondary" id="offlinePackageLink"><i data-lucide="hard-drive-download" aria-hidden="true"></i>Offline-Paket</a></p>
+      <section id="offlineCachePanel" class="offline-cache" aria-label="Offline-Kopie der Webseite" hidden>
+        <p id="offlineCacheStatus" role="status" aria-live="polite" aria-atomic="true">Nicht vorbereitet</p>
+        <div class="offline-cache-actions">
+          <button class="button button-secondary" id="offlineCachePrepare" type="button"><i data-lucide="cloud-download" aria-hidden="true"></i>Offline vorbereiten</button>
+          <button class="icon-button" id="offlineCacheCheck" type="button" title="Nach Aktualisierungen suchen" aria-label="Nach Aktualisierungen suchen" hidden><i data-lucide="refresh-cw" aria-hidden="true"></i></button>
+          <button class="icon-button" id="offlineCacheRemove" type="button" title="Offline-Kopie entfernen" aria-label="Offline-Kopie entfernen" hidden><i data-lucide="trash-2" aria-hidden="true"></i></button>
+        </div>
+        <progress id="offlineCacheProgress" aria-label="Offline-Vorbereitung" max="1" value="0" hidden></progress>
+        <p id="offlineCacheHint" class="field-hint" hidden></p>
+      </section>
       <p id="backupStatus" class="backup-status" role="status" aria-live="polite" aria-atomic="true" hidden></p>
     </form>
   </dialog>
@@ -245,28 +255,29 @@
 
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
-  <script src="content.js?v=0.44.0"></script>
-  <script src="learning-path.js?v=0.44.0"></script>
-  <script src="lesson-openings.js?v=0.44.0"></script>
-  <script src="practical-exercises.js?v=0.44.0"></script>
-  <script src="debug-exercises.js?v=0.44.0"></script>
-  <script src="predict-exercises.js?v=0.44.0"></script>
-  <script src="order-exercises.js?v=0.44.0"></script>
-  <script src="study-tools.js?v=0.44.0"></script>
-  <script src="appearance.js?v=0.44.0"></script>
-  <script src="drawing.js?v=0.44.0"></script>
-  <script src="command-search.js?v=0.44.0"></script>
-  <script src="reference-search.js?v=0.44.0"></script>
-  <script src="expected-results.js?v=0.44.0"></script>
-  <script src="sql-check.js?v=0.44.0"></script>
-  <script src="backup.js?v=0.44.0"></script>
-  <script src="nagold.js?v=0.44.0"></script>
-  <script src="state.js?v=0.44.0"></script>
-  <script src="sql-feedback.js?v=0.44.0"></script>
-  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.44.0"></script>
-  <script src="sql-workspace.js?v=0.44.0"></script>
-  <script src="review.js?v=0.44.0"></script>
-  <script src="erm-editor.js?v=0.44.0"></script>
-  <script src="app.js?v=0.44.0"></script>
+  <script src="content.js?v=0.45.0"></script>
+  <script src="learning-path.js?v=0.45.0"></script>
+  <script src="lesson-openings.js?v=0.45.0"></script>
+  <script src="practical-exercises.js?v=0.45.0"></script>
+  <script src="debug-exercises.js?v=0.45.0"></script>
+  <script src="predict-exercises.js?v=0.45.0"></script>
+  <script src="order-exercises.js?v=0.45.0"></script>
+  <script src="study-tools.js?v=0.45.0"></script>
+  <script src="appearance.js?v=0.45.0"></script>
+  <script src="drawing.js?v=0.45.0"></script>
+  <script src="command-search.js?v=0.45.0"></script>
+  <script src="reference-search.js?v=0.45.0"></script>
+  <script src="expected-results.js?v=0.45.0"></script>
+  <script src="sql-check.js?v=0.45.0"></script>
+  <script src="backup.js?v=0.45.0"></script>
+  <script src="nagold.js?v=0.45.0"></script>
+  <script src="state.js?v=0.45.0"></script>
+  <script src="sql-feedback.js?v=0.45.0"></script>
+  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.45.0"></script>
+  <script src="sql-workspace.js?v=0.45.0"></script>
+  <script src="review.js?v=0.45.0"></script>
+  <script src="erm-editor.js?v=0.45.0"></script>
+  <script src="offline-client.js?v=0.45.0"></script>
+  <script src="app.js?v=0.45.0"></script>
 </body>
 </html>

@@ -4583,6 +4583,7 @@
   }).observe(document.querySelector(".topbar"));
   updateNavigation();
   updateStorageStatus();
+  window.WORKBENCH_OFFLINE_CLIENT.init();
   if (stateLoadFailed) showLoadFailureNotice();
   const suppressProfilePrompt = new URLSearchParams(window.location.search).has("screenshot");
   // Der Zugriff auf den Sitzungsspeicher kann scheitern (gesperrt oder voll). Ohne Absicherung brach

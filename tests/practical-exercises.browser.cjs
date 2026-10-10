@@ -2,6 +2,8 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
+const { loadContent } = require("../tools/build-expected.cjs");
+const content = loadContent().WORKBENCH_CONTENT;
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 const output = require("./artifacts.cjs")("practical-exercises");
 (async () => {
@@ -19,7 +21,8 @@ const output = require("./artifacts.cjs")("practical-exercises");
     await page.locator("#profileClass").fill("TEST");
     await page.locator("#profileForm button[type=submit]").click();
     const ids = ["sql-create-course", "sql-students-without-hours", "sql-repeat-rentals", "erm-course-table", "erm-recurring-assignments", "sql-update-hours", "sql-delete-student", "sql-insert"];
-    const practices = await page.evaluate((ids) => ids.map((id) => window.WORKBENCH_CONTENT.practices.find((item) => item.id === id)), ids);
+    const practices = ids.map(id => content.practices.find(item => item.id === id));
+    assert.ok(practices.every(Boolean), "Alle lokalen Testaufgaben müssen vorhanden sein");
     const completed = () => page.evaluate(() => JSON.parse(localStorage.getItem("workbenchlab-v1")).completedPractices);
     for (const item of practices) {
       await page.goto(`${base}#lesson/${item.lessonId}`);

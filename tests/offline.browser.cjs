@@ -56,6 +56,7 @@ const artifacts = require("./artifacts.cjs")("offline");
       await page.waitForFunction(() => document.querySelector("#sqlOutput td")?.textContent === "42");
       await page.locator("#backupButton").click();
       assert.equal(await page.locator("#offlinePackageLink").isVisible(), false);
+      assert.equal(await page.locator("#offlineCachePanel").isVisible(), false);
       assert.match(await page.locator("#backupStorageHint").innerText(), /Ordner-, Versions- oder PC-Wechsel/);
       const downloadPromise = page.waitForEvent("download");
       await page.locator("#exportProgressButton").click();

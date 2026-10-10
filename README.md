@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.44.0 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
+**Aktueller Release:** 0.45.0 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
 **Repository:** <https://github.com/JakobSawazki/WorkbenchLab>
 
 WorkbenchLab ist eine browserbasierte Lernumgebung für Jahrgangsstufe 1 im
@@ -32,7 +32,7 @@ Entwickelt von Jakob Sawazki gemeinsam mit zwei KI-Agenten (Codex und Claude).
 | Modellieren | Modell- und Begriffsaufgaben; Modell-Editor mit Diagramm, drei geprüften Aufgaben, SQL- und Bildexport |
 | Nachschlagen | SQL-Befehle mit Suche, Startanleitung für Informatik-Stick und Workbench, Videos, Quellen |
 | Lernstand | lokal im Browser; Sicherung und Übertragung als JSON-Datei; Notizen, Markierungen, Zeichnungen; Druckansicht |
-| Offline | ZIP unter „Speichern & Laden“ bzw. im GitHub-Release; vollständig entpacken und `index.html` in Edge öffnen, ohne Server oder Installation; externe Quellen und YouTube benötigen weiterhin Internet |
+| Offline | Webseite unter „Speichern & Laden“ ausdrücklich offline vorbereiten; Updates warten auf das Schließen aller App-Tabs. Alternativ ZIP aus dem GitHub-Release entpacken und `index.html` in Edge öffnen, ohne Server oder Installation. Externe Quellen und YouTube benötigen weiterhin Internet; Lernstand regelmäßig separat sichern |
 | Motivation | XP, Level, Erfolge, Aktivitätstage; NAGOLD-Tabelle mit automatischen und eigenen Einträgen |
 | Lehrkraft | Klassenübersicht und getrennte Bestätigungsliste unter <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html>; Entwicklermodus im Profil mit `AltGr + S`, dort auch „Lösungsdatei laden“ (Datei erzeugen mit `node tools/build-solutions.cjs`) |
 

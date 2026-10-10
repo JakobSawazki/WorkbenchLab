@@ -5,7 +5,7 @@ const { execFileSync } = require("node:child_process");
 const publicRootFiles = new Set([
   "index.html", "styles.css", "styles-lesson.css", "styles-practice.css", "styles-visuals.css", "styles-shared.css", "styles-extensions.css", "app.js", "content.js", "learning-path.js",
   "lesson-openings.js", "practical-exercises.js", "study-tools.js", "appearance.js",
-  "drawing.js", "command-search.js", "reference-search.js", "sql-check.js", "backup.js", "nagold.js", "state.js", "sql-feedback.js", "sql-workspace.js", "review.js", "erm-editor.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "expected-results.js", "lehrkraft.html", "teacher-overview.js",
+  "drawing.js", "command-search.js", "reference-search.js", "sql-check.js", "backup.js", "nagold.js", "state.js", "sql-feedback.js", "sql-workspace.js", "review.js", "erm-editor.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "expected-results.js", "lehrkraft.html", "teacher-overview.js", "offline-client.js", "offline-worker.js",
 ]);
 const sourceOnlyAssets = new Set([
   "assets/bpe6-relief-map.png", "assets/bpe6-settlement-map.png", "assets/workbenchlab-titanium.png",
@@ -13,7 +13,7 @@ const sourceOnlyAssets = new Set([
 function isPublicFile(file) {
   return !file.split("/").some((part) => part.startsWith(".") || part === "desktop.ini")
     && !sourceOnlyAssets.has(file)
-    && (publicRootFiles.has(file) || file.startsWith("assets/") || file.startsWith("vendor/"));
+    && (publicRootFiles.has(file) || file === "offline-assets.js" || file.startsWith("assets/") || file.startsWith("vendor/"));
 }
 function buildSite(root = path.resolve(__dirname, "..")) {
   const output = path.resolve(root, "_site");
@@ -25,21 +25,25 @@ function buildSite(root = path.resolve(__dirname, "..")) {
   }
   const tracked = execFileSync("git", ["ls-files", "-z"], { cwd: root, encoding: "utf8" }).split("\0").filter(Boolean);
   const files = tracked.filter(isPublicFile);
+  if (files.includes("offline-assets.js")) throw new Error("offline-assets.js wird erzeugt und darf nicht versioniert sein.");
   for (const file of publicRootFiles) {
     if (!files.includes(file)) throw new Error(`Öffentliche App-Datei fehlt: ${file}`);
   }
   for (const file of files) {
     if (!fs.lstatSync(path.join(root, file)).isFile()) throw new Error(`Keine reguläre Datei: ${file}`);
   }
-  fs.rmSync(output, { recursive: true, force: true });
+  fs.rmSync(output, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
   for (const file of files) {
     const target = path.join(output, file);
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.copyFileSync(path.join(root, file), target);
   }
   stripSolutions(output);
-  console.log(`${files.length} öffentliche Dateien nach _site kopiert.`);
-  return files;
+  const version = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).version;
+  require("./offline-manifest.cjs").writeOfflineManifest(output, files, version);
+  const published = [...files, "offline-assets.js"];
+  console.log(`${published.length} öffentliche Dateien nach _site kopiert bzw. erzeugt.`);
+  return published;
 }
 
 // Claude, OPT-12: Lösungsanweisungen werden nicht veröffentlicht. Die Seite prüft mit den

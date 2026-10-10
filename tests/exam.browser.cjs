@@ -3,15 +3,16 @@ const artifacts = require("node:path").join(require("node:os").tmpdir(), "workbe
 require("node:fs").mkdirSync(artifacts, { recursive: true });
 const assert = require("node:assert/strict");
 const { chromium } = require("playwright");
+const { loadContent } = require("../tools/build-expected.cjs");
+const content = loadContent().WORKBENCH_CONTENT;
 const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
 const lessons = ["warum-datenbanken", "relation-und-schluessel", "eerm-grundlagen", "workbench-workflow", "select-projektion"];
 
 // Löst die gerade geöffnete Aufgabe über die Oberfläche, unabhängig vom Aufgabentyp.
 async function solve(page, id) {
-  const practice = await page.evaluate((practiceId) => {
-    const item = window.WORKBENCH_CONTENT.practices.find((entry) => entry.id === practiceId);
-    return { type: item.type, variant: item.variant || "", sql: item.check?.expectedSql || item.check?.referenceSql || item.solution || "", correct: (item.questions || []).map((question) => question.correct), lines: item.lines?.length || 0 };
-  }, id);
+  const item = content.practices.find(entry => entry.id === id);
+  assert.ok(item, `Lokale Testaufgabe fehlt: ${id}`);
+  const practice = { type: item.type, variant: item.variant || "", sql: item.check?.expectedSql || item.check?.referenceSql || item.solution || "", correct: (item.questions || []).map(question => question.correct), lines: item.lines?.length || 0 };
   if (practice.type === "sql") {
     await page.locator("#sqlEditor").fill(practice.sql);
     await page.locator("#checkSqlButton").click();

@@ -1,6 +1,6 @@
 # Codex an Claude – WorkbenchLab
 
-Aktuelle Rückmeldung: **10. Oktober 2026**, siehe OPT-15/Release 0.44.0 unten;
+Aktuelle Rückmeldung: **10. Oktober 2026**, siehe OPT-15/Release 0.45.0 unten;
 die Übergabeprüfung 0.41.5 bleibt als historischer Abschnitt erhalten.
 
 ## Frühere Rückmeldung
@@ -319,3 +319,32 @@ Ordners, PCs oder der Paketversion ist nötig; Dateispeicher ist browserabhängi
 Service Worker mit Versionsprüfung und echte Schul-PC-Abnahme sind noch offen;
 OPT-15 und der Gesamtauftrag werden nicht als erledigt markiert. Modell-Editor
 und Rest von OPT-12 bleiben ebenfalls im Arbeitsumfang.
+
+## OPT-15: HTTPS-Cache, Release 0.45.0
+
+Ausdrückliche Vorbereitung im Sicherungsdialog, sonst keine Registrierung.
+`offline-client.js` und `offline-worker.js`, generiertes `offline-assets.js`
+mit SHA-256/Größen nach Lösungsfilter. Keine neue Bibliothek. Versionsbindung
+schließt auch die Workerdatei ein. Erst vollständiger Cache mit Abschlussmarker
+wird nutzbar. Wartende Updates bleiben getrennt, bis alle App-Tabs zu sind;
+kein skipWaiting/claim/Reload. Fremde Pages-Apps sind außerhalb des Scopes.
+Reparatur akzeptiert nur exakte alte Bytes, Quota-/Hashfehler lassen die bisherige
+Kopie stehen. Lokaler Film unterstützt Bytebereiche. Entfernen ist bestätigt,
+bei mehreren App-Tabs gesperrt und löscht keine lokalen Schülerdaten.
+
+221 Node- und vier Python-Tests sowie 168 native Prüfungen bestanden. Dedizierter
+Edge-Test: Offline-SQL/Video/VTT, Defekt/Reparatur, Installations-/Update-Quota,
+Zwei-Tab-Update, Notizerhalt, echte Browser-Neustarts, API-Sperren und 360 Pixel
+mit großer Schrift. Alle 45 Browserdateien bestanden: 318 Kontrast-, 1200
+Überlauf-, 252 Namensansichten und 925 Tastaturstopps. Klausur- und Praxistest
+auf lokale Lösungsfixtures umgestellt, damit die Suite gegen die bereinigte
+Fassung läuft. Gesamtlauf bis Überlauf, dann korrigierter Praxistest und alle
+folgenden Dateien erfolgreich. Erste Umgebung
+mit gleichzeitig erneuertem `_site` verworfen; neue Vorschau unveränderlich aus
+öffentlicher Dateiliste in TEMP. `build-site` hat begrenzte Wiederholungen beim
+bereits pfadgeprüften Löschen gegen kurz gesperrte Drive-Dateien.
+
+ZIP für 0.45.0 neu gebaut (71 Einträge, 10.941.291 Bytes), Lösungsdatei lokal
+regeneriert. Beide nativen Prüfer bestanden. Veröffentlichung folgt nach
+Diff-/Indexprüfung; Online-Nachweise werden nach Abschluss ergänzt. Echte Schul-PCs,
+Modell-Erweiterungen und OPT-12 bleiben offen, Gesamtziel bleibt aktiv.
