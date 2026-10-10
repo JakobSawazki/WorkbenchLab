@@ -1,10 +1,10 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 9. Oktober 2026 (Europe/Berlin) [Claude, 2026-10-09: Kopfzeilen aktualisiert]
+Stand: 10. Oktober 2026 (Europe/Berlin) [Codex; Claudes Kopfzeilenstand vom 9. Oktober bleibt im Verlauf]
 
-Aktueller Release-Stand: **0.42.0** [Codex, 2026-10-09; zuvor 0.41.5 von Claude]
+Aktueller Release-Stand: **0.43.0** [Codex, 2026-10-10; zuvor 0.42.0 von Codex]
 
-Veröffentlichter Stand: 0.42.0 wird im Codex-Releaseabschnitt unten geführt;
+Veröffentlichter Stand: 0.43.0 wird im Codex-Releaseabschnitt unten geführt;
 Claudes letzter Veröffentlichungsstand bleibt historisch in Abschnitt 0.4.
 
 Mitwirkende: Jakob Sawazki, Codex, seit 8. Oktober 2026 zusätzlich Claude. Claudes Einträge stehen in Abschnitt 0 und sind dort sowie an jeder anderen Stelle mit `[Claude, Datum]` gekennzeichnet.
@@ -33,6 +33,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | --- | --- |
 | Was hat sich wann geändert? | [`CHANGELOG.md`](../CHANGELOG.md) – eine Zeile je Version |
 | Was umfasst Codex-Release 0.42.0? | [`releases/RELEASE_0_42_0.md`](releases/RELEASE_0_42_0.md); neue Funktionen und verbleibende Ausbaupunkte |
+| Was umfasst Codex-Release 0.43.0? | [`releases/RELEASE_0_43_0.md`](releases/RELEASE_0_43_0.md); Einheitenskripte im freien SQL-Labor |
 | Was ist gerade der Stand? | Tabelle unten |
 | Was hat Claude getan, geprüft, nicht geprüft? | Abschnitt 0 dieser Datei (nummerierte Einträge, neuester am Ende) |
 | Was hat Codex bis 0.21.0 getan? | [`archiv/PROJEKTDOKUMENTATION_BIS_0_21.md`](archiv/PROJEKTDOKUMENTATION_BIS_0_21.md) (Abschnitte 1 bis 12 und Anhänge, Stand 3. Oktober 2026) |
@@ -44,18 +45,18 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.42.0)** [Codex, 2026-10-09]
+**Aktueller Stand (Release 0.43.0)** [Codex, 2026-10-10]
 
 | Thema | Stand |
 | --- | --- |
 | Lerneinheiten | 21 in fünf Lernfortschritten; in fester Reihenfolge freigeschaltet; Abschluss nach Selbstkontrolle, Verständnischeck und Bestätigung durch die Lehrkraft |
 | Übungen | 59, alle frei zugänglich: 25 SQL-Schreibaufgaben, 7 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
-| Zusätzliche Übungsformen | freies SQL-Labor, Wiederholungsrunde, Klausurtraining, Modell-Editor |
+| Zusätzliche Übungsformen | freies SQL-Labor einschließlich leerem Arbeitsbereich für zwölf Einheitenskripte und eigene SQL-Dateien, Wiederholungsrunde, Klausurtraining, Modell-Editor |
 | Nähe zu MySQL | 26 MySQL-Funktionen nachgebildet und an MariaDB gemessen (4 von Codex, 22 seit 0.41.0); 5 bekannte Unterschiede werden im Labor erklärt (Abschnitt 0.57) |
 | Bewertung | XP als Motivation; NAGOLD-Tabelle mit Datum/Uhrzeit, automatischen 5 Punkten je Einheit und eigenen Einträgen; separate Bestätigungsliste der Lehrkraft |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` mit nachgeprüften Modellaufgaben sowie eigener Bestätigungsliste, Sicherung und bestätigten CSV-Werten; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 208 Node-Tests, 2 Python-Tests, 42 Browsertests; zusätzlich 151 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwölf Skriptimporte und native Abfragen/Fremdschlüssel (`node tools/verify-native-sql.cjs`) |
+| Tests | 215 Node-Tests, 2 Python-Tests, 43 Browsertests; zusätzlich 168 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwölf Skriptimporte und native Abfragen/Fremdschlüssel (`node tools/verify-native-sql.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -3102,6 +3103,52 @@ Modell-Editor-Erweiterungen. Die weiter im öffentlichen Git-Verlauf
 enthaltenen alten SQL-Lösungen sind durch den Webseitenfilter nicht geheim
 geworden; dieser Rest von OPT-12 ist ebenfalls separat zu behandeln.
 Keine vorgetäuschte Schul-PC-, MySQL-8- oder Unterrichtsabnahme.
+
+## Codex: OPT-25 und Releasevorbereitung 0.43.0
+
+10. Oktober 2026. Das freie SQL-Labor erhält einen leeren vierten
+Arbeitsbereich für die zwölf unterschiedlichen vorhandenen Einheitenskripte
+und eigene SQL-Dateien. Auswahl kommt aus den Praxisaufträgen, nicht aus einer
+zweiten manuell gepflegten Liste. Öffnen führt nicht aus; Ersetzen eines
+Entwurfs verlangt Bestätigung. Live-Katalog und Tabellenvorschau behalten den
+SQL-Text. Entwürfe gehören zur Lernstandsicherung, Datenbanken zur Sitzung;
+Wechsel, Neuladen und Reset sind als Verlustgrenzen angegeben.
+
+`sql-workspace.js` verwendet den lokal vendorten MySQL-Parser
+`node-sql-parser` 5.4.0 (Apache-2.0, Herkunft/Archivintegrität unter `vendor/`).
+SQLite/sql.js bleibt Engine. Syntaxbaum-basierte Tabellen-/Spaltenbezüge
+erhalten die echten Datenbankgrenzen einschließlich der zwei L3.2-Schemata,
+Aliase und Unterabfragen. Kein Weglassen von CREATE DATABASE/USE und keine
+Zusammenführung gleichnamiger Tabellen. Getestet mit 15 logischen Datenbanken.
+Fremdschlüssel bleiben aktiv; DROP/TRUNCATE schützen externe Verweise.
+MySQL-Textwerte und einfache AUTO_INCREMENT-Primärschlüssel werden abgebildet.
+
+Laufzeitfehler melden zuvor ausgeführte Anweisungen und lassen deren
+Änderungen bestehen. Syntaxanalyse erfolgt zuerst für den gesamten Text.
+Leere letzte Abfragen zeigen keine alten Treffer. L1.4/L1.8 und L2.2 brauchen
+weiter ihre tatsächlich zuvor erarbeiteten Tabellen; diese Lösungen werden
+nicht vorweg automatisch angelegt. Keine XP/NAGOLD für freies Ausprobieren.
+Bestehende drei Datenbestände und Aufgabenprüfung bleiben unverändert.
+
+Prüfstand: 215 Node- und 2 Python-Tests bestanden. Native Vergleiche erweitert
+auf 168; alle zwölf Skripte mit ihren tatsächlichen Voraussetzungen im neuen
+Kern geprüft. Unter Windows wurden im nativen Prüfer gelegentlich leere
+stdout-Pipes beobachtet; temporäre reguläre Ausgabedatei, Datadir-/Port-Prüfung
+und genauere Diagnosen ergänzen ihn. Keine abgeschwächten Fachprüfungen.
+Abschlussnachtrag: alle 43 Browserdateien auf Port 4202 bestanden, darunter
+318 Kontrastansichten ohne Ausnahmen, 1200 Breitenansichten, 252 Namens-/
+Strukturansichten und 925 Tastaturstopps. Drei vollständige aufeinanderfolgende
+native Läufe mit jeweils 168 Fällen bestanden; der separate Skriptprüfer
+bestätigt alle zwölf Importe und die bisherigen nativen Aufgaben/Fremdschlüssel.
+Öffentlicher Paketbau 65 Dateien, neuer Arbeitsbereich auch im gefilterten
+Paket geprüft. Desktop-/Mobilbilder visuell geprüft. Veröffentlichung über
+den bestehenden GitHub-Pages-Workflow, mit erneutem Node-/Python-Gate. Details:
+[`releases/RELEASE_0_43_0.md`](releases/RELEASE_0_43_0.md).
+
+Offline-Betrieb, Modell-Erweiterungen und der Rest von OPT-12 bleiben im
+Gesamtauftrag. Reale Schul-PCs/Workbench, MySQL 8 und Assistenztechnik sind
+nicht als geprüft ausgegeben. CSS-Reihenfolge unverändert, keine Lösungen
+oder privaten Ressourcen neu veröffentlicht.
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
 

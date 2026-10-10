@@ -256,3 +256,37 @@ GitHub-Pages-Workflow mit erneutem Node-/Python-Gate.
 Der Gesamtauftrag bleibt aktiv. Weiter: OPT-25, Offline-Paket/Service Worker,
 Modell-Editor-Erweiterungen und Rest von OPT-12; echte Vor-Ort-Prüfungen
 bleiben externe Abnahme und werden nicht behauptet.
+
+## OPT-25: Freies SQL-Labor mit Einheitenskripten (0.43.0)
+
+Leerer vierter Arbeitsbereich, zwölf eindeutige Skripte aus den bestehenden
+Praxisaufträgen und eigene SQL-Dateien. Öffnen führt nicht aus; vorhandener
+Entwurf wird nur nach Bestätigung ersetzt. SQL-Text wird gespeichert und
+normalisiert, Datenbanken bleiben Sitzungsdaten. Kein XP/NAGOLD und keine
+heimlichen Voraussetzungs-Tabellen für die insert-only-Skripte L1.4/L1.8/L2.2.
+
+Neuer reiner Helfer `sql-workspace.js`, SQL.js unverändert als Engine.
+`node-sql-parser` 5.4.0 als unveränderter lokaler MySQL-Build mit Lizenz und
+verifizierter npm-Archiv-Prüfsumme. Tabellen-/Spaltenbezüge werden strukturiert
+übersetzt, nicht über das Entfernen von USE oder Schema-Präfixen. Auch beide
+Datenbanken aus L3.2 und 15 getrennte Schemata funktionieren. Live-Katalog,
+Tabellenvorschau ohne Entwurfsverlust, erhaltene Teiländerungen bei Fehlern,
+korrekte leere letzte Ergebnisse; interne Namen nicht in Fehlermeldungen.
+
+Sechs neue Node-Fälle und ein Browsertest; vorhandene Kontrast-, Überlauf-,
+Namens- und Tastaturprüfer erfassen den Arbeitsbereich zusätzlich. Die
+nativen Prüfungen sind um 17 Schema-/Text-/Schlüsselvergleiche erweitert
+(jetzt 168). Ein Diagnosebefund betraf unter Windows vereinzelt leere
+Client-Ausgaben: reguläre temporäre stdout-Datei statt Pipe, zusätzlich
+Datadir-/Port-Prüfung und aussagekräftige Vergleichsmeldungen. Keine
+fehlgeschlagene Datenbankaussage durch bloße Wiederholung freigegeben.
+
+Versionsstempel 0.43.0, Changelog und Releasebericht vollständig. Lokale
+Lösungsdatei regeneriert, unveröffentlicht. Abnahme bestanden: 215 Node-Tests,
+2 Python-Tests und alle 43 Browserdateien auf Port 4202; 318 Kontrast-, 1200
+Breiten-, 252 Namensansichten und 925 Tastaturstopps. Drei vollständige Läufe
+mit jeweils 168 nativen Prüfungen sowie der separate Zwölf-Skript-Prüfer
+bestanden. Gefiltertes Paket: 65 Dateien; neuer Arbeitsbereich auch daraus
+erfolgreich geprüft. Freigabe für den bestehenden GitHub-Pages-Workflow.
+Nicht erledigt: Offline-Betrieb, Modell-Erweiterungen, Rest OPT-12 und echte
+Vor-Ort-Abnahmen. Gesamtauftrag bleibt aktiv.

@@ -83,6 +83,18 @@ const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
     await page.locator(".lesson-head").waitFor();
     assert.equal(await page.evaluate(() => location.hash), "#lesson/eerm-grundlagen");
 
+    // The new workspace must also work from the filtered deployment, not only sources.
+    await page.goto(base + "#sql/frei");
+    await page.locator("#playgroundSchema").selectOption("leer");
+    await page.locator("#playgroundScript").selectOption("assets/sql/l1-1-workbench-einstieg.sql");
+    await page.locator("#playgroundScriptOpen").click();
+    await page.waitForFunction(() => document.querySelector("#sqlEditor").value.includes("CREATE TABLE"));
+    await page.locator("#playgroundRunButton").click();
+    await page.locator("#sqlOutput table").waitFor();
+    assert.equal(await page.locator("#sqlOutput tbody tr").count(), 2);
+    assert.match(await page.locator("#playgroundCatalog").innerText(), /workbenchlab_l1_1_einstieg/);
+    assert.equal((await page.request.get(base + "resources/workbenchlab-loesungen.json")).status(), 404);
+
     // NAGOLD im Profil: zwei abgeschlossene Einheiten ergeben 10.
     await page.locator("#editProfileButton").click();
     await page.locator("#profileDialog").waitFor();

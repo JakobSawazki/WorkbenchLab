@@ -41,7 +41,7 @@
   };
 
   // Muss vor loadState() stehen: normalizeState() liest diese Liste (Claude, OPT-01).
-  const playgroundSchemas = ["fahrschule-basic", "fahrschule", "fahrradvermietung"];
+  const playgroundSchemas = ["fahrschule-basic", "fahrschule", "fahrradvermietung", "leer"];
   function uniqueAllowedStrings(values, allowedIds) {
     if (!Array.isArray(values)) {
       return [];

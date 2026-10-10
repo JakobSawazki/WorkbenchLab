@@ -54,6 +54,12 @@ const describeFocus = () => {
         const where = `${width}px ${route}`;
         await page.goto(base + "#" + route, { waitUntil: "networkidle" });
         await page.waitForTimeout(200);
+        if (route === "sql/frei") {
+          await page.locator("#playgroundSchema").selectOption("leer");
+          await page.locator("#sqlEditor").fill("CREATE DATABASE tastatur; USE tastatur; CREATE TABLE t(id INT);");
+          await page.locator("#playgroundRunButton").click();
+          await page.locator("#playgroundCatalog .schema-card").waitFor();
+        }
 
         // Sprunglink: sichtbar bei Fokus, Enter führt in den Inhalt.
         await page.locator(".skip-link").focus();

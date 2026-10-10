@@ -264,3 +264,11 @@
 .teacher-review-list small { display: block; color: var(--muted); }
 .teacher-review-controls p { overflow-wrap: anywhere; }
 @media print { .teacher-review-controls, .teacher-review-dialog, [data-teacher-review] { display: none !important; } }
+
+/* Lesson scripts use a separate, initially empty SQL workspace. */
+.workspace-script-row { display: grid; grid-template-columns: minmax(0, 1fr) 42px 42px; gap: 0.5rem; align-items: center; margin-block: 1rem; }
+.workspace-script-row > label { grid-column: 1 / -1; }
+.workspace-script-row select { width: 100%; min-width: 0; min-height: 2.6rem; padding: 0.45rem 0.6rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-strong); color: inherit; font: inherit; }
+.workspace-database { min-width: 0; border-top: 1px solid var(--line); padding-top: 0.75rem; }
+.workspace-database h4, #playgroundCatalog p, #playgroundCatalog code { overflow-wrap: anywhere; }
+.workspace-database .schema-card { margin-block: 0.75rem; }

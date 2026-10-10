@@ -59,6 +59,15 @@ const dialogProblem = () => {
             extra = await page.evaluate(overflow);
           }
           if (extra > 1) problems.push(`${route} bei ${width}px, Schrift ${fontSize}px: ${extra}px zu breit`);
+          if (route === "sql/frei") {
+            await page.locator("#playgroundSchema").selectOption("leer");
+            await page.locator("#sqlEditor").fill("CREATE DATABASE workbenchlab_l3_2_fahrradvermietung; USE workbenchlab_l3_2_fahrradvermietung; CREATE TABLE fahrradvermietung_mit_langem_namen(id INT);");
+            await page.locator("#playgroundRunButton").click();
+            await page.locator("#playgroundCatalog .schema-card").waitFor();
+            views += 1;
+            extra = await page.evaluate(overflow);
+            if (extra > 1) problems.push(`SQL-Arbeitsbereich bei ${width}px, Schrift ${fontSize}px: ${extra}px zu breit`);
+          }
         }
         await page.evaluate(() => { window.location.hash = "home"; });
         for (const [button, close, label] of [["#editProfileButton", "#profileCancelButton", "Profil"], ["#appearanceButton", "#appearanceCloseButton", "Darstellung"], ["#backupButton", "#backupCloseButton", "Sicherung"]]) {

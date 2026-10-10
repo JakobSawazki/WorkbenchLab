@@ -10,6 +10,7 @@ const net = require("node:net");
 const vm = require("node:vm");
 const { spawn, spawnSync } = require("node:child_process");
 const initSqlJs = require("../vendor/sql.js/sql-wasm.js");
+const { Parser } = require("../vendor/node-sql-parser/mysql.umd.js");
 
 const root = path.resolve(__dirname, "..");
 const base = process.env.WORKBENCH_MARIADB_HOME || "C:/Informatik-Stick/Programme/Xampp_7.4.7/mysql";
@@ -22,7 +23,14 @@ const connection = ["--no-defaults", "--protocol=TCP", "--host=127.0.0.1", `--po
 
 function mysql(sql, expectFailure = false) {
   // Liefert die Ausgabe; mit expectFailure stattdessen, ob die Anweisung scheiterte.
-  const result = spawnSync(bin("mysql"), [...connection, "--batch", "--skip-column-names", "--default-character-set=utf8mb4"], { input: sql, encoding: "utf8", windowsHide: true, timeout: 90000 });
+  // A regular file avoids intermittently empty stdout pipes in the Windows runtime.
+  const filename = path.join(output, "mysql-stdout.txt");
+  const descriptor = fs.openSync(filename, "w");
+  let result;
+  try {
+    result = spawnSync(bin("mysql"), [...connection, "--batch", "--skip-column-names", "--default-character-set=utf8mb4"], { input: sql, encoding: "utf8", windowsHide: true, timeout: 90000, stdio: ["pipe", descriptor, "pipe"] });
+  } finally { fs.closeSync(descriptor); }
+  result.stdout = fs.readFileSync(filename, "utf8");
   if (result.error) throw result.error;
   if (expectFailure) return { failed: result.status !== 0, message: result.stderr.trim() };
   assert.equal(result.status, 0, `mysql: ${result.stderr || result.stdout}\n${sql.slice(0, 300)}`);
@@ -35,7 +43,7 @@ const same = (a, b) => a.length === b.length && a.every((row, i) => row.length =
 }));
 
 const context = vm.createContext({ window: {} });
-for (const file of ["content.js", "learning-path.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "erm-editor.js", "sql-check.js", "sql-feedback.js"]) {
+for (const file of ["content.js", "learning-path.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "erm-editor.js", "sql-check.js", "sql-feedback.js", "sql-workspace.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });
 }
 const content = context.window.WORKBENCH_CONTENT;
@@ -75,6 +83,8 @@ const feedback = context.window.WORKBENCH_SQL_FEEDBACK;
       await sleep(250);
     }
     assert.ok(ready, `Eigene MariaDB-Instanz startete nicht: ${log.slice(-1500)}`);
+    assert.equal(path.resolve(mysql("SELECT @@datadir;").replaceAll("\\\\", "\\")), path.resolve(data), "Native checks must use the isolated data directory");
+    assert.equal(mysql("SELECT @@port;"), String(port));
 
     // Übungsdatenbanken anlegen.
     const databases = {};
@@ -89,7 +99,8 @@ const feedback = context.window.WORKBENCH_SQL_FEEDBACK;
     // 1. Fehlersuche: Symptom und Korrektur verhalten sich in MariaDB wie im Browser.
     for (const item of content.practices.filter((practice) => practice.variant === "debug")) {
       const fixed = native(item.schema, item.check.expectedSql);
-      check(`${item.id}: Korrektur liefert in MariaDB dasselbe wie im Browser`, same(fixed, sqlite(item.schema, item.check.expectedSql)));
+      const browserFixed = sqlite(item.schema, item.check.expectedSql);
+      check(`${item.id}: Korrektur liefert in MariaDB dasselbe wie im Browser (${JSON.stringify(fixed)} / ${JSON.stringify(browserFixed)})`, same(fixed, browserFixed));
       if (item.symptom === "error") {
         check(`${item.id}: Startcode bricht auch in MariaDB ab`, nativeFails(item.schema, item.starter));
       } else {
@@ -135,7 +146,7 @@ const feedback = context.window.WORKBENCH_SQL_FEEDBACK;
       const tables = Number(mysql(`SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='${database}';`));
       const keys = Number(mysql(`SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA='${database}' AND CONSTRAINT_TYPE='PRIMARY KEY';`));
       const foreign = Number(mysql(`SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA='${database}' AND CONSTRAINT_TYPE='FOREIGN KEY';`));
-      check(`${database}: Tabellen, Primär- und Fremdschlüssel angelegt`, tables === model.entities.length && keys === model.entities.length && foreign === model.relations.length);
+      check(`${database}: Tabellen, Primär- und Fremdschlüssel angelegt (Tabellen=${tables}, PK=${keys}, FK=${foreign}; erwartet ${model.entities.length}/${model.entities.length}/${model.relations.length})`, tables === model.entities.length && keys === model.entities.length && foreign === model.relations.length);
     }
     // Optionalität: 0..1 an der 1-Seite lässt den Fremdschlüssel leer zu, sonst nicht.
     const ortO = entity("Ort", [attribute("ortnr", "INT", { pk: true }), attribute("ort", "VARCHAR(50)")]);
@@ -273,6 +284,47 @@ const feedback = context.window.WORKBENCH_SQL_FEEDBACK;
     check("AVG: unterschiedliche Stellenzahl, Hinweis erscheint", runLab(average, true).text !== labNative(average) && Math.abs(Number(runLab(average, true).text) - Number(labNative(average))) < 0.0001 && feedback.mysqlNotes(average, 1).includes("avg-stellen"));
     const rounded = "SELECT ROUND(AVG(stundenzahl), 2) FROM fahrstunden;";
     check("ROUND(AVG): in beiden gleich, kein Hinweis", runLab(rounded, true).text === labNative(rounded) && !feedback.mysqlNotes(rounded, 1).includes("avg-stellen"));
+    // OPT-25: genuine schemas, same-named tables, aliases and FK targets.
+    const workspaceDb = new SQL.Database();
+    sqlCheck.registerSqlFunctions(workspaceDb);
+    const workspace = context.window.WORKBENCH_SQL_WORKSPACE.create(workspaceDb, new Parser(), feedback);
+    const workspaceSetup = `CREATE DATABASE wbl_ws_a; CREATE DATABASE wbl_ws_b;
+      USE wbl_ws_a; CREATE TABLE orte (id INT PRIMARY KEY AUTO_INCREMENT, ort VARCHAR(50));
+      INSERT INTO orte(ort) VALUES('A'),('B');
+      CREATE TABLE kinder (id INT PRIMARY KEY, ortnr INT, FOREIGN KEY(ortnr) REFERENCES orte(id));
+      INSERT INTO kinder VALUES(1,2);
+      USE wbl_ws_b; CREATE TABLE orte (id INT PRIMARY KEY, ort VARCHAR(50)); INSERT INTO orte VALUES(9,'C');`;
+    try {
+      mysql(workspaceSetup);
+      workspace.exec(workspaceSetup);
+      const queries = [
+        "SELECT wbl_ws_a.orte.id, wbl_ws_b.orte.id FROM wbl_ws_a.orte CROSS JOIN wbl_ws_b.orte ORDER BY 1,2;",
+        "SELECT a.ort,b.ort FROM wbl_ws_a.orte a CROSS JOIN wbl_ws_b.orte b ORDER BY a.id;",
+        "USE wbl_ws_a; SELECT orte.id,orte.ort FROM orte ORDER BY id;",
+        "USE wbl_ws_b; SELECT DATABASE(),id,ort FROM orte;",
+        "SELECT o.id FROM wbl_ws_a.orte o WHERE EXISTS(SELECT 1 FROM wbl_ws_a.kinder k WHERE k.ortnr=o.id);",
+        "SELECT t.id FROM wbl_ws_a.orte t WHERE t.id IN (SELECT t.ortnr FROM wbl_ws_a.kinder t);",
+        "SELECT 'USE wbl_ws_a; wbl_ws_b.orte' AS textwert;",
+        "UPDATE wbl_ws_a.orte SET ort='Neu' WHERE orte.id=1; SELECT ort FROM wbl_ws_a.orte ORDER BY id;",
+        "SELECT HEX('O\\'Brien'), HEX('O''Brien'), HEX('C:\\\\tmp'), HEX('a\\nb');",
+        "CREATE TABLE wbl_ws_b.folge(id INT PRIMARY KEY AUTO_INCREMENT, n INT); INSERT INTO wbl_ws_b.folge(n) VALUES(1),(2); DELETE FROM wbl_ws_b.folge WHERE id=2; INSERT INTO wbl_ws_b.folge(n) VALUES(3); SELECT id,n FROM wbl_ws_b.folge ORDER BY id;",
+        "USE wbl_ws_b; ALTER TABLE wbl_ws_b.folge RENAME TO fortsetzung; SELECT id,n FROM wbl_ws_b.fortsetzung ORDER BY id;",
+        "TRUNCATE TABLE wbl_ws_b.fortsetzung; INSERT INTO wbl_ws_b.fortsetzung(n) VALUES(9); SELECT id,n FROM wbl_ws_b.fortsetzung;"
+      ];
+      for (const sql of queries) check(`Workspace wie MariaDB: ${sql}`, same(rows(mysql(sql)), workspace.exec(sql).at(-1)?.values || []));
+      const badFk = "INSERT INTO wbl_ws_a.kinder VALUES(2,999);";
+      check("Workspace und MariaDB lehnen ungültigen FK ab", mysql(badFk, true).failed && (() => { try { workspace.exec(badFk); return false; } catch { return true; } })());
+      const badSchema = "USE wbl_ws_missing;";
+      check("Workspace und MariaDB lehnen unbekannte Datenbank ab", mysql(badSchema, true).failed && (() => { try { workspace.exec(badSchema); return false; } catch { return true; } })());
+      const badDescribe = "USE wbl_ws_b; DESCRIBE missing;";
+      check("Workspace und MariaDB lehnen DESCRIBE einer fehlenden Tabelle ab", mysql(badDescribe, true).failed && (() => { try { workspace.exec(badDescribe); return false; } catch { return true; } })());
+      const crossFk = "CREATE TABLE wbl_ws_b.extern(id INT, parent INT, FOREIGN KEY(parent) REFERENCES wbl_ws_a.orte(id));";
+      mysql(crossFk);
+      workspace.exec(crossFk);
+      for (const sql of ["TRUNCATE TABLE wbl_ws_a.orte;", "DROP DATABASE wbl_ws_a;"]) {
+        check(`Workspace und MariaDB schützen externe Fremdschlüssel: ${sql}`, mysql(sql, true).failed && (() => { try { workspace.exec(sql); return false; } catch { return true; } })());
+      }
+    } finally { workspace.close(); }
     console.log(JSON.stringify(report, null, 1));
     console.log(`PASS: ${report.checks} native Prüfungen gegen ${version}`);
   } finally {

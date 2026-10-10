@@ -128,6 +128,13 @@ const audit = () => {
           await page.waitForTimeout(90);
           await check(route);
         }
+        await page.evaluate(() => { window.location.hash = "sql/frei"; });
+        await page.locator("#playgroundSchema").selectOption("leer");
+        await check("Leerer SQL-Arbeitsbereich");
+        await page.locator("#sqlEditor").fill("CREATE DATABASE kontrast; USE kontrast; CREATE TABLE t(id INT); INSERT INTO t VALUES(1); SELECT * FROM t;");
+        await page.locator("#playgroundRunButton").click();
+        await page.locator("#sqlOutput table").waitFor();
+        await check("SQL-Arbeitsbereich mit Tabellen und Ergebnis");
         if (index === 0) {
           await page.evaluate(() => { window.location.hash = "home"; });
           for (const [button, close, label] of [["#editProfileButton", "#profileCancelButton", "Profil"], ["#appearanceButton", "#appearanceCloseButton", "Darstellung"], ["#backupButton", "#backupCloseButton", "Sicherung"]]) {

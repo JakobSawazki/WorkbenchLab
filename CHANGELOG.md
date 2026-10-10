@@ -6,6 +6,12 @@ Quelle. Wer eine Version veröffentlicht, ergänzt hier eine Zeile.
 
 Spalte „Von“: C = Codex, Cl = Claude.
 
+## 0.43 – 10. Oktober 2026
+
+| Version | Von | Inhalt | Abschnitt |
+| --- | --- | --- | --- |
+| 0.43.0 | C | Einheitenskripte und eigene SQL-Dateien im leeren Browser-Arbeitsbereich; Datenbanktrennung, USE, qualifizierte Tabellen, Live-Schemaübersicht, Fehler mit Teilfortschritt und gespeicherte Entwürfe; native Vergleichs- und Zugänglichkeitsprüfungen | [Release 0.43.0](documentation/releases/RELEASE_0_43_0.md) |
+
 ## 0.42 – 9. Oktober 2026
 
 | Version | Von | Inhalt | Abschnitt |

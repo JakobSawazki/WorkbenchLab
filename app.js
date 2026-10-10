@@ -2032,7 +2032,52 @@
   }
 
   function playgroundStarter(schemaKey) {
+    if (schemaKey === "leer") return "CREATE DATABASE mein_projekt;\nUSE mein_projekt;\n";
     return `SELECT *\nFROM ${content.schemas[schemaKey].tables[0].name};`;
+  }
+
+  function playgroundScripts() {
+    const seen = new Set();
+    return content.lessons.flatMap(lesson => {
+      const href = lesson.classroomTask?.download?.href;
+      if (!href?.startsWith("assets/sql/") || seen.has(href)) return [];
+      seen.add(href);
+      return [{ href, label: `${lesson.courseCode || lesson.index} · ${lesson.title}` }];
+    });
+  }
+
+  function renderWorkspaceCatalog() {
+    const panel = document.querySelector("#playgroundCatalog");
+    if (!panel || playgroundSchemaKey !== "leer") return;
+    const databases = playgroundDb?.catalog() || [];
+    const identifier = value => `\`${value.replaceAll("`", "``")}\``;
+    panel.innerHTML = `<h3>Datenbanken</h3><p>Aktiv: <strong>${escapeHtml(playgroundDb?.currentDatabase || "keine")}</strong></p>${databases.map(database => `
+      <section class="workspace-database"><h4><code>${escapeHtml(database.name)}</code></h4>
+        ${database.tables.map(table => `<article class="schema-card"><h3><code>${escapeHtml(table.name)}</code></h3><div class="schema-fields">${table.columns.map(column => `<code>${escapeHtml(column.name)} · ${escapeHtml(column.type)}${column.primaryKey ? " · PK" : ""}</code>`).join("")}</div><button class="button button-secondary playground-table-button" type="button" data-playground-table="${escapeHtml(`${identifier(database.name)}.${identifier(table.name)}`)}"><i data-lucide="table-2" aria-hidden="true"></i>Inhalt anzeigen<span class="sr-only">: ${escapeHtml(database.name)}.${escapeHtml(table.name)}</span></button></article>`).join("")}
+      </section>`).join("")}`;
+    renderIcons();
+  }
+
+  function loadPlaygroundText(text, editor) {
+    if (!editor?.isConnected || playgroundSchemaKey !== "leer") return;
+    if (text.length > 100000) throw new Error("Die SQL-Datei darf höchstens 100.000 Zeichen enthalten.");
+    if (editor.value.trim() && editor.value !== playgroundStarter("leer") && !window.confirm("Den SQL-Entwurf durch die gewählte Datei ersetzen?")) return;
+    editor.value = text;
+    state.drafts["frei-leer"] = text;
+    saveState();
+    editor.focus();
+  }
+
+  async function openPlaygroundScript() {
+    const selection = document.querySelector("#playgroundScript");
+    const editor = document.querySelector("[data-playground-editor]");
+    const script = playgroundScripts().find(item => item.href === selection?.value);
+    if (!script) return;
+    try {
+      const response = await fetch(script.href);
+      if (!response.ok) throw new Error("Die SQL-Datei konnte nicht geladen werden.");
+      loadPlaygroundText(await response.text(), editor);
+    } catch (error) { toast(error.message, "error"); }
   }
 
   function closePlaygroundDb() {
@@ -2045,6 +2090,7 @@
     setHeading("Ohne Aufgabe ausprobieren", "Freies SQL-Labor");
     activateNav("sql");
     const schema = content.schemas[playgroundSchemaKey];
+    const empty = playgroundSchemaKey === "leer";
     const draft = state.drafts[`frei-${playgroundSchemaKey}`] ?? playgroundStarter(playgroundSchemaKey);
     main.innerHTML = `
       <article class="sql-runner sql-playground">
@@ -2053,7 +2099,7 @@
             <div>
               <p class="eyebrow">Freies SQL-Labor</p>
               <h2>Eigene Abfragen ausprobieren</h2>
-              <p>Schreibe beliebige SQL-Anweisungen. Änderungen durch INSERT, UPDATE oder DELETE bleiben erhalten, bis du die Datenbank zurücksetzt. Es gibt keine XP und keine Bewertung.</p>
+              <p>Änderungen an den Datenbanken gelten für diese Sitzung. Wechseln, Neuladen oder Zurücksetzen verwirft sie. Dein SQL-Text bleibt gespeichert. Es gibt keine XP und keine Bewertung.</p>
             </div>
             <div class="detail-actions">
               <button class="button button-secondary" type="button" data-route="sql"><i data-lucide="list-checks"></i>SQL-Aufgaben</button>
@@ -2063,9 +2109,10 @@
             <div class="playground-schema-row">
               <label for="playgroundSchema">Übungsdatenbank</label>
               <select id="playgroundSchema">
-                ${playgroundSchemas.map((key) => `<option value="${key}" ${key === playgroundSchemaKey ? "selected" : ""}>${escapeHtml(content.schemas[key].title)}</option>`).join("")}
+                ${playgroundSchemas.map((key) => `<option value="${key}" ${key === playgroundSchemaKey ? "selected" : ""}>${escapeHtml(key === "leer" ? "Leerer Arbeitsbereich · Einheitenskripte" : content.schemas[key].title)}</option>`).join("")}
               </select>
             </div>
+            ${empty ? `<div class="workspace-script-row"><label for="playgroundScript">Einheitenskript</label><select id="playgroundScript"><option value="">Skript auswählen</option>${playgroundScripts().map(script => `<option value="${escapeHtml(script.href)}">${escapeHtml(script.label)}</option>`).join("")}</select><button class="icon-button" type="button" id="playgroundScriptOpen" title="Einheitenskript öffnen" aria-label="Einheitenskript öffnen"><i data-lucide="folder-open" aria-hidden="true"></i></button><button class="icon-button" type="button" id="playgroundFileOpen" title="Eigene SQL-Datei öffnen" aria-label="Eigene SQL-Datei öffnen"><i data-lucide="upload" aria-hidden="true"></i></button><input id="playgroundFile" class="sr-only" type="file" accept=".sql,text/plain" aria-label="SQL-Datei wählen" tabindex="-1"></div>` : ""}
             <label class="sr-only" for="sqlEditor">SQL-Code</label>
             <textarea class="code-editor" id="sqlEditor" spellcheck="false" aria-describedby="sqlEditorKeys" data-playground-editor>${escapeHtml(draft)}</textarea>
             <div class="runner-actions">
@@ -2090,7 +2137,8 @@
           </div>
         </div>
         <aside class="runner-side">
-          <div class="schema-grid">
+          <div class="schema-grid" ${empty ? 'id="playgroundCatalog"' : ""}>
+            ${empty ? "" : `
             <div>
               <h3>${escapeHtml(schema.title)}</h3>
               <p>${escapeHtml(schema.description)}</p>
@@ -2102,15 +2150,17 @@
                   ${table.fields.map((field) => `<code>${escapeHtml(field)}</code>`).join("")}
                 </div>
                 <button class="button button-secondary playground-table-button" type="button" data-playground-table="${escapeHtml(table.name)}"><i data-lucide="table-2"></i>Inhalt anzeigen</button>
-              </article>`).join("")}
+              </article>`).join("")}`}
           </div>
         </aside>
       </article>`;
+    if (empty) renderWorkspaceCatalog();
   }
 
   async function runPlayground(sqlOverride) {
     const editor = document.querySelector("[data-playground-editor]");
     const runButton = document.querySelector("#playgroundRunButton");
+    const schemaKey = playgroundSchemaKey;
     if (!editor || !runButton) {
       return;
     }
@@ -2122,10 +2172,12 @@
       }
       if (!playgroundDb || playgroundDbKey !== playgroundSchemaKey) {
         closePlaygroundDb();
-        playgroundDb = await createDatabase(playgroundSchemaKey);
-        playgroundDbKey = playgroundSchemaKey;
+        const database = await createDatabase(schemaKey);
+        if (!editor.isConnected || schemaKey !== playgroundSchemaKey) { database.close(); return; }
+        playgroundDb = database;
+        playgroundDbKey = schemaKey;
       }
-      const resultSets = playgroundDb.exec(window.WORKBENCH_SQL_FEEDBACK.rewriteMysql(sql));
+      const resultSets = playgroundDb.exec(playgroundSchemaKey === "leer" ? sql : window.WORKBENCH_SQL_FEEDBACK.rewriteMysql(sql));
       const table = tableFromResult(resultSets);
       if (table.columns.length) {
         const count = table.values.length;
@@ -2135,15 +2187,18 @@
         // Eine Abfrage ohne Treffer liefert in sql.js keine Ergebnistabelle (Claude, OPT-20).
         setSqlOutput(`<p class="playground-result-count">0 Ergebniszeilen</p><div class="console-output">Die Abfrage ist gültig, findet aber keinen Datensatz. Prüfe die Bedingung.</div>${mysqlNotesHtml(sql, 0)}`);
         renderIcons();
+      } else if (playgroundSchemaKey === "leer") {
+        setSqlOutput(`<div class="console-output">SQL ausgeführt.</div>${mysqlNotesHtml(sql)}`);
       } else {
         const changed = playgroundDb.getRowsModified();
         setSqlOutput(`<div class="console-output">Befehl ausgeführt. ${changed === 1 ? "1 Datensatz" : `${changed} Datensätze`} betroffen. Kontrolliere das Ergebnis mit SELECT oder „Inhalt anzeigen“.</div>${mysqlNotesHtml(sql)}`);
         renderIcons();
       }
     } catch (error) {
-      setSqlOutput(sqlErrorHtml(error, playgroundSchemaKey, editor.value));
+      setSqlOutput(`${sqlErrorHtml(error, playgroundSchemaKey, editor.value)}${error.completedStatements ? `<p>${error.completedStatements} Anweisung${error.completedStatements === 1 ? " wurde" : "en wurden"} zuvor ausgeführt. Diese Änderungen bleiben erhalten.</p>` : ""}`);
     } finally {
       runButton.disabled = false;
+      if (playgroundSchemaKey === "leer") renderWorkspaceCatalog();
     }
   }
 
@@ -2976,6 +3031,11 @@
 
   async function createDatabase(schemaKey) {
     const SQL = await initSqlRuntime();
+    if (schemaKey === "leer") {
+      const db = new SQL.Database();
+      registerSqlFunctions(db);
+      return window.WORKBENCH_SQL_WORKSPACE.create(db, new window.NodeSQLParser.Parser(), window.WORKBENCH_SQL_FEEDBACK);
+    }
     const schema = content.schemas[schemaKey];
     if (!schema) {
       throw new Error("Unbekanntes Übungsschema.");
@@ -2987,6 +3047,10 @@
   }
 
   function explainSqlError(error, schemaKey, sql) {
+    if (schemaKey === "leer") {
+      const tables = (playgroundDb?.catalog() || []).flatMap(database => database.tables.map(table => ({ name: table.name, fields: table.columns.map(column => column.name) })));
+      return window.WORKBENCH_SQL_FEEDBACK.explain(error, { tables }, "");
+    }
     return window.WORKBENCH_SQL_FEEDBACK.explain(error, content.schemas[schemaKey], sql);
   }
 
@@ -3931,7 +3995,10 @@
     if (event.target.closest("#playgroundResetButton")) {
       closePlaygroundDb();
       setSqlOutput(`<div class="console-output">Die Übungsdatenbank ist wieder im Ausgangszustand. Dein SQL-Text bleibt erhalten.</div>`);
+      if (playgroundSchemaKey === "leer") renderWorkspaceCatalog();
     }
+    if (event.target.closest("#playgroundScriptOpen")) openPlaygroundScript();
+    if (event.target.closest("#playgroundFileOpen")) document.querySelector("#playgroundFile")?.click();
     if (event.target.closest("#playgroundDownloadButton")) {
       const editor = document.querySelector("[data-playground-editor]");
       if (editor?.value.trim()) {
@@ -4075,6 +4142,16 @@
   });
 
   document.addEventListener("change", (event) => {
+    if (event.target.id === "playgroundFile") {
+      const file = event.target.files[0];
+      const editor = document.querySelector("[data-playground-editor]");
+      if (file) {
+        if (file.size > 400000) toast("Die SQL-Datei ist zu groß.", "error");
+        else file.text().then(text => loadPlaygroundText(text, editor)).catch(error => toast(error.message, "error"));
+      }
+      event.target.value = "";
+      return;
+    }
     if (event.target.id === "playgroundSchema" && playgroundSchemas.includes(event.target.value)) {
       playgroundSchemaKey = event.target.value;
       closePlaygroundDb();

@@ -127,6 +127,12 @@ const audit = () => {
       await page.locator("#playgroundRunButton").click();
       await page.locator("#sqlOutput .sql-error").waitFor();
       await check("freies Labor mit Fehlermeldung");
+      await page.locator("#playgroundSchema").selectOption("leer");
+      await check("Leerer SQL-Arbeitsbereich");
+      await page.locator("#sqlEditor").fill("CREATE DATABASE namen; USE namen; CREATE TABLE t(id INT);");
+      await page.locator("#playgroundRunButton").click();
+      await page.locator("#playgroundCatalog .schema-card").waitFor();
+      await check("SQL-Arbeitsbereich mit Tabellen");
       await go("practice/sql-projection");
       await page.locator("#checkSqlButton").click();
       await page.waitForTimeout(600);
