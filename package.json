@@ -1,12 +1,13 @@
 {
   "name": "workbenchlab",
-  "version": "0.43.0",
+  "version": "0.44.0",
   "private": true,
   "description": "Statische Lernumgebung für relationale Datenbanken",
   "engines": { "node": ">=22", "pnpm": ">=10" },
   "packageManager": "pnpm@11.25.0",
   "scripts": {
     "build:site": "node tools/build-site.cjs",
+    "build:offline": "node tools/build-offline.cjs",
     "test": "node tools/run-tests.cjs",
     "test:python": "python -B -m unittest discover -s tests -p test_*.py -v",
     "test:browser": "node tools/run-browser-tests.cjs",

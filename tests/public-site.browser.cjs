@@ -47,6 +47,11 @@ const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
     assert.equal(await page.locator("main .practice-card.is-locked").count(), 0);
     assert.ok(await page.locator("main .practice-ahead").count() > 5);
     const xpStart = Number.parseInt(await page.locator("#topXp").innerText(), 10);
+    await page.locator("#backupButton").click();
+    const version = await page.evaluate(() => window.WORKBENCH_CONTENT.version);
+    assert.equal(await page.locator("#offlinePackageLink").getAttribute("href"), `https://github.com/JakobSawazki/WorkbenchLab/releases/download/v${version}/WorkbenchLab-${version}-offline.zip`);
+    assert.equal(await page.locator("#offlinePackageLink").isVisible(), true);
+    await page.keyboard.press("Escape");
     const banner = (text) => page.waitForFunction((expected) => document.querySelector("#practiceResult")?.textContent.includes(expected), text);
 
     // Abfrage-Aufgabe: falsche und richtige Lösung werden allein mit dem Sollergebnis beurteilt.

@@ -2,9 +2,9 @@
 
 Stand: 10. Oktober 2026 (Europe/Berlin) [Codex; Claudes Kopfzeilenstand vom 9. Oktober bleibt im Verlauf]
 
-Aktueller Release-Stand: **0.43.0** [Codex, 2026-10-10; zuvor 0.42.0 von Codex]
+Aktueller Release-Stand: **0.44.0** [Codex, 2026-10-10; zuvor 0.43.0 von Codex]
 
-Veröffentlichter Stand: 0.43.0 wird im Codex-Releaseabschnitt unten geführt;
+Veröffentlichter Stand: 0.44.0 wird im Codex-Releaseabschnitt unten geführt;
 Claudes letzter Veröffentlichungsstand bleibt historisch in Abschnitt 0.4.
 
 Mitwirkende: Jakob Sawazki, Codex, seit 8. Oktober 2026 zusätzlich Claude. Claudes Einträge stehen in Abschnitt 0 und sind dort sowie an jeder anderen Stelle mit `[Claude, Datum]` gekennzeichnet.
@@ -34,6 +34,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Was hat sich wann geändert? | [`CHANGELOG.md`](../CHANGELOG.md) – eine Zeile je Version |
 | Was umfasst Codex-Release 0.42.0? | [`releases/RELEASE_0_42_0.md`](releases/RELEASE_0_42_0.md); neue Funktionen und verbleibende Ausbaupunkte |
 | Was umfasst Codex-Release 0.43.0? | [`releases/RELEASE_0_43_0.md`](releases/RELEASE_0_43_0.md); Einheitenskripte im freien SQL-Labor |
+| Was umfasst Codex-Release 0.44.0? | [`releases/RELEASE_0_44_0.md`](releases/RELEASE_0_44_0.md); Offline-ZIP für den Informatik-Stick |
 | Was ist gerade der Stand? | Tabelle unten |
 | Was hat Claude getan, geprüft, nicht geprüft? | Abschnitt 0 dieser Datei (nummerierte Einträge, neuester am Ende) |
 | Was hat Codex bis 0.21.0 getan? | [`archiv/PROJEKTDOKUMENTATION_BIS_0_21.md`](archiv/PROJEKTDOKUMENTATION_BIS_0_21.md) (Abschnitte 1 bis 12 und Anhänge, Stand 3. Oktober 2026) |
@@ -45,7 +46,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.43.0)** [Codex, 2026-10-10]
+**Aktueller Stand (Release 0.44.0)** [Codex, 2026-10-10]
 
 | Thema | Stand |
 | --- | --- |
@@ -56,7 +57,8 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Bewertung | XP als Motivation; NAGOLD-Tabelle mit Datum/Uhrzeit, automatischen 5 Punkten je Einheit und eigenen Einträgen; separate Bestätigungsliste der Lehrkraft |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` mit nachgeprüften Modellaufgaben sowie eigener Bestätigungsliste, Sicherung und bestätigten CSV-Werten; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
-| Tests | 215 Node-Tests, 2 Python-Tests, 43 Browsertests; zusätzlich 168 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwölf Skriptimporte und native Abfragen/Fremdschlüssel (`node tools/verify-native-sql.cjs`) |
+| Offline | ZIP für den Informatik-Stick: entpacken und index.html in Edge öffnen; SQL-Laufzeit/Skripte und lokale Startanleitung enthalten. Service Worker und echter Schul-PC-Test weiterhin offen |
+| Tests | 216 Node-Tests, 4 Python-Tests, 44 Browsertests; zusätzlich 168 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwölf Skriptimporte und native Abfragen/Fremdschlüssel (`node tools/verify-native-sql.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -3149,6 +3151,45 @@ Offline-Betrieb, Modell-Erweiterungen und der Rest von OPT-12 bleiben im
 Gesamtauftrag. Reale Schul-PCs/Workbench, MySQL 8 und Assistenztechnik sind
 nicht als geprüft ausgegeben. CSS-Reihenfolge unverändert, keine Lösungen
 oder privaten Ressourcen neu veröffentlicht.
+
+## Codex: OPT-15, Offline-ZIP und Release 0.44.0
+
+10. Oktober 2026. `tools/build-offline.cjs` erzeugt ein ohne Server nutzbares
+Stick-Paket aus der bestehenden öffentlichen, lösungsbereinigten Dateiliste.
+WASM, die zwölf Unterrichtsskripte und VTT werden in einem ausschließlich
+für das Paket erzeugten JS-Helfer mit genauer Inhaltsversion eingebettet.
+Normale Online-Nutzung bleibt beim bisherigen Laden. `file://` bekommt einen
+expliziten Fehler bei unvollständigen oder falsch zusammengesetzten Paketen.
+Kein Fetch von Datei-URLs. Der lokale Film nutzt dieselbe MP4 wie online;
+Untertitel werden im Dateimodus als Blob-URL bereitgestellt.
+
+Python-Standardbibliothek `zipfile` statt einer neuen ZIP-Abhängigkeit.
+Explizite Dateiliste mit Größe und SHA-256, sichere relative Archivpfade,
+keine Drive-Metadaten, Originalmaterialien oder Lehrkraftlösungsdatei.
+Online verlinkt der Sicherungsdialog das versionspassende ZIP im GitHub-Release.
+Das ZIP enthält keinen Lernstand. Dateisicherung vor Ordner-/Versionswechsel
+ist ausdrücklich genannt, weil `file://`-Browserspeicher nicht portabel ist.
+
+Neue Paket-/Archivtests und ein Edge-Test gegen das tatsächlich entpackte ZIP:
+Netzwerk abgeschaltet, 1440/360 Pixel und große mobile Schrift, SQL-Labor,
+Einheitenskript, Sicherung/Import/Neuladen, Lehrkraft-Prüfsumme, Film mit Seek
+und Untertiteln, vollständige Bilder und keine HTTP-Anfragen. Fehlende/falsche
+Laufzeitversion und gesperrter Browserspeicher zusätzlich geprüft.
+Release-Gates bestanden: 216 Node-, vier Python-Tests und alle 44 Browser-
+Testdateien auf Port 4202, darunter 318 Kontrast-, 1200 Breiten-, 252 Namens-
+ansichten und 925 Tastaturstopps. Ein falscher Feldname im neuen Notizexport-
+Assert wurde korrigiert; anschließender Testabschnitt vollständig bestanden.
+Beide nativen Prüfer bestanden (168 Fälle sowie zwölf Skriptimporte und native
+Abfragen/Fremdschlüssel). ZIP: 68 Einträge einschließlich Manifest, 10.931.103
+Bytes. Dateien, Prüfsummen, gefilterte Lernseite und Downloadlink geprüft;
+Desktop-/Mobilbilder einschließlich neuer Downloadschaltfläche visuell geprüft.
+Lokale Lösungsdatei für Jakob neu erzeugt, nicht veröffentlicht. Details unter
+[`releases/RELEASE_0_44_0.md`](releases/RELEASE_0_44_0.md).
+
+OPT-15 bleibt teilweise offen: HTTPS-Service-Worker mit Versionsprüfung und
+echter Schul-PC-Test folgen. Weitere Gesamtaufgaben (Modell-Editor und
+OPT-12/öffentlicher Quellverlauf) bleiben unverkleinert. Keine vorgetäuschte
+Abnahme an Schul-PCs, in MySQL Workbench oder durch echte Assistenztechnik.
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
 

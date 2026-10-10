@@ -81,6 +81,7 @@
   let teacherSolutions = null;
   let SQLRuntime = null;
   let sqlReadyPromise = null;
+  let offlineCaptionsUrl = "";
   let selectedTextAnchors = [];
   let autoDownloadBackup = false;
   let sidebarHidden = false;
@@ -302,10 +303,15 @@
 
   function updateStorageStatus() {
     const hint = document.querySelector("#backupStorageHint");
-    hint.hidden = storageAvailable;
-    hint.textContent = storageAvailable ? "" : "Browserspeicher nicht verfügbar. Bitte über Speichern sichern.";
+    const localFile = location.protocol === "file:";
+    hint.hidden = storageAvailable && !localFile;
+    hint.textContent = !storageAvailable ? "Browserspeicher nicht verfügbar. Bitte über Speichern sichern."
+      : localFile ? "Vor einem Ordner-, Versions- oder PC-Wechsel den Lernstand als Datei speichern und anschließend laden." : "";
     document.querySelector("#backupButton").classList.toggle("has-storage-error", !storageAvailable);
     document.querySelector("#backupButton").title = storageAvailable ? "Lernstand sichern oder laden" : "Speicherung nicht verfügbar · Lernstand als Datei sichern";
+    const offlineLink = document.querySelector("#offlinePackageLink");
+    document.querySelector("#offlinePackageOption").hidden = localFile;
+    offlineLink.href = `https://github.com/JakobSawazki/WorkbenchLab/releases/download/v${content.version}/WorkbenchLab-${content.version}-offline.zip`;
   }
 
   function todayKey(date = new Date()) {
@@ -2074,6 +2080,12 @@
     const script = playgroundScripts().find(item => item.href === selection?.value);
     if (!script) return;
     try {
+      if (location.protocol === "file:") {
+        const offline = offlineData();
+        if (typeof offline?.scripts?.[script.href] !== "string") throw new Error("Die SQL-Datei fehlt im Offline-Paket. Bitte das vollständige Paket neu entpacken.");
+        loadPlaygroundText(offline.scripts[script.href], editor);
+        return;
+      }
       const response = await fetch(script.href);
       if (!response.ok) throw new Error("Die SQL-Datei konnte nicht geladen werden.");
       loadPlaygroundText(await response.text(), editor);
@@ -2875,7 +2887,7 @@
         <h3 id="workbench-start-film-title">Workbench starten und verbinden</h3>
         <video controls playsinline preload="none" poster="assets/tutorials/workbench-start-poster.png" aria-label="Animierte Startanleitung für Informatik-Stick und MySQL Workbench">
           <source src="assets/tutorials/workbench-start.mp4" type="video/mp4">
-          <track kind="captions" src="assets/tutorials/workbench-start.de.vtt" srclang="de" label="Deutsch">
+          <track kind="captions" src="${startupCaptionsSource()}" srclang="de" label="Deutsch">
           <a href="assets/tutorials/workbench-start.mp4">Startanleitung ansehen</a>
         </video>
       </section>
@@ -3002,6 +3014,18 @@
     runtimeChip.setAttribute("aria-busy", String(status === "loading"));
   }
 
+  function offlineData() {
+    return location.protocol === "file:" && window.WORKBENCH_OFFLINE?.version === content.version ? window.WORKBENCH_OFFLINE : null;
+  }
+
+  function startupCaptionsSource() {
+    const offline = offlineData();
+    if (typeof offline?.captions !== "string") return "assets/tutorials/workbench-start.de.vtt";
+    // Local file origins cannot fetch VTT tracks, even when the MP4 itself loads.
+    if (!offlineCaptionsUrl) offlineCaptionsUrl = URL.createObjectURL(new Blob([offline.captions], { type: "text/vtt" }));
+    return offlineCaptionsUrl;
+  }
+
   function initSqlRuntime() {
     if (sqlReadyPromise) {
       return sqlReadyPromise;
@@ -3012,9 +3036,18 @@
       sqlReadyPromise = Promise.reject(new Error("sql.js konnte nicht geladen werden."));
       return sqlReadyPromise;
     }
-    sqlReadyPromise = window.initSqlJs({
+    const options = {
       locateFile: (file) => `${sqlAssetBase}${file}`
-    }).then((SQL) => {
+    };
+    if (location.protocol === "file:") {
+      const offline = offlineData();
+      if (!(offline?.wasmBinary instanceof Uint8Array)) {
+        setRuntime("error", "SQL nicht verfügbar");
+        return Promise.reject(new Error("Bitte das vollständige Offline-Paket dieser Version entpacken und dessen index.html öffnen."));
+      }
+      options.wasmBinary = offline.wasmBinary;
+    }
+    sqlReadyPromise = window.initSqlJs(options).then((SQL) => {
       SQLRuntime = SQL;
       setRuntime("ready", "SQL ist bereit");
       return SQLRuntime;

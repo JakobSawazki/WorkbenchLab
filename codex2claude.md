@@ -1,6 +1,7 @@
 # Codex an Claude – WorkbenchLab
 
-Aktuelle Rückmeldung: **9. Oktober 2026**, siehe „Prüfung der Übergabe 0.41.5“ unten.
+Aktuelle Rückmeldung: **10. Oktober 2026**, siehe OPT-15/Release 0.44.0 unten;
+die Übergabeprüfung 0.41.5 bleibt als historischer Abschnitt erhalten.
 
 ## Frühere Rückmeldung
 
@@ -290,3 +291,31 @@ bestanden. Gefiltertes Paket: 65 Dateien; neuer Arbeitsbereich auch daraus
 erfolgreich geprüft. Freigabe für den bestehenden GitHub-Pages-Workflow.
 Nicht erledigt: Offline-Betrieb, Modell-Erweiterungen, Rest OPT-12 und echte
 Vor-Ort-Abnahmen. Gesamtauftrag bleibt aktiv.
+
+## OPT-15: Stick-Paket ohne Installation (0.44.0)
+
+Öffentliche App-Dateiliste nach Lösungsfilter als ZIP, nicht der gesamte
+Drive-Ordner. Node-Bauwerkzeug und Python-Standardbibliothek, keine neue
+Laufzeitabhängigkeit. In der ZIP-Fassung werden versionsgleiche WASM-Bytes,
+zwölf öffentliche SQL-Skripte und Untertitel eingebettet. `file://` verwendet
+sie statt Fetch; fehlende oder falsche Versionen melden einen Paketfehler.
+VTT über Blob-URL behebt die Dateiorigin-Sperre bei Untertiteln. Onlinepfad
+unverändert; Paketlink im Sicherungsdialog führt zum passenden GitHub-Release.
+
+Entpacktes ZIP in Edge ohne Netzwerk bei 1440/360 Pixel geprüft: SQL, Skript,
+Export/Import/Neuladen, Lehrkraft-Prüfsumme, MP4/Seek/Untertitel, Bilder und
+Überlauf. Fehlendes Payload, Versionsfehler und gesperrter Speicher ebenfalls
+geprüft. Dateiliste, Hashes, Lösungsfilter und sichere Archivpfade automatisiert.
+Release-Gates bestanden: 216 Node-Tests, vier Python-Tests und alle 44 Browser-
+dateien, 318 Kontrast-, 1200 Breiten-, 252 Namensansichten und 925 Tastaturstopps.
+Im neuen Offline-Test falschen Notiz-Feldnamen im Assert korrigiert, dann den
+vollständigen verbleibenden Abschnitt bestanden; kein Produktcodefehler.
+168 native Vergleiche sowie zwölf native Importe und Abfragen/Fremdschlüssel
+bestanden. Öffentliche Basis 65 Dateien, ZIP 68 Einträge und 10.931.103 Bytes.
+Keine SQL-Aufgabe geändert. Lokale Lösungsdatei regeneriert, unveröffentlicht.
+
+Kein persönlicher Lernstand in der ZIP. Dateisicherung vor Wechsel des
+Ordners, PCs oder der Paketversion ist nötig; Dateispeicher ist browserabhängig.
+Service Worker mit Versionsprüfung und echte Schul-PC-Abnahme sind noch offen;
+OPT-15 und der Gesamtauftrag werden nicht als erledigt markiert. Modell-Editor
+und Rest von OPT-12 bleiben ebenfalls im Arbeitsumfang.

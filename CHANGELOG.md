@@ -6,6 +6,12 @@ Quelle. Wer eine Version veröffentlicht, ergänzt hier eine Zeile.
 
 Spalte „Von“: C = Codex, Cl = Claude.
 
+## 0.44 – 10. Oktober 2026
+
+| Version | Von | Inhalt | Abschnitt |
+| --- | --- | --- | --- |
+| 0.44.0 | C | Offline-ZIP für den Informatik-Stick, per Doppelklick ohne Server: eingebettete SQL-Laufzeit, zwölf Einheitenskripte, Video mit Untertiteln, Lernstandsicherung und Lehrkraftprüfung; gefilterte Dateiliste mit Prüfsummen | [Release 0.44.0](documentation/releases/RELEASE_0_44_0.md) |
+
 ## 0.43 – 10. Oktober 2026
 
 | Version | Von | Inhalt | Abschnitt |

@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.43.0 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
+**Aktueller Release:** 0.44.0 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
 **Repository:** <https://github.com/JakobSawazki/WorkbenchLab>
 
 WorkbenchLab ist eine browserbasierte Lernumgebung für Jahrgangsstufe 1 im
@@ -32,6 +32,7 @@ Entwickelt von Jakob Sawazki gemeinsam mit zwei KI-Agenten (Codex und Claude).
 | Modellieren | Modell- und Begriffsaufgaben; Modell-Editor mit Diagramm, drei geprüften Aufgaben, SQL- und Bildexport |
 | Nachschlagen | SQL-Befehle mit Suche, Startanleitung für Informatik-Stick und Workbench, Videos, Quellen |
 | Lernstand | lokal im Browser; Sicherung und Übertragung als JSON-Datei; Notizen, Markierungen, Zeichnungen; Druckansicht |
+| Offline | ZIP unter „Speichern & Laden“ bzw. im GitHub-Release; vollständig entpacken und `index.html` in Edge öffnen, ohne Server oder Installation; externe Quellen und YouTube benötigen weiterhin Internet |
 | Motivation | XP, Level, Erfolge, Aktivitätstage; NAGOLD-Tabelle mit automatischen und eigenen Einträgen |
 | Lehrkraft | Klassenübersicht und getrennte Bestätigungsliste unter <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html>; Entwicklermodus im Profil mit `AltGr + S`, dort auch „Lösungsdatei laden“ (Datei erzeugen mit `node tools/build-solutions.cjs`) |
 
@@ -84,6 +85,23 @@ Im Browser-Labor sind ausgewählte MySQL-Funktionen wie `YEAR`, `MONTH`, `NOW`
 und `DATEDIFF` als Übungshilfe nachgebildet. Für verbindliche Arbeit mit den
 Originalskripten ist MySQL Workbench maßgeblich.
 
+## Offline-Paket
+
+Unter „Speichern & Laden“ führt „Offline-Paket“ zum ZIP der passenden
+GitHub-Releaseversion. Vollständig entpacken und `index.html` in Edge öffnen.
+SQL, die Einheitenskripte und die lokale Startanleitung funktionieren ohne
+Netzwerk; YouTube und externe Quellen nicht. Die Lehrkraftseite ist ebenfalls
+enthalten. Der persönliche Lernstand gehört nicht zum ZIP: vor Ordner-,
+Versions- oder PC-Wechsel als Datei speichern und danach laden.
+
+Entwickler bauen es mit `node tools/build-offline.cjs` (Node und Python,
+keine zusätzliche Bibliothek). Ausgabe: `dist/WorkbenchLab-VERSION-offline.zip`.
+Bei jedem Release nach Versionsabgleich und Tests neu bauen und als Asset
+am gleichnamigen GitHub-Tag veröffentlichen; der Webseitenlink ist versionsfest.
+Das Paket enthält eine öffentliche Dateiliste mit Größen und SHA-256, keine
+privaten Materialien oder Lehrkraftlösungsdatei. Der Offline-Cache der normalen
+HTTPS-Seite per Service Worker ist noch nicht umgesetzt.
+
 Der SQL-Coach analysiert die Eingabe lokal in vier Schritten: Ausführbarkeit,
 geforderter SQL-Aufbau, Ergebnismenge und Sortierung. Er übersetzt typische
 SQLite-Fehler in fachliche Hinweise und zeigt den nächsten Prüfschritt, ohne
@@ -111,7 +129,7 @@ Icons und Browser-SQL werden lokal mitgeliefert.
 | `lehrkraft.html`, `teacher-overview.js` | Klassenübersicht |
 | `styles.css`, `styles-lesson.css`, `styles-practice.css`, `styles-visuals.css`, `styles-shared.css`, `styles-extensions.css` | Styling in sechs Teilen; die Reihenfolge ist fest |
 | `assets/`, `vendor/` | Bilder, SQL-Downloads, Video; Lucide und `sql.js` |
-| `tests/`, `tools/` | 215 Node-Tests, 43 Browsertests, Prüf- und Bauwerkzeuge |
+| `tests/`, `tools/` | 216 Node-Tests, 44 Browsertests, Prüf- und Bauwerkzeuge |
 | `resources/`, `references/` | lokales Originalmaterial, **nicht** versioniert und nicht veröffentlicht |
 
 ## Veröffentlichung
