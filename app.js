@@ -4531,7 +4531,7 @@
     event.preventDefault();
     const entries = nagold.normalizeEntries(nagoldDraft);
     if (entries.length !== nagoldDraft.length) {
-      document.querySelector("#nagoldError").textContent = "Bitte für jede Zeile einen Anlass und ganze NAGOLD von −5 bis 5 eintragen. 0 gilt nicht als Eintrag.";
+      document.querySelector("#nagoldError").textContent = "Bitte für jede Zeile einen Anlass und ganze NAGOLD von −10 bis 5 eintragen. 0 gilt nicht als Eintrag.";
       return;
     }
     state.nagoldEntries = entries;

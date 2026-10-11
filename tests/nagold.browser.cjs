@@ -79,7 +79,7 @@ fs.mkdirSync(artifacts, { recursive: true });
     await page.locator("#nagoldSaveButton").click();
     assert.ok(await page.locator("#nagoldDialog").isVisible());
     await field(0, "time").fill(localTime);
-    for (const value of ["6", "5.5", "0", "-6"]) {
+    for (const value of ["6", "5.5", "0", "-11"]) {
       await field(0, "points").fill(value);
       if (value !== "0") assert.equal(await field(0, "points").evaluate(el => el.checkValidity()), false);
       await page.locator("#nagoldSaveButton").click();

@@ -26,14 +26,14 @@ test("Uhrzeiten werden als HH:MM geprüft; alte Einträge behalten eine unbekann
   assert.equal(N.normalizeEntries([entry({ time: "24:00" })]).length, 0);
 });
 
-test("NAGOLD begrenzt jeden Eintrag auf ganze Punkte von -5 bis 5 ohne 0 und bereinigt Importe", () => {
+test("NAGOLD begrenzt jeden Eintrag auf ganze Punkte von -10 bis 5 ohne 0 und bereinigt Importe", () => {
   // Abzüge sind erlaubt (Vorgabe Jakob, 2026-10-11).
-  assert.deepEqual(plain(N.normalizeEntries([entry({ points: -1 }), entry({ points: -5 })])).map(row => row.points), [-1, -5]);
+  assert.deepEqual(plain(N.normalizeEntries([entry({ points: -1 }), entry({ points: -5 }), entry({ points: -10 })])).map(row => row.points), [-1, -5, -10]);
   assert.equal(N.total({ nagoldEntries: [entry({ points: 5 }), entry({ points: -2 })] }), 3);
-  assert.equal(N.minPoints, -5);
+  assert.equal(N.minPoints, -10);
   assert.deepEqual(plain(N.normalizeEntries([entry({ purpose: "  Eigener Anlass  ", points: 1 }), entry({ date: "", points: 5 })])),
     [entry({ purpose: "Eigener Anlass", points: 1 }), entry({ date: "", points: 5 })]);
-  for (const points of [0, -6, -1.5, 6, 5.5, "5", NaN, Infinity, null]) assert.equal(N.normalizeEntries([entry({ points })]).length, 0, String(points));
+  for (const points of [0, -11, -1.5, 6, 5.5, "5", NaN, Infinity, null]) assert.equal(N.normalizeEntries([entry({ points })]).length, 0, String(points));
   for (const bad of [null, {}, entry({ date: "2026-02-31" }), entry({ purpose: " " }), entry({ purpose: 5 })]) assert.equal(N.normalizeEntries([bad]).length, 0);
   assert.equal(N.normalizeEntries([entry({ purpose: "x".repeat(500) })])[0].purpose.length, 160);
   assert.equal(N.normalizeEntries(Array.from({ length: N.maxEntries + 1 }, () => entry())).length, N.maxEntries);

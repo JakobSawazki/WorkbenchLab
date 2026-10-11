@@ -5,7 +5,7 @@
   const maxEntries = maxManualEntries + window.WORKBENCH_CONTENT.lessons.length;
   const maxPoints = 5;
   // Abzüge sind möglich (Sanktion durch die Lehrkraft); 0 ist kein Eintrag (Claude, 2026-10-11, Vorgabe Jakob).
-  const minPoints = -5;
+  const minPoints = -10; // bis −10 für besonders schwere Fälle, z. B. Manipulation (Jakob, 2026-10-11)
 
   function validDate(value) {
     if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;

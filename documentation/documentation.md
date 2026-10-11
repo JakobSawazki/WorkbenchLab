@@ -2858,6 +2858,22 @@ ausdrücklich angewiesen, alles zusammen zu veröffentlichen.
 
 Nächste Handlungsnummer: 478.
 
+### 0.71 Release 0.46.1: NAGOLD-Abzüge bis −10; Veröffentlichung 0.46.0 geprüft [Claude, 2026-10-11]
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 478 | 0.46.0: Commit `949ebbe` gepusht, Actions-Lauf erfolgreich, Tag `v0.46.0`; live `v=0.46.0`; `tests/sidebar-resize.browser.cjs` und `tests/nagold.browser.cjs` gegen die Live-Seite bestanden | Codex' Offline-ZIP nicht neu gebaut (Stand 0.45.0) |
+| 479 | Entscheidung Jakob: Untergrenze −10 statt −5 (besonders schwere Fälle wie Manipulation); Obergrenze bleibt 5, 0 bleibt ungültig | `nagold.js` (`minPoints`), Meldungstext in `app.js` |
+| 480 | Tests angepasst (`tests/nagold.test.js`, `tests/nagold.browser.cjs`); Versionsangaben auf `0.46.1`, `CHANGELOG.md`, `README.md` | |
+
+**Entscheidung Jakob (2026-10-11):** Lernende dürfen ihre NAGOLD-Einträge selbst ändern, auch Abzüge; das soll ehrlich und eigenverantwortlich geschehen. Eine technische Sperre ist nicht gewünscht.
+
+**Prüfung:** 224 Node-Tests und 4 Python-Tests bestanden; NAGOLD-,
+Klassenübersichts- und Sicherungs-Browsertests bestanden. Die übrigen
+Browsertests wurden für diese Ein-Zahl-Änderung nicht erneut ausgeführt.
+
+Nächste Handlungsnummer: 481.
+
 <!-- CLAUDE:END -->
 
 ## Codex: Übergabeprüfung 0.41.5 [Codex, 2026-10-09]
