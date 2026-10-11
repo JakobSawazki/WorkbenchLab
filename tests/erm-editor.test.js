@@ -33,6 +33,33 @@ function vermietung() {
 
 const messages = (result) => plain(result.items).filter((item) => item.status === "warning").map((item) => item.text).join(" | ");
 
+test("Modellabschlüsse sind geprüfte Kopien, unbekannte oder freie Aufgaben zählen nicht", () => {
+  const model = fahrschule().model;
+  const completed = erm.normalizeCompletions({ "fahrschule-ort": model, frei: model, unbekannt: model, schulbibliothek: { entities: [] } });
+  assert.deepEqual(Object.keys(completed), ["fahrschule-ort"]);
+  assert.equal(erm.completedXp(completed), 30);
+  model.entities[0].name = "Weiterbearbeitet";
+  assert.equal(completed["fahrschule-ort"].entities[0].name, "Ort");
+  assert.equal(erm.completedXp(completed), 30);
+  for (const value of [null, [], "fahrschule-ort", { "fahrschule-ort": true }, { "fahrschule-ort": { entities: [], relations: [] } }]) assert.equal(erm.completedXp(value), 0);
+  assert.equal(erm.TASKS.filter(task => task.xp).length, 3);
+});
+
+test("Krähenfuß unterscheidet ein/viele und optional/verpflichtend ohne das Modell zu ändern", () => {
+  for (const maximum of ["1", "N", "M"]) for (const optional of [false, true]) {
+    const symbol = erm.crowFootEnd(maximum, optional);
+    assert.equal(symbol.includes("<circle"), optional);
+    assert.equal(symbol.includes("L14 0L0 7"), maximum !== "1");
+    assert.equal(symbol.includes('M23 -7V7'), !optional);
+    assert.doesNotMatch(symbol, /NaN|Infinity/);
+  }
+  const model = fahrschule().model;
+  const store = erm.sanitizeStore({ notation: "crowfoot", models: { "fahrschule-ort": model } });
+  assert.equal(store.notation, "crowfoot");
+  assert.deepEqual(plain(store.models["fahrschule-ort"]), plain(erm.sanitize(model)));
+  assert.equal(erm.toSql(store.models["fahrschule-ort"]), erm.toSql(model));
+});
+
 test("1:N-Aufgabe: richtiges Modell besteht in beiden Schreibrichtungen", () => {
   assert.equal(erm.checkModel(fahrschule("1:N").model, task("fahrschule-ort").target).passed, true);
   assert.equal(erm.checkModel(fahrschule("N:1", true).model, task("fahrschule-ort").target).passed, true);

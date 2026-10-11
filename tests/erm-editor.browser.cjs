@@ -81,7 +81,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.match(result, /Modell stimmt/);
       assert.match(result, /Beziehung stimmt: ein Datensatz in „Ort“ gehört zu vielen in „Fahrschüler“/);
       assert.equal(await page.locator("#ermResult .is-warning").count(), 0);
-      assert.equal(await page.locator("#topXp").innerText(), xpStart);
+      assert.equal(await page.locator("#topXp").innerText(), `${parseInt(xpStart, 10) + 30} XP`);
 
       // Eine Beziehung eines Entitätstyps mit sich selbst wird abgelehnt.
       await relation.locator("[data-erm-relation-to]").selectOption({ label: "Ort" });
@@ -108,12 +108,12 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.equal(await entity(1).locator("[data-erm-entity-name]").inputValue(), "Fahrschüler");
       await page.locator("#ermTask").selectOption("fahrradvermietung");
       assert.equal(await page.locator(".erm-entity").count(), 0);
-      assert.match(await page.locator(".erm-task p").innerText(), /Kunden mieten Fahrräder/);
+      assert.match(await page.locator(".erm-task p").first().innerText(), /Kunden mieten Fahrräder/);
       await page.locator("#ermTask").selectOption("frei");
       assert.equal(await page.locator("#ermCheck").count(), 0);
       await page.locator("#ermTask").selectOption("fahrschule-ort");
       assert.equal(await page.locator(".erm-entity").count(), 2);
-      assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1").includes("Fahrschüler")), false);
+      assert.equal(await page.evaluate(() => Boolean(JSON.parse(localStorage.getItem("workbenchlab-v1")).completedModels["fahrschule-ort"])), true);
 
       // Kästen verschieben: mit der Maus, mit der Tastatur, dauerhaft; „Automatisch anordnen“ setzt zurück.
       await page.locator("#ermCheck").click();
@@ -279,7 +279,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass, self-relation rejected, SQL export, persistence per task, not in progress data, moving boxes by mouse and keyboard, optionality, image export, M:N task, removal and reset, desktop/mobile, dragging by touch.");
+    console.log("PASS: model editor reachable without unlock, build 1:N model by keyboard, live diagram, specific feedback, pass with XP snapshot, self-relation rejected, SQL export, persistence per task, moving boxes by mouse and keyboard, optionality, image export, M:N task, removal and reset, desktop/mobile, dragging by touch.");
   } finally {
     await browser.close();
   }

@@ -2823,6 +2823,41 @@ entscheidet (OPT-09, OPT-25) oder im Unterricht prüft (OPT-15).
 
 Nächste Handlungsnummer: 468.
 
+### 0.70 Release 0.46.0: NAGOLD-Tabelle und verschiebbare Trennlinie [Claude, 2026-10-11]
+
+Auftrag Jakob im Gespräch, Schritt für Schritt mit Bildschirmfotos. Im
+Arbeitsordner lagen dabei uncommittete Änderungen von Codex vom 10. Oktober in
+14 Dateien (u. a. Modellabschlüsse in `state.js`, `erm-editor.js`). Jakob hat
+ausdrücklich angewiesen, alles zusammen zu veröffentlichen.
+
+| Nr. | Handlung | Ergebnis / Ort |
+| ---: | --- | --- |
+| 468 | NAGOLD-Tabelle, Spalte „Wofür“: ein Feld statt Auswahlfeld plus Textfeld | `app.js` (`renderNagoldRows`, `readNagoldInput`; Codex' Funktionen) |
+| 469 | Eigene Vorschlagsliste statt der Browser-Liste, damit sie weich aufklappt: Pfeil dreht sich, Tippen filtert, Pfeiltasten und Enter wählen, Esc schließt nur die Liste; ARIA-Rollen `combobox`/`listbox` | `app.js` (`nagoldCombo`), Regeln am Ende von `styles-extensions.css` |
+| 470 | Neue Zeilen beginnen mit 0 NAGOLD; 0 lässt sich nicht speichern. Erlaubt sind ganze Werte von −5 bis 5 (Abzüge als Sanktion) | `nagold.js` (`minPoints`, `normalizeEntries`), `app.js` |
+| 471 | NAGOLD-Fenster von Anfang an rund 680 Pixel hoch | `styles-extensions.css` |
+| 472 | Trennlinie zwischen Navigation und Inhalt verschiebbar (Maus, Finger, Pfeiltasten; 220 bis 520 Pixel; Doppelklick stellt 292 Pixel wieder her; Breite bleibt gespeichert) | `app.js`, `styles-extensions.css`; neuer Speicherschlüssel `workbenchlab-sidebar-width-v1` |
+| 473 | Tests: `tests/sidebar-resize.browser.cjs` neu; `tests/nagold.browser.cjs` und `tests/nagold.test.js` an Feld, Vorgabe 0 und Abzüge angepasst und erweitert | |
+| 474 | Fehlgriffe: Vorschlagsliste zuerst fest am Bildschirm verankert – im Dialog saß sie falsch (jetzt am Feld verankert); im Test „Mit“ als Filter angenommen, das trifft auch Einheitentitel | durch die Tests bemerkt |
+| 475 | In Codex' uncommittetem Test „Modellabschlüsse werden erneut geprüft“ (`tests/state.test.js`) bestand das Beispielmodell die eigene Prüfung nicht (Fremdschlüssel am falschen Entitätstyp, kein beschreibendes Attribut). Beispielmodell berichtigt; Codex' Code unverändert | ohne das hätte die Veröffentlichung nicht durchlaufen |
+| 476 | Versionsangaben auf `0.46.0` (auch `content.js`); `CHANGELOG.md`, `README.md` | |
+| 477 | Auf Port 4199 lief ein Testserver vom 9. Oktober, der nicht von Claude stammt; mitbenutzt, nicht beendet | |
+
+**Prüfung**
+
+- 224 Node-Tests und 4 Python-Tests bestanden.
+- Alle 47 Browsertests auf dem endgültigen Stand bestanden (Edge, Port 4199).
+
+**Nicht geprüft / offen**
+
+- Codex' eigene Änderungen vom 10. Oktober hat Claude nicht inhaltlich geprüft,
+  nur durch die Tests laufen lassen.
+- Abzüge kann derzeit jeder in seiner eigenen Tabelle eintragen und löschen;
+  verbindlich ist die Freigabe in der Klassenübersicht.
+- Untergrenze −5 ist eine Annahme (spiegelbildlich zur Obergrenze).
+
+Nächste Handlungsnummer: 478.
+
 <!-- CLAUDE:END -->
 
 ## Codex: Übergabeprüfung 0.41.5 [Codex, 2026-10-09]

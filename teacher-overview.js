@@ -23,12 +23,14 @@
   // Entwürfe aus dem Modell-Editor (in Sicherungen ab 0.40.0). Die Aufgaben werden hier, auf dem
   // Gerät der Lehrkraft, neu geprüft – das Ergebnis stammt nicht aus der Datei.
   function summarizeModels(parsed, erm) {
-    if (!erm || !parsed.extras || typeof parsed.extras !== "object" || !("ermDrafts" in parsed.extras)) return null;
-    const store = erm.sanitizeStore(parsed.extras.ermDrafts);
+    const hasCompletions = Object.hasOwn(parsed.data || {}, "completedModels");
+    if (!erm || (!hasCompletions && (!parsed.extras || typeof parsed.extras !== "object" || !("ermDrafts" in parsed.extras)))) return null;
+    const store = erm.sanitizeStore(parsed.extras?.ermDrafts);
+    const completed = erm.normalizeCompletions(parsed.data?.completedModels);
     const tasks = erm.TASKS.filter((task) => task.target);
     return {
       drafts: Object.values(store.models).filter((model) => model.entities.length).length,
-      passed: tasks.filter((task) => store.models[task.id] && erm.checkModel(store.models[task.id], task.target).passed).map((task) => task.title),
+      passed: tasks.filter(task => completed[task.id] || store.models[task.id] && erm.checkModel(store.models[task.id], task.target).passed).map(task => task.title),
       total: tasks.length
     };
   }
@@ -44,7 +46,7 @@
     const practices = known(data.completedPractices, content.practices);
     const commands = known(data.completedCommands, content.commands);
     const xpOf = (ids, items) => ids.reduce((sum, id) => sum + (items.find((item) => item.id === id)?.xp || 0), 0);
-    const xp = xpOf(lessons, content.lessons) + xpOf(practices, content.practices) + xpOf(commands, content.commands);
+    const xp = xpOf(lessons, content.lessons) + xpOf(practices, content.practices) + xpOf(commands, content.commands) + (erm?.completedXp(data.completedModels) || 0);
     const days = strings(data.activityDates).filter((day) => /^\d{4}-\d{2}-\d{2}$/.test(day)).sort();
     const text = (value, limit) => (typeof value === "string" ? value.trim().slice(0, limit) : "");
     const statedXp = Number(parsed.summary?.xp);

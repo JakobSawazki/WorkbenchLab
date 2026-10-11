@@ -15,7 +15,7 @@
   const developerStorageKey = "workbenchlab-developer-v1";
   const pendingModuleStorageKey = "workbenchlab-pending-module-v1";
   const backupAppId = "WorkbenchLab";
-  const backupFormatVersion = 7;
+  const backupFormatVersion = 8;
   const maxBackupBytes = 25 * 1024 * 1024;
   let backupBusy = false;
   // Vorgabewerte, Kennungen und normalizeState: state.js (OPT-16, Schritt 3, Claude).
@@ -246,7 +246,7 @@
     const lessonXp = candidate.completedLessons.reduce((sum, id) => sum + (lessonById(id)?.xp || 0), 0);
     const practiceXp = candidate.completedPractices.reduce((sum, id) => sum + (practiceById(id)?.xp || 0), 0);
     const commandXp = candidate.completedCommands.reduce((sum, id) => sum + (commandById(id)?.xp || 0), 0);
-    return lessonXp + practiceXp + commandXp;
+    return lessonXp + practiceXp + commandXp + window.WORKBENCH_ERM.completedXp(candidate.completedModels);
   }
 
   function loadState() {
@@ -509,6 +509,18 @@
   function moduleProgress(module) {
     const done = module.lessonIds.filter((id) => state.completedLessons.includes(id)).length;
     return { done, total: module.lessonIds.length, percent: progressPercent(done, module.lessonIds.length) };
+  }
+
+  function completeModel(id, model) {
+    if (state.completedModels[id]) return false;
+    const snapshot = window.WORKBENCH_ERM.normalizeCompletions({ [id]: model })[id];
+    if (!snapshot) return false;
+    state.completedModels[id] = snapshot;
+    markActivity();
+    saveState();
+    const task = window.WORKBENCH_ERM.TASKS.find(task => task.id === id);
+    toast(`+${task.xp} XP gesammelt`, "xp");
+    return true;
   }
 
   function nextLesson() {
@@ -2228,7 +2240,7 @@
         <button class="button button-secondary" type="button" data-route="modeling"><i data-lucide="network"></i>Modellieren</button>
       </header>
       <div id="ermMount"></div>`;
-    window.WORKBENCH_ERM.mount(document.querySelector("#ermMount"), { escapeHtml, renderIcons, toast, downloadBlob });
+    window.WORKBENCH_ERM.mount(document.querySelector("#ermMount"), { escapeHtml, renderIcons, toast, downloadBlob, completeModel, modelCompleted: id => Boolean(state.completedModels[id]) });
   }
 
   function renderModeling() {
@@ -3424,7 +3436,7 @@
         xp: stateXp(),
         completedLessons: state.completedLessons.length,
         nagold: stateNagold(),
-        completedTasks: state.completedPractices.length + state.completedCommands.length
+        completedTasks: state.completedPractices.length + state.completedCommands.length + Object.keys(state.completedModels).length
       },
       data: structuredClone(state),
       extras: ermDrafts ? { ermDrafts } : {}
@@ -4342,8 +4354,8 @@
       return `<tr data-nagold-index="${index}" class="${editing ? "is-editing" : ""}">
         <td data-label="Datum">${editing ? `<input type="date" data-nagold-field="date" aria-label="Datum, ${label}" value="${escapeHtml(row.date)}" ${row.allowUnknownDate ? "" : "required"}>` : escapeHtml(date)}</td>
         <td data-label="Uhrzeit">${editing ? `<input type="time" data-nagold-field="time" aria-label="Uhrzeit, ${label}" value="${escapeHtml(row.time)}" ${row.allowUnknownTime ? "" : "required"} step="60">` : escapeHtml(row.time || "Nicht erfasst")}</td>
-        <td data-label="Wofür">${editing ? `<select data-nagold-preset aria-label="Anlass auswählen, ${label}"><option value="">Eigener Anlass</option>${presets.map(preset => `<option value="${escapeHtml(preset)}" ${preset === row.purpose ? "selected" : ""}>${escapeHtml(preset)}</option>`).join("")}</select><input type="text" data-nagold-field="purpose" aria-label="Wofür, ${label}" value="${escapeHtml(row.purpose)}" maxlength="160" required>` : escapeHtml(row.purpose)}</td>
-        <td data-label="NAGOLD">${editing ? `<input type="number" data-nagold-field="points" aria-label="NAGOLD, ${label}" min="1" max="5" step="1" value="${row.points}" inputmode="numeric" required>` : row.points}</td>
+        <td data-label="Wofür">${editing ? `<div class="nagold-combo"><input type="text" data-nagold-field="purpose" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nagoldList${index}" aria-label="Wofür, ${label}" value="${escapeHtml(row.purpose)}" maxlength="160" placeholder="Auswählen oder eintippen" autocomplete="off" required><button class="nagold-combo-toggle" type="button" data-nagold-combo-toggle tabindex="-1" aria-label="Vorschläge anzeigen, ${label}"><i data-lucide="chevron-down" aria-hidden="true"></i></button><ul class="nagold-combo-list" id="nagoldList${index}" role="listbox" aria-label="Vorschläge, ${label}" hidden>${presets.map((preset, option) => `<li role="option" id="nagoldOption${index}-${option}" data-nagold-option="${escapeHtml(preset)}" aria-selected="false">${escapeHtml(preset)}</li>`).join("")}</ul></div>` : escapeHtml(row.purpose)}</td>
+        <td data-label="NAGOLD">${editing ? `<input type="number" data-nagold-field="points" aria-label="NAGOLD, ${label}" min="${nagold.minPoints}" max="${nagold.maxPoints}" step="1" value="${row.points}" inputmode="numeric" required>` : row.points}</td>
         <td class="nagold-row-actions"><button class="icon-button" type="button" data-nagold-edit="${index}" title="Eintrag bearbeiten" aria-label="${label} bearbeiten" ${editing ? "disabled" : ""}><i data-lucide="pencil" aria-hidden="true"></i></button><button class="icon-button" type="button" data-nagold-remove="${index}" title="Zeile löschen" aria-label="${label} löschen"><i data-lucide="minus" aria-hidden="true"></i></button></td>
       </tr>`;
     }).join("");
@@ -4355,7 +4367,7 @@
   function addNagoldRow() {
     if (nagoldDraft.filter(row => !row.lessonId).length >= nagold.maxManualEntries) return;
     const now = new Date();
-    nagoldDraft.push({ date: todayKey(now), time: nagoldTime(now), purpose: "", points: 5 });
+    nagoldDraft.push({ date: todayKey(now), time: nagoldTime(now), purpose: "", points: 0 });
     nagoldEditing.add(nagoldDraft.length - 1);
     renderNagoldRows();
     document.querySelector('#nagoldRows tr:last-child [data-nagold-field="purpose"]').focus();
@@ -4412,18 +4424,114 @@
       row.querySelector('[data-nagold-field="purpose"]').value = field.value;
     } else {
       draft[field.dataset.nagoldField] = field.dataset.nagoldField === "points" ? field.valueAsNumber : field.value;
-      if (field.dataset.nagoldField === "purpose") row.querySelector("[data-nagold-preset]").value = nagoldPresetOptions().includes(field.value) ? field.value : "";
     }
     document.querySelector("#nagoldError").textContent = "";
     updateNagoldSum();
   }
   document.querySelector("#nagoldRows").addEventListener("input", readNagoldInput);
+
+  // Auswahlliste im Feld „Wofür“ (Claude, 2026-10-11): eigene Liste statt der Browser-Liste, damit sie
+  // weich aufklappt. Tippen filtert, Pfeiltasten wählen, Enter übernimmt, Esc schließt nur die Liste.
+  const nagoldCombo = {
+    parts(element) {
+      const box = element?.closest?.(".nagold-combo");
+      return box ? { box, input: box.querySelector("input"), list: box.querySelector("ul") } : null;
+    },
+    options(list) { return [...list.querySelectorAll("[data-nagold-option]")].filter(option => !option.hidden); },
+    filter(input, list, all) {
+      const needle = all ? "" : input.value.trim().toLocaleLowerCase("de-DE");
+      list.querySelectorAll("[data-nagold-option]").forEach(option => {
+        option.hidden = Boolean(needle) && !option.dataset.nagoldOption.toLocaleLowerCase("de-DE").includes(needle);
+        option.setAttribute("aria-selected", "false");
+      });
+      input.removeAttribute("aria-activedescendant");
+    },
+    open(parts, all) {
+      document.querySelectorAll(".nagold-combo.is-open").forEach(other => { if (other !== parts.box) this.close(this.parts(other)); });
+      this.filter(parts.input, parts.list, all);
+      if (!this.options(parts.list).length) { this.close(parts); return; }
+      // Die Liste hängt am Feld; ist darunter zu wenig Platz, klappt sie nach oben.
+      const rect = parts.input.getBoundingClientRect();
+      const below = window.innerHeight - rect.bottom;
+      const upward = below < 180 && rect.top > below;
+      parts.list.style.maxHeight = `${Math.max(120, Math.min(280, (upward ? rect.top : below) - 16))}px`;
+      parts.box.classList.toggle("opens-upward", upward);
+      parts.list.hidden = false;
+      // Erst sichtbar machen, dann die Klasse setzen: so läuft der Übergang.
+      void parts.list.offsetHeight;
+      parts.box.classList.add("is-open");
+      parts.input.setAttribute("aria-expanded", "true");
+    },
+    close(parts) {
+      if (!parts || parts.list.hidden) return;
+      parts.box.classList.remove("is-open");
+      parts.input.setAttribute("aria-expanded", "false");
+      parts.input.removeAttribute("aria-activedescendant");
+      const list = parts.list;
+      const hide = () => { if (!parts.box.classList.contains("is-open")) list.hidden = true; };
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) hide();
+      else window.setTimeout(hide, 170);
+    },
+    move(parts, step) {
+      const options = this.options(parts.list);
+      if (!options.length) return;
+      const current = options.findIndex(option => option.getAttribute("aria-selected") === "true");
+      const next = options[(current + step + options.length) % options.length] || options[0];
+      options.forEach(option => option.setAttribute("aria-selected", String(option === next)));
+      parts.input.setAttribute("aria-activedescendant", next.id);
+      next.scrollIntoView({ block: "nearest" });
+    },
+    choose(parts, option) {
+      parts.input.value = option.dataset.nagoldOption;
+      parts.input.dispatchEvent(new Event("input", { bubbles: true }));
+      this.close(parts);
+      parts.input.focus();
+    }
+  };
+  const nagoldRowsElement = document.querySelector("#nagoldRows");
+  nagoldRowsElement.addEventListener("pointerdown", event => {
+    const option = event.target.closest("[data-nagold-option]");
+    const toggle = event.target.closest("[data-nagold-combo-toggle]");
+    if (!option && !toggle) return;
+    // Der Fokus bleibt im Feld; sonst schlösse das Verlassen des Feldes die Liste vor der Auswahl.
+    event.preventDefault();
+    const parts = nagoldCombo.parts(event.target);
+    if (option) nagoldCombo.choose(parts, option);
+    else if (parts.box.classList.contains("is-open")) nagoldCombo.close(parts);
+    else { parts.input.focus(); nagoldCombo.open(parts, true); }
+  });
+  nagoldRowsElement.addEventListener("input", event => {
+    if (!event.target.matches('.nagold-combo input') || !event.isTrusted) return;
+    nagoldCombo.open(nagoldCombo.parts(event.target), false);
+  });
+  nagoldRowsElement.addEventListener("keydown", event => {
+    if (!event.target.matches(".nagold-combo input")) return;
+    const parts = nagoldCombo.parts(event.target);
+    const isOpen = parts.box.classList.contains("is-open");
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!isOpen) nagoldCombo.open(parts, true);
+      nagoldCombo.move(parts, event.key === "ArrowDown" ? 1 : -1);
+    } else if (event.key === "Enter" && isOpen) {
+      const active = parts.list.querySelector('[aria-selected="true"]');
+      if (active) { event.preventDefault(); nagoldCombo.choose(parts, active); }
+    } else if (event.key === "Escape" && isOpen) {
+      // Nur die Liste schließen, nicht den ganzen Dialog.
+      event.preventDefault();
+      event.stopPropagation();
+      nagoldCombo.close(parts);
+    }
+  });
+  nagoldRowsElement.addEventListener("focusout", event => {
+    if (event.target.matches(".nagold-combo input")) nagoldCombo.close(nagoldCombo.parts(event.target));
+  });
+  nagoldDialog.addEventListener("scroll", () => document.querySelectorAll(".nagold-combo.is-open").forEach(box => nagoldCombo.close(nagoldCombo.parts(box))), true);
   document.querySelector("#nagoldRows").addEventListener("change", readNagoldInput);
   document.querySelector("#nagoldForm").addEventListener("submit", event => {
     event.preventDefault();
     const entries = nagold.normalizeEntries(nagoldDraft);
     if (entries.length !== nagoldDraft.length) {
-      document.querySelector("#nagoldError").textContent = "Bitte für jede Zeile einen Anlass und 1 bis 5 ganze NAGOLD eintragen.";
+      document.querySelector("#nagoldError").textContent = "Bitte für jede Zeile einen Anlass und ganze NAGOLD von −5 bis 5 eintragen. 0 gilt nicht als Eintrag.";
       return;
     }
     state.nagoldEntries = entries;
@@ -4574,6 +4682,60 @@
     restoreAfterPrint?.();
     restoreAfterPrint = null;
   });
+
+  // Trennlinie zwischen Navigation und Inhalt verschieben (Claude, 2026-10-11, Wunsch Jakob).
+  // Ziehen mit Maus oder Finger, Pfeiltasten links/rechts, Doppelklick stellt die Standardbreite wieder her.
+  (() => {
+    const key = "workbenchlab-sidebar-width-v1";
+    const [min, max, standard] = [220, 520, 292];
+    const shell = document.querySelector(".app-shell");
+    const handle = document.createElement("div");
+    handle.className = "sidebar-resizer";
+    handle.tabIndex = 0;
+    handle.setAttribute("role", "separator");
+    handle.setAttribute("aria-orientation", "vertical");
+    handle.setAttribute("aria-label", "Breite der Navigation ändern");
+    handle.title = "Ziehen, um die Breite zu ändern. Doppelklick: Standardbreite.";
+    const limit = (value) => Math.min(Math.min(max, Math.round(window.innerWidth * 0.5)), Math.max(min, Math.round(value)));
+    const apply = (value, persist) => {
+      const width = limit(value);
+      shell.style.setProperty("--sidebar-width", `${width}px`);
+      handle.setAttribute("aria-valuemin", String(min));
+      handle.setAttribute("aria-valuemax", String(max));
+      handle.setAttribute("aria-valuenow", String(width));
+      if (persist) { try { localStorage.setItem(key, String(width)); } catch {} }
+    };
+    let stored = NaN;
+    try { stored = Number(localStorage.getItem(key)); } catch {}
+    apply(Number.isFinite(stored) && stored >= min ? stored : standard, false);
+    sidebar.append(handle);
+    let dragging = false;
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.button > 0) return;
+      dragging = true;
+      handle.setPointerCapture(event.pointerId);
+      shell.classList.add("is-resizing-sidebar");
+      event.preventDefault();
+    });
+    handle.addEventListener("pointermove", (event) => { if (dragging) apply(event.clientX - sidebar.getBoundingClientRect().left, false); });
+    const finish = () => {
+      if (!dragging) return;
+      dragging = false;
+      shell.classList.remove("is-resizing-sidebar");
+      apply(Number(handle.getAttribute("aria-valuenow")), true);
+    };
+    handle.addEventListener("pointerup", finish);
+    handle.addEventListener("pointercancel", finish);
+    handle.addEventListener("dblclick", () => apply(standard, true));
+    handle.addEventListener("keydown", (event) => {
+      const step = { ArrowLeft: -16, ArrowRight: 16 }[event.key];
+      if (event.key === "Home") apply(standard, true);
+      else if (step) apply(Number(handle.getAttribute("aria-valuenow")) + step, true);
+      else return;
+      event.preventDefault();
+    });
+    window.addEventListener("resize", () => apply(Number(handle.getAttribute("aria-valuenow")), false));
+  })();
 
   applyTheme(readTheme(), false);
   initSqlRuntime().catch(() => {});

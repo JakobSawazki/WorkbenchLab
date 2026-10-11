@@ -43,15 +43,45 @@ fs.mkdirSync(artifacts, { recursive: true });
     assert.ok([beforeTime, localTime].includes(await field(0, "time").inputValue()));
     await page.locator("#nagoldSaveButton").click();
     assert.ok(await page.locator("#nagoldDialog").isVisible());
-    await page.locator("[data-nagold-preset]").selectOption("Mitarbeit");
+    // Ein Feld: Vorschläge aus der Liste oder eigener Text (Claude, 2026-10-11).
+    assert.equal(await page.locator("[data-nagold-preset]").count(), 0);
+    assert.equal(await page.locator('#nagoldRows [data-nagold-field="purpose"]').count(), await page.locator("#nagoldRows tr.is-editing").count());
+    // Neue Zeile beginnt mit 0 NAGOLD; 0 lässt sich nicht speichern.
+    assert.equal(await field(0, "points").inputValue(), "0");
+    // Pfeil öffnet die Liste weich; ein Vorschlag wird übernommen.
+    const list = page.locator("#nagoldList0");
+    assert.ok(await list.isHidden());
+    await page.locator("[data-nagold-combo-toggle]").first().click();
+    await page.waitForFunction(() => getComputedStyle(document.querySelector("#nagoldList0")).opacity === "1");
+    assert.equal(await field(0, "purpose").getAttribute("aria-expanded"), "true");
+    assert.match(await list.evaluate(el => getComputedStyle(el).transitionProperty), /opacity/);
+    const box = await list.boundingBox();
+    const inputBox = await field(0, "purpose").boundingBox();
+    assert.ok(Math.abs(box.x - inputBox.x) <= 2 && box.y >= inputBox.y + inputBox.height, "Liste sitzt unter dem Feld");
+    await list.locator('[data-nagold-option="Zusatzaufgabe"]').click();
+    assert.equal(await field(0, "purpose").inputValue(), "Zusatzaufgabe");
+    await list.waitFor({ state: "hidden" });
+    // Tastatur: Tippen filtert, Pfeil und Enter wählen, Esc schließt nur die Liste.
+    await field(0, "purpose").fill("");
+    await field(0, "purpose").pressSequentially("Mitarb");
+    await list.waitFor({ state: "visible" });
+    assert.deepEqual(await list.locator("li:not([hidden])").allInnerTexts(), ["Mitarbeit"]);
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    assert.equal(await field(0, "purpose").inputValue(), "Mitarbeit");
+    await page.keyboard.press("ArrowDown");
+    await list.waitFor({ state: "visible" });
+    await page.keyboard.press("Escape");
+    await list.waitFor({ state: "hidden" });
+    assert.ok(await page.locator("#nagoldDialog").isVisible(), "Esc schließt nur die Liste");
     assert.equal(await field(0, "purpose").inputValue(), "Mitarbeit");
     await field(0, "time").fill("");
     await page.locator("#nagoldSaveButton").click();
     assert.ok(await page.locator("#nagoldDialog").isVisible());
     await field(0, "time").fill(localTime);
-    for (const value of ["6", "5.5", "0", "-1"]) {
+    for (const value of ["6", "5.5", "0", "-6"]) {
       await field(0, "points").fill(value);
-      assert.equal(await field(0, "points").evaluate(el => el.checkValidity()), false);
+      if (value !== "0") assert.equal(await field(0, "points").evaluate(el => el.checkValidity()), false);
       await page.locator("#nagoldSaveButton").click();
       assert.ok(await page.locator("#nagoldDialog").isVisible());
       assert.equal(await page.locator("#topNagold").innerText(), "0 NAG");
@@ -62,6 +92,12 @@ fs.mkdirSync(artifacts, { recursive: true });
     const secondTime = await field(1, "time").inputValue();
     assert.match(secondTime, /^\d{2}:\d{2}$/);
     await field(1, "purpose").fill("Eigener Arbeitsauftrag");
+    // Neue Zeilen beginnen mit 0; Abzüge sind erlaubt und zählen in der Summe mit (Vorgabe Jakob, 2026-10-11).
+    assert.equal(await field(1, "points").inputValue(), "0");
+    await field(1, "points").fill("-2");
+    assert.equal(await field(1, "points").evaluate(el => el.checkValidity()), true);
+    assert.equal(await page.locator("#nagoldSum").innerText(), "1 NAGOLD gesamt");
+    await field(1, "points").fill("5");
     await page.locator("#nagoldAddButton").click();
     await field(2, "purpose").fill("Versehentlicher Eintrag");
     await remove(2).click();
@@ -106,7 +142,7 @@ fs.mkdirSync(artifacts, { recursive: true });
     await page.locator("#exportProgressButton").click();
     const download = await downloadPromise;
     const payload = JSON.parse(fs.readFileSync(await download.path(), "utf8"));
-    assert.equal(payload.formatVersion, 7);
+    assert.equal(payload.formatVersion, 8);
     assert.equal(payload.summary.nagold, 5);
     assert.deepEqual(payload.data.nagoldEntries, [{ date: today, time: secondTime, purpose: "Eigener Arbeitsauftrag", points: 5 }]);
     await page.keyboard.press("Escape");

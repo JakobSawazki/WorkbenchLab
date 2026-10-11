@@ -194,6 +194,15 @@ test("Modellaufgaben werden aus den Entwürfen der Sicherung neu geprüft (0.40.
   };
   const unfinished = { entities: [{ id: 1, name: "Buch", attributes: [] }], relations: [] };
   const row = teacher.summarize(backup({ extras: { ermDrafts: { models: { "fahrschule-ort": solved, schulbibliothek: unfinished, frei: unfinished, "gibt-es-nicht": solved } } } }), content);
+  const completed = teacher.summarize(backup({ summary: { xp: 9999 }, extras: { ermDrafts: { models: {} } } }, {
+    completedModels: { "fahrschule-ort": solved, frei: solved, unbekannt: solved, schulbibliothek: unfinished }
+  }), content);
+  assert.equal(completed.xp, 30);
+  assert.equal(completed.xpMismatch, true);
+  assert.equal(completed.models.passed.length, 1);
+  assert.equal(completed.models.drafts, 0);
+  const normalized = context.window.WORKBENCH_ERM.normalizeCompletions({ "fahrschule-ort": solved });
+  assert.equal(context.window.WORKBENCH_ERM.completedXp(normalized), completed.xp);
   assert.equal(row.models.total, total);
   assert.equal(row.models.drafts, 3);
   assert.deepEqual(Array.from(row.models.passed), [erm.TASKS.find((task) => task.id === "fahrschule-ort").title]);

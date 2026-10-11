@@ -266,20 +266,44 @@
     }
   });
 
+  TASKS.forEach(task => { task.xp = task.target ? 30 : 0; });
+
+  function normalizeCompletions(candidate) {
+    const completed = {};
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return completed;
+    for (const task of TASKS.filter(task => task.target)) {
+      if (!Object.hasOwn(candidate, task.id)) continue;
+      const snapshot = sanitize(candidate[task.id]);
+      if (checkModel(snapshot, task.target).passed) completed[task.id] = snapshot;
+    }
+    return completed;
+  }
+
+  function completedXp(candidate) {
+    const completed = normalizeCompletions(candidate);
+    return TASKS.reduce((sum, task) => sum + (completed[task.id] ? task.xp : 0), 0);
+  }
+
+  function crowFootEnd(maximum, optional) {
+    const maximumMark = maximum === "1" ? '<path d="M4 -7V7"/>' : '<path d="M0 -7L14 0L0 7M0 0H14"/>';
+    const minimumMark = optional ? '<circle cx="23" cy="0" r="4"/>' : '<path d="M23 -7V7"/>';
+    return maximumMark + minimumMark;
+  }
+
   // Alle Entwürfe (je Aufgabe ein Modell) samt gewählter Aufgabe und Schreibweise bereinigen.
   // Wird beim Laden aus dem Browserspeicher und beim Einlesen einer JSON-Sicherung benutzt.
   function sanitizeStore(candidate) {
     const clean = { task: "fahrschule-ort", notation: "n", models: {} };
     if (candidate && typeof candidate === "object" && !Array.isArray(candidate)) {
       if (TASKS.some((task) => task.id === candidate.task)) clean.task = candidate.task;
-      if (candidate.notation === "workbench") clean.notation = "workbench";
+      if (["workbench", "crowfoot"].includes(candidate.notation)) clean.notation = candidate.notation;
       const models = candidate.models && typeof candidate.models === "object" ? candidate.models : {};
       TASKS.forEach((task) => { if (models[task.id]) clean.models[task.id] = sanitize(models[task.id]); });
     }
     return clean;
   }
 
-  window.WORKBENCH_ERM = { TYPES, CARDS, TASKS, LIMITS, CANVAS, norm, identifier, emptyModel, sanitize, sanitizeStore, checkModel, toSql, layout, oneToMany, ends };
+  window.WORKBENCH_ERM = { TYPES, CARDS, TASKS, LIMITS, CANVAS, norm, identifier, emptyModel, sanitize, sanitizeStore, checkModel, toSql, layout, oneToMany, ends, normalizeCompletions, completedXp, crowFootEnd };
 
   if (typeof document === "undefined") return;
 
@@ -319,6 +343,7 @@
       const b = box(relation.to);
       const ax = a.x + a.width / 2, ay = a.y + a.height / 2, bx = b.x + b.width / 2, by = b.y + b.height / 2;
       const edge = (rect, dx, dy) => {
+        if (Math.abs(dx) < .01 && Math.abs(dy) < .01) return { x: rect.x + rect.width, y: rect.y + rect.height / 2 };
         const scale = Math.min(Math.abs(dx) > 0.01 ? (rect.width / 2) / Math.abs(dx) : Infinity, Math.abs(dy) > 0.01 ? (rect.height / 2) / Math.abs(dy) : Infinity);
         return { x: rect.x + rect.width / 2 + dx * scale, y: rect.y + rect.height / 2 + dy * scale };
       };
@@ -326,6 +351,15 @@
       const end = edge(b, ax - bx, ay - by);
       const [left, right] = ends(relation, store.notation);
       const label = (from, to, text) => `<text class="erm-card" x="${from.x + (to.x - from.x) * 0.18}" y="${from.y + (to.y - from.y) * 0.18 - 6}" text-anchor="middle">${text}</text>`;
+      if (store.notation === "crowfoot") {
+        const [fromMax, toMax] = relation.card.split(":");
+        const symbol = (from, to, maximum, optional) => {
+          const angle = Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI;
+          const scale = Math.min(1, Math.hypot(to.x - from.x, to.y - from.y) / 60);
+          return `<g class="erm-crowfoot-end" aria-hidden="true" data-min="${optional ? 0 : 1}" data-max="${maximum === "1" ? 1 : "many"}" transform="translate(${from.x} ${from.y}) rotate(${angle}) scale(${scale})">${crowFootEnd(maximum, optional)}</g>`;
+        };
+        return `<line class="erm-line" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"></line>${symbol(start, end, fromMax, relation.fromOptional)}${symbol(end, start, toMax, relation.toOptional)}`;
+      }
       return `<line class="erm-line" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"></line>${label(start, end, left)}${label(end, start, right)}`;
     }).join("");
     const boxes = current.entities.map((entity) => {
@@ -334,7 +368,12 @@
       return `<g class="erm-entity-box" data-box="${entity.id}" tabindex="0" role="group" aria-label="Kasten ${escapeHtml(entity.name || "ohne Namen")}: mit der Maus ziehen oder mit den Pfeiltasten verschieben"><rect class="erm-box" x="${rect.x}" y="${rect.y}" width="${rect.width}" height="${rect.height}" rx="8"></rect><rect class="erm-box-head" x="${rect.x}" y="${rect.y}" width="${rect.width}" height="32" rx="8"></rect><text class="erm-title" x="${rect.x + rect.width / 2}" y="${rect.y + 21}" text-anchor="middle">${escapeHtml(entity.name || "ohne Namen")}</text>${rows}</g>`;
     }).join("");
     const summary = `${current.entities.length} Entitätstyp${current.entities.length === 1 ? "" : "en"}, ${current.relations.length} Beziehung${current.relations.length === 1 ? "" : "en"}`;
-    return `<svg class="erm-svg" viewBox="0 0 ${plan.width} ${plan.height}" role="img" aria-label="Diagramm: ${summary}" style="max-width:${plan.width}px">${lines}${boxes}</svg>`;
+    const descriptions = current.relations.map(relation => {
+      const [left, right] = relation.card.split(":");
+      const name = id => current.entities.find(entity => entity.id === id)?.name || "ohne Namen";
+      return `${name(relation.from)} ${relation.fromOptional ? 0 : 1}..${left === "1" ? 1 : "N"}, ${name(relation.to)} ${relation.toOptional ? 0 : 1}..${right === "1" ? 1 : "N"}`;
+    }).join("; ");
+    return `<svg class="erm-svg" data-notation="${store.notation}" viewBox="0 0 ${plan.width} ${plan.height}" role="img" aria-label="Diagramm: ${escapeHtml(summary + (descriptions ? "; " + descriptions : ""))}" style="max-width:${plan.width}px">${lines}${boxes}</svg>`;
   }
 
   function render() {
@@ -351,6 +390,7 @@
           <select id="ermTask">${TASKS.map((item) => `<option value="${item.id}" ${item.id === task.id ? "selected" : ""}>${escapeHtml(item.lesson ? `${item.lesson} · ${item.title}` : item.title)}</option>`).join("")}</select>
         </div>
         <p>${escapeHtml(task.text)}</p>
+        ${task.target ? `<p class="field-hint" id="ermProgress">${helpers.modelCompleted(task.id) ? `${task.xp} XP · Abgeschlossen` : `${task.xp} XP`}</p>` : ""}
       </section>
       <div class="erm-layout">
         <section class="erm-form" aria-label="Modell bearbeiten">
@@ -403,9 +443,10 @@
             <select id="ermNotation">
               <option value="n" ${store.notation === "n" ? "selected" : ""}>1 : N</option>
               <option value="workbench" ${store.notation === "workbench" ? "selected" : ""}>1 : ∞ (wie in MySQL Workbench und im Abitur)</option>
+              <option value="crowfoot" ${store.notation === "crowfoot" ? "selected" : ""}>Krähenfuß</option>
             </select>
           </div>
-          <div class="erm-diagram" id="ermDiagram">${diagramSvg(current, escapeHtml)}</div>
+          <div class="erm-diagram" id="ermDiagram" tabindex="0" role="region" aria-label="Modelldiagramm">${diagramSvg(current, escapeHtml)}</div>
           <p class="field-hint erm-drag-hint">Kästen lassen sich ziehen. Mit der Tastatur: Kasten ansteuern, dann Pfeiltasten.</p>
           <div class="runner-actions">
             ${task.target ? `<button class="button button-primary" type="button" id="ermCheck"><i data-lucide="check"></i>Modell prüfen</button>` : ""}
@@ -496,7 +537,7 @@ ${new XMLSerializer().serializeToString(copy)}
     if (!event.target.closest?.("#ermEditor")) return;
     const target = event.target;
     if (target.id === "ermNotation") {
-      store.notation = target.value === "workbench" ? "workbench" : "n";
+      store.notation = ["workbench", "crowfoot"].includes(target.value) ? target.value : "n";
       save();
       refreshDiagram();
     } else if (target.id === "ermTask") {
@@ -566,6 +607,9 @@ ${new XMLSerializer().serializeToString(copy)}
       changed(true, "#ermAddRelation");
     } else if (target.id === "ermCheck" && currentTask().target) {
       lastCheck = checkModel(current, currentTask().target);
+      if (lastCheck.passed) helpers.completeModel(store.task, current);
+      document.querySelector("#ermProgress").textContent = helpers.modelCompleted(store.task)
+        ? `${currentTask().xp} XP · Abgeschlossen` : `${currentTask().xp} XP`;
       document.querySelector("#ermResult").innerHTML = resultHtml(lastCheck, helpers.escapeHtml);
       helpers.renderIcons();
     } else if (target.id === "ermSql") {

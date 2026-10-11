@@ -142,7 +142,7 @@ async function verifyExport(download, name) {
     await page.locator("#backupButton").click();
     await page.locator("#exportProgressButton").click();
     const exported = await verifyExport(await downloaded, "study-export.json");
-    assert.equal(exported.payload.formatVersion, 7);
+    assert.equal(exported.payload.formatVersion, 8);
     assert.equal(exported.payload.data.generalNotes, "BPE6: Offene Fragen und meine Merksätze.");
     assert.ok(exported.payload.data.lessonHighlights["warum-datenbanken"].length > 0);
     assert.equal(exported.payload.data.lessonWorksheets["warum-datenbanken"].rows[0].length, "45");

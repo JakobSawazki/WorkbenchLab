@@ -4,6 +4,8 @@
   const maxManualEntries = 1000;
   const maxEntries = maxManualEntries + window.WORKBENCH_CONTENT.lessons.length;
   const maxPoints = 5;
+  // Abzüge sind möglich (Sanktion durch die Lehrkraft); 0 ist kein Eintrag (Claude, 2026-10-11, Vorgabe Jakob).
+  const minPoints = -5;
 
   function validDate(value) {
     if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -18,7 +20,7 @@
     return value.slice(0, maxEntries).flatMap(entry => {
       const time = entry?.time === undefined ? "" : entry.time;
       if (!entry || typeof entry.purpose !== "string" || !entry.purpose.trim()
-        || !Number.isInteger(entry.points) || entry.points < 1 || entry.points > maxPoints
+        || !Number.isInteger(entry.points) || entry.points === 0 || entry.points < minPoints || entry.points > maxPoints
         || (entry.date !== "" && !validDate(entry.date)) || (time !== "" && !validTime(time))) return [];
       const normalized = { date: entry.date, time, purpose: entry.purpose.trim().slice(0, 160), points: entry.points };
       if (window.WORKBENCH_CONTENT.lessons.some(lesson => lesson.id === entry.lessonId)) normalized.lessonId = entry.lessonId;
@@ -47,5 +49,5 @@
     return true;
   }
 
-  window.WORKBENCH_NAGOLD = Object.freeze({ maxEntries, maxManualEntries, maxPoints, validDate, validTime, normalizeEntries, entriesFor, total, addLessonEntry });
+  window.WORKBENCH_NAGOLD = Object.freeze({ maxEntries, maxManualEntries, maxPoints, minPoints, validDate, validTime, normalizeEntries, entriesFor, total, addLessonEntry });
 })();

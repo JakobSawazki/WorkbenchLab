@@ -8,7 +8,7 @@ const vm = require("node:vm");
 const root = path.resolve(__dirname, "..");
 const context = vm.createContext({ window: {}, crypto: globalThis.crypto });
 context.globalThis = context;
-for (const file of ["content.js", "learning-path.js", "lesson-openings.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "study-tools.js", "drawing.js", "nagold.js", "state.js"]) {
+for (const file of ["content.js", "learning-path.js", "lesson-openings.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "study-tools.js", "drawing.js", "nagold.js", "erm-editor.js", "state.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });
 }
 const content = context.window.WORKBENCH_CONTENT;
@@ -146,10 +146,38 @@ test("NAGOLD-Tabelle bleibt beim Normalisieren, Bearbeiten und Leeren erhalten",
   assert.deepEqual(normalize({ ...legacy, nagoldEntries: [] }).nagoldEntries, []);
 });
 
+test("normalizeState: Modellabschluesse werden erneut geprueft und unabhaengig kopiert", () => {
+  const erm = context.window.WORKBENCH_ERM;
+  const target = erm.TASKS.find(task => task.id === "fahrschule-ort").target;
+  let id = 1;
+  // Je Entitätstyp: ein Primärschlüssel, so viele Fremdschlüssel wie verlangt, ein beschreibendes Attribut.
+  const entities = target.entities.map(item => ({
+    id: id++, name: item.names[0], attributes: Array.from({ length: (item.foreignKeys || 0) + 2 }, (_, index) => ({
+      id: id++, name: `feld_${index}`, type: "INT", pk: index === 0, fk: index > 0 && index <= (item.foreignKeys || 0)
+    }))
+  }));
+  const model = { entities, relations: [{ id: id++, from: entities[0].id, to: entities[1].id, card: "1:N" }], nextId: id };
+  // Der Ziel-Relation entsprechend ausrichten, nicht nach der Reihenfolge der Entitaeten.
+  model.relations[0].from = entities[target.entities.findIndex(item => item.key === target.relations[0].one)].id;
+  model.relations[0].to = entities[target.entities.findIndex(item => item.key === target.relations[0].many)].id;
+  assert.equal(erm.checkModel(model, target).passed, true);
+  const state = normalize({ completedModels: { "fahrschule-ort": model, frei: model, unbekannt: model, schulbibliothek: {} } });
+  assert.deepEqual(Object.keys(state.completedModels), ["fahrschule-ort"]);
+  assert.deepEqual(normalize(state), state);
+  model.entities[0].name = "geaendert";
+  assert.notEqual(state.completedModels["fahrschule-ort"].entities[0].name, "geaendert");
+  assert.deepEqual(normalize({ completedModels: [] }).completedModels, {});
+  const dependency = context.window.WORKBENCH_ERM;
+  try {
+    delete context.window.WORKBENCH_ERM;
+    assert.throws(() => normalize(state), /normalizeCompletions/);
+  } finally { context.window.WORKBENCH_ERM = dependency; }
+});
+
 test("state.js wird nach seinen Quellen und vor app.js geladen, veröffentlicht und ist die einzige Kopie", () => {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const at = (file) => html.indexOf(`src="${file}`);
-  for (const before of ["content.js", "order-exercises.js", "study-tools.js", "drawing.js", "nagold.js"]) {
+  for (const before of ["content.js", "order-exercises.js", "study-tools.js", "drawing.js", "nagold.js", "erm-editor.js"]) {
     assert.ok(at(before) > 0 && at(before) < at("state.js"), before);
   }
   assert.ok(at("state.js") < at("app.js"));

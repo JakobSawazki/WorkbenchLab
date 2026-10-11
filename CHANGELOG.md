@@ -6,6 +6,12 @@ Quelle. Wer eine Version veröffentlicht, ergänzt hier eine Zeile.
 
 Spalte „Von“: C = Codex, Cl = Claude.
 
+## 0.46 – 11. Oktober 2026
+
+| Version | Von | Inhalt | Abschnitt |
+| --- | --- | --- | --- |
+| 0.46.0 | C, Cl | NAGOLD-Tabelle: „Wofür“ als ein Feld mit weich aufklappender Vorschlagsliste, neue Zeilen mit 0, Abzüge von −5 bis 5, höheres Fenster; Trennlinie neben der Navigation verschiebbar; dazu Codex' Stand vom 10. Oktober (u. a. Modellabschlüsse) | [documentation.md](documentation/documentation.md), Abschnitt 0.70 |
+
 ## 0.45 – 10. Oktober 2026
 
 | Version | Von | Inhalt | Abschnitt |

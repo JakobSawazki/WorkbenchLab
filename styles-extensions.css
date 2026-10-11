@@ -272,3 +272,36 @@
 .workspace-database { min-width: 0; border-top: 1px solid var(--line); padding-top: 0.75rem; }
 .workspace-database h4, #playgroundCatalog p, #playgroundCatalog code { overflow-wrap: anywhere; }
 .workspace-database .schema-card { margin-block: 0.75rem; }
+.erm-crowfoot-end { fill: none; stroke: var(--muted); stroke-width: 2; }
+.erm-crowfoot-end circle { fill: var(--panel-strong); }
+.erm-svg[data-notation="crowfoot"] { min-width: 640px; }
+
+/* Verschiebbare Trennlinie neben der Navigation (Claude, 2026-10-11) */
+.sidebar-resizer { display: none; }
+@media (min-width: 1081px) {
+  .app-shell:not(.is-sidebar-hidden) { grid-template-columns: var(--sidebar-width, 292px) minmax(0, 1fr); }
+  .sidebar-resizer { display: block; position: absolute; top: 0; right: -4px; bottom: 0; width: 9px; z-index: 6; cursor: col-resize; touch-action: none; }
+  .sidebar-resizer::after { content: ""; position: absolute; top: 0; bottom: 0; left: 3px; width: 3px; border-radius: 2px; background: transparent; transition: background 120ms ease; }
+  .sidebar-resizer:hover::after, .sidebar-resizer:focus-visible::after, .is-resizing-sidebar .sidebar-resizer::after { background: var(--brand-2); }
+  .sidebar-resizer:focus-visible { outline: 2px solid var(--brand-2); outline-offset: -2px; }
+  .is-resizing-sidebar { cursor: col-resize; user-select: none; }
+}
+@media print { .sidebar-resizer { display: none !important; } }
+
+/* NAGOLD, Feld „Wofür“: ein Feld mit eigener, weich aufklappender Vorschlagsliste (Claude, 2026-10-11) */
+.nagold-combo { position: relative; }
+.nagold-table .nagold-combo input { padding-right: 2.2rem; }
+.nagold-combo-toggle { position: absolute; top: 50%; right: 0.25rem; display: grid; place-items: center; width: 1.8rem; height: 1.8rem; transform: translateY(-50%); border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; }
+.nagold-combo-toggle:hover, .nagold-combo.is-open .nagold-combo-toggle { color: var(--brand-2); }
+.nagold-combo-toggle svg { width: 1.1rem; height: 1.1rem; stroke-width: 1.8; transition: transform 160ms ease; }
+.nagold-combo.is-open .nagold-combo-toggle svg { transform: rotate(180deg); }
+.nagold-combo-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 20; margin: 0; padding: 0.3rem; list-style: none; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel-strong); color: var(--text); box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+  opacity: 0; transform: translateY(-6px) scaleY(0.96); transform-origin: top center; transition: opacity 150ms ease, transform 150ms ease; }
+.nagold-combo.opens-upward .nagold-combo-list { top: auto; bottom: calc(100% + 4px); transform: translateY(6px) scaleY(0.96); transform-origin: bottom center; }
+.nagold-combo.is-open .nagold-combo-list { opacity: 1; transform: none; }
+.nagold-combo-list li { padding: 0.5rem 0.65rem; border-radius: 6px; cursor: pointer; overflow-wrap: anywhere; }
+.nagold-combo-list li:hover, .nagold-combo-list li[aria-selected="true"] { background: var(--brand); color: var(--on-brand); }
+@media (prefers-reduced-motion: reduce) { .nagold-combo-list, .nagold-combo-toggle svg { transition: none; } }
+
+/* NAGOLD-Fenster von Anfang an hoch genug für die Tabelle und die aufgeklappte Vorschlagsliste (Claude, 2026-10-11; nagold-hoehe) */
+#nagoldDialog { min-height: min(680px, calc(100dvh - 1.5rem)); }

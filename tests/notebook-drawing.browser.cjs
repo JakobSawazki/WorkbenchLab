@@ -111,7 +111,7 @@ async function line(page, x1, y1, x2, y2) {
     const file = path.join(output, "drawing-export.json");
     await (await json).saveAs(file);
     const exported = JSON.parse(fs.readFileSync(file, "utf8"));
-    assert.equal(exported.formatVersion, 7);
+    assert.equal(exported.formatVersion, 8);
     assert.equal(exported.data.noteDrawings["warum-datenbanken"][1].width, 48);
     assert.equal(exported.data.noteDrawings["warum-datenbanken"].length, 3);
     const { integrity, ...body } = exported;
