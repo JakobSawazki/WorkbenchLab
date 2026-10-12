@@ -352,3 +352,49 @@ stimmt mit lokalem SHA-256 überein. Frischer Edge-Kontext auf GitHub Pages:
 Vorbereitung, Offline-Neuladen mit Notizen, SQL-Ergebnis und Film/Seek/VTT
 erfolgreich, anschließend geschlossen. Echte Schul-PCs,
 Modell-Erweiterungen und OPT-12 bleiben offen, Gesamtziel bleibt aktiv.
+
+## Nachpruefung des uebernommenen Modell-Ausbaus [Codex, 2026-10-12]
+
+Zwischenzeitlichen Stand `f6e0858` (0.46.1) vor Weiterarbeit neu eingelesen.
+Claudes NAGOLD-Aenderungen und Jakobs Entscheidungen vom 11. Oktober bleiben
+erhalten; keine Ruecksetzung auf den Arbeitsstand vom 10. Oktober.
+
+OPT-04: Die drei vorhandenen Strukturaufgaben vergeben je einmal 30 XP nach
+ausdruecklicher erfolgreicher Pruefung, nicht durch Laden eines Entwurfs.
+`completedModels` bewahrt eine bereinigte und erneut gepruefte Kopie, getrennt
+vom Entwurf. Dadurch bleiben Punkte nach Weiterbearbeiten oder Leeren erhalten.
+Format 8 exportiert die Kopien; Lehrkraftseite berechnet XP daraus selbst.
+Keine zusaetzlichen NAGOLD fuer Modellaufgaben. Das ist weiterhin eine
+Strukturpruefung, keine vollstaendige Attributbewertung oder Faelschungssicherung.
+
+Zusaetzliche Kraehenfussnotation bleibt optional; 1:N und 1:unendlich bleiben
+erhalten. Die Diagrammregion ist fokussierbar und auf schmalen Bildschirmen
+horizontal mit den Pfeiltasten bedienbar, statt die Symbole unleserlich zu
+verkleinern. Standalone-SVG enthaelt Linien und Kreise ohne externe CSS-Abhaengigkeit.
+
+`tests/erm-progress.browser.cjs` um echten Zweitbrowser-Import sowie gesperrten
+localStorage/sessionStorage erweitert: einmalige XP bleiben erhalten, Pruefen
+und Dateisicherung funktionieren auch ohne Browserspeicher. Gezielter Edge-Lauf
+bestanden, ebenso 224 Node- und vier Python-Tests. Alle 47 Browserdateien gegen
+eine unveraenderliche, loesungsbereinigte TEMP-Kopie bestanden (318 Kontrast-,
+1200 Ueberlauf-, 252 Namensansichten, 943 Tastaturstopps). Anschliessend den
+erweiterten Modelltest mit Symbolkontrast und tatsaechlicher Diagrammbreite
+erneut erfolgreich ausgefuehrt.
+
+Native Pruefung: zwoelf Skriptimporte samt Abfragen/Fremdschluesseln bestanden.
+Erster Lauf des 168-Faelle-Pruefers meldete beim Modell-Export unerwartet PK=0;
+zwei anschliessende unveraenderte Einzel-Laeufe bestanden alle 168 Faelle. Kein
+Produktcode auf Verdacht geaendert und keine Pruefung abgeschwaecht.
+
+Veroeffentlichungsluecke: Tags und Pages fuer 0.46.0/0.46.1 vorhanden, aber kein
+GitHub-Release mit versionspassendem ZIP. Paket 0.46.1 nachgebaut und nach
+den Browser-Gates am bestehenden Tag veroeffentlicht:
+https://github.com/JakobSawazki/WorkbenchLab/releases/tag/v0.46.1
+SHA-256 `dff58f00ed80c8ef9472424606ffca65fb7e19cd8eac99aa5a3b0aecc8696f93`.
+Echter Schul-PC-Test bleibt offen; OPT-12 ist unten entschieden.
+
+**Entscheidung Jakob, 2026-10-12:** Repository oeffentlich lassen und die
+Auffindbarkeit der Loesungen im Quelltext/Verlauf als Grenze akzeptieren.
+OPT-12 ist damit keine offene technische Umbauaufgabe mehr. Loesungsfilter
+der veroeffentlichten Lernseite bleibt bestehen; keine Sichtbarkeitsaenderung,
+keine Verlaufsaenderung und kein behaupteter Manipulationsschutz.

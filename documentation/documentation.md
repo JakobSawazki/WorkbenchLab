@@ -1,11 +1,11 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 10. Oktober 2026 (Europe/Berlin) [Codex; Claudes Kopfzeilenstand vom 9. Oktober bleibt im Verlauf]
+Stand: 12. Oktober 2026 (Europe/Berlin) [Codex; Claudes Eintraege bleiben im Verlauf]
 
-Aktueller Release-Stand: **0.45.0** [Codex, 2026-10-10; zuvor 0.44.0 von Codex]
+Aktueller Release-Stand: **0.46.1** [Claude, 2026-10-11; von Codex am 2026-10-12 nachgeprueft]
 
-Veröffentlichter Stand: 0.45.0 wird im Codex-Releaseabschnitt unten geführt;
-Claudes letzter Veröffentlichungsstand bleibt historisch in Abschnitt 0.4.
+Veroeffentlichter Stand: 0.46.1, Claudes Abschnitte 0.70 und 0.71;
+Codex' Nachpruefung steht im Abschnitt vom 12. Oktober unten.
 
 Mitwirkende: Jakob Sawazki, Codex, seit 8. Oktober 2026 zusätzlich Claude. Claudes Einträge stehen in Abschnitt 0 und sind dort sowie an jeder anderen Stelle mit `[Claude, Datum]` gekennzeichnet.
 
@@ -36,6 +36,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Was umfasst Codex-Release 0.43.0? | [`releases/RELEASE_0_43_0.md`](releases/RELEASE_0_43_0.md); Einheitenskripte im freien SQL-Labor |
 | Was umfasst Codex-Release 0.44.0? | [`releases/RELEASE_0_44_0.md`](releases/RELEASE_0_44_0.md); Offline-ZIP für den Informatik-Stick |
 | Was umfasst Codex-Release 0.45.0? | [`releases/RELEASE_0_45_0.md`](releases/RELEASE_0_45_0.md); freiwillige Offline-Kopie der Webseite mit sicheren Versionswechseln |
+| Was umfasst der aktuelle Stand 0.46.1? | Abschnitte 0.70/0.71 und Codex' Nachpruefung vom 12. Oktober unten; NAGOLD-Bedienung, Navigationstrennlinie und Modellabschluesse |
 | Was ist gerade der Stand? | Tabelle unten |
 | Was hat Claude getan, geprüft, nicht geprüft? | Abschnitt 0 dieser Datei (nummerierte Einträge, neuester am Ende) |
 | Was hat Codex bis 0.21.0 getan? | [`archiv/PROJEKTDOKUMENTATION_BIS_0_21.md`](archiv/PROJEKTDOKUMENTATION_BIS_0_21.md) (Abschnitte 1 bis 12 und Anhänge, Stand 3. Oktober 2026) |
@@ -47,7 +48,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.45.0)** [Codex, 2026-10-10]
+**Aktueller Stand (Release 0.46.1)** [Codex, 2026-10-12]
 
 | Thema | Stand |
 | --- | --- |
@@ -55,11 +56,11 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Übungen | 59, alle frei zugänglich: 25 SQL-Schreibaufgaben, 7 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
 | Zusätzliche Übungsformen | freies SQL-Labor einschließlich leerem Arbeitsbereich für zwölf Einheitenskripte und eigene SQL-Dateien, Wiederholungsrunde, Klausurtraining, Modell-Editor |
 | Nähe zu MySQL | 26 MySQL-Funktionen nachgebildet und an MariaDB gemessen (4 von Codex, 22 seit 0.41.0); 5 bekannte Unterschiede werden im Labor erklärt (Abschnitt 0.57) |
-| Bewertung | XP als Motivation; NAGOLD-Tabelle mit Datum/Uhrzeit, automatischen 5 Punkten je Einheit und eigenen Einträgen; separate Bestätigungsliste der Lehrkraft |
+| Bewertung | XP als Motivation, auch einmalig 30 XP je bestandener Modellaufgabe; NAGOLD-Tabelle mit Datum/Uhrzeit, automatischen 5 Punkten je Einheit und eigenen Eintraegen von -10 bis 5 (ohne 0); separate Bestaetigungsliste der Lehrkraft |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` mit nachgeprüften Modellaufgaben sowie eigener Bestätigungsliste, Sicherung und bestätigten CSV-Werten; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
 | Offline | Freiwillige HTTPS-Offline-Kopie mit Versionsprüfung und wartenden Updates; alternativ ZIP für den Informatik-Stick direkt in Edge. Echter Schul-PC-Test weiterhin offen |
-| Tests | 221 Node-Tests, 4 Python-Tests, 45 Browsertests; zusätzlich 168 Prüfungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwölf Skriptimporte und native Abfragen/Fremdschlüssel (`node tools/verify-native-sql.cjs`) |
+| Tests | 224 Node-Tests, 4 Python-Tests, alle 47 Browsertestdateien am 12. Oktober bestanden; zusaetzlich 168 Pruefungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwoelf Skriptimporte und native Abfragen/Fremdschluessel (`node tools/verify-native-sql.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -3291,6 +3292,50 @@ Frischer isolierter Edge-Kontext bei 360 Pixeln: ausdrückliche Vorbereitung
 auf GitHub Pages, Offline-Neuladen mit Notiz, SELECT-Ergebnis 42, lokales Video
 bei 70 Sekunden und Untertitel erfolgreich. Kontext anschließend geschlossen;
 keine Registrierung im bestehenden Browserprofil des Nutzers hinterlassen.
+
+## Codex: Nachpruefung 0.46.1 [Codex, 2026-10-12]
+
+Aktuellen sauberen Stand `f6e0858` vor Weiterarbeit eingelesen: Claude hat
+Codex' Modell-Ausbau zusammen mit Jakobs neuen NAGOLD-Wuenschen uebernommen.
+Diese zwischenzeitlichen Aenderungen bleiben erhalten. 34 gezielte Modell-,
+Lernstand- und Lehrkrafttests sowie alle 224 Node- und vier Python-Tests bestanden.
+
+Modellabschluesse vergeben einmalig 30 XP je vorhandener Strukturaufgabe.
+Gepruefte Kopien bleiben getrennt von bearbeitbaren Entwuerfen erhalten und
+werden in Format 8 mitgesichert; die Lehrkraftseite prueft sie erneut.
+Alte Sicherungen ohne Abschluesse vergeben nicht nachtraeglich Punkte.
+Keine zusaetzlichen NAGOLD; keine Behauptung vollstaendiger Attributbewertung
+oder einer technisch verbindlichen Leistungsbewertung.
+
+Neue Regressionen fuer einen unabhaengigen Zweitbrowser und vollstaendig
+gesperrten Browserspeicher bestanden: Import behaelt XP, Wiederholungspruefung
+verdoppelt sie nicht, Pruefen und Dateisicherung bleiben ohne Speicher nutzbar.
+Kraehenfusssymbole in beiden Designs bei 1440/360/320 Pixeln mit grosser Schrift,
+echtem Pfeiltasten-Scrollen und eigenstaendigem SVG-Export geprueft; mobile
+Diagrammansicht visuell kontrolliert. Alle 47 Browserdateien gegen eine feste,
+loesungsbereinigte TEMP-Kopie bestanden: 318 Kontrast-, 1200 Ueberlauf-,
+252 Namensansichten und 943 Tastaturstopps. Anschliessend den erweiterten
+Modelltest mit gemessenem Symbolkontrast und Tastaturscrollen anhand der
+tatsaechlichen Diagrammbreite erneut erfolgreich ausgefuehrt.
+
+Native Skriptpruefung mit zwoelf Importen bestanden. Beim ersten Lauf der
+168-Faelle-Pruefung unerwartet null Primaerschluessel im Metadatenzaehler des
+Modell-Exports; zwei unveraenderte Einzel-Wiederholungslaeufe vollstaendig bestanden.
+Fehler nicht durch Abschwaechen der Pruefung verdeckt; Ursache noch nicht belegt.
+
+GitHub-Pages-Lauf `38137185387` fuer 0.46.1 erfolgreich. Passendes Offline-ZIP
+fehlte am GitHub-Release; lokal nachgebaut (10.945.592 Bytes, SHA-256
+`dff58f00ed80c8ef9472424606ffca65fb7e19cd8eac99aa5a3b0aecc8696f93`).
+Nach abgeschlossener Browserpruefung als Ergaenzung zum bestehenden Tag
+[`v0.46.1`](https://github.com/JakobSawazki/WorkbenchLab/releases/tag/v0.46.1)
+veroeffentlicht; keine neue Produktversion oder Aenderung am Tag noetig.
+Gesamtziel bleibt aktiv; echte Vor-Ort-Abnahmen bleiben offen.
+
+**Entscheidung Jakob, 2026-10-12:** Das Repository bleibt oeffentlich; die
+Auffindbarkeit der Loesungen im Quelltext und Verlauf ist ausdruecklich
+akzeptiert. OPT-12 benoetigt daher keinen privaten Entwicklungszweig oder
+Verlaufsumbau. Die Lernseite selbst bleibt loesungsbereinigt. Keine Zusage
+eines Manipulationsschutzes oder einer technisch verbindlichen Bewertung.
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
 

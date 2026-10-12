@@ -98,6 +98,56 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
     assert.deepEqual(payload.data.completedPractices, []);
     assert.equal(payload.data.activityDates.length, 1);
 
+    const fresh = await browser.newContext({ acceptDownloads: true });
+    try {
+      const other = await fresh.newPage();
+      await other.goto(base + "#home");
+      await other.locator("#profileName").fill("NEW.QAA");
+      await other.locator("#profileClass").fill("TEST");
+      await other.locator('#profileForm [type="submit"]').click();
+      await other.locator("#backupButton").click();
+      other.once("dialog", dialog => dialog.accept());
+      await other.locator("#progressFileInput").setInputFiles(asFile(payload));
+      await other.locator("#backupDialog").waitFor({ state: "hidden" });
+      await other.reload();
+      assert.equal(await other.locator("#topXp").innerText(), "90 XP");
+      await other.evaluate(() => { location.hash = "modeling/editor"; });
+      await other.locator("#ermTask").selectOption("fahrradvermietung");
+      await other.locator("#ermCheck").click();
+      assert.equal(await other.locator("#topXp").innerText(), "90 XP");
+    } finally { await fresh.close(); }
+
+    const blocked = await browser.newContext({ acceptDownloads: true });
+    try {
+      await blocked.addInitScript(() => {
+        const denied = () => { throw new DOMException("Storage denied", "SecurityError"); };
+        Object.defineProperty(window, "localStorage", { configurable: true, get: denied });
+        Object.defineProperty(window, "sessionStorage", { configurable: true, get: denied });
+      });
+      const offline = await blocked.newPage();
+      const blockedErrors = [];
+      offline.on("pageerror", error => blockedErrors.push(error.message));
+      await offline.goto(base + "#home");
+      await offline.locator("#profileName").fill("BLK.QAA");
+      await offline.locator("#profileClass").fill("TEST");
+      await offline.locator('#profileForm [type="submit"]').click();
+      await offline.evaluate(models => {
+        window.WORKBENCH_ERM.importDrafts({ task: "fahrschule-ort", models });
+        location.hash = "modeling/editor";
+      }, models);
+      await offline.locator("#ermCheck").click();
+      assert.equal(await offline.locator("#topXp").innerText(), "30 XP");
+      await offline.locator("#backupButton").click();
+      assert.match(await offline.locator("#backupStorageHint").innerText(), /Browserspeicher nicht verf/);
+      const pending = offline.waitForEvent("download");
+      await offline.locator("#exportProgressButton").click();
+      const saved = JSON.parse(fs.readFileSync(await (await pending).path(), "utf8"));
+      assert.equal(saved.summary.xp, 30);
+      assert.deepEqual(saved.data.completedModels["fahrschule-ort"], earned["fahrschule-ort"]);
+      assert.deepEqual(blockedErrors, []);
+    } finally { await blocked.close(); }
+    console.log("PASS model XP portability: independent browser import, no duplicate reward, denied storage still permits grading and file backup");
+
     const teacher = await context.newPage();
     await teacher.goto(base + "lehrkraft.html");
     await teacher.locator("#teacherFiles").setInputFiles(asFile(payload));
@@ -162,9 +212,24 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
       await page.locator("#ermDiagram").scrollIntoViewIfNeeded();
       const geometry = await page.locator(".erm-crowfoot-end").evaluateAll(nodes => nodes.map(node => { const r = node.getBoundingClientRect(); return { width: r.width, height: r.height, stroke: getComputedStyle(node).stroke }; }));
       assert.ok(geometry.every(item => item.width > 0 && item.height > 0 && item.stroke !== "none"));
-      if (width < 640) {
-        const diagram = page.locator("#ermDiagram");
-        assert.ok(await diagram.evaluate(node => node.scrollWidth > node.clientWidth));
+      const contrast = await page.locator("#ermDiagram").evaluate(node => {
+        const luminance = color => {
+          const rgb = color.match(/[\d.]+/g).map(Number);
+          const linear = rgb.slice(0, 3).map(value => { const c = value / 255; return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; });
+          return .2126 * linear[0] + .7152 * linear[1] + .0722 * linear[2];
+        };
+        const background = luminance(getComputedStyle(node).backgroundColor);
+        return [...node.querySelectorAll(".erm-crowfoot-end")].map(mark => {
+          const stroke = luminance(getComputedStyle(mark).stroke);
+          return (Math.max(stroke, background) + .05) / (Math.min(stroke, background) + .05);
+        });
+      });
+      assert.ok(contrast.every(ratio => ratio >= 3), `Graphical contrast: ${theme}/${width}: ${contrast}`);
+      const diagram = page.locator("#ermDiagram");
+      await diagram.evaluate(node => { node.scrollLeft = 0; });
+      const scrolls = await diagram.evaluate(node => node.scrollWidth > node.clientWidth);
+      if (width < 640) assert.equal(scrolls, true);
+      if (scrolls) {
         await diagram.focus();
         assert.equal(await diagram.evaluate(node => node === document.activeElement), true);
         await page.keyboard.press("ArrowRight");
