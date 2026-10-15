@@ -59,10 +59,12 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
     }
     await profile.click();
     await page.locator("#profileName").fill("mia.mue");
-    await page.locator("#profileClass").fill("wgj1/1");
+    await page.locator("#profileClass").fill("bk_2. /-2!");
+    assert.equal(await page.locator("#profileClass").inputValue(), "BK2-2");
+    assert.equal(await page.locator("#profileClass").evaluate(el => el.checkValidity()), true);
     await page.locator('#profileForm [type="submit"]').click();
     assert.equal(await page.locator("#topProfileName").innerText(), "MIA.MUE");
-    assert.equal(await page.locator("#topProfileClass").innerText(), "WGJ1/1");
+    assert.equal(await page.locator("#topProfileClass").innerText(), "BK2-2");
     assert.equal(await page.locator("#topXp").innerText(), "12 XP");
     await page.reload();
     assert.equal(await page.locator("#topProfileName").innerText(), "MIA.MUE");

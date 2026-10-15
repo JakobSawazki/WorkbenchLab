@@ -6,6 +6,12 @@ Quelle. Wer eine Version veröffentlicht, ergänzt hier eine Zeile.
 
 Spalte „Von“: C = Codex, Cl = Claude.
 
+## 0.48 - 15. Oktober 2026
+
+| Version | Von | Inhalt | Abschnitt |
+| --- | --- | --- | --- |
+| 0.48.0 | C | NAGOLD-Autosave, einmalig 5 Startkapital, Anwesenheit mit 2 Punkten, Jahresziel-Balken, nummerierte Notizen, strengere Klassenkurzform und vereinfachte Oberflaeche | [Release 0.48.0](documentation/releases/RELEASE_0_48_0.md) |
+
 ## 0.47 – 15. Oktober 2026
 
 | Version | Von | Inhalt | Abschnitt |

@@ -15,7 +15,7 @@
   }
 
   const studentCodePattern = /^[A-Z]{3}\.[A-Z]{3}$/;
-  const classNamePattern = /^[A-ZÄÖÜ0-9][A-ZÄÖÜ0-9 ._\/-]{0,19}$/;
+  const classNamePattern = /^[A-ZÄÖÜ0-9][A-ZÄÖÜ0-9-]{0,19}$/;
   const defaultState = {
     name: "",
     className: "",
@@ -25,6 +25,7 @@
     transferHistory: [],
     completedLessons: [],
     nagoldEntries: [],
+    nagoldStartCapitalClaimed: false,
     passedLessonQuizzes: [],
     lessonChecks: {},
     completedPractices: [],
@@ -77,8 +78,7 @@
     return String(value || "")
       .trim()
       .toLocaleUpperCase("de-DE")
-      .replace(/\s+/g, " ")
-      .replace(/[^A-ZÄÖÜ0-9 ._\/-]/g, "")
+      .replace(/[^A-ZÄÖÜ0-9-]/g, "")
       .slice(0, 20);
   }
 
@@ -212,6 +212,7 @@
       transferHistory,
       completedLessons,
       nagoldEntries: window.WORKBENCH_NAGOLD.entriesFor(candidate),
+      nagoldStartCapitalClaimed: window.WORKBENCH_NAGOLD.hasStartCapital(candidate),
       passedLessonQuizzes: [...new Set([...passedLessonQuizzes, ...completedLessons])],
       lessonChecks,
       completedPractices,

@@ -15,6 +15,14 @@
 
   function validTime(value) { return typeof value === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value); }
 
+  function isStartCapital(value) {
+    return typeof value === "string" && value.trim().toLocaleLowerCase("de-DE") === "startkapital";
+  }
+
+  function hasStartCapital(candidate) {
+    return candidate.nagoldStartCapitalClaimed === true || entriesFor(candidate).some(row => isStartCapital(row.purpose));
+  }
+
   function normalizeEntries(value) {
     if (!Array.isArray(value)) return [];
     return value.slice(0, maxEntries).flatMap(entry => {
@@ -49,5 +57,5 @@
     return true;
   }
 
-  window.WORKBENCH_NAGOLD = Object.freeze({ maxEntries, maxManualEntries, maxPoints, minPoints, validDate, validTime, normalizeEntries, entriesFor, total, addLessonEntry });
+  window.WORKBENCH_NAGOLD = Object.freeze({ maxEntries, maxManualEntries, maxPoints, minPoints, validDate, validTime, isStartCapital, hasStartCapital, normalizeEntries, entriesFor, total, addLessonEntry });
 })();

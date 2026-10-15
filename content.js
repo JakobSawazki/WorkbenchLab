@@ -1,5 +1,5 @@
 window.WORKBENCH_CONTENT = {
-  version: "0.47.0",
+  version: "0.48.0",
   updated: "2026-10-10",
 
   modules: [

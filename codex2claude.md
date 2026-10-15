@@ -1,5 +1,76 @@
 # Codex an Claude – WorkbenchLab
 
+## Release 0.48.0 [Codex, 2026-10-15]
+
+Jakob hat den Push und die Veroeffentlichung aller folgenden Aenderungen
+beauftragt. Lokale Zwischenstaende unten werden durch den abschliessenden
+Releasebericht `documentation/releases/RELEASE_0_48_0.md` abgeloest.
+
+Release-Gates: 229 Node-, 4 Python-Tests und alle 49 Browserdateien bestanden.
+Ein Scroll-Timeout im bestehenden Modelltest bestand im unveraenderten
+Einzellauf; anschliessend alle verbleibenden Dateien erfolgreich. Feste
+TEMP-Publikationskopie und finaler Bau: 69 Dateien bytegleich. Neues Offline-
+Paket 0.48.0 erstellt; Hash und Testgrenzen stehen im Releasebericht. Keine
+SQL-Aufgabe/MySQL-Aussage geaendert. Veroeffentlichung auf main/v0.48.0.
+
+Redundanten Hinweis "Lernprofil ... lokal auf diesem Browser gespeichert"
+unter dem Einheitenabschluss entfernt. Falls noch kein Profil besteht,
+bleibt der notwendige Hinweis zum Anlegen erhalten. Speicherung unveraendert.
+
+Notizleiste: H2/Markdown-Ueberschrift entfernt, Lucide `list-ordered` fuer
+nummerierte Listen ergaenzt. Markierte Zeilen erhalten 1., 2. usw.; Enter am
+Zeilenende setzt die Nummerierung fort, Enter auf einem leeren Listenpunkt
+beendet sie. Bulletpoints und Checkliste unveraendert. Pointerdown bewahrt
+die Textauswahl fuer Notizwerkzeuge. Bestehender Text wird nicht umgeschrieben.
+Erweiterter study-workflow-Browsertest bestanden (inkl. Speichern/Reload).
+
+Klassenkurzform auf Buchstaben (einschliesslich Umlauten), Zahlen und
+Bindestriche eingeschraenkt. Leerzeichen/Punkt/Unterstrich/Slash usw. werden
+bei Eingabe/Einsetzen, Blur, Laden und Import entfernt. HTML-Pattern und
+Hinweise angepasst; historische Lehrkraft-Importanzeigen nicht umgeschrieben.
+Profil-Browsertest und 11 state-Tests bestanden.
+
+NAGOLD-Jahresziel im Profil: eigener goldfarbener, beschrifteter nativer
+Fortschrittsbalken mit Prozentanzeige, Jahresziel 100 NAGOLD = Sehr gut
+(Note 1) und verbleibenden Punkten. Keine weiteren Notengrenzen erfunden.
+Negative Werte fuellen den Balken nicht, ueber 100 bleibt er voll; echte
+Punktzahl und Tabelle bleiben unveraendert. Aktualisiert sofort bei Autosave.
+Neuer Test `tests/nagold-progress.browser.cjs`: -10/0/5/99/100/125, live
+aktualisierte Werte, Beschriftungen und Dark/Light bei 1440/360 mit grosser
+Schrift bestanden; bestehender NAGOLD-Browsertest ebenfalls bestanden.
+Alle Nachtraege dieses Abschnitts gehoeren zum gemeinsamen Release 0.48.0.
+
+Auf Jakobs Wunsch den redundanten Startseiten-Link "Quellen und Werkzeuge"
+entfernt. Der Navigationspunkt "Nachschlagen" bleibt unveraendert erhalten.
+Bestandteil des Release 0.48.0.
+
+Logo: dezente Vergroesserung, hellere Metalloberflaeche und Akzentrand bei
+Hover bzw. Tastaturfokus. Keine Layoutverschiebung; reduzierte Bewegung wird
+respektiert.
+
+Im Profil zeigt der NAGOLD-Button rechts jetzt den Lucide-Stift statt der
+Liste; Tooltip und vorlesbarer Name nennen das Bearbeiten der Tabelle.
+
+Neue Auswahl "Anwesenheit" in der NAGOLD-Tabelle: Beim Wechsel zu diesem
+Anlass werden 2 Punkte vorausgefuellt (auch bei direkter Texteingabe).
+
+"Startkapital" als Auswahlpunkt ergaenzt. Nach Jakobs neuester Vorgabe gibt
+die erste Vergabe automatisch 5 NAGOLD. Danach entfaellt der Vorschlag;
+auch direktes erneutes Eintippen in eine andere Zeile vergibt keine Punkte.
+`nagoldStartCapitalClaimed` bleibt nach Loeschen/Umbenennen erhalten und wird
+mit dem Lernstand gesichert/importiert. Alte Startkapital-Zeilen werden beim
+Normalisieren erkannt. Kein manipulationssicherer Leistungsnachweis.
+Gezielter Browsertest und 18 Node-Tests (nagold/state) bestanden.
+
+NAGOLD-Tabelle auf Autosave umgestellt, Speichern-Button entfernt. Gueltige
+Zeilen und Loeschungen werden sofort gespeichert (auch bei X/Esc). Pro
+Entwurfszeile bleibt bei unvollstaendiger Korrektur der letzte gueltige Stand
+erhalten; neue unvollstaendige Zeilen werden nicht uebernommen und blockieren
+andere Zeilen nicht. Sichtbare Meldung bei unvollstaendigen Eingaben oder
+gesperrtem Browserspeicher. Tests/nagold.browser.cjs entsprechend angepasst.
+Keine Gutschrift durch blosses Oeffnen der App, keine weiteren Zeilen bei
+erneuter Auswahl; bestehende manuelle Bearbeitung bleibt moeglich.
+
 Aktuelle Rückmeldung: **10. Oktober 2026**, siehe OPT-15/Release 0.45.0 unten;
 die Übergabeprüfung 0.41.5 bleibt als historischer Abschnitt erhalten.
 

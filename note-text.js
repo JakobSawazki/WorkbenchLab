@@ -93,7 +93,20 @@
       editor.dispatchEvent(new Event("input", { bubbles: true }));
     }
     editor.addEventListener("beforeinput", event => {
-      if (["insertParagraph", "insertLineBreak"].includes(event.inputType)) { event.preventDefault(); insert("\n"); }
+      if (["insertParagraph", "insertLineBreak"].includes(event.inputType)) {
+        event.preventDefault();
+        const [start, end] = selection();
+        const lineStart = text.lastIndexOf("\n", start - 1) + 1;
+        const numbered = text.slice(lineStart, start).match(/^(\d{1,5})\. (.*)$/);
+        const atLineEnd = start === end && (start === text.length || text[start] === "\n");
+        if (event.inputType === "insertParagraph" && numbered && atLineEnd) {
+          if (numbered[2].trim()) insert(`\n${Number(numbered[1]) + 1}. `);
+          else {
+            editor.setRangeText("", lineStart, start);
+            editor.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+        } else insert("\n");
+      }
       else if (event.inputType.startsWith("format")) event.preventDefault();
     });
     editor.addEventListener("paste", event => { event.preventDefault(); insert(event.clipboardData.getData("text/plain")); });

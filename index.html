@@ -16,12 +16,12 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.47.0">
-  <link rel="stylesheet" href="styles-lesson.css?v=0.47.0">
-  <link rel="stylesheet" href="styles-practice.css?v=0.47.0">
-  <link rel="stylesheet" href="styles-visuals.css?v=0.47.0">
-  <link rel="stylesheet" href="styles-shared.css?v=0.47.0">
-  <link rel="stylesheet" href="styles-extensions.css?v=0.47.0">
+  <link rel="stylesheet" href="styles.css?v=0.48.0">
+  <link rel="stylesheet" href="styles-lesson.css?v=0.48.0">
+  <link rel="stylesheet" href="styles-practice.css?v=0.48.0">
+  <link rel="stylesheet" href="styles-visuals.css?v=0.48.0">
+  <link rel="stylesheet" href="styles-shared.css?v=0.48.0">
+  <link rel="stylesheet" href="styles-extensions.css?v=0.48.0">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -137,7 +137,7 @@
         </div>
         <div>
           <label for="profileClass">Klasse</label>
-          <input id="profileClass" name="profileClass" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="z. B. J1-1" aria-describedby="profileClassHint profileNameError" required>
+          <input id="profileClass" name="profileClass" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="z. B. J1-1" pattern="[A-Za-zÄÖÜäöü0-9][A-Za-zÄÖÜäöü0-9\-]{0,19}" aria-describedby="profileClassHint profileNameError" required>
         </div>
       </div>
       <p class="field-error" id="profileNameError" aria-live="polite"></p>
@@ -147,6 +147,13 @@
         <progress id="xpLevelProgress" max="120" value="0"></progress>
         <p id="xpNextLevel"></p>
         <button id="nagoldTotal" class="button button-secondary nagold-total" type="button" aria-haspopup="dialog" aria-controls="nagoldDialog"></button>
+        <div class="nagold-progress-label">
+          <label for="nagoldProgress" id="nagoldProgressLabel"></label>
+          <span id="nagoldProgressPercent"></span>
+        </div>
+        <progress id="nagoldProgress" max="100" value="0" aria-describedby="nagoldGoal nagoldRemaining"></progress>
+        <p id="nagoldGoal">Jahresziel: 100 NAGOLD · Sehr gut (Note 1)</p>
+        <p id="nagoldRemaining"></p>
       </section>
       <button class="button button-secondary developer-mode-button" id="developerModeButton" type="button" hidden
         title="Entwicklermodus: alle Einheiten freischalten" aria-label="Entwicklermodus aktivieren" aria-pressed="false">
@@ -172,7 +179,7 @@
         <p>Verwende drei Buchstaben deines Vornamens, einen Punkt und drei Buchstaben deines Nachnamens. Gib außerdem deine Klasse an. So kann deine Lehrkraft den exportierten Lernstand zuordnen, ohne deinen vollständigen Namen zu speichern.</p>
         <div class="profile-example" aria-label="Beispiel für ein Schülerkürzel"><code>MIA.MUE</code><span>z. B. Mia Müller</span></div>
         <p class="field-hint" id="profileNameHint">Umlaute werden automatisch umgeschrieben: Ä → AE, Ö → OE, Ü → UE, ß → SS.</p>
-        <p class="field-hint" id="profileClassHint">Verwende die offizielle Kurzform deiner Klasse, zum Beispiel WGJ1/1.</p>
+        <p class="field-hint" id="profileClassHint">Klassenkurzform, zum Beispiel WGJ1 oder BK2-2. Erlaubt sind Buchstaben, Zahlen und Bindestriche.</p>
       </div>
   </dialog>
 
@@ -192,7 +199,6 @@
         <output id="nagoldSum" aria-live="polite"></output>
       </div>
       <p class="field-error" id="nagoldError" role="status" aria-live="polite"></p>
-      <div class="dialog-actions"><button class="button button-primary" id="nagoldSaveButton" type="submit"><i data-lucide="check" aria-hidden="true"></i>Speichern</button></div>
     </form>
   </dialog>
 
@@ -264,30 +270,30 @@
 
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
-  <script src="content.js?v=0.47.0"></script>
-  <script src="learning-path.js?v=0.47.0"></script>
-  <script src="lesson-openings.js?v=0.47.0"></script>
-  <script src="practical-exercises.js?v=0.47.0"></script>
-  <script src="debug-exercises.js?v=0.47.0"></script>
-  <script src="predict-exercises.js?v=0.47.0"></script>
-  <script src="order-exercises.js?v=0.47.0"></script>
-  <script src="study-tools.js?v=0.47.0"></script>
-  <script src="appearance.js?v=0.47.0"></script>
-  <script src="drawing.js?v=0.47.0"></script>
-  <script src="command-search.js?v=0.47.0"></script>
-  <script src="reference-search.js?v=0.47.0"></script>
-  <script src="expected-results.js?v=0.47.0"></script>
-  <script src="sql-check.js?v=0.47.0"></script>
-  <script src="backup.js?v=0.47.0"></script>
-  <script src="nagold.js?v=0.47.0"></script>
-  <script src="erm-editor.js?v=0.47.0"></script>
-  <script src="note-text.js?v=0.47.0"></script>
-  <script src="state.js?v=0.47.0"></script>
-  <script src="sql-feedback.js?v=0.47.0"></script>
-  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.47.0"></script>
-  <script src="sql-workspace.js?v=0.47.0"></script>
-  <script src="review.js?v=0.47.0"></script>
-  <script src="offline-client.js?v=0.47.0"></script>
-  <script src="app.js?v=0.47.0"></script>
+  <script src="content.js?v=0.48.0"></script>
+  <script src="learning-path.js?v=0.48.0"></script>
+  <script src="lesson-openings.js?v=0.48.0"></script>
+  <script src="practical-exercises.js?v=0.48.0"></script>
+  <script src="debug-exercises.js?v=0.48.0"></script>
+  <script src="predict-exercises.js?v=0.48.0"></script>
+  <script src="order-exercises.js?v=0.48.0"></script>
+  <script src="study-tools.js?v=0.48.0"></script>
+  <script src="appearance.js?v=0.48.0"></script>
+  <script src="drawing.js?v=0.48.0"></script>
+  <script src="command-search.js?v=0.48.0"></script>
+  <script src="reference-search.js?v=0.48.0"></script>
+  <script src="expected-results.js?v=0.48.0"></script>
+  <script src="sql-check.js?v=0.48.0"></script>
+  <script src="backup.js?v=0.48.0"></script>
+  <script src="nagold.js?v=0.48.0"></script>
+  <script src="erm-editor.js?v=0.48.0"></script>
+  <script src="note-text.js?v=0.48.0"></script>
+  <script src="state.js?v=0.48.0"></script>
+  <script src="sql-feedback.js?v=0.48.0"></script>
+  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.48.0"></script>
+  <script src="sql-workspace.js?v=0.48.0"></script>
+  <script src="review.js?v=0.48.0"></script>
+  <script src="offline-client.js?v=0.48.0"></script>
+  <script src="app.js?v=0.48.0"></script>
 </body>
 </html>

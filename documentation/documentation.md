@@ -1,10 +1,77 @@
 # WorkbenchLab Projektdokumentation
 
+## Release 0.48.0 [Codex, 2026-10-15]
+
+Die nachfolgenden Aenderungen werden auf Jakobs Auftrag gemeinsam als
+Release 0.48.0 veroeffentlicht. Verbindlich ist der Releasebericht
+[0.48.0](releases/RELEASE_0_48_0.md) mit den abschliessenden Pruefungen.
+
+Profil-/Browserspeicher-Hinweis unter "Einheit abschliessen" bei vorhandenem
+Profil entfernt. Hinweis fuer noch fehlendes Profil bleibt bestehen;
+Speicherverhalten unveraendert.
+
+Notizwerkzeuge vereinfacht: H2-Button entfernt, nummerierte Liste mit
+1., 2., 3. ergaenzt (auch fuer mehrere markierte Zeilen). Enter setzt die
+Nummerierung fort; ein weiterer Enter auf leerem Listenpunkt beendet sie.
+Aufzaehlung, Checkliste, Datum und Schriftfarben bleiben erhalten. Vorhandene
+Notizen inklusive alter Markdown-Zeichen werden nicht veraendert. Erweiterter
+study-workflow-Browsertest bestanden.
+
+Klassenbezeichnungen erlauben nur Buchstaben, Zahlen und Bindestriche
+(maximal 20 Zeichen, Beginn mit Buchstabe/Zahl). Leerzeichen und Sonderzeichen
+wie Unterstrich, Punkt und Schraegstrich werden entfernt, auch beim Einsetzen,
+Laden und Import. Vorhandene Klassenangaben werden damit bereinigt, ohne
+Notizen oder Lernfortschritt zu loeschen. Beispiele und HTML-Validierung
+angepasst. Profil-Browsertest und 11 state-Tests bestanden.
+
+NAGOLD im Profil um einen goldfarbenen Fortschrittsbalken erweitert:
+Jahresziel 100 NAGOLD = 100 Prozent = Sehr gut (Note 1), wie von Jakob
+vorgegeben. Anzeige von Ist-/Zielpunkten, Prozent und Rest bis zum Ziel bzw.
+Erfolgsmeldung. Keine Berechnung weiterer Noten. Balken auf 0 bis 100 begrenzt,
+echte negative bzw. ueber 100 liegende Summen bleiben sichtbar. Native
+Progress-Semantik mit Label und Zielbeschreibung; Autosave aktualisiert sofort.
+Neuer gezielter Browsertest und bestehender NAGOLD-Browsertest bestanden,
+inklusive Dark/Light, 360 Pixel und grosser Schrift.
+
+Redundanten Link "Quellen und Werkzeuge" aus den Startseiten-Aktionen entfernt;
+"Nachschlagen" bleibt ueber die Navigation erreichbar.
+
+Das Logo vergroessert sich bei Hover und Tastaturfokus dezent mit einem
+helleren Metallglanz und Akzentrand. Transformation statt Layoutaenderung;
+bei reduzierter Bewegung bleiben Vergroesserung und Animation aus.
+
+NAGOLD-Button im Profil: Stiftsymbol rechts statt Listensymbol, ergaenzt um
+Tooltip und vorlesbaren Namen "Tabelle bearbeiten". Funktion unveraendert.
+
+"Anwesenheit" als weiterer Anlass in der NAGOLD-Auswahl ergaenzt. Beim
+Eintragen dieses Anlasses werden automatisch 2 NAGOLD in derselben Zeile
+vorausgefuellt und bei gueltiger Zeile automatisch gespeichert; keine automatische
+Anwesenheitserfassung beim Seitenbesuch. Manuelle Korrekturen bleiben erlaubt.
+
+"Startkapital" ist ebenfalls in der Anlass-Auswahl enthalten. Nach Jakobs
+aktualisierter Vorgabe gibt die erstmalige Auswahl automatisch 5 NAGOLD.
+Die erfolgte Vergabe wird im Lernstand mit `nagoldStartCapitalClaimed`
+gemerkt, auch nach Loeschen oder Umbenennen der Zeile sowie nach Neuladen und
+Sicherungsimport. Danach entfaellt die Auswahl; erneutes direktes Eintippen
+in eine weitere Zeile wird nicht gutgeschrieben. Alte gueltige
+Startkapital-Eintraege werden bei der Migration erkannt. Kein automatischer
+Bonus beim blossen Oeffnen der App. Kein Manipulationsschutz gegen bewusstes
+Veraendern oder Zuruecksetzen der lokalen Daten. Browsertest und 18 gezielte
+Node-Tests bestanden.
+
+Nachtrag: Die NAGOLD-Tabelle speichert gueltige Zeilen und Loeschungen nun
+sofort automatisch; der bisherige Speichern-Schritt entfaellt. X/Esc
+nehmen keine gueltigen Aenderungen zurueck. Unvollstaendige Korrekturen
+behalten den letzten gueltigen Stand, neue unvollstaendige Zeilen werden
+nicht gespeichert. Fehlende Angaben bzw. Speicherfehler werden angezeigt.
+Gezielter Browsertest umfasst Autosave, Wiederladen, Loeschen, Sicherung und
+Import, Mobilansicht sowie gesperrten Browserspeicher.
+
 Stand: 15. Oktober 2026 (Europe/Berlin) [Codex; Claudes Eintraege bleiben im Verlauf]
 
-Aktueller Release-Stand: **0.47.0** [Codex, 2026-10-15; vollstaendig geprueft]
+Aktueller Release-Stand: **0.48.0** [Codex, 2026-10-15]
 
-Version 0.47.0 wird im Releasebericht und im Codex-Abschnitt vom 15. Oktober
+Version 0.48.0 wird im Releasebericht und im Codex-Abschnitt vom 15. Oktober
 unten gefuehrt. Historischer Stand 0.46.1: Claudes Abschnitte 0.70/0.71 und
 Codex' Nachpruefung vom 12. Oktober.
 
@@ -39,6 +106,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Was umfasst Codex-Release 0.45.0? | [`releases/RELEASE_0_45_0.md`](releases/RELEASE_0_45_0.md); freiwillige Offline-Kopie der Webseite mit sicheren Versionswechseln |
 | Was umfasst der aktuelle Stand 0.46.1? | Abschnitte 0.70/0.71 und Codex' Nachpruefung vom 12. Oktober unten; NAGOLD-Bedienung, Navigationstrennlinie und Modellabschluesse |
 | Was umfasst 0.47.0? | [Release 0.47.0](releases/RELEASE_0_47_0.md); Notizfarben, Kommentare, durchgehender Textmarker und Zeichnen ohne die alte Sperre |
+| Was umfasst 0.48.0? | [Release 0.48.0](releases/RELEASE_0_48_0.md); NAGOLD-Autosave/Jahresziel, Startkapital, Anwesenheit, nummerierte Notizen und vereinfachtes Profil |
 | Was ist gerade der Stand? | Tabelle unten |
 | Was hat Claude getan, geprüft, nicht geprüft? | Abschnitt 0 dieser Datei (nummerierte Einträge, neuester am Ende) |
 | Was hat Codex bis 0.21.0 getan? | [`archiv/PROJEKTDOKUMENTATION_BIS_0_21.md`](archiv/PROJEKTDOKUMENTATION_BIS_0_21.md) (Abschnitte 1 bis 12 und Anhänge, Stand 3. Oktober 2026) |
@@ -50,7 +118,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.47.0)** [Codex, 2026-10-15]
+**Aktueller Stand (Release 0.48.0)** [Codex, 2026-10-15]
 
 | Thema | Stand |
 | --- | --- |
@@ -58,11 +126,11 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Übungen | 59, alle frei zugänglich: 25 SQL-Schreibaufgaben, 7 Fehlersuche, 5 Vorhersage, 4 Klauseln ordnen, 18 Modell-, Begriffs- und Diagrammaufgaben |
 | Zusätzliche Übungsformen | freies SQL-Labor einschließlich leerem Arbeitsbereich für zwölf Einheitenskripte und eigene SQL-Dateien, Wiederholungsrunde, Klausurtraining, Modell-Editor |
 | Nähe zu MySQL | 26 MySQL-Funktionen nachgebildet und an MariaDB gemessen (4 von Codex, 22 seit 0.41.0); 5 bekannte Unterschiede werden im Labor erklärt (Abschnitt 0.57) |
-| Bewertung | XP als Motivation, auch einmalig 30 XP je bestandener Modellaufgabe; NAGOLD-Tabelle mit Datum/Uhrzeit, automatischen 5 Punkten je Einheit und eigenen Eintraegen von -10 bis 5 (ohne 0); separate Bestaetigungsliste der Lehrkraft |
+| Bewertung | XP als Motivation, auch einmalig 30 XP je bestandener Modellaufgabe; NAGOLD-Tabelle mit Autosave, Datum/Uhrzeit, 5 Punkten je Einheit, einmalig 5 Startkapital, 2 bei Auswahl Anwesenheit und eigenen Eintraegen von -10 bis 5 (ohne 0). Jahresziel 100 NAGOLD = Sehr gut (Note 1); separate Bestaetigungsliste der Lehrkraft |
 | Lehrkraft | Klassenübersicht `lehrkraft.html` mit nachgeprüften Modellaufgaben sowie eigener Bestätigungsliste, Sicherung und bestätigten CSV-Werten; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
 | Offline | Freiwillige HTTPS-Offline-Kopie mit Versionsprüfung und wartenden Updates; alternativ ZIP für den Informatik-Stick direkt in Edge. Echter Schul-PC-Test weiterhin offen |
-| Tests | 228 Node-Tests, 4 Python-Tests, alle 48 Browsertestdateien am 15. Oktober bestanden; zusaetzlich 168 Pruefungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwoelf Skriptimporte und native Abfragen/Fremdschluessel (`node tools/verify-native-sql.cjs`) |
+| Tests | 229 Node-Tests, 4 Python-Tests und alle 49 Browsertestdateien fuer 0.48.0 bestanden; ein unveraenderter Modelltest nach Scroll-Timeout im Einzellauf wiederholt (Releasebericht). Native Referenz aus 0.47.0: 168 MariaDB-Pruefungen sowie zwoelf Skriptimporte und native Abfragen/Fremdschluessel; keine SQL-Aenderung in 0.48.0 |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)

@@ -36,6 +36,7 @@
   const nagold = window.WORKBENCH_NAGOLD;
   const nagoldDialog = document.querySelector("#nagoldDialog");
   let nagoldDraft = [];
+  let nagoldSavedRows = new WeakMap();
   let nagoldEditing = new Set();
   const profileName = document.querySelector("#profileName");
   const profileClass = document.querySelector("#profileClass");
@@ -819,8 +820,19 @@
 
   function updateLevelDialog() {
     const nagoldButton = document.querySelector("#nagoldTotal");
-    nagoldButton.innerHTML = `<strong>${stateNagold()} NAGOLD</strong><i data-lucide="list" aria-hidden="true"></i>`;
-    nagoldButton.setAttribute("aria-label", `${stateNagold()} NAGOLD: Einträge öffnen`);
+    nagoldButton.innerHTML = `<strong>${stateNagold()} NAGOLD</strong><i data-lucide="pencil" aria-hidden="true"></i>`;
+    nagoldButton.setAttribute("aria-label", `${stateNagold()} NAGOLD: Tabelle bearbeiten`);
+    nagoldButton.title = "NAGOLD-Tabelle bearbeiten";
+    const nagoldTotal = stateNagold();
+    const nagoldPercent = Math.min(100, Math.max(0, nagoldTotal));
+    const nagoldProgress = document.querySelector("#nagoldProgress");
+    nagoldProgress.value = nagoldPercent;
+    nagoldProgress.setAttribute("aria-valuetext", `${nagoldTotal} von 100 NAGOLD, ${nagoldPercent} Prozent des Jahresziels`);
+    document.querySelector("#nagoldProgressLabel").textContent = `${nagoldTotal} / 100 NAGOLD`;
+    document.querySelector("#nagoldProgressPercent").textContent = `${nagoldPercent} %`;
+    document.querySelector("#nagoldRemaining").textContent = nagoldTotal >= 100
+      ? "Jahresziel erreicht! Sehr gut (Note 1)."
+      : `Noch ${100 - nagoldTotal} NAGOLD bis zum Jahresziel.`;
     renderIcons();
     const xp = stateXp();
     const level = currentLevel();
@@ -1120,9 +1132,6 @@
               <i data-lucide="database"></i>
               Nächste Übung
             </button>
-            <button class="button button-ghost" type="button" data-route="reference">
-              Quellen und Werkzeuge
-            </button>
           </div>
         </div>
         <figure class="hero-visual learning-photo">
@@ -1380,8 +1389,8 @@
         <div class="notebook-tabs" role="tablist" aria-label="Notizansicht"><button id="noteTextTab" type="button" role="tab" data-notebook-tab="text" aria-controls="noteTextPanel" aria-selected="${notebookTab === "text"}"><i data-lucide="text"></i>Text</button><button id="noteDrawingTab" type="button" role="tab" data-notebook-tab="drawing" aria-controls="noteDrawingPanel" aria-selected="${notebookTab === "drawing"}"><i data-lucide="pencil"></i>Zeichnung</button></div>
         <div id="noteTextPanel" role="tabpanel" aria-labelledby="noteTextTab" ${notebookTab === "text" ? "" : "hidden"}>
         <div class="notebook-toolbar" role="toolbar" aria-label="Notizwerkzeuge">
-          <button class="icon-button" type="button" data-note-tool="heading" title="Überschrift einfügen" aria-label="Überschrift einfügen"><i data-lucide="heading-2"></i></button>
           <button class="icon-button" type="button" data-note-tool="list" title="Aufzählung einfügen" aria-label="Aufzählung einfügen"><i data-lucide="list"></i></button>
+          <button class="icon-button" type="button" data-note-tool="numbered" title="Nummerierte Liste einfügen" aria-label="Nummerierte Liste einfügen"><i data-lucide="list-ordered"></i></button>
           <button class="icon-button" type="button" data-note-tool="checklist" title="Checkliste einfügen" aria-label="Checkliste einfügen"><i data-lucide="list-todo"></i></button>
           <button class="icon-button" type="button" data-note-tool="date" title="Datum einfügen" aria-label="Datum einfügen"><i data-lucide="calendar-days"></i></button>
           <div class="note-colors" role="group" aria-label="Schriftfarbe">${["default", ...window.WORKBENCH_NOTE_TEXT.colors].map((color, index) => `<button type="button" class="pen-swatch" data-note-color="${color}" title="${["Standardfarbe", "Blau", "Grün", "Rot", "Violett"][index]}" aria-label="Schriftfarbe ${["Standard", "Blau", "Grün", "Rot", "Violett"][index]}"></button>`).join("")}</div>
@@ -1556,8 +1565,10 @@
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
     const selected = editor.value.slice(start, end);
-    const prefix = { heading: "## ", list: "- ", checklist: "[ ] " }[tool];
-    const text = tool === "date" ? new Date().toLocaleDateString("de-DE") : prefix ? selected.split("\n").map((line) => prefix + line).join("\n") : "";
+    const prefix = { list: "- ", checklist: "[ ] " }[tool];
+    const text = tool === "date" ? new Date().toLocaleDateString("de-DE")
+      : tool === "numbered" ? selected.split("\n").map((line, index) => `${index + 1}. ${line}`).join("\n")
+      : prefix ? selected.split("\n").map((line) => prefix + line).join("\n") : "";
     if (editor.value.length - (end - start) + text.length > 12000) {
       toast("Die Notiz ist voll. Bitte kürze sie vor dem Einfügen.", "error");
       return;
@@ -1730,7 +1741,7 @@
           ? `<button class="button button-primary" type="button" data-next-lesson data-lesson="${escapeHtml(following.id)}"><i data-lucide="arrow-right"></i>Weiter zu ${escapeHtml(following.courseCode || `Lektion ${following.index}`)}</button>`
           : '<button class="button button-secondary" type="button" data-route="path"><i data-lucide="route"></i>Lernpfad</button>' : ""}
         </div>
-        <p class="completion-note">${state.name ? `Lernprofil ${escapeHtml(state.name)} · lokal auf diesem Browser gespeichert` : "Lege zuerst dein anonymisiertes Lernprofil über den Profilbutton oben rechts an."}</p>
+        ${state.name ? "" : '<p class="completion-note">Lege zuerst dein anonymisiertes Lernprofil über den Profilbutton oben rechts an.</p>'}
       </section>`;
   }
 
@@ -4364,6 +4375,7 @@
   compactNav.addEventListener("change", closeMobileNav);
   document.addEventListener("selectionchange", captureHighlightSelection);
   document.addEventListener("pointerdown", (event) => {
+    if (event.target.closest("[data-note-tool]")) event.preventDefault();
     if (event.target.closest("[data-highlight-color], [data-add-comment]")) {
       captureHighlightSelection();
       event.preventDefault();
@@ -4389,7 +4401,7 @@
   }
 
   function nagoldPresetOptions() {
-    return ["Mitarbeit", "Zusatzaufgabe", "Präsentation", "Projektarbeit", "Lernprodukt",
+    return [...(state.nagoldStartCapitalClaimed ? [] : ["Startkapital"]), "Anwesenheit", "Mitarbeit", "Zusatzaufgabe", "Präsentation", "Projektarbeit", "Lernprodukt",
       ...content.lessons.map(lesson => `${lesson.courseCode || lesson.index} · ${lesson.title}`.slice(0, 160))];
   }
 
@@ -4398,7 +4410,41 @@
   }
 
   function updateNagoldSum() {
-    document.querySelector("#nagoldSum").textContent = `${nagold.normalizeEntries(nagoldDraft).reduce((sum, row) => sum + row.points, 0)} NAGOLD gesamt`;
+    document.querySelector("#nagoldSum").textContent = `${stateNagold()} NAGOLD gesamt`;
+  }
+
+  function autosaveNagold() {
+    let incomplete = false;
+    let duplicateStartCapital = false;
+    let startCapitalClaimed = state.nagoldStartCapitalClaimed;
+    const entries = nagoldDraft.flatMap(row => {
+      const valid = nagold.normalizeEntries([row])[0];
+      const startCapital = nagold.isStartCapital(row.purpose);
+      const duplicate = startCapital && startCapitalClaimed && !nagold.isStartCapital(nagoldSavedRows.get(row)?.purpose);
+      duplicateStartCapital ||= duplicate;
+      if (!duplicate && valid && (row.date || row.allowUnknownDate) && (row.time || row.allowUnknownTime)) {
+        if (startCapital) startCapitalClaimed = true;
+        nagoldSavedRows.set(row, valid);
+        return [valid];
+      }
+      incomplete = true;
+      // Keep the previous valid value while an existing row is being corrected.
+      return nagoldSavedRows.has(row) ? [nagoldSavedRows.get(row)] : [];
+    });
+    if (JSON.stringify(state.nagoldEntries) !== JSON.stringify(entries)
+      || state.nagoldStartCapitalClaimed !== startCapitalClaimed || !storageAvailable) {
+      state.nagoldEntries = entries;
+      state.nagoldStartCapitalClaimed = startCapitalClaimed;
+      saveState();
+    }
+    document.querySelector("#nagoldError").textContent = !storageAvailable
+      ? "Browserspeicher nicht verfügbar. Bitte den Lernstand über Speichern als Datei sichern."
+      : duplicateStartCapital
+        ? "Startkapital wurde bereits einmal vergeben. Bitte einen anderen Anlass wählen."
+      : incomplete
+        ? "Unvollständige Zeilen sind noch nicht gespeichert. Datum, Uhrzeit, Anlass und ganze NAGOLD von −10 bis 5 (ohne 0) ergänzen. Bisherige gültige Einträge bleiben erhalten."
+        : "";
+    updateNagoldSum();
   }
 
   function renderNagoldRows() {
@@ -4438,6 +4484,7 @@
 
   document.querySelector("#nagoldTotal").addEventListener("click", () => {
     nagoldDraft = state.nagoldEntries.map(row => ({ ...row, allowUnknownDate: !row.date, allowUnknownTime: !row.time }));
+    nagoldSavedRows = new WeakMap(nagoldDraft.map(row => [row, nagold.normalizeEntries([row])[0]]));
     nagoldEditing = new Set();
     document.querySelector("#nagoldError").textContent = "";
     renderNagoldRows();
@@ -4464,6 +4511,7 @@
     if (!remove) return;
     const index = Number(remove.dataset.nagoldRemove);
     nagoldDraft.splice(index, 1);
+    autosaveNagold();
     nagoldEditing = new Set([...nagoldEditing].filter(value => value !== index).map(value => value > index ? value - 1 : value));
     renderNagoldRows();
     const next = document.querySelector(`[data-nagold-remove="${Math.min(index, nagoldDraft.length - 1)}"]`);
@@ -4474,6 +4522,7 @@
     if (!field) return;
     const row = field.closest("[data-nagold-index]");
     const draft = nagoldDraft[Number(row.dataset.nagoldIndex)];
+    const previousPurpose = draft.purpose;
     if (field.hasAttribute("data-nagold-preset")) {
       if (!field.value) return;
       draft.purpose = field.value;
@@ -4481,8 +4530,15 @@
     } else {
       draft[field.dataset.nagoldField] = field.dataset.nagoldField === "points" ? field.valueAsNumber : field.value;
     }
-    document.querySelector("#nagoldError").textContent = "";
-    updateNagoldSum();
+    if (draft.purpose !== previousPurpose && draft.purpose.trim().toLocaleLowerCase("de-DE") === "anwesenheit") {
+      draft.points = 2;
+      row.querySelector('[data-nagold-field="points"]').value = "2";
+    }
+    if (draft.purpose !== previousPurpose && nagold.isStartCapital(draft.purpose) && !state.nagoldStartCapitalClaimed) {
+      draft.points = 5;
+      row.querySelector('[data-nagold-field="points"]').value = "5";
+    }
+    autosaveNagold();
   }
   document.querySelector("#nagoldRows").addEventListener("input", readNagoldInput);
 
@@ -4497,7 +4553,8 @@
     filter(input, list, all) {
       const needle = all ? "" : input.value.trim().toLocaleLowerCase("de-DE");
       list.querySelectorAll("[data-nagold-option]").forEach(option => {
-        option.hidden = Boolean(needle) && !option.dataset.nagoldOption.toLocaleLowerCase("de-DE").includes(needle);
+        option.hidden = (state.nagoldStartCapitalClaimed && nagold.isStartCapital(option.dataset.nagoldOption))
+          || (Boolean(needle) && !option.dataset.nagoldOption.toLocaleLowerCase("de-DE").includes(needle));
         option.setAttribute("aria-selected", "false");
       });
       input.removeAttribute("aria-activedescendant");
@@ -4588,15 +4645,7 @@
   document.querySelector("#nagoldRows").addEventListener("change", readNagoldInput);
   document.querySelector("#nagoldForm").addEventListener("submit", event => {
     event.preventDefault();
-    const entries = nagold.normalizeEntries(nagoldDraft);
-    if (entries.length !== nagoldDraft.length) {
-      document.querySelector("#nagoldError").textContent = "Bitte für jede Zeile einen Anlass und ganze NAGOLD von −10 bis 5 eintragen. 0 gilt nicht als Eintrag.";
-      return;
-    }
-    state.nagoldEntries = entries;
-    saveState();
-    nagoldDialog.close();
-    toast(storageAvailable ? "NAGOLD gespeichert" : "NAGOLD übernommen. Bitte den Lernstand über Speichern sichern.");
+    autosaveNagold();
   });
 
   document.querySelector("#editProfileButton").addEventListener("click", () => {
@@ -4624,9 +4673,17 @@
   profileName.addEventListener("blur", () => {
     profileName.value = normalizeStudentCode(profileName.value);
   });
-  profileClass.addEventListener("blur", () => {
-    profileClass.value = normalizeClassName(profileClass.value);
-  });
+  function cleanProfileClass(event) {
+    if (event?.isComposing) return;
+    const value = profileClass.value;
+    const start = normalizeClassName(value.slice(0, profileClass.selectionStart)).length;
+    const end = normalizeClassName(value.slice(0, profileClass.selectionEnd)).length;
+    profileClass.value = normalizeClassName(value);
+    profileClass.setSelectionRange(start, end);
+  }
+  profileClass.addEventListener("input", cleanProfileClass);
+  profileClass.addEventListener("compositionend", cleanProfileClass);
+  profileClass.addEventListener("blur", cleanProfileClass);
   profileForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const studentCode = normalizeStudentCode(profileName.value);
@@ -4641,7 +4698,7 @@
     }
     if (!isValidClassName(className)) {
       profileClass.setAttribute("aria-invalid", "true");
-      profileNameError.textContent = "Bitte die offizielle Klassenkurzform eingeben, zum Beispiel J1-1 oder WGJ1/1.";
+      profileNameError.textContent = "Bitte eine Klassenkurzform mit Buchstaben, Zahlen und Bindestrichen eingeben, zum Beispiel J1-1 oder WGJ1.";
       profileClass.focus();
       return;
     }

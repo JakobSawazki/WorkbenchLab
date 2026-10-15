@@ -19,6 +19,15 @@ const lessonId = content.lessons[0].id;
 const practiceId = content.practices[0].id;
 const commandId = content.commands[0].id;
 
+test("Startkapital-Vergabe bleibt nach Loeschen und Sicherungsimport erhalten", () => {
+  assert.equal(normalize({}).nagoldStartCapitalClaimed, false);
+  assert.equal(normalize({ nagoldStartCapitalClaimed: true, nagoldEntries: [] }).nagoldStartCapitalClaimed, true);
+  assert.equal(normalize({ nagoldStartCapitalClaimed: "true", nagoldEntries: [] }).nagoldStartCapitalClaimed, false);
+  const legacy = { nagoldEntries: [{ date: "2026-10-15", time: "09:10", purpose: " Startkapital ", points: 5 }] };
+  assert.equal(normalize(legacy).nagoldStartCapitalClaimed, true);
+  assert.equal(normalize({ nagoldEntries: [{ ...legacy.nagoldEntries[0], points: 0 }] }).nagoldStartCapitalClaimed, false);
+});
+
 test("Schülerkürzel und Klasse werden vereinheitlicht und geprüft", () => {
   assert.equal(S.normalizeStudentCode(" max.mus "), "MAX.MUS");
   assert.equal(S.normalizeStudentCode("maxmus"), "MAX.MUS");
@@ -28,10 +37,17 @@ test("Schülerkürzel und Klasse werden vereinheitlicht und geprüft", () => {
   for (const bad of ["", "MA.MUS", "MAXMUS", "max.mus", "MAX.MUS1"]) {
     assert.equal(S.isValidStudentCode(bad), false, bad);
   }
-  assert.equal(S.normalizeClassName("  wg  12/1 "), "WG 12/1");
-  assert.equal(S.normalizeClassName("<b>J1</b>"), "BJ1/B");
+  assert.equal(S.normalizeClassName("  wg  12/1 "), "WG121");
+  assert.equal(S.normalizeClassName("<b>J1</b>"), "BJ1B");
+  assert.equal(S.normalizeClassName("bk_2. -2!"), "BK2-2");
+  assert.equal(normalize({ className: "WG J1_/1", generalNotes: "Notizen bleiben" }).className, "WGJ11");
+  assert.equal(normalize({ className: "WG J1_/1", generalNotes: "Notizen bleiben" }).generalNotes, "Notizen bleiben");
   assert.equal(S.normalizeClassName("x".repeat(40)).length, 20);
-  assert.equal(S.isValidClassName("WG 12/1"), true);
+  assert.equal(S.isValidClassName("WGJ1"), true);
+  assert.equal(S.isValidClassName("BK2-2"), true);
+  for (const invalid of ["WG 12/1", "BK_2", "J1.1", "J1/1", "J1\\1", "J1!", "-J1"]) {
+    assert.equal(S.isValidClassName(invalid), false, invalid);
+  }
   assert.equal(S.isValidClassName(""), false);
   assert.equal(S.isValidClassName(" J1"), false);
 });
@@ -63,7 +79,7 @@ test("normalizeState: gültiger Stand bleibt erhalten", () => {
   const profileId = S.createOpaqueId("profile");
   const deviceId = S.createOpaqueId("device");
   const state = normalize({
-    name: "max.mus", className: "wg 12/1", profileId, profileDeviceId: deviceId, profileCreatedAt: "2026-10-01T08:00:00.000Z",
+    name: "max.mus", className: "wg12-1", profileId, profileDeviceId: deviceId, profileCreatedAt: "2026-10-01T08:00:00.000Z",
     completedLessons: [lessonId], completedPractices: [practiceId], completedCommands: [commandId],
     drafts: { [practiceId]: "SELECT 1;", "frei-fahrschule": "SELECT 2;" },
     lessonNotes: { [lessonId]: "Notiz" }, generalNotes: "Allgemein",
@@ -71,7 +87,7 @@ test("normalizeState: gültiger Stand bleibt erhalten", () => {
     activityDates: ["2026-10-08", "2026-10-09"], lastLessonId: lessonId
   });
   assert.equal(state.name, "MAX.MUS");
-  assert.equal(state.className, "WG 12/1");
+  assert.equal(state.className, "WG12-1");
   assert.equal(state.profileId, profileId);
   assert.equal(state.profileDeviceId, deviceId);
   assert.deepEqual(state.completedLessons, [lessonId]);
