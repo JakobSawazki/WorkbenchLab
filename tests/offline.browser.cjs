@@ -40,7 +40,7 @@ const artifacts = require("./artifacts.cjs")("offline");
       await page.locator("#notebookEditor").fill("Meine Notiz ohne Internet.");
       await page.locator("#notebookEditor").dispatchEvent("input");
       await page.reload();
-      assert.equal(await page.locator("#notebookEditor").inputValue(), "Meine Notiz ohne Internet.");
+      assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "Meine Notiz ohne Internet.");
       await page.goto(base + "index.html#sql/frei");
       assert.equal(await page.evaluate(() => crypto.subtle !== undefined), true);
       await page.locator("#playgroundSchema").selectOption("leer");

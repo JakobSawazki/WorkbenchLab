@@ -5,6 +5,11 @@
   const eraserWidths = [24, 48, 96];
   const maxPoints = 8000;
   const maxStrokes = 120;
+  const maxTotalPoints = 200000;
+  const maxImageLength = 1500000;
+  const isImage = entry => entry?.tool === "image" && typeof entry.image === "string"
+    && entry.image.length <= maxImageLength
+    && /^data:image\/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAALQ[A-Za-z0-9+/]*={0,2}$/.test(entry.image);
   function normalize(candidate, allowedIds) {
     const result = {};
     let total = 0;
@@ -14,12 +19,16 @@
       let count = 0;
       const strokes = [];
       for (const entry of entries.slice(0, maxStrokes)) {
+        if (!strokes.length && isImage(entry)) {
+          strokes.push({ tool: "image", image: entry.image, points: [] });
+          continue;
+        }
         if (!entry || !["pen", "erase"].includes(entry.tool) || !colors.includes(entry.color)
           || !(entry.tool === "erase" ? [...widths, ...eraserWidths] : widths).includes(entry.width) || !Array.isArray(entry.points)
           || !entry.points.length || entry.points.length > 1000) continue;
         if (entry.points.some((point) => !Array.isArray(point) || point.length !== 2
           || point.some((n) => typeof n !== "number" || !Number.isFinite(n) || n < 0 || n > 1))) continue;
-        if (count + entry.points.length > maxPoints || total + entry.points.length > 60000) break;
+        if (count + entry.points.length > maxPoints || total + entry.points.length > maxTotalPoints) break;
         strokes.push({ tool: entry.tool, color: entry.color, width: entry.width,
           points: entry.points.map((point) => point.map((n) => Math.round(n * 10000) / 10000)) });
         count += entry.points.length;
@@ -29,9 +38,14 @@
     }
     return result;
   }
-  function paint(context, strokes) {
+  function paint(context, strokes, images = new Map()) {
     context.clearRect(0, 0, 1200, 720);
     for (const stroke of strokes) {
+      if (stroke.tool === "image") {
+        context.globalCompositeOperation = "source-over";
+        if (images.has(stroke.image)) context.drawImage(images.get(stroke.image), 0, 0, 1200, 720);
+        continue;
+      }
       context.globalCompositeOperation = stroke.tool === "erase" ? "destination-out" : "source-over";
       context.strokeStyle = context.fillStyle = stroke.color;
       context.lineWidth = stroke.width;
@@ -56,11 +70,25 @@
     let redo = [];
     let current = null;
     let pointer = null;
-    let warned = false;
+    let busy = false;
+    const images = new Map();
     const settings = { tool: "pen", color: colors[0], width: 5, eraserWidth: 48 };
     const count = () => strokes.reduce((sum, stroke) => sum + stroke.points.length, 0);
-    const redraw = () => paint(context, current ? [...strokes, current] : strokes);
+    const redraw = () => paint(context, current ? [...strokes, current] : strokes, images);
     const publish = () => { redraw(); onChange(structuredClone(strokes), { undo: Boolean(strokes.length), redo: Boolean(redo.length) }); };
+    function compact() {
+      redraw();
+      const image = canvas.toDataURL("image/png");
+      if (!isImage({ tool: "image", image })) { onLimit(); return false; }
+      const snapshot = document.createElement("canvas");
+      snapshot.width = 1200; snapshot.height = 720;
+      snapshot.getContext("2d").drawImage(canvas, 0, 0);
+      images.clear();
+      images.set(image, snapshot);
+      strokes = [{ tool: "image", image, points: [] }];
+      redo = [];
+      return true;
+    }
     function point(event) {
       const rect = canvas.getBoundingClientRect();
       return [(event.clientX - rect.left) / rect.width, (event.clientY - rect.top) / rect.height]
@@ -69,8 +97,9 @@
     function add(event) {
       if (!current || pointer !== event.pointerId) return;
       if (current.points.length >= 1000 || count() + current.points.length >= Math.min(maxPoints, budget)) {
-        if (!warned) { onLimit(); warned = true; }
-        return;
+        const last = current.points.at(-1);
+        if (!compact()) return;
+        current.points = last ? [last] : [];
       }
       const next = point(event);
       const previous = current.points.at(-1);
@@ -88,12 +117,13 @@
       publish();
     }
     canvas.addEventListener("pointerdown", (event) => {
-      if (current || event.button !== 0) return;
-      if (strokes.length >= maxStrokes || count() >= Math.min(maxPoints, budget)) { onLimit(); return; }
+      if (busy || current || event.button !== 0) return;
+      if (strokes.length >= maxStrokes || count() >= Math.min(maxPoints, budget)) {
+        if (!compact()) return;
+      }
       event.preventDefault();
       canvas.focus({ preventScroll: true });
       pointer = event.pointerId;
-      warned = false;
       current = { tool: settings.tool, color: settings.color, width: settings.tool === "erase" ? settings.eraserWidth : settings.width, points: [] };
       canvas.setPointerCapture(pointer);
       add(event);
@@ -102,13 +132,28 @@
     canvas.addEventListener("pointerup", (event) => { if (pointer === event.pointerId) { add(event); finish(); } });
     canvas.addEventListener("pointercancel", (event) => { if (pointer === event.pointerId) finish(); });
     canvas.addEventListener("lostpointercapture", finish);
+    const firstImage = strokes.find(stroke => stroke.tool === "image");
+    let ready = Promise.resolve();
+    if (firstImage) {
+      busy = true;
+      ready = new Promise(resolve => {
+        const image = new Image();
+        image.onload = () => {
+          if (image.naturalWidth === 1200 && image.naturalHeight === 720) images.set(firstImage.image, image);
+          busy = false; redraw(); resolve();
+        };
+        image.onerror = () => { busy = false; onLimit(); resolve(); };
+        image.src = firstImage.image;
+      });
+    }
     redraw();
     return {
-      settings, finish,
+      settings, finish, ready,
       undo() { finish(); if (strokes.length) { redo.push(strokes.pop()); publish(); } },
       redo() { finish(); if (redo.length) { strokes.push(redo.pop()); publish(); } },
       clear() { finish(); strokes = []; redo = []; publish(); },
-      png() {
+      async png() {
+        await ready;
         finish();
         const image = document.createElement("canvas");
         image.width = 1200; image.height = 720;
@@ -119,5 +164,5 @@
       }
     };
   }
-  window.WORKBENCH_DRAWING = { colors, widths, eraserWidths, normalize, paint, attach };
+  window.WORKBENCH_DRAWING = { colors, widths, eraserWidths, maxTotalPoints, normalize, paint, attach };
 })();

@@ -15,7 +15,7 @@
   const developerStorageKey = "workbenchlab-developer-v1";
   const pendingModuleStorageKey = "workbenchlab-pending-module-v1";
   const backupAppId = "WorkbenchLab";
-  const backupFormatVersion = 8;
+  const backupFormatVersion = 9;
   const maxBackupBytes = 25 * 1024 * 1024;
   let backupBusy = false;
   // Vorgabewerte, Kennungen und normalizeState: state.js (OPT-16, Schritt 3, Claude).
@@ -1384,12 +1384,12 @@
           <button class="icon-button" type="button" data-note-tool="list" title="Aufzählung einfügen" aria-label="Aufzählung einfügen"><i data-lucide="list"></i></button>
           <button class="icon-button" type="button" data-note-tool="checklist" title="Checkliste einfügen" aria-label="Checkliste einfügen"><i data-lucide="list-todo"></i></button>
           <button class="icon-button" type="button" data-note-tool="date" title="Datum einfügen" aria-label="Datum einfügen"><i data-lucide="calendar-days"></i></button>
+          <div class="note-colors" role="group" aria-label="Schriftfarbe">${["default", ...window.WORKBENCH_NOTE_TEXT.colors].map((color, index) => `<button type="button" class="pen-swatch" data-note-color="${color}" title="${["Standardfarbe", "Blau", "Grün", "Rot", "Violett"][index]}" aria-label="Schriftfarbe ${["Standard", "Blau", "Grün", "Rot", "Violett"][index]}"></button>`).join("")}</div>
           <span class="toolbar-spacer"></span>
           <button class="icon-button" type="button" data-note-tool="copy" title="Notiz kopieren" aria-label="Notiz kopieren"><i data-lucide="copy"></i></button>
           <button class="icon-button" type="button" data-note-tool="download" title="Notiz als Textdatei herunterladen" aria-label="Notiz als Textdatei herunterladen"><i data-lucide="download"></i></button>
         </div>
-        <label class="sr-only" for="notebookEditor">${escapeHtml(entry.title)}</label>
-        <textarea id="notebookEditor" data-notebook-entry="${entry.id}" maxlength="12000" spellcheck="true" placeholder="Meine wichtigsten Erkenntnisse, Beispiele und offenen Fragen …">${escapeHtml(entry.text)}</textarea>
+        <div id="notebookEditor" data-notebook-entry="${entry.id}" contenteditable="true" role="textbox" aria-multiline="true" aria-label="${escapeHtml(entry.title)}" spellcheck="true"></div>
         <div class="notebook-status"><span id="notebookCount"></span><span>Teil deiner JSON-Sicherung</span></div>
         </div>
         <div id="noteDrawingPanel" role="tabpanel" aria-labelledby="noteDrawingTab" ${notebookTab === "drawing" ? "" : "hidden"}>
@@ -1411,8 +1411,9 @@
         </div>
       </div>
     </section>`;
+    window.WORKBENCH_NOTE_TEXT.attach(document.querySelector("#notebookEditor"), entry.text, state.noteTextStyles[entry.id], marks => { state.noteTextStyles[entry.id] = marks; });
     updateNoteCount();
-    const remainingPoints = 60000 - Object.entries(state.noteDrawings).filter(([key]) => key !== entry.id).reduce((sum, [, strokes]) => sum + strokes.reduce((count, stroke) => count + stroke.points.length, 0), 0);
+    const remainingPoints = drawing.maxTotalPoints - Object.entries(state.noteDrawings).filter(([key]) => key !== entry.id).reduce((sum, [, strokes]) => sum + strokes.reduce((count, stroke) => count + stroke.points.length, 0), 0);
     activeDrawing = drawing.attach(document.querySelector("#noteCanvas"), state.noteDrawings[entry.id], (strokes, history) => {
       state.noteDrawings[entry.id] = strokes;
       saveState();
@@ -1420,7 +1421,8 @@
       document.querySelector('[data-draw-action="redo"]').disabled = !history.redo;
       document.querySelector("#drawingStatus").textContent = storageAvailable ? "" : "Browserspeicher nicht verfügbar. Bitte als Datei sichern.";
     }, () => {
-      document.querySelector("#drawingStatus").textContent = "Die Zeichenfläche ist voll. Entferne Striche oder sichere die Zeichnung als PNG.";
+      const status = document.querySelector("#drawingStatus");
+      if (status) status.textContent = "Die Zeichnung konnte nicht weiter verdichtet werden. Bitte als PNG und Lernstand sichern.";
     }, remainingPoints);
   }
 
@@ -1570,6 +1572,7 @@
       <span title="Textmarker" role="img" aria-label="Textmarker"><i data-lucide="highlighter" aria-hidden="true"></i></span>
       ${["yellow", "mint", "coral", "green"].map((color, index) => `<button class="marker-swatch" type="button" data-highlight-color="${color}" title="${["Gelb", "Mint", "Koralle", "Grün"][index]} markieren" aria-label="${["Gelb", "Mint", "Koralle", "Grün"][index]} markieren"><span></span></button>`).join("")}
       <button class="icon-button" type="button" data-highlight-color="erase" title="Markierung im ausgewählten Text entfernen" aria-label="Markierung im ausgewählten Text entfernen"><i data-lucide="eraser"></i></button>
+      <button class="icon-button" type="button" data-add-comment title="Kommentar zur Auswahl" aria-label="Kommentar zur Auswahl"><i data-lucide="message-square-plus"></i></button>
       <span class="toolbar-spacer"></span><button class="icon-button" type="button" data-route="notes/${parseRoute().id}" title="Zusammenfassung öffnen" aria-label="Zusammenfassung öffnen"><i data-lucide="notebook-pen"></i></button>
     </div>`;
   }
@@ -1577,6 +1580,43 @@
   function captureHighlightSelection() {
     const anchors = study.selectionAnchors(document.querySelector("[data-lesson-reading]"), window.getSelection());
     if (anchors.length || !document.activeElement?.closest(".reading-tools")) selectedTextAnchors = anchors;
+  }
+
+  let pendingComment = null;
+  function openLessonComment(index = null) {
+    const lesson = lessonById(parseRoute().id);
+    if (!lesson) return;
+    const existing = index === null ? null : state.lessonComments[lesson.id]?.[index];
+    const anchor = existing || selectedTextAnchors[0];
+    if (!anchor) { toast("Bitte zuerst eine Textstelle auswählen."); return; }
+    if (index === null && (state.lessonComments[lesson.id]?.length || 0) >= 100) { toast("Maximal 100 Kommentare je Einheit.", "error"); return; }
+    pendingComment = { lessonId: lesson.id, index, anchor };
+    document.querySelector("#lessonCommentQuote").textContent = anchor.quote;
+    document.querySelector("#lessonCommentText").value = existing?.text || "";
+    document.querySelector("#lessonCommentDialog").showModal();
+    document.querySelector("#lessonCommentText").focus();
+  }
+  document.querySelector("#lessonCommentClose").addEventListener("click", () => document.querySelector("#lessonCommentDialog").close());
+  document.querySelector("#lessonCommentForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const text = document.querySelector("#lessonCommentText").value.trim();
+    if (!pendingComment || !text) return;
+    const { lessonId, index, anchor } = pendingComment;
+    const entries = state.lessonComments[lessonId] ||= [];
+    const entry = { block: anchor.block, start: anchor.start, end: anchor.end, quote: anchor.quote, text };
+    if (index === null) entries.push(entry); else entries[index] = entry;
+    saveState();
+    document.querySelector("#lessonCommentDialog").close();
+    renderLessonComments(lessonId);
+    document.querySelector("[data-add-comment]")?.focus({ preventScroll: true });
+  });
+  function renderLessonComments(lessonId) {
+    const region = document.querySelector("#lessonComments");
+    if (!region) return;
+    const entries = state.lessonComments[lessonId] || [];
+    region.hidden = !entries.length;
+    region.innerHTML = `<h3>Meine Kommentare</h3>${entries.map((entry, index) => `<article class="lesson-comment"><blockquote>${escapeHtml(entry.quote)}</blockquote><p>${escapeHtml(entry.text)}</p><div><button class="icon-button" type="button" data-comment-edit="${index}" title="Kommentar bearbeiten" aria-label="Kommentar ${index + 1} bearbeiten"><i data-lucide="pencil"></i></button><button class="icon-button" type="button" data-comment-remove="${index}" title="Kommentar löschen" aria-label="Kommentar ${index + 1} löschen"><i data-lucide="trash-2"></i></button></div></article>`).join("")}`;
+    renderIcons();
   }
 
   function markSelectedText(color) {
@@ -1775,10 +1815,10 @@
               <span>${index + 1}</span><div><strong>${escapeHtml(step)}</strong><small>${(lesson.workflowHints || ["Grundlagen lesen", "Vorgehen festlegen", "Auftrag umsetzen", "Lehrkraft bestätigt"])[index] || ""}</small></div>
             </li>`).join("")}
         </ol></details>
-        <div class="lesson-body">
-          ${["L1.3", "L2.1", "L2.2"].includes(lesson.courseCode) ? renderModelGlossary(lesson.courseCode === "L1.3") : ""}
-          <div class="lesson-reading" data-lesson-reading="${lesson.id}">
+        <div class="lesson-body" data-lesson-reading="${lesson.id}">
           ${renderHighlighter()}
+          ${["L1.3", "L2.1", "L2.2"].includes(lesson.courseCode) ? renderModelGlossary(lesson.courseCode === "L1.3") : ""}
+          <div class="lesson-reading">
           ${renderLessonOpening(lesson)}
           <section class="content-section">
             <div>
@@ -1798,11 +1838,16 @@
           ${renderLessonExercises(lesson)}
           ${renderClassroomTask(lesson)}
           ${renderLessonNotes(lesson)}
+          <section id="lessonComments" class="lesson-comments" hidden></section>
           ${renderLessonSources(lesson)}
           ${renderLessonCompletion(lesson)}
         </div>
       </article>`;
+    document.querySelectorAll("[data-lesson-reading] p, [data-lesson-reading] li, [data-lesson-reading] td, [data-lesson-reading] th, [data-lesson-reading] h3, [data-lesson-reading] h4").forEach((element, index) => {
+      if (!element.closest("[data-highlight-block], .reading-tools, .lesson-comments, form") && !element.querySelector("[data-highlight-block], input, textarea, button")) element.dataset.highlightBlock = `extra-${index}`;
+    });
     study.applyHighlights(document.querySelector("[data-lesson-reading]"), state.lessonHighlights[lesson.id] || []);
+    renderLessonComments(lesson.id);
   }
 
   function renderLessonQuiz(lesson) {
@@ -3843,6 +3888,16 @@
     const videoLoadButton = event.target.closest("[data-video-load]");
     const videoCloseButton = event.target.closest("[data-video-close]");
     const highlightButton = event.target.closest("[data-highlight-color]");
+    if (event.target.closest("[data-add-comment]")) openLessonComment();
+    const commentEdit = event.target.closest("[data-comment-edit]");
+    if (commentEdit) openLessonComment(Number(commentEdit.dataset.commentEdit));
+    const commentRemove = event.target.closest("[data-comment-remove]");
+    if (commentRemove) {
+      const lessonId = parseRoute().id;
+      state.lessonComments[lessonId]?.splice(Number(commentRemove.dataset.commentRemove), 1);
+      saveState(); renderLessonComments(lessonId);
+      document.querySelector("[data-add-comment]")?.focus({ preventScroll: true });
+    }
     const noteTool = event.target.closest("[data-note-tool]");
     if (highlightButton) markSelectedText(highlightButton.dataset.highlightColor);
     if (noteTool) useNoteTool(noteTool.dataset.noteTool);
@@ -4179,6 +4234,7 @@
     if (event.target.matches("[data-lesson-note]")) {
       const lessonId = event.target.dataset.lessonNote;
       if (lessonById(lessonId)) {
+        state.noteTextStyles[lessonId] = window.WORKBENCH_NOTE_TEXT.rebase(state.noteTextStyles[lessonId] || [], state.lessonNotes[lessonId] || "", event.target.value.slice(0, 12000));
         state.lessonNotes[lessonId] = event.target.value.slice(0, 12000);
         saveState();
       }
@@ -4308,7 +4364,7 @@
   compactNav.addEventListener("change", closeMobileNav);
   document.addEventListener("selectionchange", captureHighlightSelection);
   document.addEventListener("pointerdown", (event) => {
-    if (event.target.closest("[data-highlight-color]")) {
+    if (event.target.closest("[data-highlight-color], [data-add-comment]")) {
       captureHighlightSelection();
       event.preventDefault();
     }
@@ -4525,7 +4581,10 @@
   nagoldRowsElement.addEventListener("focusout", event => {
     if (event.target.matches(".nagold-combo input")) nagoldCombo.close(nagoldCombo.parts(event.target));
   });
-  nagoldDialog.addEventListener("scroll", () => document.querySelectorAll(".nagold-combo.is-open").forEach(box => nagoldCombo.close(nagoldCombo.parts(box))), true);
+  nagoldDialog.addEventListener("scroll", event => {
+    if (event.target.closest?.(".nagold-combo-list")) return;
+    document.querySelectorAll(".nagold-combo.is-open").forEach(box => nagoldCombo.close(nagoldCombo.parts(box)));
+  }, true);
   document.querySelector("#nagoldRows").addEventListener("change", readNagoldInput);
   document.querySelector("#nagoldForm").addEventListener("submit", event => {
     event.preventDefault();

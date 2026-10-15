@@ -33,6 +33,8 @@
     drafts: {},
     slotDrafts: {},
     lessonNotes: {},
+    noteTextStyles: {},
+    lessonComments: {},
     generalNotes: "",
     noteDrawings: {},
     lessonHighlights: {},
@@ -218,6 +220,9 @@
       drafts,
       slotDrafts,
       lessonNotes,
+      noteTextStyles: Object.fromEntries(Object.entries(candidate.noteTextStyles || {}).filter(([id]) => id === "general" || lessonIds.has(id))
+        .map(([id, entries]) => [id, window.WORKBENCH_NOTE_TEXT.normalize(entries, id === "general" ? (typeof candidate.generalNotes === "string" ? candidate.generalNotes.slice(0, 12000) : "") : lessonNotes[id] || "")])),
+      lessonComments: study.normalizeComments(candidate.lessonComments, lessonIds),
       generalNotes: typeof candidate.generalNotes === "string" ? candidate.generalNotes.slice(0, 12000) : "",
       noteDrawings: drawing.normalize(candidate.noteDrawings, new Set(["general", ...lessonIds])),
       lessonHighlights: study.normalizeHighlights(candidate.lessonHighlights, lessonIds),

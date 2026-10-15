@@ -63,7 +63,7 @@ const storedDrafts = (page) => page.evaluate(() => JSON.parse(localStorage.getIt
     // Gerät A: Entwurf vorhanden → Sicherung enthält ihn, Prüfsumme deckt ihn ab.
     const a = await open(browser, drafts);
     const exported = await exportBackup(a.page);
-    assert.equal(exported.formatVersion, 8);
+    assert.equal(exported.formatVersion, 9);
     assert.deepEqual(exported.extras.ermDrafts, drafts);
     assert.equal(exported.integrity.digest, digest(exported));
 

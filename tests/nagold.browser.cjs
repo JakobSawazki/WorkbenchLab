@@ -142,7 +142,7 @@ fs.mkdirSync(artifacts, { recursive: true });
     await page.locator("#exportProgressButton").click();
     const download = await downloadPromise;
     const payload = JSON.parse(fs.readFileSync(await download.path(), "utf8"));
-    assert.equal(payload.formatVersion, 8);
+    assert.equal(payload.formatVersion, 9);
     assert.equal(payload.summary.nagold, 5);
     assert.deepEqual(payload.data.nagoldEntries, [{ date: today, time: secondTime, purpose: "Eigener Arbeitsauftrag", points: 5 }]);
     await page.keyboard.press("Escape");

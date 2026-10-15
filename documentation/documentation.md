@@ -1,11 +1,12 @@
 # WorkbenchLab Projektdokumentation
 
-Stand: 12. Oktober 2026 (Europe/Berlin) [Codex; Claudes Eintraege bleiben im Verlauf]
+Stand: 15. Oktober 2026 (Europe/Berlin) [Codex; Claudes Eintraege bleiben im Verlauf]
 
-Aktueller Release-Stand: **0.46.1** [Claude, 2026-10-11; von Codex am 2026-10-12 nachgeprueft]
+Aktueller Release-Stand: **0.47.0** [Codex, 2026-10-15; vollstaendig geprueft]
 
-Veroeffentlichter Stand: 0.46.1, Claudes Abschnitte 0.70 und 0.71;
-Codex' Nachpruefung steht im Abschnitt vom 12. Oktober unten.
+Version 0.47.0 wird im Releasebericht und im Codex-Abschnitt vom 15. Oktober
+unten gefuehrt. Historischer Stand 0.46.1: Claudes Abschnitte 0.70/0.71 und
+Codex' Nachpruefung vom 12. Oktober.
 
 Mitwirkende: Jakob Sawazki, Codex, seit 8. Oktober 2026 zusätzlich Claude. Claudes Einträge stehen in Abschnitt 0 und sind dort sowie an jeder anderen Stelle mit `[Claude, Datum]` gekennzeichnet.
 
@@ -37,6 +38,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Was umfasst Codex-Release 0.44.0? | [`releases/RELEASE_0_44_0.md`](releases/RELEASE_0_44_0.md); Offline-ZIP für den Informatik-Stick |
 | Was umfasst Codex-Release 0.45.0? | [`releases/RELEASE_0_45_0.md`](releases/RELEASE_0_45_0.md); freiwillige Offline-Kopie der Webseite mit sicheren Versionswechseln |
 | Was umfasst der aktuelle Stand 0.46.1? | Abschnitte 0.70/0.71 und Codex' Nachpruefung vom 12. Oktober unten; NAGOLD-Bedienung, Navigationstrennlinie und Modellabschluesse |
+| Was umfasst 0.47.0? | [Release 0.47.0](releases/RELEASE_0_47_0.md); Notizfarben, Kommentare, durchgehender Textmarker und Zeichnen ohne die alte Sperre |
 | Was ist gerade der Stand? | Tabelle unten |
 | Was hat Claude getan, geprüft, nicht geprüft? | Abschnitt 0 dieser Datei (nummerierte Einträge, neuester am Ende) |
 | Was hat Codex bis 0.21.0 getan? | [`archiv/PROJEKTDOKUMENTATION_BIS_0_21.md`](archiv/PROJEKTDOKUMENTATION_BIS_0_21.md) (Abschnitte 1 bis 12 und Anhänge, Stand 3. Oktober 2026) |
@@ -48,7 +50,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Checkliste für den Schul-PC-Test | Abschnitt 0.16 dieser Datei |
 | Stand vor Claudes Mitarbeit wiederherstellen | Abschnitt 0.1 dieser Datei |
 
-**Aktueller Stand (Release 0.46.1)** [Codex, 2026-10-12]
+**Aktueller Stand (Release 0.47.0)** [Codex, 2026-10-15]
 
 | Thema | Stand |
 | --- | --- |
@@ -60,7 +62,7 @@ Release 0.21.0 liegt in einer eigenen Datei.**
 | Lehrkraft | Klassenübersicht `lehrkraft.html` mit nachgeprüften Modellaufgaben sowie eigener Bestätigungsliste, Sicherung und bestätigten CSV-Werten; Entwicklermodus im Profil mit `AltGr + S`, dort „Lösungsdatei laden“ (Abschnitt 0.45) |
 | Lösungen | nicht in der veröffentlichten Lernseite; im Repository vorhanden; für die Lehrkraft als lokale Datei `resources/workbenchlab-loesungen.json` (`node tools/build-solutions.cjs`) |
 | Offline | Freiwillige HTTPS-Offline-Kopie mit Versionsprüfung und wartenden Updates; alternativ ZIP für den Informatik-Stick direkt in Edge. Echter Schul-PC-Test weiterhin offen |
-| Tests | 224 Node-Tests, 4 Python-Tests, alle 47 Browsertestdateien am 12. Oktober bestanden; zusaetzlich 168 Pruefungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwoelf Skriptimporte und native Abfragen/Fremdschluessel (`node tools/verify-native-sql.cjs`) |
+| Tests | 228 Node-Tests, 4 Python-Tests, alle 48 Browsertestdateien am 15. Oktober bestanden; zusaetzlich 168 Pruefungen gegen die MariaDB des Informatik-Sticks (`node tools/verify-claude-native.cjs`) sowie zwoelf Skriptimporte und native Abfragen/Fremdschluessel (`node tools/verify-native-sql.cjs`) |
 | Nicht geprüft | Schul-PCs, Bedienoberfläche von MySQL Workbench, echter Bildschirmleser (Namen und Struktur sind automatisch geprüft), echtes Tablet oder Telefon (Berührungen sind in Edge nachgebildet), andere Browser, MySQL 8 |
 
 **Weitere Dokumente in diesem Ordner** (alle von Codex, Stand jeweils im Dokument)
@@ -3336,6 +3338,48 @@ Auffindbarkeit der Loesungen im Quelltext und Verlauf ist ausdruecklich
 akzeptiert. OPT-12 benoetigt daher keinen privaten Entwicklungszweig oder
 Verlaufsumbau. Die Lernseite selbst bleibt loesungsbereinigt. Keine Zusage
 eines Manipulationsschutzes oder einer technisch verbindlichen Bewertung.
+
+## Codex: Notiz- und Lesewerkzeuge 0.47.0 [Codex, 2026-10-15]
+
+Jakobs aktuelle fuenf Punkte umgesetzt. Mausrad auf der NAGOLD-Vorschlagsliste
+schliesst sie nicht mehr und bewegt nicht den Hintergrund. Textmarker bis zum
+Ende der gesamten Einheit; zusaetzliche Textanker auch in Aufgaben und Praxis.
+Kommentare mit Zitat, Bearbeiten und Loeschen direkt zur jeweiligen Einheit.
+
+Jakob hat einzelne unterschiedlich farbige Textstellen ausdruecklich gewaehlt.
+Der Notizeditor benutzt deshalb Klartext mit separaten Farbbereichen, nicht
+gespeichertes Benutzer-HTML. Bekannte themenabhaengige Farben, Standardfarbe,
+Klartext-Zwischenablage, Text-/Farb-Rueckgaengig und Schutz vor zu grossen
+Eingaben. Vorhandener Text wird bei Ueberlaenge nicht am Ende abgeschnitten.
+Importierte Farbdaten werden gegen den zugehoerigen Klartext normalisiert.
+
+Die Zeichensperre ab 120 Strichen oder 8.000 Punkten betraf auch den Radierer.
+Jetzt wird vor der Grenze beziehungsweise waehrend langer Striche transparent
+als PNG verdichtet. Sichtbare Inhalte bleiben erhalten, Zeichnen und Radieren
+gehen weiter. Alte Striche sind danach ein Bild; neue Striche behalten ihre
+einzelnen Undo-Schritte. PNG-Eingaben haben festen Abmessungsheader und
+Laengenlimit. Hinweise bei vollem Browserspeicher bleiben bestehen. Format 9
+enthaelt Zeichnungen, `noteTextStyles` und `lessonComments`, alte Dateien
+bleiben importierbar. Kein XP-/NAGOLD-Verhalten geaendert.
+
+228 Node- und vier Python-Tests sowie beide nativen Pruefer bestanden.
+Neue Regression: echtes Mausrad, Farbwort/Undo/Redo/Neuladen, Kommentar-XSS,
+Bearbeiten/Loeschen, Seitenende, beide alten Zeichengrenzen, echte Bildpunkte
+nach Radieren/Neuladen und Transfer auf einen zweiten Browser. Mobile und
+Desktopansicht in beiden Designs visuell kontrolliert. Gesamtbrowserlauf
+mit allen 48 Dateien bestanden: 318 Kontrast-, 1200 Ueberlauf-, 252
+Namensansichten und 955 Tastaturstopps. Vorherige Teillaeufe nach den
+abschliessenden Import-/Eingabekorrekturen bewusst nicht als Release-Gate
+gewertet. Alle 69 Dateien der oeffentlichen Manifestliste stimmen bytegenau
+mit dem finalen Bau ueberein; nachtraegliche desktop.ini-Metadaten zaehlen
+nicht zu dieser Liste und werden nicht ausgeliefert.
+
+Details: [Release 0.47.0](releases/RELEASE_0_47_0.md). Die sechs Stylesheets
+bleiben in unveraenderter Reihenfolge, neue Regeln am Ende von
+`styles-extensions.css`. `note-text.js` ist die einzige neue oeffentliche
+Hilfsdatei. Lokale Lehrkraftloesungsdatei regeneriert, nicht veroeffentlicht.
+Keine SQL-Aufgabe geaendert. Schule/echte Mobilgeraete/echter Bildschirmleser
+weiterhin nicht vor Ort geprueft.
 
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
 

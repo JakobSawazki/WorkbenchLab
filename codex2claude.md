@@ -398,3 +398,43 @@ Auffindbarkeit der Loesungen im Quelltext/Verlauf als Grenze akzeptieren.
 OPT-12 ist damit keine offene technische Umbauaufgabe mehr. Loesungsfilter
 der veroeffentlichten Lernseite bleibt bestehen; keine Sichtbarkeitsaenderung,
 keine Verlaufsaenderung und kein behaupteter Manipulationsschutz.
+
+## Notiz- und Lesewerkzeuge 0.47.0 [Codex, 2026-10-15]
+
+Jakobs fuenf Wuensche umgesetzt: NAGOLD-Listenscroll ignoriert beim eigenen
+Scrollen das bisherige Schliessen, Scrollverkettung und Hintergrundscrollen
+sind unterbunden. Textmarker jetzt im gesamten Einheitenkoerper, zusaetzliche
+Textanker auch unterhalb der Informationsteile. Eigene Kommentare an einer
+Auswahl mit Zitat, Bearbeiten/Loeschen, `lessonComments` und Grenzen.
+
+Jakob hat ausdruecklich unterschiedliche Farben innerhalb einer Notiz gewaehlt.
+`note-text.js` ergaenzt den Notizeditor: Klartext bleibt in alten Feldern,
+`noteTextStyles` speichert nur Farbbereiche. Kein Benutzer-HTML, Zwischenablage
+als Klartext; Farben aus festen Thementokens, Eingaben und Rueckgaengig erhalten.
+Alte Tests an Contenteditable statt Textarea angepasst, Pruefaussagen erhalten.
+
+Zeichnungsursache: feste Sperre ab 120 Strichen/8.000 Punkten galt auch fuer
+Radieren. Jetzt automatische transparente PNG-Verdichtung bei der Grenze,
+auch waehrend langer Striche. Bild in der bestehenden Zeichenliste als
+bereinigter erster Eintrag mit `points: []`; keine externen Bildadressen.
+Import prueft festen PNG-Abmessungsheader, Laenge und Dekodierung im Browser.
+Neue Striche sind weiter einzeln rueckgaengig; vor Verdichtung liegende Striche
+sind danach ein Bild, nicht mehr einzeln editierbare Striche. Dateisicherung
+bei Browserspeichermangel bleibt noetig. Sicherungsformat 9 schuetzt vor
+stillem Verlust beim Import in aeltere App-Versionen.
+
+228 Node-/vier Python-Tests sowie beide nativen Pruefer bestanden. Neue
+Regression prueft Mausrad, Farbwort nach Neuladen, Undo/Redo, Kommentar-XSS,
+beide Zeichengrenzen, echte Bildpunkte/Radieren nach Neuladen und den Import
+auf einen zweiten Browser. Vollstaendiger Lauf aller 48 Browserdateien
+bestanden: 318 Kontrast-, 1200 Ueberlauf-, 252 Namensansichten und 955
+Tastaturstopps. Alle 69 manifest-gelisteten App-Dateien entsprechen dem
+geprueften finalen Bau. Offline-ZIP: 10.950.544 Bytes, SHA-256
+`052af4a116445338a1107ae427dafe91b9c5dc4fe4aebed8eca81c132b4d950d`.
+Keine SQL-Aufgabe geaendert.
+
+Git-Fetch wurde durch neu erzeugte desktop.ini unter `.git/refs` und
+Unterordnern gestoert. Der Werkzeugschutz hat das Entfernen abgelehnt; keine
+Datei geloescht und kein alternativer Loeschweg benutzt. Remote-main stattdessen
+vor der Veroeffentlichung ueber die GitHub-API geprueft: identisch zum lokalen
+Ausgangscommit `da985c0`. Normaler Push ohne erzwungene Aktualisierung vorgesehen.

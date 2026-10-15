@@ -62,7 +62,7 @@ async function line(page, x1, y1, x2, y2) {
     await page.locator("[data-lesson-reading]").waitFor();
     await page.locator('.reading-tools [data-route^="notes/"]').evaluate((el) => el.click());
     await page.locator("#notebookEditor").waitFor();
-    assert.equal(await page.locator("#notebookEditor").inputValue(), "Meine Skizze einer Tabellenbeziehung.");
+    assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "Meine Skizze einer Tabellenbeziehung.");
     await page.locator("#appearanceButton").click();
     await page.keyboard.press("Escape");
     assert.ok(await page.locator("#notebookEditor").isVisible());
@@ -111,7 +111,7 @@ async function line(page, x1, y1, x2, y2) {
     const file = path.join(output, "drawing-export.json");
     await (await json).saveAs(file);
     const exported = JSON.parse(fs.readFileSync(file, "utf8"));
-    assert.equal(exported.formatVersion, 8);
+    assert.equal(exported.formatVersion, 9);
     assert.equal(exported.data.noteDrawings["warum-datenbanken"][1].width, 48);
     assert.equal(exported.data.noteDrawings["warum-datenbanken"].length, 3);
     const { integrity, ...body } = exported;
@@ -126,7 +126,7 @@ async function line(page, x1, y1, x2, y2) {
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
     assert.ok(await alpha(page, 360, 360) > 0);
     await page.locator("#noteTextTab").click();
-    assert.equal(await page.locator("#notebookEditor").inputValue(), "Meine Skizze einer Tabellenbeziehung.");
+    assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "Meine Skizze einer Tabellenbeziehung.");
     const legacy = structuredClone(exported);
     legacy.formatVersion = 4;
     delete legacy.data.noteDrawings;
@@ -138,7 +138,7 @@ async function line(page, x1, y1, x2, y2) {
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(legacyFile);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
-    assert.equal(await page.locator("#notebookEditor").inputValue(), "Meine Skizze einer Tabellenbeziehung.");
+    assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "Meine Skizze einer Tabellenbeziehung.");
     await page.locator("#noteDrawingTab").click();
     assert.equal(await alpha(page, 360, 360), 0);
     await page.locator("#backupButton").click();

@@ -122,11 +122,11 @@ async function verifyExport(download, name) {
     console.log("PASS: marking, recoloring, erasing and reloading inline-code content.");
     await page.locator("#lessonNotes").fill("Mein Primärschlüssel identifiziert jeden Datensatz.");
     await page.goto(`${base}?screenshot=1#notes/warum-datenbanken`);
-    assert.equal(await page.locator("#notebookEditor").inputValue(), "Mein Primärschlüssel identifiziert jeden Datensatz.");
+    assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "Mein Primärschlüssel identifiziert jeden Datensatz.");
     await page.locator("#notebookEditor").fill("Meine Zusammenfassung <script>window.bad=true</script>");
     await page.reload();
     assert.equal(await page.evaluate(() => Boolean(window.bad)), false);
-    assert.ok((await page.locator("#notebookEditor").inputValue()).includes("<script>"));
+    assert.ok((await page.locator("#notebookEditor").evaluate(node => node.value)).includes("<script>"));
     await page.locator('[data-note-tool="list"]').click();
     await page.goto(`${base}?screenshot=1#notes/general`);
     await page.locator("#notebookEditor").fill("BPE6: Offene Fragen und meine Merksätze.");
@@ -142,7 +142,7 @@ async function verifyExport(download, name) {
     await page.locator("#backupButton").click();
     await page.locator("#exportProgressButton").click();
     const exported = await verifyExport(await downloaded, "study-export.json");
-    assert.equal(exported.payload.formatVersion, 8);
+    assert.equal(exported.payload.formatVersion, 9);
     assert.equal(exported.payload.data.generalNotes, "BPE6: Offene Fragen und meine Merksätze.");
     assert.ok(exported.payload.data.lessonHighlights["warum-datenbanken"].length > 0);
     assert.equal(exported.payload.data.lessonWorksheets["warum-datenbanken"].rows[0].length, "45");
@@ -152,7 +152,7 @@ async function verifyExport(download, name) {
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(exported.file);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
-    assert.equal(await page.locator("#notebookEditor").inputValue(), "BPE6: Offene Fragen und meine Merksätze.");
+    assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "BPE6: Offene Fragen und meine Merksätze.");
 
     await page.locator("#backupButton").click();
     await page.locator("#autoDownloadBackup").check();
@@ -211,9 +211,9 @@ async function verifyExport(download, name) {
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(legacyFile);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
-    assert.equal(await page.locator("#notebookEditor").inputValue(), "");
+    assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "");
     await page.goto(`${base}?screenshot=1#notes/warum-datenbanken`);
-    assert.ok((await page.locator("#notebookEditor").inputValue()).includes("Meine Zusammenfassung"));
+    assert.ok((await page.locator("#notebookEditor").evaluate(node => node.value)).includes("Meine Zusammenfassung"));
     assert.deepEqual(errors, []);
     await context.close();
 

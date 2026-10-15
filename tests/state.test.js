@@ -8,7 +8,7 @@ const vm = require("node:vm");
 const root = path.resolve(__dirname, "..");
 const context = vm.createContext({ window: {}, crypto: globalThis.crypto });
 context.globalThis = context;
-for (const file of ["content.js", "learning-path.js", "lesson-openings.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "study-tools.js", "drawing.js", "nagold.js", "erm-editor.js", "state.js"]) {
+for (const file of ["content.js", "learning-path.js", "lesson-openings.js", "practical-exercises.js", "debug-exercises.js", "predict-exercises.js", "order-exercises.js", "study-tools.js", "drawing.js", "nagold.js", "erm-editor.js", "note-text.js", "state.js"]) {
   vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });
 }
 const content = context.window.WORKBENCH_CONTENT;
@@ -52,6 +52,7 @@ test("normalizeState: leerer und unbrauchbarer Stand ergeben die Vorgabewerte", 
   assert.deepEqual(empty, plain(S.defaultState));
   assert.deepEqual(normalize(undefined), empty);
   assert.deepEqual(normalize({ completedLessons: "x", drafts: 5, lessonChecks: null, transferHistory: {}, activityDates: "gestern" }), empty);
+  assert.deepEqual(normalize({ generalNotes: { slice: "untrusted" }, noteTextStyles: { general: [{ start: 0, end: 2, color: "blue" }] } }).noteTextStyles, { general: [] });
   // Die Vorgabewerte selbst werden nie verändert.
   const state = S.normalizeState({});
   state.completedLessons.push("x");

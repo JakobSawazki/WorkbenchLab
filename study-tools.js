@@ -10,11 +10,24 @@
       if (!allowedLessons.has(id) || !Array.isArray(entries)) continue;
       result[id] = entries.slice(0, 400).filter((item) => item
         && typeof item.block === "string"
-        && /^(section-\d+-(heading|paragraph-\d+|rule-\d+|definition-\d+|term-\d+|datatype-\d+-\d+|code|tip|warning)|objective-\d+|opening-(scenario|question-[0-2]|answer-[0-2]|takeaway|bridge))$/.test(item.block)
+        && /^(extra-\d+|section-\d+-(heading|paragraph-\d+|rule-\d+|definition-\d+|term-\d+|datatype-\d+-\d+|code|tip|warning)|objective-\d+|opening-(scenario|question-[0-2]|answer-[0-2]|takeaway|bridge))$/.test(item.block)
         && Number.isInteger(item.start) && Number.isInteger(item.end)
         && item.start >= 0 && item.end > item.start && item.end <= 20000
         && typeof item.quote === "string" && item.quote.length === item.end - item.start
         && colors.has(item.color)).map(({ block, start, end, quote, color }) => ({ block, start, end, quote, color }));
+    }
+    return result;
+  }
+
+  function normalizeComments(candidate, allowedLessons) {
+    const result = {};
+    for (const [id, entries] of Object.entries(candidate || {})) {
+      if (!allowedLessons.has(id) || !Array.isArray(entries)) continue;
+      result[id] = entries.slice(0, 100).flatMap(item => {
+        const anchor = normalizeHighlights({ [id]: [{ ...item, color: "yellow" }] }, allowedLessons)[id]?.[0];
+        return anchor && typeof item.text === "string" && item.text.trim()
+          ? [{ block: anchor.block, start: anchor.start, end: anchor.end, quote: anchor.quote, text: item.text.trim().slice(0, 1200) }] : [];
+      });
     }
     return result;
   }
@@ -99,5 +112,5 @@
     return ({ INT: "4 Byte", DOUBLE: "8 Byte", DATE: "3 Byte", TIME: "3 Byte", "BOOLEAN / TINYINT(1)": "1 Byte" })[type] || "";
   }
 
-  window.WORKBENCH_STUDY = { normalizeHighlights, updateHighlights, selectionAnchors, applyHighlights, worksheetLength, fixedStorage };
+  window.WORKBENCH_STUDY = { normalizeHighlights, normalizeComments, updateHighlights, selectionAnchors, applyHighlights, worksheetLength, fixedStorage };
 })();

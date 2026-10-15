@@ -305,3 +305,21 @@
 
 /* NAGOLD-Fenster von Anfang an hoch genug für die Tabelle und die aufgeklappte Vorschlagsliste (Claude, 2026-10-11; nagold-hoehe) */
 #nagoldDialog { min-height: min(680px, calc(100dvh - 1.5rem)); }
+
+.nagold-combo-list { overscroll-behavior: contain; touch-action: pan-y; }
+body:has(dialog[open]) { overflow: hidden; }
+.lesson-body > .reading-tools { align-self: start; flex-wrap: wrap; }
+.note-colors { display: flex; gap: .35rem; flex-wrap: wrap; }
+.notebook-toolbar { flex-wrap: wrap; }
+[data-note-color="default"] { --swatch: var(--text); }
+[data-note-color="blue"], [data-note-ink="blue"] { --swatch: var(--blue); color: var(--blue); }
+[data-note-color="green"], [data-note-ink="green"] { --swatch: var(--green); color: var(--green); }
+[data-note-color="red"], [data-note-ink="red"] { --swatch: var(--red); color: var(--red); }
+[data-note-color="violet"], [data-note-ink="violet"] { --swatch: var(--violet); color: var(--violet); }
+#notebookEditor { white-space: pre-wrap; overflow-wrap: anywhere; outline-offset: 3px; font-family: inherit; }
+.dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.lesson-comment { padding-block: 1rem; border-bottom: 1px solid var(--line); }
+.lesson-comment p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.lesson-comment blockquote, #lessonCommentQuote { margin: .5rem 0; padding-left: 1rem; border-left: 3px solid var(--brand-2); max-height: 8rem; overflow: auto; overflow-wrap: anywhere; }
+#lessonCommentText { display: block; width: 100%; margin-block: .5rem 1rem; }
+@media print { .note-colors, .lesson-comment button { display: none !important; } }

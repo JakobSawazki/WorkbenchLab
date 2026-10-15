@@ -6,6 +6,12 @@ Quelle. Wer eine Version veröffentlicht, ergänzt hier eine Zeile.
 
 Spalte „Von“: C = Codex, Cl = Claude.
 
+## 0.47 – 15. Oktober 2026
+
+| Version | Von | Inhalt | Abschnitt |
+| --- | --- | --- | --- |
+| 0.47.0 | C | NAGOLD-Menue mit Mausrad, einzelne Notiztextstellen farbig, Textmarker bis unten, Kommentare an Textstellen und Zeichnen/Radieren nach automatischer Verdichtung | [Release 0.47.0](documentation/releases/RELEASE_0_47_0.md) |
+
 ## 0.46 – 11. Oktober 2026
 
 | Version | Von | Inhalt | Abschnitt |

@@ -91,7 +91,7 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
       return payload;
     };
     const payload = await exportBackup();
-    assert.equal(payload.formatVersion, 8);
+    assert.equal(payload.formatVersion, 9);
     assert.equal(payload.summary.xp, 90);
     assert.equal(payload.summary.completedTasks, 3);
     assert.deepEqual(payload.data.completedModels, earned);
@@ -182,7 +182,7 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
     await importBackup(invalid);
     assert.equal(await page.locator("#topXp").innerText(), "60 XP");
     await importBackup(payload);
-    console.log("PASS model XP: three once-only rewards, unchanged NAGOLD, independent snapshots survive edits/reset/reload, format 8 export/import/cancel/legacy, teacher rechecks and invalid snapshots rejected");
+    console.log("PASS model XP: three once-only rewards, unchanged NAGOLD, independent snapshots survive edits/reset/reload, format 9 export/import/cancel/legacy, teacher rechecks and invalid snapshots rejected");
 
     await page.evaluate(models => window.WORKBENCH_ERM.importDrafts({ task: "fahrschule-ort", notation: "crowfoot", models }), models);
     await page.reload();

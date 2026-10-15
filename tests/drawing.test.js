@@ -26,3 +26,13 @@ test("Zeichnungsimport begrenzt Datenmenge und bewahrt Radieroperationen", () =>
     assert.equal(drawing.normalize({ general: [{ ...stroke, width }] }, new Set(["general"])).general.length, 0);
   }
 });
+
+test("Verdichtete Zeichnungen akzeptieren nur begrenzte PNGs mit festen Abmessungen", () => {
+ const image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAALQAAAA";
+ const entries = drawing.normalize({ general: [{ tool: "image", image }, stroke] }, new Set(["general"]));
+ assert.equal(entries.general[0].image, image);
+ assert.deepEqual(JSON.parse(JSON.stringify(entries.general[0].points)), []);
+ for (const invalid of ["https://example.org/image.png", "data:image/svg+xml;base64,PHN2Zz4=", image.replace("BLAAAALQ", "AAAAAALQ"), image + "A".repeat(1500000)]) {
+  assert.equal(drawing.normalize({ general: [{ tool: "image", image: invalid }] }, new Set(["general"])).general.length, 0);
+ }
+});
