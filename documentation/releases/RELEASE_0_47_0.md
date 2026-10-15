@@ -53,3 +53,12 @@ Offline-ZIP: 10.950.544 Bytes, SHA-256
 `052af4a116445338a1107ae427dafe91b9c5dc4fe4aebed8eca81c132b4d950d`.
 Schul-PCs, echte mobile
 Hardware und ein echter Bildschirmleser wurden nicht vor Ort geprueft.
+
+## Veroeffentlichung
+
+Commit `9d7b9fd`, Tag `v0.47.0`; normaler Push ohne Force erfolgreich.
+[Pages-Lauf 38692792308](https://github.com/JakobSawazki/WorkbenchLab/actions/runs/38692792308)
+bestanden. [GitHub-Release mit Offline-ZIP](https://github.com/JakobSawazki/WorkbenchLab/releases/tag/v0.47.0).
+Anonymer Download vollstaendig auf Laenge und SHA-256 geprueft. Der neue
+Funktionstest mit allen fuenf Wuenschen besteht auch direkt auf GitHub Pages,
+einschliesslich zweitem Browserimport und kleinen Bildschirmansichten.

@@ -438,3 +438,10 @@ Unterordnern gestoert. Der Werkzeugschutz hat das Entfernen abgelehnt; keine
 Datei geloescht und kein alternativer Loeschweg benutzt. Remote-main stattdessen
 vor der Veroeffentlichung ueber die GitHub-API geprueft: identisch zum lokalen
 Ausgangscommit `da985c0`. Normaler Push ohne erzwungene Aktualisierung vorgesehen.
+
+Ergebnis: normaler Push erfolgreich, Metadatendateien mussten fuer diese
+Veroeffentlichung nicht entfernt werden. Commit `9d7b9fd`, Tag `v0.47.0`,
+Pages-Lauf `38692792308` erfolgreich. Release-ZIP anonym vollstaendig geladen,
+Laenge und SHA-256 korrekt. `annotation-tools.browser.cjs` auch direkt auf
+der Live-Seite bestanden; neue Hilfsdatei und Kommentar-Dialog in der
+ausgelieferten Version 0.47.0 vorhanden. Keine Anmeldung durch Jakob noetig.

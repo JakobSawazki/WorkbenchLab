@@ -3381,6 +3381,14 @@ Hilfsdatei. Lokale Lehrkraftloesungsdatei regeneriert, nicht veroeffentlicht.
 Keine SQL-Aufgabe geaendert. Schule/echte Mobilgeraete/echter Bildschirmleser
 weiterhin nicht vor Ort geprueft.
 
+Veroeffentlicht: `9d7b9fd`, Tag `v0.47.0`, Pages-Lauf `38692792308`
+erfolgreich. Passendes ZIP im GitHub-Release; anonymer Download komplett auf
+10.950.544 Bytes und SHA-256 geprueft. Neuer Fuenf-Punkte-Funktionstest
+auch direkt auf der Live-Seite bestanden. Git-Fetch stoerte sich an
+desktop.ini unter `.git/refs`; Werkzeugschutz verhinderte deren Entfernung.
+Keine Datei geloescht. Normaler nicht erzwungener Push funktionierte trotzdem;
+die remote Hauptreferenz wurde vorher ueber die GitHub-API abgeglichen.
+
 ## Archiv: Abschnitte 1 bis 12 und Anhänge [Claude, 2026-10-09]
 
 Die früheren Abschnitte dieser Datei (Verfasser: Codex, Stand 3. Oktober 2026, bis Release 0.21.0)
