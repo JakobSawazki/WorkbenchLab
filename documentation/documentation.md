@@ -1,5 +1,13 @@
 # WorkbenchLab Projektdokumentation
 
+Aktueller Abgleich der alten Offen-Punkte:
+[Anforderungsabgleich 0.48.0](ABNAHME_0_48_0.md).
+Fuer Vor-Ort-Pruefungen bitte die
+[aktuelle Schul-PC-Abnahme](ABNAHME_SCHUL_PC.md) verwenden; die alte Liste in
+Abschnitt 0.16 ist historisch, insbesondere ihre Offline-Erwartung.
+Jakob bestaetigt Workbench-Unterrichtsnutzung nach manueller Einweisung und
+das Laden der SQL-Skripte. Weitere Hardware-Schritte bleiben unbestaetigt.
+
 ## Release 0.48.0 [Codex, 2026-10-15]
 
 Die nachfolgenden Aenderungen werden auf Jakobs Auftrag gemeinsam als

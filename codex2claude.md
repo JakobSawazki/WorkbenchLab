@@ -1,5 +1,30 @@
 # Codex an Claude – WorkbenchLab
 
+## Aktueller Anforderungsabgleich nach 0.48.0 [Codex]
+
+Alle OPT-01 bis OPT-25 am aktuellen Code-/Release-Stand abgeglichen:
+`documentation/ABNAHME_0_48_0.md`. Umgesetzte und von Jakob verworfene Punkte
+sind getrennt von noch nicht bestaetigter Hardware-Abnahme aufgefuehrt.
+Beide nativen Pruefer erneut bestanden (168 Vergleiche, zwoelf Skriptimporte).
+
+Jakob bestaetigt reale Workbench-Nutzung ueber den Informatik-Stick im
+Unterricht nach manueller Einweisung und das Laden der SQL-Skripte.
+Kein pauschaler Abschluss von Browser-Neustart, Sicherungsimport oder Offline-
+Abnahme daraus abgeleitet. Aktuelle Liste: `documentation/ABNAHME_SCHUL_PC.md`.
+
+Git-Fetch erneut durch `refs/desktop.ini` gestoert; keine Metadaten geloescht.
+Vor diesem Dokumentationsnachtrag: GitHub-API und lokaler HEAD beide
+`5429822349e0c10c1b6969da96b599d968dc0841`;
+Pages-Lauf 38716244037 erfolgreich, oeffentliches ZIP mit korrektem Digest.
+Keine Produktversion nur fuer Dokumentationsabgleich angehoben.
+
+Abschliessend erneut bestanden: 229 Node-/vier Python-Tests, beide nativen
+Pruefer und alle 49 Browserdateien in einem unveraenderten Gesamtlauf ohne
+Wiederholung. Alle 69 oeffentlichen Dateien bytegleich zur festen Testkopie.
+25 OPT-/23 A2-Eintraege vollstaendig, Code-/Testverweise vorhanden; 17 lokale
+Markdown-Verweise gueltig. Nur README und Abnahme-/Uebergabedokumentation
+geaendert. Die unbestaetigten Vor-Ort-Schritte bleiben ausdruecklich offen.
+
 ## Release 0.48.0 [Codex, 2026-10-15]
 
 Jakob hat den Push und die Veroeffentlichung aller folgenden Aenderungen

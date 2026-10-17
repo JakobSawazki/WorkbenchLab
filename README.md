@@ -16,7 +16,9 @@ Entwickelt von Jakob Sawazki gemeinsam mit zwei KI-Agenten (Codex und Claude).
 | --- | --- |
 | Was hat sich wann geändert? | [CHANGELOG.md](CHANGELOG.md) |
 | Aktueller Stand, Wegweiser, Arbeitsprotokoll | [documentation/documentation.md](documentation/documentation.md) |
-| Übergabe Claude → Codex, offene Punkte | [claude2codex.md](claude2codex.md) |
+| Historische Übergabe Claude → Codex | [claude2codex.md](claude2codex.md) |
+| Aktueller Abgleich aller OPT-Punkte | [Abgleich 0.48.0](documentation/ABNAHME_0_48_0.md) |
+| Aktuelle Schul-PC-Abnahme und Unterrichtsrückmeldung | [Schul-PC-Abnahme](documentation/ABNAHME_SCHUL_PC.md) |
 | Übergabe Codex → Claude | [codex2claude.md](codex2claude.md) |
 | Einzelne Release- und Abnahmeberichte | [documentation/releases/](documentation/releases/) |
 | Projektdokumentation bis Release 0.21.0 (Codex) | [documentation/archiv/](documentation/archiv/PROJEKTDOKUMENTATION_BIS_0_21.md) |
