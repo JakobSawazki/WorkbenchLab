@@ -63,6 +63,7 @@
   let stateRescueJson = "";
   let preserveUnreadableState = false;
   let storageAvailable = true;
+  let profileResetting = false;
   let state = loadState();
   const deviceIdentity = loadDeviceIdentity();
   if (state.name && !state.profileDeviceId) {
@@ -84,7 +85,6 @@
   let sqlReadyPromise = null;
   let offlineCaptionsUrl = "";
   let selectedTextAnchors = [];
-  let autoDownloadBackup = false;
   let sidebarHidden = false;
   let activeDrawing = null;
   let renderedRoute = null;
@@ -101,7 +101,6 @@
     developerMode = sessionStorage.getItem(developerStorageKey) === "active";
   } catch {}
   try {
-    autoDownloadBackup = localStorage.getItem("workbenchlab-auto-download-v1") === "true";
     sidebarHidden = localStorage.getItem("workbenchlab-sidebar-hidden-v1") === "true";
   } catch {}
 
@@ -170,21 +169,11 @@
   }
 
   function isLessonUnlocked(lesson) {
-    if (!lesson) {
-      return false;
-    }
-    if (developerMode) {
-      return true;
-    }
-    if (state.completedLessons.includes(lesson.id)) {
-      return true;
-    }
-    const prerequisite = lessonPrerequisite(lesson);
-    return !prerequisite || state.completedLessons.includes(prerequisite.id);
+    return Boolean(lesson);
   }
 
   // Übungen sind seit 0.38.0 frei zugänglich (Entscheidung Jakob, 2026-10-09).
-  // Die Lerneinheiten selbst bleiben in fester Reihenfolge gesperrt: siehe isLessonUnlocked.
+  // Auch Lerneinheiten sind frei waehlbar; die Reihenfolge dient der Orientierung.
   function isPracticeUnlocked(practice) {
     return Boolean(practice);
   }
@@ -287,6 +276,7 @@
   }
 
   function persistState() {
+    if (profileResetting) return;
     storageAvailable = false;
     // OPT-21: A failed rescue write must not let later saves destroy the only original.
     if (preserveUnreadableState) return;
@@ -310,9 +300,6 @@
       : localFile ? "Vor einem Ordner-, Versions- oder PC-Wechsel den Lernstand als Datei speichern und anschließend laden." : "";
     document.querySelector("#backupButton").classList.toggle("has-storage-error", !storageAvailable);
     document.querySelector("#backupButton").title = storageAvailable ? "Lernstand sichern oder laden" : "Speicherung nicht verfügbar · Lernstand als Datei sichern";
-    const offlineLink = document.querySelector("#offlinePackageLink");
-    document.querySelector("#offlinePackageOption").hidden = localFile;
-    offlineLink.href = `https://github.com/JakobSawazki/WorkbenchLab/releases/download/v${content.version}/WorkbenchLab-${content.version}-offline.zip`;
   }
 
   function todayKey(date = new Date()) {
@@ -733,6 +720,7 @@
   }
 
   function updateDeveloperControl() {
+    document.querySelector("#profileResetSection").hidden = !developerMode;
     if (!developerModeButton) {
       return;
     }
@@ -3457,7 +3445,7 @@
   const { stableStringify, sha256Hex, verifyBackupIntegrity } = window.WORKBENCH_BACKUP;
 
   function exportFileName() {
-    return `workbenchlab-${safeFilePart(state.className)}-${safeFilePart(state.name)}-geraet-${shortIdentity(deviceIdentity.id)}-${todayKey()}.json`;
+    return `workbenchlab-${normalizeClassName(state.className)}-${normalizeStudentCode(state.name)}-geraet-${shortIdentity(deviceIdentity.id)}-${todayKey()}.json`;
   }
 
   async function backupPayload() {
@@ -3606,8 +3594,13 @@
         }
       }
       if (parsed.formatVersion >= 3) {
+        // Before format 9, class names could contain separators now removed by normalization.
+        // Accept only a matching original pair, after the original checksum was verified.
+        const matchingClass = parsed.identity?.studentClass === importedState.className
+          || (parsed.formatVersion < 9 && typeof parsed.data.className === "string"
+            && parsed.identity?.studentClass === parsed.data.className);
         if (!isValidClassName(importedState.className)
-          || parsed.identity?.studentClass !== importedState.className
+          || !matchingClass
           || parsed.identity?.profileOriginDeviceId !== importedState.profileDeviceId) {
           throw new Error("Klasse oder Profilherkunft der Sicherung sind widersprüchlich");
         }
@@ -4028,7 +4021,7 @@
       renderLesson(lesson.id);
       renderIcons();
       document.querySelector("[data-next-lesson], .completion-actions [data-route]")?.focus();
-      if (autoDownloadBackup) exportProgress().catch(() => toast("Die automatische JSON-Sicherung konnte nicht erstellt werden. Bitte manuell sichern.", "error"));
+      exportProgress().catch(() => toast("Die automatische JSON-Sicherung konnte nicht erstellt werden. Bitte manuell sichern.", "error"));
     }
     if (event.target.closest("#runSqlButton")) {
       runSqlPractice("run");
@@ -4466,12 +4459,13 @@
     renderIcons();
   }
 
-  function addNagoldRow() {
+  function addNagoldRow(attendance = false) {
     if (nagoldDraft.filter(row => !row.lessonId).length >= nagold.maxManualEntries) return;
     const now = new Date();
-    nagoldDraft.push({ date: todayKey(now), time: nagoldTime(now), purpose: "", points: 0 });
+    nagoldDraft.push({ date: todayKey(now), time: nagoldTime(now), purpose: attendance ? "Anwesenheit" : "", points: attendance ? 2 : 0 });
     nagoldEditing.add(nagoldDraft.length - 1);
     renderNagoldRows();
+    if (attendance) autosaveNagold();
     document.querySelector('#nagoldRows tr:last-child [data-nagold-field="purpose"]').focus();
   }
 
@@ -4491,7 +4485,7 @@
     nagoldDialog.showModal();
     if (!nagoldDraft.length) addNagoldRow();
   });
-  document.querySelector("#nagoldAddButton").addEventListener("click", addNagoldRow);
+  document.querySelector("#nagoldAddButton").addEventListener("click", () => addNagoldRow(true));
   document.querySelector("#nagoldCloseButton").addEventListener("click", () => nagoldDialog.close());
   nagoldDialog.addEventListener("close", () => {
     nagoldDraft = [];
@@ -4718,14 +4712,70 @@
     setBackupStatus("");
     backupDialog.showModal();
   });
+  const profileResetDialog = document.querySelector("#profileResetDialog");
+  function reloadAfterProfileReset() {
+    profileResetting = true;
+    const home = new URL(location.href);
+    home.hash = "home";
+    home.searchParams.delete("screenshot");
+    history.replaceState(null, "", home);
+    location.reload();
+  }
+  window.addEventListener("storage", (event) => {
+    // Other open learner tabs must not save their stale profile back after deletion.
+    if (event.key !== storageKey || event.newValue !== null || event.oldValue === null) return;
+    if (event.storageArea !== localStorage) return;
+    for (const key of [developerStorageKey, pendingModuleStorageKey, "workbenchlab-profile-seen"]) {
+      try { sessionStorage.removeItem(key); } catch {}
+    }
+    reloadAfterProfileReset();
+  });
+  document.querySelector("#profileResetButton").addEventListener("click", () => {
+    if (!developerMode || backupBusy) return;
+    document.querySelector("#profileResetError").hidden = true;
+    profileResetDialog.showModal();
+  });
+  document.querySelector("#profileResetConfirm").addEventListener("click", () => {
+    if (!developerMode || backupBusy || profileResetting) return;
+    const snapshots = [];
+    try {
+      // Only learner-owned keys: never clear the whole origin (other apps and teacher data).
+      const groups = [
+        [sessionStorage, [developerStorageKey, pendingModuleStorageKey, "workbenchlab-profile-seen"]],
+        [localStorage, ["workbenchlab-erm-v1", reviewStorageKey, examStorageKey,
+          rescueStorageKey, "workbenchlab-auto-download-v1", storageKey]]
+      ];
+      for (const [storage, keys] of groups) {
+        for (const key of keys) snapshots.push({ storage, key, value: storage.getItem(key) });
+      }
+      profileResetting = true;
+      for (const { storage, key } of snapshots) {
+        storage.removeItem(key);
+        if (storage.getItem(key) !== null) throw new Error("Speicher nicht geleert");
+      }
+    } catch {
+      let restored = true;
+      for (const { storage, key, value } of snapshots) {
+        try {
+          if (storage.getItem(key) !== value) {
+            if (value === null) storage.removeItem(key);
+            else storage.setItem(key, value);
+          }
+        } catch { restored = false; }
+      }
+      profileResetting = false;
+      const error = document.querySelector("#profileResetError");
+      error.textContent = restored
+        ? "Löschen nicht möglich: Der Browserspeicher ist gesperrt. Dein Lernprofil bleibt geöffnet."
+        : "Löschen nicht vollständig möglich. Dein Lernprofil ist noch geöffnet. Bitte sichere es jetzt über Speichern, bevor du die Seite schließt.";
+      error.hidden = false;
+      return;
+    }
+    // Reload also discards in-memory models, SQL databases, drawings and pending callbacks.
+    reloadAfterProfileReset();
+  });
   document.querySelector("#backupCloseButton").addEventListener("click", () => backupDialog.close());
   document.querySelector("#exportProgressButton").addEventListener("click", exportProgress);
-  const autoDownloadControl = document.querySelector("#autoDownloadBackup");
-  autoDownloadControl.checked = autoDownloadBackup;
-  autoDownloadControl.addEventListener("change", () => {
-    autoDownloadBackup = autoDownloadControl.checked;
-    try { localStorage.setItem("workbenchlab-auto-download-v1", String(autoDownloadBackup)); } catch {}
-  });
   document.querySelector("#importProgressButton").addEventListener("click", () => progressFileInput.click());
   progressFileInput.addEventListener("change", () => importProgressFile(progressFileInput.files?.[0]));
   themeToggleButton?.addEventListener("click", toggleTheme);

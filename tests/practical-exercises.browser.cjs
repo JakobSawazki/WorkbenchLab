@@ -118,9 +118,10 @@ const output = require("./artifacts.cjs")("practical-exercises");
     await locked.locator("#sqlEditor").waitFor();
     assert.equal(await locked.evaluate(() => location.hash), "#practice/sql-create-course");
     await locked.goto(`${base}#lesson/workbench-workflow`);
-    await locked.waitForURL(/#path$/);
+    await locked.locator(".lesson-head").waitFor();
+    assert.ok(locked.url().endsWith("#lesson/workbench-workflow"));
     await locked.close();
     assert.deepEqual(errors, []);
-    console.log("PASS: five new exercises and three protected mutations, wrong/right results, persistence, coach without XP, no duplicate XP, SQL download, JSON roundtrip, free exercises with locked lesson and 24 desktop/mobile views.");
+    console.log("PASS: five new exercises and three protected mutations, wrong/right results, persistence, coach without XP, no duplicate XP, SQL download, JSON roundtrip, free exercises and lessons, 24 desktop/mobile views.");
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

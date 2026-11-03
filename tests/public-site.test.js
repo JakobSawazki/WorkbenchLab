@@ -71,10 +71,10 @@ test("die veröffentlichten Inhaltsdateien enthalten keine Lösungsanweisungen u
   assert.deepEqual(plain(content.practices.map(keep)), plain(full.practices.map(keep)));
 });
 
-test("Übungen sind frei, Einheiten bleiben in Reihenfolge; NAGOLD werden gemeinsam aus der Tabelle summiert", () => {
+test("Übungen und Einheiten sind frei; NAGOLD werden gemeinsam aus der Tabelle summiert", () => {
   const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
   assert.match(app, /function isPracticeUnlocked\(practice\) \{\s*return Boolean\(practice\);\s*\}/);
-  assert.match(app, /function isLessonUnlocked\(lesson\)/);
+  assert.match(app, /function isLessonUnlocked\(lesson\) \{\s*return Boolean\(lesson\);\s*\}/);
   assert.match(app, /return nagold\.total\(candidate\)/);
   assert.match(fs.readFileSync(path.join(root, "teacher-overview.js"), "utf8"), /WORKBENCH_NAGOLD\.total\(data, content\)/);
   assert.match(fs.readFileSync(path.join(root, "index.html"), "utf8"), /id="nagoldTotal"/);

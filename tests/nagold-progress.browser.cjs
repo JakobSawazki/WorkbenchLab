@@ -47,11 +47,14 @@ fs.mkdirSync(artifacts, { recursive: true });
         await page.screenshot({ path: path.join(artifacts, `${theme}-${width}.png`), animations: "disabled" });
         await page.locator("#nagoldTotal").click();
         await page.locator("#nagoldAddButton").click();
-        await page.locator('#nagoldRows tr:last-child [data-nagold-field="purpose"]').fill("Anwesenheit");
+        assert.equal(await page.locator('#nagoldRows tr:last-child [data-nagold-field="purpose"]').inputValue(), "Anwesenheit");
+        assert.equal(await page.locator('#nagoldRows tr:last-child [data-nagold-field="points"]').inputValue(), "2");
         await page.locator("#nagoldCloseButton").click();
         expectedTotal += 2;
         assert.equal(await page.locator("#nagoldProgressLabel").innerText(), `${expectedTotal} / 100 NAGOLD`);
         await page.keyboard.press("Escape");
+        await page.reload();
+        assert.equal(await page.locator("#topNagold").innerText(), `${expectedTotal} NAG`);
       }
     }
     assert.deepEqual(errors, []);

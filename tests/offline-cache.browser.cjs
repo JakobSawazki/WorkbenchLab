@@ -12,6 +12,7 @@ const artifacts = require("./artifacts.cjs")("offline-cache");
 (async () => {
   const root = path.resolve(__dirname, "..");
   const files = buildSite(root);
+  assert.doesNotMatch(fs.readFileSync(path.join(root, "_site/index.html"), "utf8"), /id="offline(?:PackageLink|CachePanel)"/);
   const output = fs.mkdtempSync(path.join(os.tmpdir(), "workbenchlab-cache-browser-"));
   const version = require("../package.json").version;
   const nextVersion = version.split(".").map((part, index) => index === 2 ? String(Number(part) + 1) : part).join(".");
@@ -22,6 +23,18 @@ const artifacts = require("./artifacts.cjs")("offline-cache");
       fs.mkdirSync(path.dirname(path.join(directory, file)), { recursive: true });
       fs.copyFileSync(path.join(root, "_site", file), path.join(directory, file));
     }
+    // Isolated legacy UI fixture: keep testing existing installations without restoring
+    // the removed controls to the published student page.
+    const index = path.join(directory, "index.html");
+    const legacyControls = `<p><a id="offlinePackageLink" href="https://github.com/JakobSawazki/WorkbenchLab/releases/download/v${version}/WorkbenchLab-${version}-offline.zip">Offline-Paket</a></p>
+      <section id="offlineCachePanel" class="offline-cache" hidden>
+        <p id="offlineCacheStatus"></p><div class="offline-cache-actions">
+          <button type="button" class="button" id="offlineCachePrepare">Offline vorbereiten</button>
+          <button type="button" class="icon-button" id="offlineCacheCheck" aria-label="Nach Aktualisierungen suchen"><i data-lucide="refresh-cw" aria-hidden="true"></i></button>
+          <button type="button" class="icon-button" id="offlineCacheRemove" aria-label="Offline-Kopie entfernen"><i data-lucide="trash-2" aria-hidden="true"></i></button>
+        </div><progress id="offlineCacheProgress" max="1" value="0" hidden></progress><p id="offlineCacheHint" hidden></p>
+      </section>`;
+    fs.writeFileSync(index, fs.readFileSync(index, "utf8").replace('<section id="profileResetSection"', legacyControls + '<section id="profileResetSection"'));
     if (name === "next") for (const file of files.filter(file => /^(?:index\.html|lehrkraft\.html|content\.js|learning-path\.js)$/.test(file))) {
       const target = path.join(directory, file);
       fs.writeFileSync(target, fs.readFileSync(target, "utf8").replaceAll(version, nextVersion));

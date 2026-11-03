@@ -6,7 +6,7 @@
     return;
   }
 
-  content.version = "0.48.0";
+  content.version = "0.49.0";
   content.updated = "2026-10-10";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
@@ -224,7 +224,8 @@
           definitions: [
             { term: "Entität", definition: "Ein einzelnes fachliches Objekt, zum Beispiel ein bestimmter Fahrschüler." },
             { term: "Entitätstyp", definition: "Die Klasse gleichartiger Objekte, hier `fahrschueler`." },
-            { term: "ER-Diagramm", definition: "Fachliche Skizze von Entitätstypen, ihren Attributen und später auch Beziehungen." }
+            { term: "ER-Diagramm", definition: "Fachliche Skizze von Entitätstypen, ihren Attributen und später auch Beziehungen. ER steht für Entity-Relationship: Entity bedeutet Entität (ein fachliches Objekt), Relationship bedeutet Beziehung. Auf Deutsch ist es ein Entitäten-Beziehungs-Diagramm." },
+            { term: "ERD = Entity-Relationship Diagram", definition: "Die vollständige englische Bezeichnung für ein ER-Diagramm. Das D steht für Diagram, auf Deutsch Diagramm. ER-Diagramm und ERD meinen hier also dasselbe." }
           ]
         },
         {
@@ -233,6 +234,9 @@
             "Das ERD allein legt noch nicht fest, wie MySQL die Werte speichern soll. Im Relationenschema ergänzt du pro Attribut den Datentyp, bei Texten die maximale Länge und einen Primärschlüssel.",
             "Heiner benötigt gegenüber L1.1 zwei zusätzliche Angaben: `geburtsdatum` und `fahrstundenzahl`. Ein Geburtsdatum ist DATE; die Anzahl der Fahrstunden ist eine ganze Zahl und damit INT. Die Telefonnummer bleibt Text, obwohl sie Ziffern enthält.",
             "Für die folgenden Einheiten umfasst dein Relationenschema genau diese elf Attribute: `schuelernr`, `nachname`, `vorname`, `telefon`, `email`, `strasse`, `hausnr`, `plz`, `ort`, `geburtsdatum`, `fahrstundenzahl`. Prüfe, welche Textlängen sinnvoll sind und ob `hausnr` auch Buchstaben enthalten können muss."
+          ],
+          definitions: [
+            { term: "PK = Primary Key (Primärschlüssel)", definition: "Ein Attribut oder eine Kombination von Attributen, die jeden Datensatz eindeutig kennzeichnet. Der Schlüsselwert darf nicht doppelt vorkommen. In unserer Tabelle ist `schuelernr` der Primärschlüssel: Auch wenn zwei Fahrschüler denselben Nachnamen haben, unterscheiden sie sich durch ihre Schülernummer." }
           ],
           visual: "single-table-model",
           tip: "Folge dem Pfeil: fachliches Objekt → Relation mit Schlüssel und Datentypen. Noch keine zweite Tabelle und keine Kardinalität nötig."

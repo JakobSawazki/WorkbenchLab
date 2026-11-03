@@ -113,8 +113,10 @@ async function solve(page, id) {
       assert.match(result, /Benötigte Zeit: 20:00 von 20:00 Minuten/);
       assert.match(result, /1 weitere Aufgabe nach Ablauf der Zeit gelöst/);
       const rows = await page.locator(".exam-table tbody tr").count();
-      assert.ok(rows >= 1 && rows <= 3);
-      assert.match(await page.locator(".exam-table tbody").innerText(), /L1\.[56] · /);
+      const pickedLessonIds = new Set(picks.map(id => content.practices.find(item => item.id === id).lessonId));
+      assert.equal(rows, pickedLessonIds.size);
+      const breakdown = await page.locator(".exam-table tbody").innerText();
+      for (const id of pickedLessonIds) assert.ok(breakdown.includes(content.lessons.find(lesson => lesson.id === id).courseCode));
       assert.equal(await page.locator(".review-list li.is-reviewed").count(), 3);
       assert.match(await page.locator(".review-list").innerText(), /nach der Zeit gelöst/);
       assert.ok(await page.locator("#examRestart").evaluate((button) => button === document.activeElement));
@@ -130,7 +132,7 @@ async function solve(page, id) {
       await context.close();
     }
 
-    // Ohne freigeschaltete SQL-Aufgaben: kein Einstieg, verständlicher Hinweis.
+    // A fresh profile also has access; starting a round does not complete lessons.
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     await context.addInitScript(() => {
       if (!localStorage.getItem("workbenchlab-v1")) localStorage.setItem("workbenchlab-v1", JSON.stringify({ name: "TST.QAA", className: "TEST" }));
@@ -138,11 +140,13 @@ async function solve(page, id) {
     const page = await context.newPage();
     await page.goto(base + "#sql");
     await page.locator("#runtimeChip.is-ready").waitFor();
-    assert.equal(await page.locator(".exam-teaser").count(), 0);
+    assert.equal(await page.locator(".exam-teaser").count(), 1);
     await page.goto(base + "#sql/klausur");
-    await page.getByText("Noch nicht genug Aufgaben freigeschaltet").waitFor();
-    assert.equal(await page.locator("#examStart").count(), 0);
-    console.log("PASS: exam training start, five unlocked picks, running clock, survives reload, return path, solving every exercise type, time-up notice, late solutions counted separately, evaluation per lesson, restart, not in progress data, empty state, desktop/mobile.");
+    await page.locator("#examStart").click();
+    await page.locator(".review-list li").first().waitFor();
+    assert.equal(await page.locator(".review-list li").count(), 5);
+    assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("workbenchlab-v1")).completedLessons), []);
+    console.log("PASS: exam training start, five unlocked picks, running clock, survives reload, return path, solving every exercise type, time-up notice, late solutions counted separately, exact per-lesson breakdown, restart, fresh-profile access without lesson credit, desktop/mobile.");
   } finally {
     await browser.close();
   }

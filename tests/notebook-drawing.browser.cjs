@@ -35,12 +35,12 @@ async function line(page, x1, y1, x2, y2) {
     await page.locator(".relief-map").scrollIntoViewIfNeeded();
     await page.waitForFunction(() => document.querySelector(".relief-map img").naturalWidth > 0);
     assert.equal(await page.locator(".map-pin").count(), 5);
-    assert.equal(await page.locator('.map-pin.is-locked').count(), 4);
+    assert.equal(await page.locator('.map-pin.is-locked').count(), 0);
     await page.locator(".map-pin").first().hover();
     const menu = page.locator(".map-stop").first().locator(".map-lesson-menu");
     assert.ok(await menu.isVisible());
     assert.ok(await menu.locator('[data-lesson="warum-datenbanken"]').isVisible());
-    assert.ok(await menu.locator('[data-lesson][aria-disabled="true"]').count() > 0);
+    assert.equal(await menu.locator('[data-lesson][aria-disabled="true"]').count(), 0);
     await page.keyboard.press("Escape");
     assert.equal(await menu.isVisible(), false);
     await page.screenshot({ path: path.join(output, "map-desktop.png"), animations: "disabled" });

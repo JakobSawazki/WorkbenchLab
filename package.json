@@ -1,6 +1,6 @@
 {
   "name": "workbenchlab",
-  "version": "0.48.0",
+  "version": "0.49.0",
   "private": true,
   "description": "Statische Lernumgebung für relationale Datenbanken",
   "engines": { "node": ">=22", "pnpm": ">=10" },

@@ -29,7 +29,7 @@ const modules = contentContext.window.WORKBENCH_CONTENT.modules;
       assert.ok((await map.locator("img").getAttribute("alt")).includes("Lernweg"));
       const pins = page.locator(".map-pin");
       assert.equal(await pins.count(), 5);
-      assert.equal(await page.locator(".map-pin.is-locked").count(), 4);
+      assert.equal(await page.locator(".map-pin.is-locked").count(), 0);
       const bounds = await map.boundingBox();
       const rectangles = [];
       for (const pin of await pins.all()) {
@@ -49,7 +49,11 @@ const modules = contentContext.window.WORKBENCH_CONTENT.modules;
       const menu = page.locator(".map-stop").first().locator(".map-lesson-menu");
       assert.ok(await menu.isVisible());
       await menu.locator('[data-lesson="relation-und-schluessel"]').click({ force: true });
-      assert.ok(page.url().endsWith("#home"));
+      await page.locator("[data-lesson-reading]").waitFor();
+      assert.ok(page.url().endsWith("#lesson/relation-und-schluessel"));
+      await page.goto(`${base}?screenshot=1#home`);
+      if (width === 390) await pins.first().tap();
+      else await pins.first().hover();
       await menu.locator('[data-lesson="warum-datenbanken"]').click();
       await page.locator("[data-lesson-reading]").waitFor();
       assert.ok(page.url().endsWith("#lesson/warum-datenbanken"));
@@ -60,13 +64,13 @@ const modules = contentContext.window.WORKBENCH_CONTENT.modules;
           await page.goto(`${base}?screenshot=1#home`);
           await page.reload();
           await page.locator(".map-pin").first().waitFor();
-          assert.equal(await page.locator(".map-pin.is-locked").count(), modules.length - stage - 1);
+          assert.equal(await page.locator(".map-pin.is-locked").count(), 0);
           assert.equal(await page.locator(".map-pin").nth(stage).evaluate((el) => el.classList.contains("is-locked")), false);
         }
       }
       assert.deepEqual(errors, []);
       await page.close();
     }
-    console.log("PASS: settlement asset loads, five nonoverlapping in-bounds pins, sequential locks, hover/touch menus and lesson navigation at mobile/desktop sizes.");
+    console.log("PASS: settlement asset loads, five nonoverlapping freely available pins, hover/touch menus and lesson navigation at mobile/desktop sizes.");
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

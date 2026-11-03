@@ -16,12 +16,12 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.48.0">
-  <link rel="stylesheet" href="styles-lesson.css?v=0.48.0">
-  <link rel="stylesheet" href="styles-practice.css?v=0.48.0">
-  <link rel="stylesheet" href="styles-visuals.css?v=0.48.0">
-  <link rel="stylesheet" href="styles-shared.css?v=0.48.0">
-  <link rel="stylesheet" href="styles-extensions.css?v=0.48.0">
+  <link rel="stylesheet" href="styles.css?v=0.49.0">
+  <link rel="stylesheet" href="styles-lesson.css?v=0.49.0">
+  <link rel="stylesheet" href="styles-practice.css?v=0.49.0">
+  <link rel="stylesheet" href="styles-visuals.css?v=0.49.0">
+  <link rel="stylesheet" href="styles-shared.css?v=0.49.0">
+  <link rel="stylesheet" href="styles-extensions.css?v=0.49.0">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -241,19 +241,26 @@
         </button>
         <input class="sr-only" id="progressFileInput" type="file" accept=".json,application/json" aria-label="JSON-Sicherung zum Laden auswählen">
       </div>
-      <label class="auto-download-option"><input id="autoDownloadBackup" type="checkbox"><span>Nach jeder Einheit automatisch herunterladen</span></label>
-      <p id="offlinePackageOption" hidden><a class="button button-secondary" id="offlinePackageLink"><i data-lucide="hard-drive-download" aria-hidden="true"></i>Offline-Paket</a></p>
-      <section id="offlineCachePanel" class="offline-cache" aria-label="Offline-Kopie der Webseite" hidden>
-        <p id="offlineCacheStatus" role="status" aria-live="polite" aria-atomic="true">Nicht vorbereitet</p>
-        <div class="offline-cache-actions">
-          <button class="button button-secondary" id="offlineCachePrepare" type="button"><i data-lucide="cloud-download" aria-hidden="true"></i>Offline vorbereiten</button>
-          <button class="icon-button" id="offlineCacheCheck" type="button" title="Nach Aktualisierungen suchen" aria-label="Nach Aktualisierungen suchen" hidden><i data-lucide="refresh-cw" aria-hidden="true"></i></button>
-          <button class="icon-button" id="offlineCacheRemove" type="button" title="Offline-Kopie entfernen" aria-label="Offline-Kopie entfernen" hidden><i data-lucide="trash-2" aria-hidden="true"></i></button>
-        </div>
-        <progress id="offlineCacheProgress" aria-label="Offline-Vorbereitung" max="1" value="0" hidden></progress>
-        <p id="offlineCacheHint" class="field-hint" hidden></p>
+      <section id="profileResetSection" class="profile-reset-section" aria-label="Entwicklermodus" hidden>
+        <button class="button button-secondary" id="profileResetButton" type="button"><i data-lucide="trash-2" aria-hidden="true"></i>Lernprofil löschen</button>
       </section>
       <p id="backupStatus" class="backup-status" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+    </form>
+  </dialog>
+
+  <dialog id="profileResetDialog" class="profile-dialog" aria-labelledby="profileResetTitle" aria-describedby="profileResetDescription">
+    <form method="dialog">
+      <div class="dialog-heading">
+        <h2 id="profileResetTitle">Lernprofil wirklich löschen?</h2>
+        <button class="icon-button" type="submit" value="cancel" title="Schließen" aria-label="Löschen abbrechen"><i data-lucide="x" aria-hidden="true"></i></button>
+      </div>
+      <p id="profileResetDescription">Das aktuelle Lernprofil wird in diesem Browser vollständig gelöscht: XP, NAGOLD, Lernfortschritt, Notizen, Zeichnungen, Markierungen, Kommentare und alle Entwürfe. Das kann nicht rückgängig gemacht werden. Sichere deinen Lernstand bei Bedarf zuerst über „Speichern“.</p>
+      <p>Danach kannst du ein neues Lernprofil anlegen. Weitere offene WorkbenchLab-Tabs werden neu geladen. Darstellung und Offline-Kopie bleiben erhalten.</p>
+      <div class="profile-reset-actions">
+        <button class="button button-secondary" type="submit" value="cancel" autofocus>Abbrechen</button>
+        <button class="button button-secondary" id="profileResetConfirm" type="button"><i data-lucide="trash-2" aria-hidden="true"></i>Endgültig löschen</button>
+      </div>
+      <p id="profileResetError" role="alert" hidden></p>
     </form>
   </dialog>
 
@@ -270,30 +277,30 @@
 
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
-  <script src="content.js?v=0.48.0"></script>
-  <script src="learning-path.js?v=0.48.0"></script>
-  <script src="lesson-openings.js?v=0.48.0"></script>
-  <script src="practical-exercises.js?v=0.48.0"></script>
-  <script src="debug-exercises.js?v=0.48.0"></script>
-  <script src="predict-exercises.js?v=0.48.0"></script>
-  <script src="order-exercises.js?v=0.48.0"></script>
-  <script src="study-tools.js?v=0.48.0"></script>
-  <script src="appearance.js?v=0.48.0"></script>
-  <script src="drawing.js?v=0.48.0"></script>
-  <script src="command-search.js?v=0.48.0"></script>
-  <script src="reference-search.js?v=0.48.0"></script>
-  <script src="expected-results.js?v=0.48.0"></script>
-  <script src="sql-check.js?v=0.48.0"></script>
-  <script src="backup.js?v=0.48.0"></script>
-  <script src="nagold.js?v=0.48.0"></script>
-  <script src="erm-editor.js?v=0.48.0"></script>
-  <script src="note-text.js?v=0.48.0"></script>
-  <script src="state.js?v=0.48.0"></script>
-  <script src="sql-feedback.js?v=0.48.0"></script>
-  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.48.0"></script>
-  <script src="sql-workspace.js?v=0.48.0"></script>
-  <script src="review.js?v=0.48.0"></script>
-  <script src="offline-client.js?v=0.48.0"></script>
-  <script src="app.js?v=0.48.0"></script>
+  <script src="content.js?v=0.49.0"></script>
+  <script src="learning-path.js?v=0.49.0"></script>
+  <script src="lesson-openings.js?v=0.49.0"></script>
+  <script src="practical-exercises.js?v=0.49.0"></script>
+  <script src="debug-exercises.js?v=0.49.0"></script>
+  <script src="predict-exercises.js?v=0.49.0"></script>
+  <script src="order-exercises.js?v=0.49.0"></script>
+  <script src="study-tools.js?v=0.49.0"></script>
+  <script src="appearance.js?v=0.49.0"></script>
+  <script src="drawing.js?v=0.49.0"></script>
+  <script src="command-search.js?v=0.49.0"></script>
+  <script src="reference-search.js?v=0.49.0"></script>
+  <script src="expected-results.js?v=0.49.0"></script>
+  <script src="sql-check.js?v=0.49.0"></script>
+  <script src="backup.js?v=0.49.0"></script>
+  <script src="nagold.js?v=0.49.0"></script>
+  <script src="erm-editor.js?v=0.49.0"></script>
+  <script src="note-text.js?v=0.49.0"></script>
+  <script src="state.js?v=0.49.0"></script>
+  <script src="sql-feedback.js?v=0.49.0"></script>
+  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.49.0"></script>
+  <script src="sql-workspace.js?v=0.49.0"></script>
+  <script src="review.js?v=0.49.0"></script>
+  <script src="offline-client.js?v=0.49.0"></script>
+  <script src="app.js?v=0.49.0"></script>
 </body>
 </html>

@@ -37,6 +37,8 @@ async function verifyExport(download, name) {
   const file = path.join(output, name);
   await download.saveAs(file);
   const payload = JSON.parse(fs.readFileSync(file, "utf8"));
+  assert.ok(download.suggestedFilename().startsWith(`workbenchlab-${payload.identity.studentClass}-${payload.identity.studentCode}-geraet-${payload.identity.deviceCode}-`));
+  assert.match(download.suggestedFilename(), /-\d{4}-\d{2}-\d{2}\.json$/);
   const { integrity, ...body } = payload;
   assert.equal(integrity.digest, crypto.createHash("sha256").update(stable(body)).digest("hex"));
   return { file, payload };
@@ -68,8 +70,8 @@ async function verifyExport(download, name) {
     assert.ok((await page.locator(".module-block").evaluateAll((elements) => elements.map((element) => element.open))).every((open) => !open));
     await page.locator("#lernfortschritt-1 > summary").click();
     await page.locator('#lernfortschritt-1 [data-lesson="relation-und-schluessel"]').click({ force: true });
-    assert.ok(page.url().endsWith("#path"));
-    await page.locator('#lernfortschritt-1 [data-lesson="warum-datenbanken"]').click();
+    await page.waitForURL(/#lesson\/relation-und-schluessel$/);
+    await page.goto(`${base}?screenshot=1#lesson/warum-datenbanken`);
     await page.locator('[data-lesson-reading]').waitFor();
     assert.equal(await page.locator(".lesson-workflow").isVisible(), false);
     const type = page.locator('[data-worksheet-row="0"][data-worksheet-field="type"]');
@@ -170,7 +172,9 @@ async function verifyExport(download, name) {
     assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "BPE6: Offene Fragen und meine Merksätze.");
 
     await page.locator("#backupButton").click();
-    await page.locator("#autoDownloadBackup").check();
+    assert.equal(await page.locator("#autoDownloadBackup").count(), 0);
+    // An old opt-out must not disable the now mandatory automatic backup.
+    await page.evaluate(() => localStorage.setItem("workbenchlab-auto-download-v1", "false"));
     await page.locator("#backupCloseButton").click();
     await page.goto(`${base}?screenshot=1#lesson/warum-datenbanken`);
     const correct = await page.evaluate(() => window.WORKBENCH_CONTENT.lessons.find((lesson) => lesson.id === "warum-datenbanken").quiz.correct);

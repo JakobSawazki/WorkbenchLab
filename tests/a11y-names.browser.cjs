@@ -162,6 +162,13 @@ const audit = () => {
           await page.locator('[data-nagold-edit="0"]').click();
           await check("NAGOLD bearbeiten");
           await page.locator("#nagoldCloseButton").click();
+          await page.keyboard.press("Control+Alt+s");
+          if (await page.locator("#developerModeButton").getAttribute("aria-pressed") !== "true") await page.locator("#developerModeButton").click();
+        }
+        if (button === "#backupButton") {
+          await page.locator("#profileResetButton").click();
+          await check("Lernprofil-Löschbestätigung");
+          await page.keyboard.press("Escape");
         }
         await page.locator(close).click();
       }

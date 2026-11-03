@@ -43,14 +43,15 @@ const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
       assert.doesNotMatch(text, /^\s*(?:solution|expectedSql|fixed):\s*"/m, file);
     }
 
-    // Übungen sind frei zugänglich; nichts ist gesperrt, spätere Einheiten sind als Vorgriff markiert.
+    // Exercises and lessons are freely available without preview warnings.
     assert.equal(await page.locator("main .practice-card.is-locked").count(), 0);
-    assert.ok(await page.locator("main .practice-ahead").count() > 5);
+    assert.equal(await page.locator("main .practice-ahead").count(), 0);
     const xpStart = Number.parseInt(await page.locator("#topXp").innerText(), 10);
     await page.locator("#backupButton").click();
-    const version = await page.evaluate(() => window.WORKBENCH_CONTENT.version);
-    assert.equal(await page.locator("#offlinePackageLink").getAttribute("href"), `https://github.com/JakobSawazki/WorkbenchLab/releases/download/v${version}/WorkbenchLab-${version}-offline.zip`);
-    assert.equal(await page.locator("#offlinePackageLink").isVisible(), true);
+    assert.equal(await page.locator("#offlinePackageLink, #offlineCachePanel, #autoDownloadBackup").count(), 0);
+    assert.equal(await page.locator("#exportProgressButton").isVisible(), true);
+    assert.equal(await page.locator("#importProgressButton").isVisible(), true);
+    assert.equal(await page.evaluate(async () => Boolean(await navigator.serviceWorker.getRegistration())), false);
     await page.keyboard.press("Escape");
     const banner = (text) => page.waitForFunction((expected) => document.querySelector("#practiceResult")?.textContent.includes(expected), text);
 
@@ -81,9 +82,10 @@ const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
     await page.locator("#checkSqlButton").click();
     await banner("Aufgabe gelöst");
 
-    // Einheiten bleiben in Reihenfolge gesperrt: L1.3 offen, L1.4 nicht.
+    // Later lessons are also open without completing earlier units.
     await page.goto(base + "#lesson/workbench-workflow");
-    await page.waitForFunction(() => location.hash === "#path");
+    await page.locator(".lesson-head").waitFor();
+    assert.ok(page.url().endsWith("#lesson/workbench-workflow"));
     await page.goto(base + "#lesson/eerm-grundlagen");
     await page.locator(".lesson-head").waitFor();
     assert.equal(await page.evaluate(() => location.hash), "#lesson/eerm-grundlagen");

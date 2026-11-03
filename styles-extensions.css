@@ -323,3 +323,10 @@ body:has(dialog[open]) { overflow: hidden; }
 .lesson-comment blockquote, #lessonCommentQuote { margin: .5rem 0; padding-left: 1rem; border-left: 3px solid var(--brand-2); max-height: 8rem; overflow: auto; overflow-wrap: anywhere; }
 #lessonCommentText { display: block; width: 100%; margin-block: .5rem 1rem; }
 @media print { .note-colors, .lesson-comment button { display: none !important; } }
+
+.profile-reset-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.profile-reset-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+#profileResetDialog p { overflow-wrap: anywhere; }
+#profileResetDialog button { max-width: 100%; white-space: normal; }
+#profileResetDialog .dialog-heading .icon-button { flex-shrink: 0; }
+#profileResetTitle { margin: 0; font-size: 1.25rem; }

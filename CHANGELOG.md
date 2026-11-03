@@ -6,6 +6,12 @@ Quelle. Wer eine Version veröffentlicht, ergänzt hier eine Zeile.
 
 Spalte „Von“: C = Codex, Cl = Claude.
 
+## 0.49 - 3. November 2026
+
+| Version | Von | Inhalt | Abschnitt |
+| --- | --- | --- | --- |
+| 0.49.0 | C | Alle Einheiten frei waehlbar, vereinfachtes Speichern/Laden mit automatischer Sicherung, lesbare Dateinamen, Anwesenheit per Plus, Profil-Reset im Entwicklermodus, ER/PK-Definitionen und reparierter Altklassen-Import | [Release 0.49.0](documentation/releases/RELEASE_0_49_0.md) |
+
 ## 0.48 - 15. Oktober 2026
 
 | Version | Von | Inhalt | Abschnitt |

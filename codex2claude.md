@@ -1,5 +1,188 @@
 # Codex an Claude – WorkbenchLab
 
+## Release 0.49.0: Gemeinsame Freigabe [Codex, 2026-11-03]
+
+Jakob beauftragt Push und Veroeffentlichung aller umgesetzten Aenderungen.
+Seine anschliessende ausdrueckliche Zustimmung ersetzt die vorherige
+L1.5-Ausnahme: Alle 21 Einheiten sind jetzt frei waehlbar. Die angezeigte
+Reihenfolge bleibt Orientierung, Abschluesse und Punkte werden nicht
+automatisch vergeben. Eine zusaetzliche Themenfilter-Oberflaeche ist nicht
+Teil dieses ersten Schritts.
+
+Alle nachstehenden lokalen Nachtraege gehen gemeinsam in 0.49.0 ein.
+Historische Angaben "noch lokal" beziehen sich auf deren Entstehungszeit.
+Releasebericht: documentation/releases/RELEASE_0_49_0.md.
+Prueflauf: 231 Node, vier Python und alle 51 Browserdateien bestanden.
+254 Namens-/ARIA-, 322 Kontrast-, 1212 Ueberlaufansichten, 953 Tastaturstopps.
+Erster Browserlauf stoppte nach elf erfolgreichen Dateien an veralteter
+Klausurtest-Erwartung zum gesperrten Aufgabenpool. Nach Umstellung auf
+exakte gezogene Einheiten und frischen Einstieg bestanden die restlichen
+40 Dateien. Alle 69 oeffentlichen Dateien mit der festen Testkopie bytegleich.
+Freigabe fuer main, v0.49.0 und Pages; Deployment-Abnahme nach dem Push.
+Keine private Sicherung oder Wiederherstellungskopie wird veroeffentlicht.
+
+## Lokaler Nachtrag: L1.5 als freier Einstieg [Codex, 2026-11-03]
+
+Auf Jakobs Wunsch ist select-projektion (L1.5, SELECT/Projektion/Sortierung)
+ab dem ersten Besuch unabhaengig von L1.1 bis L1.4 verfuegbar. Die gemeinsame
+lessonPrerequisite-Funktion liefert fuer diese eine Einheit keinen Vorgaenger.
+Lernpfadkarten, Seitenmenue, Landkarte, Direktlinks und Vorgriff-Markierungen
+der zugehoerigen Uebungen verwenden dadurch dieselbe Freischaltungsregel.
+Alle anderen Einheiten behalten ihre Voraussetzungen; keine automatischen
+Abschluesse vorangehender Einheiten. Die ueblichen Abschlussbedingungen,
+XP/NAGOLD-Vergabe und Anschlussfreigaben nach L1.5 bleiben unveraendert.
+
+Neuer select-start-Browsertest mit frischem Profil ohne Entwicklermodus:
+L1.5 in Lernpfad und Menues verfuegbar, Landkarteneinstieg per Tastatur,
+Direktlink nach Neuladen, echte SELECT-Uebung geloest, frueher Abschluss
+mit normalen Voraussetzungen und automatischer Sicherung, genau eine
+NAGOLD-Zeile und Fortbestand nach Neuladen. L1.2/L1.4 weiterhin gesperrt.
+Bei 1440/360px bestanden. Keine Aenderung an SQL-Aufgaben oder Inhalten,
+deshalb kein neuer Expected-/Native-Lauf erforderlich. Noch lokal.
+
+## Lokaler Fehlerfix: Alte Klassenbezeichnung beim Import [Codex, 2026-11-03]
+
+Eine private Schuelersicherung (Format 8, App 0.46.1) war gueltig signiert
+und enthielt weiterhin 65 XP / 17 NAGOLD. Der Import scheiterte, weil
+normalizeState inzwischen einen alten Klassentrenner entfernt, waehrend
+identity.studentClass unveraendert mit dem normalisierten Wert verglichen
+wurde. Kein Verlust der Punkte in der Datei.
+
+Import akzeptiert jetzt vor Format 9 alternativ die exakt uebereinstimmenden
+urspruenglichen Klassenwerte in identity und data, nach erfolgreicher
+Pruefsummenpruefung und weiterhin mit gueltiger normalisierter Klasse.
+Aktuelles Format bleibt strikt; widerspruechliche Altklassen, falsche
+Identitaeten und beschaedigte Pruefsummen werden weiterhin abgelehnt.
+
+backup-safety um ausschliesslich synthetische Regressionen erweitert:
+Altimport abbrechen/bestaetigen, 65 XP / 17 NAGOLD und Notizen nach Neustart
+und erneutem Export unveraendert, neue Identitaet konsistent; zusaetzliche
+Ablehnungsfaelle fuer aktuelle unnormalisierte Klasse, abweichende
+Altklassen und beschaedigte Alt-Pruefsumme. Browsertest bestanden.
+
+Originaldatei unveraendert gelassen. In isoliertem Browserprofil erfolgreich
+importiert und ueber den normalen App-Export eine Wiederherstellung ausserhalb
+des Repositorys erzeugt. Alle urspruenglichen data-Felder ausser der migrierten
+Klasse und dem Importprotokoll exakt erhalten; Pruefsumme erneut geprueft.
+Keine Schuelerdatei, persoenlichen Kennungen oder Texte im Repository oder
+Testfixture. Allgemeiner Codefix noch lokal, nicht veroeffentlicht.
+
+## Lokaler Nachtrag: Plus traegt Anwesenheit ein [Codex, 2026-10-20]
+
+Der NAGOLD-Plusknopf legt jetzt direkt Anwesenheit mit 2 Punkten, aktuellem
+lokalem Datum und aktueller Uhrzeit an und speichert ueber autosaveNagold.
+Zeile bleibt bearbeitbar, Fokus im Anlassfeld, Summen/Profil sofort aktuell.
+Der Aufruf fuer die leere Anfangszeile beim erstmaligen Oeffnen bleibt
+ausdruecklich leer (0 Punkte, nicht gespeichert): blosses Oeffnen vergibt
+keine Anwesenheit. Manuelle Zeilengrenze und Korrektur-/Loeschwege bleiben.
+
+Sieben NAGOLD-Node-Tests sowie nagold und nagold-progress im Browser
+bestanden. Geprueft: voreingestellte Anwesenheit/2 Punkte ohne Tippen,
+sofortige Speicherung, Erhalt nach Neuladen, Summen/Fortschrittsbalken,
+Korrekturen und letzter gueltiger Wert bei ungueltigen Eingaben,
+Startkapital weiterhin einmalig, Export/Import, gesperrter Speicher,
+Dark/Light und kleine Bildschirme mit grosser Schrift. Noch lokal.
+
+## Lokaler Nachtrag: Zuordenbare Sicherungsnamen [Codex, 2026-10-20]
+
+Klasse und Schuelerkuerzel waren bereits im JSON-Dateinamen enthalten.
+exportFileName verwendet nun deren bestehende Normalisierungen direkt:
+Der Punkt im Kuerzel bleibt sichtbar (z.B. BK2-2-JAK.SAW), ebenso erlaubte
+Umlaute in Klassenbezeichnungen. Export validiert beide Profilfelder vorab;
+andere Datei-Exporte und safeFilePart bleiben unveraendert. Geraetekennung
+und Datum bleiben als zusaetzliche Zuordnungshilfen erhalten.
+study-workflow prueft vorgeschlagenen Dateinamen anhand der tatsaechlichen
+Exportidentitaet fuer manuelles und automatisches Speichern. Bestanden.
+Noch lokal, nicht veroeffentlicht.
+
+## Lokaler Nachtrag: Speichern/Laden ohne Offline-Angebote [Codex, 2026-10-20]
+
+Auf Jakobs Wunsch Offline-Paket-Link und kompletten Offline-vorbereiten-
+Bereich aus index.html entfernt, einschliesslich Status und Cache-Aktionen.
+updateStorageStatus greift nicht mehr auf diese Elemente zu. Regulaer nur
+Speichern und Laden; die Entwickler-Loeschfunktion bleibt erhalten.
+Automatischer Download nach Einheitenabschluss bleibt fest aktiv.
+
+Keine bestehenden Offline-Caches, Registrierungen, ZIPs oder Lerndaten
+geloescht. Die Build-Werkzeuge bleiben fuer bestehende Verteilungen erhalten.
+offline-client installiert ohne Bedienelemente nichts neu, prueft aber
+weiterhin Aktualisierungen eines bereits installierten eigenen Workers
+(exakte Scope-/Skriptpruefung; gesperrte APIs und Netzfehler abgefangen).
+Fehlertext des Workers verweist nicht mehr auf die entfernte Vorbereitung.
+
+public-site und offline pruefen die echte Seite ohne Offline-Elemente.
+offline-cache prueft die weiterhin vorhandene Kompatibilitaet bestehender
+Installationen in einer ausdruecklich isolierten Legacy-UI-Testkopie;
+diese Bedienelemente kommen nicht in die Veroeffentlichung. Zusaetzlicher
+Node-Test prueft Wartung nur eigener bestehender Worker, keine Neuanmeldung,
+keine Loeschung und sichere Rueckkehr bei fremden/gesperrten Registrierungen.
+study-workflow, profile-reset und storage-blocked ebenfalls bestanden.
+Dialog bei 360/1440px, grosser Schrift, Dark/Light geprueft und mobil visuell
+angesehen. Noch lokal, nicht gepusht; kein neuer vollstaendiger Release-Lauf.
+
+## Lokaler Nachtrag: Sicherung nach jeder Einheit [Codex, 2026-10-20]
+
+Auf Jakobs Wunsch ist der JSON-Download nach einem erfolgreichen neuen
+Einheitenabschluss jetzt fest aktiv. Checkbox, Einstellungsvariable und
+deren Speicherzugriffe entfernt; alte gespeicherte false-Werte werden
+ignoriert. Abschlussvoraussetzungen und Schutz vor erneutem Abschluss
+bleiben erhalten. Manueller Export und Fehlerhinweis bleiben bestehen.
+Verwaiste Checkbox-CSS-Regeln entfernt. Der alte Einstellungsschluessel
+wird weiterhin beim vollstaendigen Profil-Reset als Altlast mit geloescht.
+
+study-workflow prueft die fehlende Checkbox und einen echten automatischen
+Download nach Neuladen mit altem false-Wert, inklusive aktuellem Abschluss,
+XP, NAGOLD, Datum/Uhrzeit und gueltiger Export-Pruefsumme. Bestanden.
+Noch lokal, keine neue Releaseversion und nicht veroeffentlicht.
+
+## Lokaler Nachtrag: Lernprofil zuruecksetzen [Codex, 2026-10-20]
+
+In Speichern & Laden erscheint nur bei aktivem Entwicklermodus der Knopf
+"Lernprofil loeschen". Eigener modaler Bestaetigungsdialog mit Fokus auf
+Abbrechen, X und Escape. Erst "Endgueltig loeschen" entfernt den gesamten
+Lernstand inklusive Notizen, Textfarben, Zeichnungen, Markierungen,
+Kommentaren, Arbeitsblaettern, SQL- und Modell-Entwuerfen, XP und NAGOLD.
+Auch separate ERM-, Wiederholungs-, Klausur- und Rettungsdaten sowie
+automatischer Download und profilspezifische Sitzungswerte werden entfernt.
+Keine pauschale Speicherleerung: Darstellung, Navigationseinstellungen,
+Geraetekennung, Lehrkraftdaten, fremde Apps und Offline-Kopie bleiben erhalten.
+
+Neuladen auf #home verwirft SQL-Datenbanken und sonstige In-Memory-Entwuerfe;
+der Dialog fuer ein neues Profil erscheint und der Entwicklermodus ist aus.
+Weitere offene Lernseiten-Tabs laden bei Entfernung des Hauptstands neu,
+damit sie keine alten Daten zurueckschreiben. Fehler beim Speicherzugriff
+brechen ab, bereits entfernte Werte werden nach Moeglichkeit wiederhergestellt;
+bei fehlgeschlagener Wiederherstellung wird ausdruecklich zum Sichern geraten.
+Die Loeschfunktion ist eine Entwicklerhilfe, keine Zugriffssicherung.
+
+Pruefungen: 230 Node-Tests, vier Python-Tests, neuer Profil-Reset-Browsertest
+(Desktop/360px, grosse Schrift, Dark/Light, zwei Tabs, Abbrechen/Escape,
+Tastaturfokus, teilweise fehlgeschlagenes Loeschen und Wiederherstellung,
+neues Profil nach Neustart). Auch backup-safety, state-rescue,
+storage-blocked und teacher-solutions bestanden. Erweiterte Kontrastpruefung
+322 Ansichten und vorlesbare Namen/ARIA 254 Ansichten bestanden. Erweiterte
+Ueberlaufpruefung ebenfalls bestanden: 1212 Ansichten bei 320 bis 1280 Pixeln
+und groesster Schrift, einschliesslich der neuen Loeschbestaetigung.
+Mobile Bestaetigungsdialoge visuell geprueft. Noch lokal, nicht gepusht;
+keine neue Releaseversion, keine Aenderung an SQL-Aufgaben.
+
+## Lokaler Nachtrag: Abkuerzungen in L1.2 [Codex, 2026-10-20]
+
+Jakobs Unterrichtsrueckmeldung umgesetzt: ER (Entity-Relationship) mit den
+deutschen Bedeutungen Entitaet/Objekt und Beziehung, ERD (Entity-Relationship
+Diagram) sowie PK (Primary Key, Primaerschluessel) als sichtbare Definitionen
+in den bestehenden Informationsabschnitten. PK am Beispiel schuelernr und
+gleicher Nachnamen erklaert. Keine neue SQL-Aufgabe, keine neue MySQL-Funktion,
+keine Aenderung an Arbeitsauftraegen oder deren Bewertung. Bestehende
+Abschnitts- und Definitionspositionen bleiben erhalten; ER-Erklaerung an die
+bisherige Definition angehaengt. Noch lokal, nicht veroeffentlicht.
+
+Pruefung: alle fuenf Tests in `tests/early-workbench.test.js` bestanden.
+Erweiterter `tests/model-glossary.browser.cjs` prueft sichtbare ER/ERD/PK-
+Definitionen und das Schuelernummer-Beispiel, beide Designs bei 1440/360
+Pixeln mit grosser Schrift sowie die weiterhin erst in L1.3 eingefuehrte
+eERM-Erklaerung. Bestanden; mobile Darstellung visuell angesehen.
+
 ## Aktueller Anforderungsabgleich nach 0.48.0 [Codex]
 
 Alle OPT-01 bis OPT-25 am aktuellen Code-/Release-Stand abgeglichen:

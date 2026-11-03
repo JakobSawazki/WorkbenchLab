@@ -160,7 +160,7 @@ async function cachedResponse(request, url, file) {
     return request.headers.has("Range") ? rangeResponse(response, request.headers.get("Range")) : response;
   } catch {
     await announce({ missing: true });
-    const message = "Offline-Kopie unvollständig. Bitte mit Internet alle WorkbenchLab-Tabs schließen und die Seite erneut öffnen. Falls nötig die Offline-Kopie unter Speichern & Laden neu vorbereiten.";
+    const message = "Offline-Kopie unvollständig. Bitte mit Internet alle WorkbenchLab-Tabs schließen und die Seite erneut öffnen.";
     return new Response(message, { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } });
   }
 }

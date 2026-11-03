@@ -83,6 +83,15 @@ const dialogProblem = () => {
             const ledgerProblem = await page.evaluate(dialogProblem);
             if (ledgerProblem) problems.push(`NAGOLD bei ${width}px, Schrift ${fontSize}px: ${ledgerProblem}`);
             await page.locator("#nagoldCloseButton").click();
+            await page.keyboard.press("Control+Alt+s");
+            if (await page.locator("#developerModeButton").getAttribute("aria-pressed") !== "true") await page.locator("#developerModeButton").click();
+          }
+          if (button === "#backupButton") {
+            await page.locator("#profileResetButton").click();
+            views += 1;
+            const resetProblem = await page.evaluate(dialogProblem);
+            if (resetProblem) problems.push(`Lernprofil-Löschbestätigung bei ${width}px, Schrift ${fontSize}px: ${resetProblem}`);
+            await page.keyboard.press("Escape");
           }
           await page.locator(close).click();
         }

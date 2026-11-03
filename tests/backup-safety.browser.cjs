@@ -40,7 +40,10 @@ function sign(payload) {
       ["future-version", JSON.stringify({ ...original, formatVersion: 999 })],
       ["missing-checksum", JSON.stringify({ ...original, integrity: null })],
       ["tampered", JSON.stringify({ ...original, data: { ...original.data, generalNotes: "Changed without checksum" } })],
-      ["wrong-identity", JSON.stringify(sign({ ...structuredClone(original), identity: { ...original.identity, studentClass: "OTHER" } }))]
+      ["wrong-identity", JSON.stringify(sign({ ...structuredClone(original), identity: { ...original.identity, studentClass: "OTHER" } }))],
+      ["modern-class-separator", JSON.stringify(sign({ ...structuredClone(original), identity: { ...original.identity, studentClass: "WGJ1/1" }, data: { ...original.data, className: "WGJ1/1" } }))],
+      ["legacy-class-mismatch", JSON.stringify(sign({ ...structuredClone(original), formatVersion: 8, identity: { ...original.identity, studentClass: "WGJ1/1" }, data: { ...original.data, className: "WGJ1_1" } }))],
+      ["legacy-class-checksum", JSON.stringify({ ...original, formatVersion: 8, identity: { ...original.identity, studentClass: "WGJ1/1" }, data: { ...original.data, className: "WGJ1/1" } })]
     ];
     for (const [name, contents] of cases) {
       await page.locator("#progressFileInput").setInputFiles({ name: `${name}.json`, mimeType: "application/json", buffer: Buffer.from(contents) });
@@ -83,6 +86,40 @@ function sign(payload) {
     await page.locator("#backupStatus.is-error").waitFor();
     assert.ok(await page.locator("#backupDialog").evaluate((el) => el.scrollWidth <= el.clientWidth + 1));
     await page.screenshot({ path: path.join(output, "import-error-mobile.png"), animations: "disabled" });
+    // Synthetic regression fixture, never the real student's personal backup.
+    const legacy = sign({ ...structuredClone(original), formatVersion: 8,
+      identity: { ...original.identity, studentClass: "WGJ1/1" },
+      data: { ...original.data, className: "WGJ1/1", completedLessons: ["warum-datenbanken"], completedPractices: ["db-benefit-choice"],
+        lessonNotes: { "warum-datenbanken": "Meine alten Notizen" },
+        nagoldEntries: [
+          { date: "2026-10-06", time: "11:10", purpose: "Startkapital", points: 5 },
+          { date: "2026-10-13", time: "11:11", purpose: "Anwesenheit", points: 2 },
+          { date: "2026-10-13", time: "11:16", purpose: "Mitarbeit", points: 2 },
+          { date: "2026-10-06", time: "11:18", purpose: "Zusatzaufgabe", points: 3 },
+          { date: "2026-10-13", time: "12:27", purpose: "L1.1", points: 5, lessonId: "warum-datenbanken" }
+        ] }
+    });
+    page.once("dialog", dialog => dialog.dismiss());
+    const legacyFile = { name: "legacy-class.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(legacy)) };
+    const beforeLegacy = await page.evaluate(() => localStorage.getItem("workbenchlab-v1"));
+    await page.locator("#progressFileInput").setInputFiles(legacyFile);
+    await page.waitForFunction(() => document.querySelector("#backupStatus").textContent === "Laden abgebrochen.");
+    assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1")), beforeLegacy);
+    page.once("dialog", dialog => dialog.accept());
+    await page.locator("#progressFileInput").setInputFiles(legacyFile);
+    await page.locator("#backupDialog").waitFor({ state: "hidden" });
+    await page.reload();
+    assert.equal(await page.locator("#topXp").innerText(), "65 XP");
+    assert.equal(await page.locator("#topNagold").innerText(), "17 NAG");
+    assert.equal(await page.locator("#topProfileClass").innerText(), "WGJ11");
+    await page.locator("#backupButton").click();
+    const legacyDownload = page.waitForEvent("download");
+    await page.locator("#exportProgressButton").click();
+    const repaired = JSON.parse(fs.readFileSync(await (await legacyDownload).path(), "utf8"));
+    assert.deepEqual(repaired.data.nagoldEntries, legacy.data.nagoldEntries);
+    assert.deepEqual(repaired.data.lessonNotes, legacy.data.lessonNotes);
+    assert.equal(repaired.identity.studentClass, repaired.data.className);
+    assert.equal(repaired.integrity.digest, sign(structuredClone(repaired)).integrity.digest);
     const unavailable = await browser.newContext();
     await unavailable.addInitScript(() => {
       localStorage.setItem("workbenchlab-v1", JSON.stringify({ name: "TST.QAA", className: "TEST", generalNotes: "Nicht verlieren." }));
@@ -100,6 +137,6 @@ function sign(payload) {
     assert.deepEqual(errors, []);
     await unavailable.close();
     await context.close();
-    console.log("PASS: nine invalid imports, oversized file, cancel preservation, >2 MB drawing/draft roundtrip, checksum, mobile feedback, unsupported crypto with no unhandled rejection.");
+    console.log("PASS: twelve invalid imports, verified legacy class migration with 65 XP/17 NAGOLD and notes after reload/export, cancel preservation, oversized file, >2 MB roundtrip, checksum, mobile feedback, unsupported crypto.");
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

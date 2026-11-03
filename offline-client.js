@@ -3,7 +3,19 @@
 
   function init() {
     const panel = document.querySelector("#offlineCachePanel");
-    if (!panel || location.protocol === "file:") return;
+    if (location.protocol === "file:") return;
+    if (!panel) {
+      // The controls are retired. Only maintain workers installed by earlier versions.
+      try {
+        const scope = new URL("./", location.href).href;
+        const script = new URL("offline-worker.js", scope).href;
+        if (isSecureContext) navigator.serviceWorker?.getRegistration(scope).then(registration => {
+          const worker = registration?.active || registration?.waiting || registration?.installing;
+          if (registration?.scope === scope && worker?.scriptURL === script) return registration.update();
+        }).catch(() => {});
+      } catch {}
+      return;
+    }
     panel.hidden = false;
     const status = document.querySelector("#offlineCacheStatus");
     const hint = document.querySelector("#offlineCacheHint");

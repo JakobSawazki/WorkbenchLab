@@ -48,6 +48,7 @@ fs.mkdirSync(artifacts, { recursive: true });
     assert.equal(await page.locator('#nagoldRows [data-nagold-field="purpose"]').count(), await page.locator("#nagoldRows tr.is-editing").count());
     // Neue Zeile beginnt mit 0 NAGOLD; 0 lässt sich nicht speichern.
     assert.equal(await field(0, "points").inputValue(), "0");
+    assert.equal(await page.locator("#topNagold").innerText(), "0 NAG", "Opening an empty ledger does not award attendance");
     // Pfeil öffnet die Liste weich; ein Vorschlag wird übernommen.
     const list = page.locator("#nagoldList0");
     assert.ok(await list.isHidden());
@@ -63,9 +64,14 @@ fs.mkdirSync(artifacts, { recursive: true });
     assert.equal(await field(0, "points").inputValue(), "5", "Startkapital gibt einmalig 5 NAGOLD");
     assert.equal(await page.locator("#topNagold").innerText(), "5 NAG");
     await page.locator("#nagoldAddButton").click();
+    assert.equal(await field(1, "purpose").inputValue(), "Anwesenheit");
+    assert.equal(await field(1, "points").inputValue(), "2");
+    assert.equal(await field(1, "date").inputValue(), today);
+    assert.match(await field(1, "time").inputValue(), /^\d{2}:\d{2}$/);
+    assert.equal(await page.locator("#topNagold").innerText(), "7 NAG");
     await field(1, "purpose").fill("startkapital");
     await field(1, "points").fill("5");
-    assert.equal(await page.locator("#topNagold").innerText(), "5 NAG", "No second start capital by typing");
+    assert.equal(await page.locator("#topNagold").innerText(), "7 NAG", "No second start capital; previous valid attendance remains");
     assert.match(await page.locator("#nagoldError").innerText(), /bereits einmal/);
     await remove(1).click();
     await page.locator("[data-nagold-combo-toggle]").first().click();
@@ -110,14 +116,16 @@ fs.mkdirSync(artifacts, { recursive: true });
     await field(0, "points").fill("3");
     await page.locator("#nagoldAddButton").click();
     assert.equal(await field(1, "date").inputValue(), today);
-    const savedWithBlankRow = await page.evaluate(() => JSON.parse(localStorage.getItem("workbenchlab-v1")).nagoldEntries);
-    assert.equal(savedWithBlankRow.length, 1, "Blank new row does not block saving a valid row");
-    assert.equal(savedWithBlankRow[0].points, 3);
+    const savedWithAttendance = await page.evaluate(() => JSON.parse(localStorage.getItem("workbenchlab-v1")).nagoldEntries);
+    assert.equal(savedWithAttendance.length, 2, "Plus immediately saves attendance alongside existing rows");
+    assert.equal(savedWithAttendance[0].points, 3);
+    assert.equal(savedWithAttendance[1].purpose, "Anwesenheit");
+    assert.equal(savedWithAttendance[1].points, 2);
     const secondTime = await field(1, "time").inputValue();
     assert.match(secondTime, /^\d{2}:\d{2}$/);
     await field(1, "purpose").fill("Eigener Arbeitsauftrag");
-    // Neue Zeilen beginnen mit 0; Abzüge sind erlaubt und zählen in der Summe mit (Vorgabe Jakob, 2026-10-11).
-    assert.equal(await field(1, "points").inputValue(), "0");
+    // Attendance defaults remain editable; deductions still count toward the total.
+    assert.equal(await field(1, "points").inputValue(), "2");
     await field(1, "points").fill("-2");
     assert.equal(await field(1, "points").evaluate(el => el.checkValidity()), true);
     assert.equal(await page.locator("#nagoldSum").innerText(), "1 NAGOLD gesamt");

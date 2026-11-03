@@ -13,6 +13,21 @@ const content = context.window.WORKBENCH_CONTENT;
 const lesson = (code) => content.lessons.find((item) => item.courseCode === code);
 const raw = fs.readFileSync(path.join(root, lesson("L1.1").classroomTask.download.href), "utf8");
 
+test("L1.2 spells out ER, ERD and PK with German meanings and a concrete key example", () => {
+  const second = lesson("L1.2");
+  const er = second.sections[0].definitions.find(item => item.term === "ER-Diagramm");
+  assert.match(er.definition, /ER steht für Entity-Relationship/);
+  assert.match(er.definition, /Entity bedeutet Entität/);
+  assert.match(er.definition, /Relationship bedeutet Beziehung/);
+  const erd = second.sections[0].definitions.find(item => item.term === "ERD = Entity-Relationship Diagram");
+  assert.match(erd.definition, /D steht für Diagram/);
+  const pk = second.sections[1].definitions.find(item => item.term === "PK = Primary Key (Primärschlüssel)");
+  assert.match(pk.definition, /jeden Datensatz eindeutig/);
+  assert.match(pk.definition, /nicht doppelt/);
+  assert.match(pk.definition, /`schuelernr`/);
+  assert.match(pk.definition, /denselben Nachnamen/);
+});
+
 test("L1.1 and L1.2 provide real SQL and EER work before L1.3", () => {
   const first = lesson("L1.1");
   assert.match(first.classroomTask.tool, /Workbench.*SQL/);
