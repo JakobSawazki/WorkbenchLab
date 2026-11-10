@@ -1,5 +1,5 @@
 // Claude, 0.38.0: prüft die veröffentlichte Fassung (_site) ohne Lösungsanweisungen,
-// freie Übungen und NAGOLD. Der Test baut _site selbst und liefert es auf einem freien Port aus.
+// freie Übungen und EP. Der Test baut _site selbst und liefert es auf einem freien Port aus.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const http = require("node:http");
@@ -31,8 +31,21 @@ const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
+    const response = await page.goto(base);
+    const homeTitle = "WorkbenchLab – SQL und relationale Datenbanken | Sawazki Electronics";
+    assert.ok((await response.text()).includes(`<title>${homeTitle}</title>`));
+    await page.locator(".path-overview").waitFor();
+    assert.equal(await page.title(), homeTitle);
+    assert.match(await page.locator('meta[name="description"]').getAttribute("content"), /WorkbenchLab von Sawazki Electronics.*SQL/);
+    assert.equal(await page.locator('link[rel="canonical"]').getAttribute("href"), "https://jakobsawazki.github.io/WorkbenchLab/");
     await page.goto(base + "#sql");
     await page.locator("#runtimeChip.is-ready").waitFor();
+    assert.equal(await page.title(), "SQL-Labor · WorkbenchLab");
+    await page.goto(base + "#home");
+    await page.locator(".path-overview").waitFor();
+    assert.equal(await page.title(), homeTitle);
+    await page.goto(base + "#sql");
+    await page.locator(".practice-card").first().waitFor();
 
     // Veröffentlichte Daten enthalten keine Lösungsanweisungen, aber alle Sollergebnisse.
     const leak = await page.evaluate(() => window.WORKBENCH_CONTENT.practices.filter((item) => item.solution !== undefined || item.fixed !== undefined || item.check?.expectedSql !== undefined || item.check?.referenceSql !== undefined || (item.questions || []).some((q) => q.proofSql !== undefined)).map((item) => item.id));
@@ -102,15 +115,43 @@ const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
     assert.match(await page.locator("#playgroundCatalog").innerText(), /workbenchlab_l1_1_einstieg/);
     assert.equal((await page.request.get(base + "resources/workbenchlab-loesungen.json")).status(), 404);
 
-    // NAGOLD im Profil: zwei abgeschlossene Einheiten ergeben 10.
+    // EP im Profil: zwei abgeschlossene Einheiten ergeben 10.
     await page.locator("#editProfileButton").click();
     await page.locator("#profileDialog").waitFor();
-    assert.match(await page.locator("#nagoldTotal").innerText(), /10 NAGOLD/);
+    assert.match(await page.locator("#nagoldTotal").innerText(), /10 EP/);
     await page.locator("#nagoldTotal").click();
     assert.equal(await page.locator("#nagoldRows tr").count(), 2);
     await page.keyboard.press("Escape");
+    await page.keyboard.press("Escape");
+
+    // Self-authored worksheet examples work without a private solution file.
+    assert.equal((await page.request.get(base + "resources/workbenchlab-l1-2-loesung.json")).status(), 404);
+    await page.goto(base + "#lesson/relation-und-schluessel");
+    await page.locator(".lesson-worksheet").waitFor();
+    const example = page.locator(".lesson-worksheet + .teacher-solution");
+    assert.equal(await example.count(), 0);
+    await page.locator("#editProfileButton").click();
+    await page.keyboard.press("Control+Alt+s");
+    await page.locator("#developerModeButton").click();
+    await page.locator("#profileCancelButton").click();
+    for (const [lesson, heading, count, answer] of [
+      ["relation-und-schluessel", "L1.2: Fahrschüler fachlich und technisch modellieren", 5, /geburtsdatum DATE/],
+      ["warum-datenbanken", "L1.1: Tabellenentwurf für die Fahrschule", 6, /schuelernr INT \(Primärschlüssel\)/]
+    ]) {
+      await page.goto(base + "#lesson/" + lesson);
+      await page.locator(".lesson-worksheet").getByText(heading, { exact: true }).waitFor();
+      await example.getByText("Lösungen anzeigen", { exact: true }).click();
+      assert.equal(await example.locator("pre").count(), count);
+      assert.match(await example.innerText(), answer);
+      await example.getByText("Lösungen ausblenden", { exact: true }).click();
+      assert.ok(await example.locator("pre").first().isHidden());
+    }
+    await page.locator("#editProfileButton").click();
+    await page.keyboard.press("Control+Alt+s");
+    await page.locator("#developerModeButton").click();
+    assert.equal(await example.count(), 0);
     assert.deepEqual(errors, []);
-    console.log("PASS: published site without solution statements, checks by expected results (query, debug, insert), free exercises with preview mark, lessons still sequential, NAGOLD in profile.");
+    console.log("PASS: Pages build, practice checks without private solutions, EP, and built-in L1.1/L1.2 examples in developer mode.");
   } finally {
     await browser.close();
     server.close();

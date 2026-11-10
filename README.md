@@ -1,6 +1,6 @@
 # WorkbenchLab
 
-**Aktueller Release:** 0.49.0 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
+**Aktueller Release:** 0.50.0 · **Live:** <https://jakobsawazki.github.io/WorkbenchLab/> ·
 **Repository:** <https://github.com/JakobSawazki/WorkbenchLab>
 
 WorkbenchLab ist eine browserbasierte Lernumgebung für Jahrgangsstufe 1 im
@@ -35,7 +35,7 @@ Entwickelt von Jakob Sawazki gemeinsam mit zwei KI-Agenten (Codex und Claude).
 | Nachschlagen | SQL-Befehle mit Suche, Startanleitung für Informatik-Stick und Workbench, Videos, Quellen |
 | Lernstand | lokal im Browser; Sicherung und Übertragung als JSON-Datei; Notizen, Markierungen, Zeichnungen; Druckansicht |
 | Sicherungen | Speichern und Laden als JSON-Datei, automatische Sicherung nach Einheitenabschluss; Klasse und Kuerzel im Dateinamen. Keine Offline-Vorbereitung im Sicherungsfenster. Bereits vorhandene Offline-Kopien bleiben erhalten |
-| Motivation | XP, Level, Erfolge, Aktivitätstage; NAGOLD-Tabelle mit automatischen und eigenen Einträgen |
+| Motivation | XP, Level, Erfolge, Aktivitätstage; EP-Tabelle mit automatischen und eigenen Einträgen |
 | Lehrkraft | Klassenübersicht und getrennte Bestätigungsliste unter <https://jakobsawazki.github.io/WorkbenchLab/lehrkraft.html>; Entwicklermodus im Profil mit `AltGr + S`, dort auch „Lösungsdatei laden“ (Datei erzeugen mit `node tools/build-solutions.cjs`) |
 
 ![WorkbenchLab Übersicht](documentation/screenshots/workbenchlab-visuals-desktop.png)
@@ -119,8 +119,8 @@ Icons und Browser-SQL werden lokal mitgeliefert.
 | Datei | Aufgabe |
 | --- | --- |
 | `index.html` | App-Shell, Dialoge, Skripteinbindung |
-| `app.js` | Routing, Darstellung, Freischaltung, XP und NAGOLD, SQL-Prüfung, Sicherung |
-| `nagold.js` | Bereinigung und Summe der NAGOLD-Tabelle, automatische Einträge und Übernahme älterer Punktestände |
+| `app.js` | Routing, Darstellung, Freischaltung, XP und EP, SQL-Prüfung, Sicherung |
+| `nagold.js` | Bereinigung und Summe der EP-Tabelle, automatische Einträge und Übernahme älterer Punktestände |
 | `content.js`, `learning-path.js`, `lesson-openings.js`, `practical-exercises.js` | Inhalte: Einheiten, Übungen, Übungsdatenbanken, Befehle |
 | `debug-exercises.js`, `predict-exercises.js`, `order-exercises.js` | Aufgabentypen Fehlersuche, Vorhersage, Klauseln ordnen |
 | `expected-results.js` | vorberechnete Sollergebnisse der SQL-Aufgaben (erzeugt von `tools/build-expected.cjs`) |
@@ -238,20 +238,21 @@ Gateway vorgesehen; Details stehen in [SQL-Feedback und KI](documentation/SQL_FE
 
 Die XP sind das Motivationssystem innerhalb der Plattform. In die Bewertung der
 kontinuierlich erbrachten Leistung fließt etwas anderes ein: Je vollständig
-abgeschlossener Lerneinheit zählen einmalig 5 **NAGOLD**, das Punktesystem der
+abgeschlossener Lerneinheit zählen einmalig 5 **EP (Erfahrungspunkte)**, das Punktesystem der
 Lehrkraft. Der Abschluss einer Einheit verlangt die Bestätigung durch die
 Lehrkraft; diese Bestätigung ist im Browser ein Haken und technisch nicht
 manipulationssicher. Maßgeblich bleibt deshalb die persönliche Kontrolle des
-Lernprodukts. Ein Klick auf NAGOLD im Profil öffnet die
+Lernprodukts. Ein Klick auf EP im Profil öffnet die
 Punktetabelle: automatische Einträge je Einheit sowie eigene Einträge mit
-Datum, Uhrzeit (HH:MM), Anlass und 1 bis 5 Punkten. Neue Zeilen erhalten
-automatisch das lokale Datum und die Uhrzeit. Zeilen lassen sich hinzufügen, bearbeiten
-und löschen. XP werden weiter aus Abschlüssen berechnet; NAGOLD werden aus
+Datum, Uhrzeit (HH:MM), Anlass und ganzen Punkten von -10 bis 5 (ohne 0). Plus traegt
+Anwesenheit mit 2 EP, lokalem Datum und Uhrzeit ein. Zeilen lassen sich hinzufügen, bearbeiten
+und löschen. XP werden weiter aus Abschlüssen berechnet; EP werden aus
 der Tabelle summiert, auch in der Klassenübersicht. Diese Tabelle ist eine
 Selbstauskunft, kein manipulationssicherer Leistungsnachweis. Sicherungen
-verwenden Format 7; ältere Sicherungen bleiben ladbar.
+verwenden Format 9; ältere Sicherungen bleiben ladbar. Die internen
+Speicherfelder wie `nagoldEntries` bleiben fuer kompatible Sicherungen erhalten.
 
-In der Lehrkraftübersicht lassen sich gesehene Einheiten und NAGOLD
+In der Lehrkraftübersicht lassen sich gesehene Einheiten und EP
 unabhängig bestätigen. Die Bestätigungen bleiben auf dem Lehrkraftgerät,
 haben eine eigene Sicherungsdatei und separate Spalten im CSV. Geänderte
 Punktezeilen erfordern erneute Bestätigung; Schülerdateien können keine

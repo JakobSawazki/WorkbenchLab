@@ -60,7 +60,7 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
       await page.locator("#ermCheck").click();
       assert.match(await page.locator("#ermResult").innerText(), /Modell stimmt/);
       assert.equal(await page.locator("#topXp").innerText(), `${(index + 1) * 30} XP`);
-      assert.equal(await page.locator("#topNagold").innerText(), "0 NAG");
+      assert.equal(await page.locator("#topNagold").innerText(), "0 EP");
       assert.match(await page.locator("#ermProgress").innerText(), /30 XP · Abgeschlossen/);
       await page.locator("#ermCheck").click();
       assert.equal(await page.locator("#topXp").innerText(), `${(index + 1) * 30} XP`);
@@ -182,7 +182,7 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
     await importBackup(invalid);
     assert.equal(await page.locator("#topXp").innerText(), "60 XP");
     await importBackup(payload);
-    console.log("PASS model XP: three once-only rewards, unchanged NAGOLD, independent snapshots survive edits/reset/reload, format 9 export/import/cancel/legacy, teacher rechecks and invalid snapshots rejected");
+    console.log("PASS model XP: three once-only rewards, unchanged EP, independent snapshots survive edits/reset/reload, format 9 export/import/cancel/legacy, teacher rechecks and invalid snapshots rejected");
 
     await page.evaluate(models => window.WORKBENCH_ERM.importDrafts({ task: "fahrschule-ort", notation: "crowfoot", models }), models);
     await page.reload();

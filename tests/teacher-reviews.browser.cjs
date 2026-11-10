@@ -61,7 +61,7 @@ const file = (data, name = "student.json") => ({ name, mimeType: "application/js
       const csv = await csvWait;
       const csvFile = path.join(output, `${theme}.csv`);
       await csv.saveAs(csvFile);
-      assert.match(fs.readFileSync(csvFile, "utf8"), /"NAGOLD bestätigt"/);
+      assert.match(fs.readFileSync(csvFile, "utf8"), /"EP bestätigt"/);
       await page.reload();
       assert.equal(await page.locator(".teacher-table").count(), 0);
       await load();

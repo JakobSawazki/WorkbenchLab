@@ -153,7 +153,7 @@ test("normalizeState: Entwürfe aller Datenbestände des freien SQL-Labors bleib
   assert.deepEqual(normalize({ drafts }).drafts, drafts);
 });
 
-test("NAGOLD-Tabelle bleibt beim Normalisieren, Bearbeiten und Leeren erhalten", () => {
+test("EP-Tabelle bleibt beim Normalisieren, Bearbeiten und Leeren erhalten", () => {
   const legacy = normalize({ completedLessons: [lessonId] });
   assert.equal(legacy.nagoldEntries.length, 1);
   assert.equal(legacy.nagoldEntries[0].lessonId, lessonId);

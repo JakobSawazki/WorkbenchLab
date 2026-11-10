@@ -154,6 +154,6 @@ const artifacts = require("./artifacts.cjs")("annotation-tools");
   }
   assert.deepEqual(errors, []);
   await context.close();
-  console.log("PASS: NAGOLD wheel isolation, colored text persistence, anchored comments, full-page marker, capacity compaction and erasing, backup and responsive themes.");
+  console.log("PASS: EP wheel isolation, colored text persistence, anchored comments, full-page marker, capacity compaction and erasing, backup and responsive themes.");
  } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="WorkbenchLab: Relationale Datenbanken, SQL und eERM für J1 Informatik lernen, üben und XP sammeln.">
+  <meta name="description" content="WorkbenchLab von Sawazki Electronics: SQL üben und relationale Datenbanken modellieren. Interaktive Lernumgebung für J1 Informatik (BPE6).">
   <meta name="theme-color" content="#08182f">
-  <title>WorkbenchLab · BPE6 Relationale Datenbanken</title>
+  <title>WorkbenchLab – SQL und relationale Datenbanken | Sawazki Electronics</title>
+  <link rel="canonical" href="https://jakobsawazki.github.io/WorkbenchLab/">
   <link rel="icon" type="image/webp" href="assets/workbenchlab-titanium.webp">
   <script>
     (() => {
@@ -16,12 +17,12 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.49.0">
-  <link rel="stylesheet" href="styles-lesson.css?v=0.49.0">
-  <link rel="stylesheet" href="styles-practice.css?v=0.49.0">
-  <link rel="stylesheet" href="styles-visuals.css?v=0.49.0">
-  <link rel="stylesheet" href="styles-shared.css?v=0.49.0">
-  <link rel="stylesheet" href="styles-extensions.css?v=0.49.0">
+  <link rel="stylesheet" href="styles.css?v=0.50.0">
+  <link rel="stylesheet" href="styles-lesson.css?v=0.50.0">
+  <link rel="stylesheet" href="styles-practice.css?v=0.50.0">
+  <link rel="stylesheet" href="styles-visuals.css?v=0.50.0">
+  <link rel="stylesheet" href="styles-shared.css?v=0.50.0">
+  <link rel="stylesheet" href="styles-extensions.css?v=0.50.0">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -81,7 +82,13 @@
           <i data-lucide="menu"></i>
         </button>
         <div>
-          <p class="eyebrow" id="viewEyebrow">Deine Datenbankzentrale</p>
+          <div class="view-context">
+            <p class="eyebrow" id="viewEyebrow">Deine Datenbankzentrale</p>
+            <div class="lesson-module-progress" id="lessonModuleProgress" hidden>
+              <progress max="100" value="0" aria-label="Lernfortschritt"></progress>
+              <span aria-hidden="true">0 %</span>
+            </div>
+          </div>
           <h1 id="viewTitle">Übersicht</h1>
         </div>
         <div class="topbar-actions">
@@ -92,9 +99,15 @@
           <button class="icon-button" id="appearanceButton" type="button" title="Darstellung anpassen" aria-label="Darstellung anpassen" aria-haspopup="dialog" aria-controls="appearanceDialog">
             <i data-lucide="settings-2"></i>
           </button>
+          <button class="icon-button" id="quickSaveButton" type="button" title="Lernstand speichern (Alt+S)" aria-label="Lernstand speichern" aria-keyshortcuts="Alt+S">
+            <i data-lucide="save" aria-hidden="true"></i>
+          </button>
+          <button class="icon-button" id="quickOpenButton" type="button" title="Lernstand öffnen (Alt+O)" aria-label="Lernstand öffnen" aria-keyshortcuts="Alt+O">
+            <i data-lucide="folder-open" aria-hidden="true"></i>
+          </button>
           <button class="icon-button backup-button" id="backupButton" type="button"
-            title="Lernstand sichern oder laden" aria-label="Lernstand sichern oder laden">
-            <i data-lucide="save"></i>
+            title="Sicherungen verwalten" aria-label="Sicherungen verwalten" aria-haspopup="dialog" aria-controls="backupDialog">
+            <i data-lucide="archive" aria-hidden="true"></i>
           </button>
           <button class="icon-button runtime-button" id="runtimeChip" type="button" title="SQL wird vorbereitet" aria-label="SQL wird vorbereitet" aria-busy="true">
             <i data-lucide="database"></i><span class="status-dot" aria-hidden="true"></span>
@@ -102,7 +115,7 @@
           </button>
           <button class="button button-secondary profile-trigger" id="editProfileButton" type="button" title="Profil und Lernfortschritt öffnen" aria-label="Profil und Lernfortschritt öffnen" aria-haspopup="dialog" aria-controls="profileDialog">
             <span class="profile-trigger-identity"><strong id="topProfileName">Gast</strong><span id="topProfileClass">Klasse offen</span></span>
-            <span class="profile-trigger-xp"><i data-lucide="sparkles" aria-hidden="true"></i><strong id="topXp">0 XP</strong><span aria-hidden="true">·</span><strong class="profile-trigger-nagold" id="topNagold" title="NAGOLD">0 NAG</strong></span>
+            <span class="profile-trigger-xp"><i data-lucide="sparkles" aria-hidden="true"></i><strong id="topXp">0 XP</strong><span aria-hidden="true">·</span><strong class="profile-trigger-nagold" id="topNagold" title="Erfahrungspunkte (EP)">0 EP</strong></span>
           </button>
         </div>
       </header>
@@ -152,7 +165,7 @@
           <span id="nagoldProgressPercent"></span>
         </div>
         <progress id="nagoldProgress" max="100" value="0" aria-describedby="nagoldGoal nagoldRemaining"></progress>
-        <p id="nagoldGoal">Jahresziel: 100 NAGOLD · Sehr gut (Note 1)</p>
+        <p id="nagoldGoal">Jahresziel: 100 EP · Sehr gut (Note 1)</p>
         <p id="nagoldRemaining"></p>
       </section>
       <button class="button button-secondary developer-mode-button" id="developerModeButton" type="button" hidden
@@ -186,16 +199,16 @@
   <dialog class="profile-dialog nagold-dialog" id="nagoldDialog" aria-labelledby="nagoldTitle">
     <form id="nagoldForm">
       <div class="dialog-heading">
-        <div><p class="eyebrow">Deine gesammelten Punkte</p><h2 id="nagoldTitle">NAGOLD</h2></div>
-        <button class="icon-button" id="nagoldCloseButton" type="button" title="Schließen" aria-label="NAGOLD-Tabelle schließen"><i data-lucide="x" aria-hidden="true"></i></button>
+        <div><p class="eyebrow">Deine Erfahrungspunkte</p><h2 id="nagoldTitle">EP</h2></div>
+        <button class="icon-button" id="nagoldCloseButton" type="button" title="Schließen" aria-label="EP-Tabelle schließen"><i data-lucide="x" aria-hidden="true"></i></button>
       </div>
       <table class="nagold-table">
-        <caption class="sr-only">Deine NAGOLD-Einträge</caption>
-        <thead><tr><th scope="col">Datum</th><th scope="col">Uhrzeit</th><th scope="col">Wofür</th><th scope="col">NAGOLD</th><th scope="col"><span class="sr-only">Aktionen</span></th></tr></thead>
+        <caption class="sr-only">Deine Erfahrungspunkte (EP)</caption>
+        <thead><tr><th scope="col">Datum</th><th scope="col">Uhrzeit</th><th scope="col">Wofür</th><th scope="col">EP</th><th scope="col"><span class="sr-only">Aktionen</span></th></tr></thead>
         <tbody id="nagoldRows"></tbody>
       </table>
       <div class="nagold-table-footer">
-        <button class="icon-button" id="nagoldAddButton" type="button" title="Zeile hinzufügen" aria-label="NAGOLD-Zeile hinzufügen"><i data-lucide="plus" aria-hidden="true"></i></button>
+        <button class="icon-button" id="nagoldAddButton" type="button" title="Zeile hinzufügen" aria-label="EP-Zeile hinzufügen"><i data-lucide="plus" aria-hidden="true"></i></button>
         <output id="nagoldSum" aria-live="polite"></output>
       </div>
       <p class="field-error" id="nagoldError" role="status" aria-live="polite"></p>
@@ -254,7 +267,7 @@
         <h2 id="profileResetTitle">Lernprofil wirklich löschen?</h2>
         <button class="icon-button" type="submit" value="cancel" title="Schließen" aria-label="Löschen abbrechen"><i data-lucide="x" aria-hidden="true"></i></button>
       </div>
-      <p id="profileResetDescription">Das aktuelle Lernprofil wird in diesem Browser vollständig gelöscht: XP, NAGOLD, Lernfortschritt, Notizen, Zeichnungen, Markierungen, Kommentare und alle Entwürfe. Das kann nicht rückgängig gemacht werden. Sichere deinen Lernstand bei Bedarf zuerst über „Speichern“.</p>
+      <p id="profileResetDescription">Das aktuelle Lernprofil wird in diesem Browser vollständig gelöscht: XP, EP, Lernfortschritt, Notizen, Zeichnungen, Markierungen, Kommentare und alle Entwürfe. Das kann nicht rückgängig gemacht werden. Sichere deinen Lernstand bei Bedarf zuerst über „Speichern“.</p>
       <p>Danach kannst du ein neues Lernprofil anlegen. Weitere offene WorkbenchLab-Tabs werden neu geladen. Darstellung und Offline-Kopie bleiben erhalten.</p>
       <div class="profile-reset-actions">
         <button class="button button-secondary" type="submit" value="cancel" autofocus>Abbrechen</button>
@@ -277,30 +290,30 @@
 
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
-  <script src="content.js?v=0.49.0"></script>
-  <script src="learning-path.js?v=0.49.0"></script>
-  <script src="lesson-openings.js?v=0.49.0"></script>
-  <script src="practical-exercises.js?v=0.49.0"></script>
-  <script src="debug-exercises.js?v=0.49.0"></script>
-  <script src="predict-exercises.js?v=0.49.0"></script>
-  <script src="order-exercises.js?v=0.49.0"></script>
-  <script src="study-tools.js?v=0.49.0"></script>
-  <script src="appearance.js?v=0.49.0"></script>
-  <script src="drawing.js?v=0.49.0"></script>
-  <script src="command-search.js?v=0.49.0"></script>
-  <script src="reference-search.js?v=0.49.0"></script>
-  <script src="expected-results.js?v=0.49.0"></script>
-  <script src="sql-check.js?v=0.49.0"></script>
-  <script src="backup.js?v=0.49.0"></script>
-  <script src="nagold.js?v=0.49.0"></script>
-  <script src="erm-editor.js?v=0.49.0"></script>
-  <script src="note-text.js?v=0.49.0"></script>
-  <script src="state.js?v=0.49.0"></script>
-  <script src="sql-feedback.js?v=0.49.0"></script>
-  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.49.0"></script>
-  <script src="sql-workspace.js?v=0.49.0"></script>
-  <script src="review.js?v=0.49.0"></script>
-  <script src="offline-client.js?v=0.49.0"></script>
-  <script src="app.js?v=0.49.0"></script>
+  <script src="content.js?v=0.50.0"></script>
+  <script src="learning-path.js?v=0.50.0"></script>
+  <script src="lesson-openings.js?v=0.50.0"></script>
+  <script src="practical-exercises.js?v=0.50.0"></script>
+  <script src="debug-exercises.js?v=0.50.0"></script>
+  <script src="predict-exercises.js?v=0.50.0"></script>
+  <script src="order-exercises.js?v=0.50.0"></script>
+  <script src="study-tools.js?v=0.50.0"></script>
+  <script src="appearance.js?v=0.50.0"></script>
+  <script src="drawing.js?v=0.50.0"></script>
+  <script src="command-search.js?v=0.50.0"></script>
+  <script src="reference-search.js?v=0.50.0"></script>
+  <script src="expected-results.js?v=0.50.0"></script>
+  <script src="sql-check.js?v=0.50.0"></script>
+  <script src="backup.js?v=0.50.0"></script>
+  <script src="nagold.js?v=0.50.0"></script>
+  <script src="erm-editor.js?v=0.50.0"></script>
+  <script src="note-text.js?v=0.50.0"></script>
+  <script src="state.js?v=0.50.0"></script>
+  <script src="sql-feedback.js?v=0.50.0"></script>
+  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.50.0"></script>
+  <script src="sql-workspace.js?v=0.50.0"></script>
+  <script src="review.js?v=0.50.0"></script>
+  <script src="offline-client.js?v=0.50.0"></script>
+  <script src="app.js?v=0.50.0"></script>
 </body>
 </html>

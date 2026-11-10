@@ -13,6 +13,12 @@ const content = context.window.WORKBENCH_CONTENT;
 const lesson = (code) => content.lessons.find((item) => item.courseCode === code);
 const raw = fs.readFileSync(path.join(root, lesson("L1.1").classroomTask.download.href), "utf8");
 
+test("L1.2 connects an entity to a row and its type to a table", () => {
+  const definitions = lesson("L1.2").sections[0].definitions;
+  assert.match(definitions.find(item => item.term === "Entität").definition, /Schülernummer 17.*eine Zeile.*`fahrschueler`/);
+  assert.match(definitions.find(item => item.term === "Entitätstyp").definition, /als Tabelle `fahrschueler` umgesetzt/);
+});
+
 test("L1.2 spells out ER, ERD and PK with German meanings and a concrete key example", () => {
   const second = lesson("L1.2");
   const er = second.sections[0].definitions.find(item => item.term === "ER-Diagramm");

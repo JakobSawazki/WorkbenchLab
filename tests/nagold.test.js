@@ -12,7 +12,7 @@ const N = context.window.WORKBENCH_NAGOLD;
 const plain = value => JSON.parse(JSON.stringify(value));
 const entry = (overrides = {}) => ({ date: "2026-10-09", time: "09:05", purpose: "Mitarbeit", points: 5, ...overrides });
 
-test("NAGOLD akzeptiert echte Kalenderdaten, auch Schaltjahre", () => {
+test("EP akzeptiert echte Kalenderdaten, auch Schaltjahre", () => {
   for (const date of ["2026-10-09", "2024-02-29", "2026-12-31"]) assert.equal(N.validDate(date), true, date);
   for (const date of ["", null, 1, "2026-2-9", "2026-02-29", "2026-04-31", "2026-13-01", "2026-10-00", "2026-10-09T12:00:00Z"]) assert.equal(N.validDate(date), false, String(date));
 });
@@ -26,7 +26,7 @@ test("Uhrzeiten werden als HH:MM geprüft; alte Einträge behalten eine unbekann
   assert.equal(N.normalizeEntries([entry({ time: "24:00" })]).length, 0);
 });
 
-test("NAGOLD begrenzt jeden Eintrag auf ganze Punkte von -10 bis 5 ohne 0 und bereinigt Importe", () => {
+test("EP begrenzt jeden Eintrag auf ganze Punkte von -10 bis 5 ohne 0 und bereinigt Importe", () => {
   // Abzüge sind erlaubt (Vorgabe Jakob, 2026-10-11).
   assert.deepEqual(plain(N.normalizeEntries([entry({ points: -1 }), entry({ points: -5 }), entry({ points: -10 })])).map(row => row.points), [-1, -5, -10]);
   assert.equal(N.total({ nagoldEntries: [entry({ points: 5 }), entry({ points: -2 })] }), 3);
@@ -40,7 +40,7 @@ test("NAGOLD begrenzt jeden Eintrag auf ganze Punkte von -10 bis 5 ohne 0 und be
   for (const bad of [null, {}, "Eintrag", 5]) assert.deepEqual(plain(N.normalizeEntries(bad)), []);
 });
 
-test("Ältere NAGOLD werden einmalig und ohne erfundene Daten übernommen", () => {
+test("Ältere EP werden einmalig und ohne erfundene Daten übernommen", () => {
   const lessons = content.lessons.slice(0, 2);
   const legacy = { completedLessons: [lessons[0].id, lessons[0].id, lessons[1].id, "unbekannt"] };
   const entries = N.entriesFor(legacy);
@@ -53,7 +53,7 @@ test("Ältere NAGOLD werden einmalig und ohne erfundene Daten übernommen", () =
   assert.equal(N.total({ ...legacy, nagoldEntries: null }), 0);
 });
 
-test("Nur die Tabelle bestimmt NAGOLD; XP und weitere Abschlüsse zählen nicht doppelt", () => {
+test("Nur die Tabelle bestimmt EP; XP und weitere Abschlüsse zählen nicht doppelt", () => {
   const data = { nagoldEntries: [entry({ points: 2 }), entry({ points: 5 })], completedLessons: content.lessons.map(lesson => lesson.id) };
   assert.equal(N.total(data), 7);
   assert.equal(N.total({ ...data, nagoldEntries: [entry({ points: 5 })] }), 5);
@@ -79,7 +79,7 @@ test("Abschlüsse erhalten genau eine datierte Tabellenzeile; manuelle Zeilen ve
   assert.equal(N.addLessonEntry(data, content.lessons[1], "2026-10-09", "24:00"), false);
 });
 
-test("NAGOLD-Helfer ist öffentlich und auf beiden Seiten vor seinen Nutzern geladen", () => {
+test("EP-Helfer ist öffentlich und auf beiden Seiten vor seinen Nutzern geladen", () => {
   for (const [page, consumer] of [["index.html", "state.js"], ["lehrkraft.html", "teacher-overview.js"]]) {
     const html = fs.readFileSync(path.join(root, page), "utf8");
     assert.ok(html.indexOf('src="nagold.js') > 0 && html.indexOf('src="nagold.js') < html.indexOf(`src="${consumer}`));

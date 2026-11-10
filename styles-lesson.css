@@ -679,41 +679,6 @@
   margin-bottom: 1rem;
 }
 
-.source-disclosure {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--panel);
-}
-
-.source-disclosure summary {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  cursor: pointer;
-  padding: 0.75rem 0.9rem;
-  font-weight: 750;
-}
-
-.source-disclosure summary span {
-  display: inline-flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.source-disclosure > div {
-  border-top: 1px solid var(--line);
-  padding: 0.8rem 0.9rem;
-}
-
-.source-disclosure p {
-  color: var(--muted);
-}
-
-.source-disclosure ul {
-  margin-bottom: 0;
-}
-
 .lesson-completion {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -810,4 +775,11 @@
   border-radius: var(--radius);
   background: var(--panel);
   padding: 0.65rem 0.75rem;
+}
+
+.lesson-definition-grid.is-wide {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 0;
+  overflow-wrap: anywhere;
 }

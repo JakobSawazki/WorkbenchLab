@@ -18,7 +18,7 @@ test("Vorschau liefert nur App-Dateien und passende WASM-/Video-Typen", () => wi
     assert.equal(response.headers.get("accept-ranges"), "bytes");
     assert.equal(await response.text(), "");
   }
-  for (const url of ["/resources/workbenchlab-loesungen.json", "/.git/config", "/tests/nagold.test.js", "/assets/%2e%2e%5cresources/secret.json",
+  for (const url of ["/resources/workbenchlab-loesungen.json", "/resources/workbenchlab-l1-2-loesung.json", "/_local/teacher-solutions.json", "/.git/config", "/tests/nagold.test.js", "/assets/%2e%2e%5cresources/secret.json",
     "/assets/test.png:secret", "/assets/%00", "/assets/no-such-file.png", "/assets/bpe6-relief-map.png", "/assets/%2e%2e/resources/secret.json"]) {
     const response = await fetch(base + url);
     assert.equal(response.status, 404, url);

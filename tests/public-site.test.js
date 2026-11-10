@@ -1,4 +1,4 @@
-// Claude, 0.38.0: Sollergebnisse statt Lösungsanweisungen (OPT-12), freie Übungen, NAGOLD.
+// Claude, 0.38.0: Sollergebnisse statt Lösungsanweisungen (OPT-12), freie Übungen, EP.
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -71,7 +71,7 @@ test("die veröffentlichten Inhaltsdateien enthalten keine Lösungsanweisungen u
   assert.deepEqual(plain(content.practices.map(keep)), plain(full.practices.map(keep)));
 });
 
-test("Übungen und Einheiten sind frei; NAGOLD werden gemeinsam aus der Tabelle summiert", () => {
+test("Übungen und Einheiten sind frei; EP werden gemeinsam aus der Tabelle summiert", () => {
   const app = fs.readFileSync(path.join(root, "app.js"), "utf8");
   assert.match(app, /function isPracticeUnlocked\(practice\) \{\s*return Boolean\(practice\);\s*\}/);
   assert.match(app, /function isLessonUnlocked\(lesson\) \{\s*return Boolean\(lesson\);\s*\}/);

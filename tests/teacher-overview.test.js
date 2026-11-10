@@ -54,7 +54,7 @@ test("Zusammenfassung zählt Einheiten, Übungen und Module und rechnet XP unabh
   assert.equal(row.lastActivity, "2026-10-09");
 });
 
-test("NAGOLD werden aus derselben Tabelle berechnet, nicht aus der behaupteten Summe", () => {
+test("EP werden aus derselben Tabelle berechnet, nicht aus der behaupteten Summe", () => {
   const data = { completedLessons: lessonIds.slice(0, 3), nagoldEntries: [
     { date: "2026-10-09", purpose: "Mitarbeit", points: 2 },
     { date: "2026-10-09", purpose: "Zusatzaufgabe", points: 5 },
@@ -83,7 +83,7 @@ test("Lehrkraft-Bestätigungen sind getrennt von gemeldeten Punkten und reagiere
   assert.equal(teacher.approvedSummary({ ...row, nagoldEntries: [{ ...row.nagoldEntries[0], time: "09:06" }] }, reviews).nagold, 0);
   assert.equal(teacher.approvedSummary({ ...row, nagoldEntries: [] }, reviews).nagold, 0);
   const csv = teacher.toCsv([row], content, reviews);
-  assert.match(csv, /"NAGOLD bestätigt";"Einheiten bestätigt"/);
+  assert.match(csv, /"EP bestätigt";"Einheiten bestätigt"/);
   assert.match(csv, /"L1.1 bestätigt"/);
 });
 
@@ -149,7 +149,7 @@ test("CSV ist für Tabellenprogramme geeignet und entschärft Formeln", () => {
   row.fileName = "datei.json";
   row.superseded = false;
   const csv = teacher.toCsv([row], content);
-  assert.ok(csv.startsWith("﻿\"Klasse\";\"Kürzel\";\"NAGOLD\";\"XP\""));
+  assert.ok(csv.startsWith("﻿\"Klasse\";\"Kürzel\";\"EP\";\"XP\""));
   const lines = csv.trim().split("\r\n");
   assert.equal(lines.length, 2);
   assert.ok(lines[1].startsWith('"J1;""1""";"\'=1+1";'));

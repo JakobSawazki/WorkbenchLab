@@ -81,7 +81,7 @@ const dialogProblem = () => {
             await page.locator('[data-nagold-edit="0"]').click();
             views += 1;
             const ledgerProblem = await page.evaluate(dialogProblem);
-            if (ledgerProblem) problems.push(`NAGOLD bei ${width}px, Schrift ${fontSize}px: ${ledgerProblem}`);
+            if (ledgerProblem) problems.push(`EP bei ${width}px, Schrift ${fontSize}px: ${ledgerProblem}`);
             await page.locator("#nagoldCloseButton").click();
             await page.keyboard.press("Control+Alt+s");
             if (await page.locator("#developerModeButton").getAttribute("aria-pressed") !== "true") await page.locator("#developerModeButton").click();

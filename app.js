@@ -2,6 +2,7 @@
   "use strict";
 
   const content = window.WORKBENCH_CONTENT;
+  const homePageTitle = document.title;
   const study = window.WORKBENCH_STUDY;
   const drawing = window.WORKBENCH_DRAWING;
   const appearance = window.WORKBENCH_APPEARANCE;
@@ -81,6 +82,7 @@
   // Lösungen der Lehrkraft (OPT-23, Claude): nur im Arbeitsspeicher, nie gespeichert, nie veröffentlicht.
   // Sie stammen aus einer lokalen Datei, die tools/build-solutions.cjs erzeugt.
   let teacherSolutions = null;
+  let solutionLoadVersion = 0;
   let SQLRuntime = null;
   let sqlReadyPromise = null;
   let offlineCaptionsUrl = "";
@@ -299,7 +301,7 @@
     hint.textContent = !storageAvailable ? "Browserspeicher nicht verfügbar. Bitte über Speichern sichern."
       : localFile ? "Vor einem Ordner-, Versions- oder PC-Wechsel den Lernstand als Datei speichern und anschließend laden." : "";
     document.querySelector("#backupButton").classList.toggle("has-storage-error", !storageAvailable);
-    document.querySelector("#backupButton").title = storageAvailable ? "Lernstand sichern oder laden" : "Speicherung nicht verfügbar · Lernstand als Datei sichern";
+    document.querySelector("#backupButton").title = storageAvailable ? "Sicherungen verwalten" : "Speicherung nicht verfügbar · Sicherungen verwalten";
   }
 
   function todayKey(date = new Date()) {
@@ -490,7 +492,7 @@
     state[key].push(id);
     markActivity();
     saveState();
-    toast(nagoldAdded ? `+${xp} XP und +${nagold.maxPoints} NAGOLD gesammelt` : `+${xp} XP gesammelt`, "xp");
+    toast(nagoldAdded ? `+${xp} XP und +${nagold.maxPoints} EP gesammelt` : `+${xp} XP gesammelt`, "xp");
     return true;
   }
 
@@ -628,10 +630,11 @@
     renderAppearanceOptions();
   }
 
-  function setHeading(eyebrow, title) {
+  function setHeading(eyebrow, title, pageTitle = `${title} · WorkbenchLab`) {
+    document.querySelector("#lessonModuleProgress").hidden = true;
     document.querySelector("#viewEyebrow").textContent = eyebrow;
     document.querySelector("#viewTitle").textContent = title;
-    document.title = `${title} · WorkbenchLab`;
+    document.title = pageTitle;
   }
 
   function lessonBreadcrumb(module, lesson) {
@@ -709,8 +712,10 @@
                   return `
                     <button type="button" data-lesson="${escapeHtml(lessonId)}" class="${completed ? "is-done" : ""} ${unlocked ? "" : "is-locked"}"
                       title="${escapeHtml(unlocked ? lesson.title : lockedTitle)}" ${unlocked ? "" : "aria-disabled=\"true\""}>
-                      <span>${escapeHtml(lesson.courseCode || lesson.index)}</span>
+                      <span class="path-lesson-check" aria-hidden="true">${completed ? '<i data-lucide="check"></i>' : ""}</span>
+                      <span class="path-lesson-code">${escapeHtml(lesson.courseCode || lesson.index)}</span>
                       <span>${escapeHtml(lesson.title)}</span>
+                      ${completed ? '<span class="sr-only">Abgeschlossen</span>' : ""}
                     </button>`;
                 }).join("")}
               </div>
@@ -734,23 +739,28 @@
     if (solutionButton) {
       solutionButton.hidden = !(developerControlRevealed && developerMode);
       const count = teacherSolutions ? Object.keys(teacherSolutions).length : 0;
-      document.querySelector("#solutionFileLabel").textContent = count ? `Lösungsdatei geladen (${count} Aufgaben)` : "Lösungsdatei laden";
+      document.querySelector("#solutionFileLabel").textContent = count ? `Lösungsdatei geladen (${count} Einträge)` : "Lösungsdatei laden";
     }
   }
 
   async function loadSolutionFile(file) {
+    if (!developerMode) return;
+    const version = ++solutionLoadVersion;
     try {
       if (!file || file.size > 2 * 1024 * 1024) {
         throw new Error("zu groß");
       }
       const parsed = JSON.parse(await file.text());
+      if (!developerMode || version !== solutionLoadVersion) return;
       if (parsed?.app !== "WorkbenchLab-Loesungen" || !parsed.solutions || typeof parsed.solutions !== "object") {
         throw new Error("falsches Format");
       }
       const loaded = {};
       Object.entries(parsed.solutions).forEach(([id, entry]) => {
-        if (practiceById(id) && Array.isArray(entry?.lines)) {
-          loaded[id] = entry.lines.filter((line) => typeof line === "string").slice(0, 20).map((line) => line.slice(0, 4000));
+        const known = id.startsWith("lesson:") ? lessonById(id.slice(7)) : practiceById(id);
+        if (known && Array.isArray(entry?.lines)) {
+          const lines = entry.lines.filter((line) => typeof line === "string" && line.trim()).slice(0, 20).map((line) => line.slice(0, 4000));
+          if (lines.length) loaded[id] = lines;
         }
       });
       if (!Object.keys(loaded).length) {
@@ -759,23 +769,27 @@
       teacherSolutions = loaded;
       updateDeveloperControl();
       renderRoute();
-      toast(`Lösungsdatei geladen: ${Object.keys(loaded).length} Aufgaben. Die Lösungen bleiben nur bis zum Neuladen der Seite sichtbar.`);
+      toast("Lösungsdatei geladen. Die importierten Lösungen bleiben nur bis zum Neuladen der Seite verfügbar.");
     } catch {
-      toast("Das ist keine gültige WorkbenchLab-Lösungsdatei.", "error");
+      if (developerMode && version === solutionLoadVersion) toast("Das ist keine gültige WorkbenchLab-Lösungsdatei.", "error");
     }
   }
 
-  function teacherSolutionHtml(practice) {
-    const lines = developerMode && teacherSolutions?.[practice.id];
-    if (!lines) {
-      return "";
-    }
-    return `<details class="teacher-solution"><summary><i data-lucide="key-round" aria-hidden="true"></i>Lösung für die Lehrkraft</summary><p class="field-hint">Nur im Entwicklermodus und nur aus der lokal geladenen Lösungsdatei. Auf der Lernseite selbst sind keine Lösungen gespeichert.</p>${lines.map((line) => `<pre class="code-block">${escapeHtml(line)}</pre>`).join("")}</details>`;
+  function teacherSolutionHtml(id, exampleAnswers) {
+    if (!developerMode) return "";
+    const imported = teacherSolutions?.[id];
+    const lines = imported || exampleAnswers;
+    if (!lines?.length) return "";
+    const worksheet = id.startsWith("lesson:");
+    const label = worksheet ? '<span class="solution-show">Lösungen anzeigen</span><span class="solution-hide">Lösungen ausblenden</span>' : "Lösung für die Lehrkraft";
+    const hint = imported ? "Aus der lokal geladenen Lösungsdatei." : "Beispielantworten zum Aufgabenblatt.";
+    return `<details class="teacher-solution"><summary${worksheet ? ' class="button button-secondary"' : ""}><i data-lucide="key-round" aria-hidden="true"></i>${label}</summary><div class="field-hint">${hint}</div>${lines.map((line) => `<pre class="code-block">${escapeHtml(line)}</pre>`).join("")}</details>`;
   }
 
   function setDeveloperMode(active) {
     developerMode = Boolean(active);
     if (!developerMode) {
+      solutionLoadVersion++;
       teacherSolutions = null;
     }
     try {
@@ -793,12 +807,12 @@
     const displayName = state.name || "Gast";
     document.querySelector("#topProfileName").textContent = displayName;
     document.querySelector("#topProfileClass").textContent = state.className || "Klasse offen";
-    document.querySelector("#editProfileButton").title = `${displayName} · ${state.className || "Klasse offen"} · Level ${level.number} · ${xp} XP · ${nagold} NAGOLD · Profil öffnen`;
-    document.querySelector("#editProfileButton").setAttribute("aria-label", `${displayName}, ${state.className || "Klasse offen"}, ${xp} XP, ${nagold} NAGOLD: Profil und Lernfortschritt öffnen`);
+    document.querySelector("#editProfileButton").title = `${displayName} · ${state.className || "Klasse offen"} · Level ${level.number} · ${xp} XP · ${nagold} EP (Erfahrungspunkte) · Profil öffnen`;
+    document.querySelector("#editProfileButton").setAttribute("aria-label", `${displayName}, ${state.className || "Klasse offen"}, ${xp} XP, ${nagold} EP (Erfahrungspunkte): Profil und Lernfortschritt öffnen`);
     document.querySelector("#topXp").textContent = `${xp} XP`;
-    document.querySelector("#topNagold").textContent = `${nagold} NAG`;
-    updateLevelDialog();
+    document.querySelector("#topNagold").textContent = `${nagold} EP`;
     renderPathQuickMenu();
+    updateLevelDialog();
     updateDeveloperControl();
   }
 
@@ -808,19 +822,19 @@
 
   function updateLevelDialog() {
     const nagoldButton = document.querySelector("#nagoldTotal");
-    nagoldButton.innerHTML = `<strong>${stateNagold()} NAGOLD</strong><i data-lucide="pencil" aria-hidden="true"></i>`;
-    nagoldButton.setAttribute("aria-label", `${stateNagold()} NAGOLD: Tabelle bearbeiten`);
-    nagoldButton.title = "NAGOLD-Tabelle bearbeiten";
+    nagoldButton.innerHTML = `<strong>${stateNagold()} EP</strong><i data-lucide="pencil" aria-hidden="true"></i>`;
+    nagoldButton.setAttribute("aria-label", `${stateNagold()} EP (Erfahrungspunkte): Tabelle bearbeiten`);
+    nagoldButton.title = "Erfahrungspunkte (EP) bearbeiten";
     const nagoldTotal = stateNagold();
     const nagoldPercent = Math.min(100, Math.max(0, nagoldTotal));
     const nagoldProgress = document.querySelector("#nagoldProgress");
     nagoldProgress.value = nagoldPercent;
-    nagoldProgress.setAttribute("aria-valuetext", `${nagoldTotal} von 100 NAGOLD, ${nagoldPercent} Prozent des Jahresziels`);
-    document.querySelector("#nagoldProgressLabel").textContent = `${nagoldTotal} / 100 NAGOLD`;
+    nagoldProgress.setAttribute("aria-valuetext", `${nagoldTotal} von 100 EP (Erfahrungspunkte), ${nagoldPercent} Prozent des Jahresziels`);
+    document.querySelector("#nagoldProgressLabel").textContent = `${nagoldTotal} / 100 EP`;
     document.querySelector("#nagoldProgressPercent").textContent = `${nagoldPercent} %`;
     document.querySelector("#nagoldRemaining").textContent = nagoldTotal >= 100
       ? "Jahresziel erreicht! Sehr gut (Note 1)."
-      : `Noch ${100 - nagoldTotal} NAGOLD bis zum Jahresziel.`;
+      : `Noch ${100 - nagoldTotal} EP bis zum Jahresziel.`;
     renderIcons();
     const xp = stateXp();
     const level = currentLevel();
@@ -1098,7 +1112,7 @@
   }
 
   function renderHome() {
-    setHeading("Deine Datenbankzentrale", "Übersicht");
+    setHeading("Deine Datenbankzentrale", "Übersicht", homePageTitle);
     activateNav("home");
     const lesson = nextLesson();
     const practice = nextPractice();
@@ -1235,6 +1249,10 @@
   }
 
   function renderLessonSection(section, index) {
+    const definitions = section.definitions?.length ? `
+      <dl class="lesson-definition-grid${section.wideDefinitions ? " is-wide" : ""}">
+        ${section.definitions.map((definition, item) => `<div><dt data-highlight-block="section-${index}-term-${item}">${escapeHtml(definition.term)}</dt><dd data-highlight-block="section-${index}-definition-${item}">${inlineCode(definition.definition)}</dd></div>`).join("")}
+      </dl>` : "";
     const aside = [
       section.code ? `<pre class="code-block" data-highlight-block="section-${index}-code"><code>${escapeHtml(section.code)}</code></pre>` : "",
       section.visual ? renderVisual(section.visual) : "",
@@ -1247,10 +1265,7 @@
           <h3 data-highlight-block="section-${index}-heading">${escapeHtml(section.title)}</h3>
           ${(section.body || []).map((paragraph, item) => `<p data-highlight-block="section-${index}-paragraph-${item}">${inlineCode(paragraph)}</p>`).join("")}
           ${section.rules?.length ? `<ul class="rule-list">${section.rules.map((rule, item) => `<li data-highlight-block="section-${index}-rule-${item}">${inlineCode(rule)}</li>`).join("")}</ul>` : ""}
-          ${section.definitions?.length ? `
-            <dl class="lesson-definition-grid">
-              ${section.definitions.map((definition, item) => `<div><dt data-highlight-block="section-${index}-term-${item}">${escapeHtml(definition.term)}</dt><dd data-highlight-block="section-${index}-definition-${item}">${inlineCode(definition.definition)}</dd></div>`).join("")}
-            </dl>` : ""}
+          ${section.wideDefinitions ? "" : definitions}
           ${section.dataTypes?.length ? `
             <div class="data-table-wrap lesson-data-types">
               <table class="data-table">
@@ -1260,6 +1275,7 @@
             </div>` : ""}
         </div>
         ${aside ? `<div>${aside}</div>` : ""}
+        ${section.wideDefinitions ? definitions : ""}
       </section>`;
   }
 
@@ -1673,20 +1689,6 @@
       </section>` : ""}`;
   }
 
-  function renderLessonSources(lesson) {
-    if (!lesson.sourceMaterials?.length) {
-      return "";
-    }
-    return `
-      <details class="source-disclosure">
-        <summary><span><i data-lucide="library"></i>Materialbezug dieser Einheit</span><i data-lucide="chevron-down"></i></summary>
-        <div>
-          <p>Die Einheit wurde eigenständig und webgerecht aus folgenden lokalen BPE6-Unterlagen abgeleitet. Originaldateien und Lösungen bleiben außerhalb der veröffentlichten Homepage.</p>
-          <ul>${lesson.sourceMaterials.map((source) => `<li>${escapeHtml(source)}</li>`).join("")}</ul>
-        </div>
-      </details>`;
-  }
-
   function renderLessonCompletion(lesson) {
     const completed = state.completedLessons.includes(lesson.id);
     const ordered = orderedLessons();
@@ -1781,6 +1783,16 @@
     saveState();
     setHeading(breadcrumb, lesson.title);
     document.querySelector("#viewEyebrow").innerHTML = lessonBreadcrumb(module, lesson);
+    if (module) {
+      const { done, total, percent } = moduleProgress(module);
+      const indicator = document.querySelector("#lessonModuleProgress");
+      const bar = indicator.querySelector("progress");
+      bar.value = percent;
+      bar.setAttribute("aria-label", `Lernfortschritt ${module.number}`);
+      bar.setAttribute("aria-valuetext", `${done} von ${total} Einheiten abgeschlossen (${percent} %)`);
+      indicator.querySelector("span").textContent = `${percent} %`;
+      indicator.hidden = false;
+    }
     activateNav("path");
     const completed = state.completedLessons.includes(lesson.id);
     const practice = practiceById(lesson.practiceId);
@@ -1834,16 +1846,20 @@
           ${lesson.sections.map(renderLessonSection).join("")}
           </div>
           ${renderLessonWorksheet(lesson)}
+          ${teacherSolutionHtml(`lesson:${lesson.id}`, lesson.webWorksheet?.exampleAnswers)}
           ${renderLessonExercises(lesson)}
           ${renderClassroomTask(lesson)}
           ${renderLessonNotes(lesson)}
           <section id="lessonComments" class="lesson-comments" hidden></section>
-          ${renderLessonSources(lesson)}
           ${renderLessonCompletion(lesson)}
         </div>
       </article>`;
+    // Reserve the removed material paragraph and list items in saved annotation anchors.
+    const removedSourceBlocks = lesson.sourceMaterials?.length ? 1 + lesson.sourceMaterials.length : 0;
     document.querySelectorAll("[data-lesson-reading] p, [data-lesson-reading] li, [data-lesson-reading] td, [data-lesson-reading] th, [data-lesson-reading] h3, [data-lesson-reading] h4").forEach((element, index) => {
-      if (!element.closest("[data-highlight-block], .reading-tools, .lesson-comments, form") && !element.querySelector("[data-highlight-block], input, textarea, button")) element.dataset.highlightBlock = `extra-${index}`;
+      if (!element.closest("[data-highlight-block], .reading-tools, .lesson-comments, form") && !element.querySelector("[data-highlight-block], input, textarea, button")) {
+        element.dataset.highlightBlock = `extra-${index + (element.closest(".lesson-completion") ? removedSourceBlocks : 0)}`;
+      }
     });
     study.applyHighlights(document.querySelector("[data-lesson-reading]"), state.lessonHighlights[lesson.id] || []);
     renderLessonComments(lesson.id);
@@ -2398,7 +2414,7 @@
     } else {
       renderChoicePractice(practice, lesson);
     }
-    const solution = teacherSolutionHtml(practice);
+    const solution = teacherSolutionHtml(practice.id);
     if (solution) {
       (main.querySelector(".lesson-body") || main).insertAdjacentHTML("beforeend", solution);
     }
@@ -3535,8 +3551,12 @@
 
   function setBackupBusy(busy) {
     backupBusy = busy;
-    for (const id of ["exportProgressButton", "importProgressButton"]) document.querySelector(`#${id}`).disabled = busy;
+    for (const id of ["exportProgressButton", "importProgressButton", "quickSaveButton", "quickOpenButton"]) document.querySelector(`#${id}`).disabled = busy;
     backupDialog.setAttribute("aria-busy", String(busy));
+  }
+
+  function openProgressFile() {
+    if (!backupBusy) progressFileInput.click();
   }
 
   function setBackupStatus(message, error = false) {
@@ -3562,7 +3582,9 @@
       return;
     }
     if (file.size > maxBackupBytes) {
-      setBackupStatus("Die Datei ist zu groß (maximal 25 MB).", true);
+      const message = "Die Datei ist zu groß (maximal 25 MB).";
+      setBackupStatus(message, true);
+      if (!backupDialog.open) toast(message, "error");
       progressFileInput.value = "";
       return;
     }
@@ -4135,6 +4157,16 @@
       (developerControlRevealed ? developerModeButton : profileName)?.focus();
       return;
     }
+    const backupShortcut = event.key.toLowerCase();
+    if (!event.defaultPrevented && !event.isComposing && event.altKey && !altGraph && !event.ctrlKey && !event.metaKey && !event.shiftKey
+      && (backupShortcut === "s" || backupShortcut === "o") && !document.querySelector("dialog[open]:not(#backupDialog)")) {
+      event.preventDefault();
+      if (!event.repeat && !backupBusy) {
+        if (backupShortcut === "s") exportProgress();
+        else openProgressFile();
+      }
+      return;
+    }
     const card = event.target.closest("[data-lesson], [data-practice], [data-command]");
     if (card && (event.key === "Enter" || event.key === " ")) {
       event.preventDefault();
@@ -4403,7 +4435,7 @@
   }
 
   function updateNagoldSum() {
-    document.querySelector("#nagoldSum").textContent = `${stateNagold()} NAGOLD gesamt`;
+    document.querySelector("#nagoldSum").textContent = `${stateNagold()} EP gesamt`;
   }
 
   function autosaveNagold() {
@@ -4435,7 +4467,7 @@
       : duplicateStartCapital
         ? "Startkapital wurde bereits einmal vergeben. Bitte einen anderen Anlass wählen."
       : incomplete
-        ? "Unvollständige Zeilen sind noch nicht gespeichert. Datum, Uhrzeit, Anlass und ganze NAGOLD von −10 bis 5 (ohne 0) ergänzen. Bisherige gültige Einträge bleiben erhalten."
+        ? "Unvollständige Zeilen sind noch nicht gespeichert. Datum, Uhrzeit, Anlass und ganze EP von −10 bis 5 (ohne 0) ergänzen. Bisherige gültige Einträge bleiben erhalten."
         : "";
     updateNagoldSum();
   }
@@ -4450,7 +4482,7 @@
         <td data-label="Datum">${editing ? `<input type="date" data-nagold-field="date" aria-label="Datum, ${label}" value="${escapeHtml(row.date)}" ${row.allowUnknownDate ? "" : "required"}>` : escapeHtml(date)}</td>
         <td data-label="Uhrzeit">${editing ? `<input type="time" data-nagold-field="time" aria-label="Uhrzeit, ${label}" value="${escapeHtml(row.time)}" ${row.allowUnknownTime ? "" : "required"} step="60">` : escapeHtml(row.time || "Nicht erfasst")}</td>
         <td data-label="Wofür">${editing ? `<div class="nagold-combo"><input type="text" data-nagold-field="purpose" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nagoldList${index}" aria-label="Wofür, ${label}" value="${escapeHtml(row.purpose)}" maxlength="160" placeholder="Auswählen oder eintippen" autocomplete="off" required><button class="nagold-combo-toggle" type="button" data-nagold-combo-toggle tabindex="-1" aria-label="Vorschläge anzeigen, ${label}"><i data-lucide="chevron-down" aria-hidden="true"></i></button><ul class="nagold-combo-list" id="nagoldList${index}" role="listbox" aria-label="Vorschläge, ${label}" hidden>${presets.map((preset, option) => `<li role="option" id="nagoldOption${index}-${option}" data-nagold-option="${escapeHtml(preset)}" aria-selected="false">${escapeHtml(preset)}</li>`).join("")}</ul></div>` : escapeHtml(row.purpose)}</td>
-        <td data-label="NAGOLD">${editing ? `<input type="number" data-nagold-field="points" aria-label="NAGOLD, ${label}" min="${nagold.minPoints}" max="${nagold.maxPoints}" step="1" value="${row.points}" inputmode="numeric" required>` : row.points}</td>
+        <td data-label="EP">${editing ? `<input type="number" data-nagold-field="points" aria-label="EP, ${label}" min="${nagold.minPoints}" max="${nagold.maxPoints}" step="1" value="${row.points}" inputmode="numeric" required>` : row.points}</td>
         <td class="nagold-row-actions"><button class="icon-button" type="button" data-nagold-edit="${index}" title="Eintrag bearbeiten" aria-label="${label} bearbeiten" ${editing ? "disabled" : ""}><i data-lucide="pencil" aria-hidden="true"></i></button><button class="icon-button" type="button" data-nagold-remove="${index}" title="Zeile löschen" aria-label="${label} löschen"><i data-lucide="minus" aria-hidden="true"></i></button></td>
       </tr>`;
     }).join("");
@@ -4776,7 +4808,9 @@
   });
   document.querySelector("#backupCloseButton").addEventListener("click", () => backupDialog.close());
   document.querySelector("#exportProgressButton").addEventListener("click", exportProgress);
-  document.querySelector("#importProgressButton").addEventListener("click", () => progressFileInput.click());
+  document.querySelector("#importProgressButton").addEventListener("click", openProgressFile);
+  document.querySelector("#quickSaveButton").addEventListener("click", exportProgress);
+  document.querySelector("#quickOpenButton").addEventListener("click", openProgressFile);
   progressFileInput.addEventListener("change", () => importProgressFile(progressFileInput.files?.[0]));
   themeToggleButton?.addEventListener("click", toggleTheme);
   const appearanceDialog = document.querySelector("#appearanceDialog");

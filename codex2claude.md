@@ -1,5 +1,99 @@
 # Codex an Claude – WorkbenchLab
 
+## Release 0.50.0 [Codex, 2026-11-10]
+
+Die nachfolgenden lokalen Nachträge sind in 0.50.0 zusammengefasst.
+Nur die selbst formulierten L1.1- und L1.2-Beispiele gehören zum
+Pages-Build; der Entwicklermodus ist kein Zugriffsschutz.
+
+## Lokaler Nachtrag: L1.1 direkt im Pages-Build [Codex, 2026-11-05]
+
+L1.1 ergänzt selbst formulierte Antworten in `webWorksheet.exampleAnswers`.
+Anzeige und Veröffentlichungsgrenze wie bei L1.2. Noch nicht veröffentlicht.
+
+## Lokaler Nachtrag: L1.2 direkt im Pages-Build [Codex, 2026-11-05]
+
+Nur die selbst formulierte L1.2-Musterlösung steht nun direkt in
+`learning-path.js`. Anzeige unter dem Aufgabenblatt im Entwicklermodus,
+ohne Datei. Kein Zugriffsschutz für dieses öffentliche Beispiel. Der
+lokale Auto-Lade-Endpunkt entfällt, manuelle Importe bleiben möglich.
+Originaldateien und private Übungslösungen bleiben ausgeschlossen.
+Noch nicht veröffentlicht.
+
+## Historisch: L1.2-Musterloesung per Datei [Codex, 2026-11-05]
+
+Loesungsimport um Einheiten-Schluessel lesson:<id> erweitert, bestehende
+Uebungsschluessel bleiben kompatibel. Eingeklappte Ansicht direkt nach
+dem Aufgabenblatt, nur im Entwicklermodus und mit geladener Datei.
+Die L1.2-Musterloesung liegt nur im ignorierten resources-Ordner. Kein
+Inhalt im oeffentlichen Build, HTTP-Zugriff 404. Tests teacher-solutions,
+lesson-phase-order, public-site und lokaler Dateiimport bestanden.
+
+## Lokaler Nachtrag: Schnellaktionen fuer Sicherungen [Codex, 2026-11-05]
+
+Diskette/Alt+S und Ordner/Alt+O verwenden den bestehenden Export bzw.
+Dateiimport direkt. Archiv-Icon behaelt Dialog und Profil-Reset. Modale
+Profilfenster, AltGr und Wiederholungsereignisse loesen keine Schnellaktion
+aus. Neue backup-shortcuts-Pruefung sowie backup-safety und profile-reset
+bestanden. Keine Aenderung am Datenformat. Noch lokal.
+
+## Lokaler Nachtrag: Materialbezug entfernt [Codex, 2026-11-05]
+
+Material-Accordion und zugehoeriges CSS entfernt, sourceMaterials fuer die
+Zuordnung beibehalten. Automatische Markierungsanker im Abschlussbereich
+reservieren die bisherigen Nummern des entfernten Blocks. Phasentest fuer
+alle 21 Einheiten bestanden. Noch lokal.
+
+## Lokaler Nachtrag: PK-Layout in L1.2 [Codex, 2026-11-05]
+
+Gezielte wideDefinitions-Option fuer den PK-Abschnitt; Definition unter
+den beiden Spalten, ueber volle Breite. Kein Inhalts-, Anker- oder SQL-Wechsel.
+Glossar-Browsertest und fuenf early-workbench-Tests bestanden. Noch lokal.
+
+## Lokaler Nachtrag: Abschluss-Haekchen und Modulbalken [Codex, 2026-11-05]
+
+Schnellmenue: Lucide-Haekchen vor abgeschlossenen Einheiten mit festem
+Platz und vorlesbarem Status. Die Icons werden beim Aktualisieren des
+Lernstands mitgerendert. In der Lektions-Kopfzeile nutzt ein nativer
+Fortschrittsbalken moduleProgress; Prozentzahl und vorlesbarer Zaehler
+aktualisieren sich bei Abschluss und Modulwechsel. Ausserhalb von
+Lerneinheiten ausgeblendet. CSS am Ende von styles-extensions.css;
+Speicherformat und Punktelogik unveraendert. Gezielter Abschlusstest und
+oeffentlicher Build bestanden, Screenshots Desktop/Mobil geprueft.
+Wie gewuenscht nicht veroeffentlicht.
+
+## Lokaler Nachtrag: Suchauffindbarkeit [Codex, 2026-11-05]
+
+Startseitentitel und Beschreibung mit Sawazki Electronics ergaenzt,
+kanonische GitHub-Pages-Startadresse gesetzt. renderHome erhaelt den
+statischen Titel, andere Ansichten behalten ihre bisherigen Titel.
+public-site-Browsertest prueft Metadaten und Navigation; bestanden.
+Keine Aenderung an Gestaltung oder Lerndaten. Noch nicht veroeffentlicht
+und keine Indexierung beantragt.
+
+## Lokaler Nachtrag: NAGOLD heisst EP [Codex, 2026-11-03]
+
+Auf Jakobs Wunsch heissen die bisherigen NAGOLD jetzt EP (Erfahrungspunkte),
+wie die von ihm genannte Benennung in Excel-Lab. Sichtbare Texte, Tooltips,
+vorlesbare Namen, Profilknopf, Jahresziel, Tabelle und Eintragsmeldungen sowie
+Lehrkraftuebersicht, Bestaetigungen und CSV-Spalten angepasst. Dialogtitel
+kurz "EP", sichtbare Erklaerung "Deine Erfahrungspunkte" und weitere
+ausgeschriebene Erklaerungen in Tooltips/ARIA und Lehrkraft-Hinweisen.
+
+Bewusst keine Umbenennung interner APIs, DOM-IDs oder Speicherfelder:
+WORKBENCH_NAGOLD, nagoldEntries, nagoldStartCapitalClaimed und summary.nagold
+bleiben erhalten. Kein Daten-/Formatwechsel und keine Neuvergabe von Punkten;
+Bestandswerte, Sicherungen und Lehrkraft-Bestaetigungen bleiben kompatibel.
+XP/Level sind weiterhin ein getrenntes Motivationssystem. Jahresziel 100 EP,
+Anwesenheit 2 EP und alle bisherigen Vergaberegeln unveraendert.
+
+231 Node-Tests und acht gezielte Browserdateien bestanden (xp, nagold,
+nagold-progress, teacher-reviews, teacher-overview, backup-safety,
+public-site und study-workflow). Browser-Erwartungen auf die neue Beschriftung
+umgestellt; zusaetzliche Checks fuer erklaerte Abkuerzung und unveraenderte
+Legacy-Sicherungsfelder. Mobile EP-Tabelle bei grosser Schrift visuell
+angesehen. Keine SQL-Aufgabe geaendert. Noch lokal; Live bleibt 0.49.0.
+
 ## Release 0.49.0: Gemeinsame Freigabe [Codex, 2026-11-03]
 
 Jakob beauftragt Push und Veroeffentlichung aller umgesetzten Aenderungen.

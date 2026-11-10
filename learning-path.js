@@ -6,7 +6,7 @@
     return;
   }
 
-  content.version = "0.49.0";
+  content.version = "0.50.0";
   content.updated = "2026-10-10";
   content.course = {
     title: "BPE6 Relationale Datenbanken",
@@ -158,7 +158,15 @@
         ],
         columnCount: 11,
         dataTypes: ["INT", "DOUBLE", "VARCHAR", "DATE", "TIME", "BOOLEAN / TINYINT(1)"],
-        hint: "Prüfe abschließend: genau ein Primärschlüssel, atomare Attribute, passende Datentypen und bei `VARCHAR` eine begründete maximale Zeichenanzahl."
+        hint: "Prüfe abschließend: genau ein Primärschlüssel, atomare Attribute, passende Datentypen und bei `VARCHAR` eine begründete maximale Zeichenanzahl.",
+        exampleAnswers: [
+          "1 · Datensatz\nEin Datensatz ist eine vollständige Tabellenzeile. In fahrschueler stehen darin die gespeicherten Angaben zu genau einem Fahrschüler.",
+          "2 · Primärschlüssel\nDie schuelernr identifiziert jede Zeile eindeutig: Zwei Fahrschüler dürfen nicht dieselbe Nummer haben. Die Nummer bleibt auch dann gleich, wenn sich ein Name oder eine Telefonnummer ändert.",
+          "3 · Attribut\nEin Attribut ist eine Eigenschaft, die in einer Spalte erfasst wird. nachname ist zum Beispiel der Name einer Spalte.",
+          "4 · Attributwert\nEin Attributwert ist der konkrete Inhalt einer Zelle. In der Einstiegstabelle steht zum Beispiel Probe in der Spalte nachname der Zeile mit schuelernr 1.",
+          "Ein möglicher Tabellenentwurf\nfahrschueler(\n  schuelernr INT (Primärschlüssel),\n  nachname VARCHAR(45),\n  vorname VARCHAR(45),\n  telefon VARCHAR(30),\n  email VARCHAR(100),\n  strasse VARCHAR(60),\n  hausnr VARCHAR(10),\n  plz VARCHAR(5),\n  ort VARCHAR(45)\n)\nVor- und Nachname sowie Straße und Hausnummer stehen in getrennten Spalten. Telefon und PLZ sind Text, damit führende Nullen erhalten bleiben; eine Hausnummer kann Buchstaben enthalten, etwa 12a. Fünf Zeichen reichen für deutsche PLZ. Die anderen Textlängen sind begründbare Beispielwerte. Geburtsdatum und Fahrstundenzahl folgen in L1.2.",
+          "Kontrolle in Workbench\nDie Einstiegstabelle zeigt nur drei Spalten. Die beiden Zeilen (1, Mara, Probe) und (2, Tari, Demo) sind zwei Datensätze mit den Schlüsselwerten 1 und 2. Eine mögliche Verbesserung am eigenen Entwurf: strasse und hausnr trennen, damit sich nach einer Straße suchen lässt, ohne die Hausnummer zu kennen."
+        ]
       },
       notePrompts: [
         "Woran erkenne ich ein atomares Attribut?",
@@ -222,8 +230,8 @@
             "Eine Entität ist ein bestimmter Fahrschüler. Der Entitätstyp beschreibt alle Fahrschüler mit denselben Eigenschaften. Das ERD hilft Fachleuten und Entwicklern, sich über diese Datenstruktur zu verständigen. Beziehungen zwischen mehreren Entitätstypen kommen später hinzu."
           ],
           definitions: [
-            { term: "Entität", definition: "Ein einzelnes fachliches Objekt, zum Beispiel ein bestimmter Fahrschüler." },
-            { term: "Entitätstyp", definition: "Die Klasse gleichartiger Objekte, hier `fahrschueler`." },
+            { term: "Entität", definition: "Ein einzelnes fachliches Objekt, zum Beispiel ein bestimmter Fahrschüler. Der Fahrschüler mit der Schülernummer 17 steht als eine Zeile in der Tabelle `fahrschueler`." },
+            { term: "Entitätstyp", definition: "Die Klasse gleichartiger Objekte, hier `fahrschueler`. In diesem Beispiel wird der Entitätstyp als Tabelle `fahrschueler` umgesetzt. Jede Zeile steht für eine einzelne Entität." },
             { term: "ER-Diagramm", definition: "Fachliche Skizze von Entitätstypen, ihren Attributen und später auch Beziehungen. ER steht für Entity-Relationship: Entity bedeutet Entität (ein fachliches Objekt), Relationship bedeutet Beziehung. Auf Deutsch ist es ein Entitäten-Beziehungs-Diagramm." },
             { term: "ERD = Entity-Relationship Diagram", definition: "Die vollständige englische Bezeichnung für ein ER-Diagramm. Das D steht für Diagram, auf Deutsch Diagramm. ER-Diagramm und ERD meinen hier also dasselbe." }
           ]
@@ -238,6 +246,7 @@
           definitions: [
             { term: "PK = Primary Key (Primärschlüssel)", definition: "Ein Attribut oder eine Kombination von Attributen, die jeden Datensatz eindeutig kennzeichnet. Der Schlüsselwert darf nicht doppelt vorkommen. In unserer Tabelle ist `schuelernr` der Primärschlüssel: Auch wenn zwei Fahrschüler denselben Nachnamen haben, unterscheiden sie sich durch ihre Schülernummer." }
           ],
+          wideDefinitions: true,
           visual: "single-table-model",
           tip: "Folge dem Pfeil: fachliches Objekt → Relation mit Schlüssel und Datentypen. Noch keine zweite Tabelle und keine Kardinalität nötig."
         },
@@ -258,7 +267,14 @@
           { id: "schema-zweck", label: "3 · Aufgabe des Relationenschemas", prompt: "Welche technischen Festlegungen ergänzt es gegenüber dem ERD?" },
           { id: "relationenschema", label: "4 · Dein Relationenschema", prompt: "Schreibe fahrschueler(...) mit schuelernr als PK, Attributnamen und Datentypen auf. Ergänze geburtsdatum und fahrstundenzahl." }
         ],
-        hint: "Kontrolliere alle elf Attribute aus dem Informationsteil: `geburtsdatum DATE`, `fahrstundenzahl INT`, Textfelder als `VARCHAR(n)` und genau ein Primärschlüssel."
+        hint: "Kontrolliere alle elf Attribute aus dem Informationsteil: `geburtsdatum DATE`, `fahrstundenzahl INT`, Textfelder als `VARCHAR(n)` und genau ein Primärschlüssel.",
+        exampleAnswers: [
+          "1 · Aufgabe des ERD\nDas ER-Diagramm zeigt, welche fachlichen Objekte mit welchen Eigenschaften erfasst werden. Es dient der Verständigung, bevor Tabellen und Datentypen festgelegt werden.",
+          "2 · ERD für die Fahrschule\nEntitätstyp: Fahrschüler. Attribute: schuelernr, nachname, vorname, telefon, email, strasse, hausnr, plz, ort, geburtsdatum und fahrstundenzahl. Eine konkrete Entität ist der Fahrschüler mit der Schülernummer 17. In diesem Modell gibt es noch keinen zweiten Entitätstyp und keine Beziehung.",
+          "3 · Aufgabe des Relationenschemas\nDas Relationenschema legt hier die Tabelle, ihre Spalten, die Datentypen und bei Texten die maximalen Längen fest. schuelernr ist der Primärschlüssel und identifiziert jede Zeile eindeutig.",
+          "4 · Ein mögliches Relationenschema\nfahrschueler(\n  schuelernr INT PK NN,\n  nachname VARCHAR(45),\n  vorname VARCHAR(45),\n  telefon VARCHAR(30),\n  email VARCHAR(100),\n  strasse VARCHAR(60),\n  hausnr VARCHAR(10),\n  plz VARCHAR(5),\n  ort VARCHAR(45),\n  geburtsdatum DATE,\n  fahrstundenzahl INT\n)\nBegründete andere Textlängen sind möglich. Telefonnummer und PLZ sind Text, damit führende Nullen erhalten bleiben; eine Hausnummer kann etwa 12a lauten.",
+          "Kontrolle des Workbench-Modells\nIm Schema fahrschule liegt eine Tabelle fahrschueler mit elf Spalten. schuelernr ist als PK und NN markiert, geburtsdatum hat DATE und fahrstundenzahl INT. Das Modell enthält noch keine Beziehung. Öffne deine gespeicherte Modelldatei erneut und vergleiche die Spalten mit deinem Relationenschema."
+        ]
       },
       notePrompts: [
         "Worin unterscheiden sich Entität, Entitätstyp und Relation?",

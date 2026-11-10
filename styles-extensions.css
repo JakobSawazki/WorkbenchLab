@@ -330,3 +330,41 @@ body:has(dialog[open]) { overflow: hidden; }
 #profileResetDialog button { max-width: 100%; white-space: normal; }
 #profileResetDialog .dialog-heading .icon-button { flex-shrink: 0; }
 #profileResetTitle { margin: 0; font-size: 1.25rem; }
+
+.path-lesson-submenu button { grid-template-columns: 1em 3em minmax(0, 1fr); }
+.path-lesson-submenu .path-lesson-code { color: var(--brand-2); font-weight: 850; white-space: nowrap; }
+.path-lesson-submenu .is-done .path-lesson-code,
+.path-lesson-submenu .is-done .path-lesson-check { color: var(--green); }
+.path-lesson-check svg { width: 1em; height: 1em; vertical-align: middle; stroke-width: 2.75; }
+
+.view-context { display: flex; flex-wrap: wrap; align-items: center; column-gap: .8rem; }
+.lesson-module-progress:not([hidden]) {
+  display: flex;
+  align-items: center;
+  flex: 1 1 9rem;
+  max-width: 24rem;
+  min-width: 0;
+  gap: .5rem;
+  margin-bottom: .2rem;
+  color: var(--text);
+  font-size: .72rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+.lesson-module-progress progress {
+  appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: .45rem;
+  border: 0;
+  border-radius: 1rem;
+  background: var(--line);
+  overflow: hidden;
+}
+.lesson-module-progress progress::-webkit-progress-bar { background: var(--line); }
+.lesson-module-progress progress::-webkit-progress-value { background: var(--green); }
+.lesson-module-progress progress::-moz-progress-bar { background: var(--green); }
+.lesson-module-progress span { min-width: 4.25ch; text-align: right; white-space: nowrap; }
+
+.teacher-solution:not([open]) .solution-hide,
+.teacher-solution[open] .solution-show { display: none; }

@@ -27,7 +27,8 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
     await page.locator("#profileForm button[type=submit]").click();
     for (const lesson of lessons) {
       await page.goto(`${base}#lesson/${lesson.id}`);
-      await page.locator(".lesson-body").waitFor();
+      await page.locator(`.lesson-body[data-lesson-reading="${lesson.id}"]`).waitFor();
+      assert.equal(await page.getByText("Materialbezug dieser Einheit", { exact: true }).count(), 0, lesson.courseCode);
       const order = await page.evaluate(() => {
         const nodes = [...document.querySelector(".lesson-body").children];
         return {

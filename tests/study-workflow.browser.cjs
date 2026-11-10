@@ -195,7 +195,7 @@ async function verifyExport(download, name) {
     assert.match(awarded[0].time, /^(?:[01]\d|2[0-3]):[0-5]\d$/);
     assert.match(awarded[0].purpose, /L1\.1/);
     await page.reload();
-    assert.equal(await page.locator("#topNagold").innerText(), "5 NAG");
+    assert.equal(await page.locator("#topNagold").innerText(), "5 EP");
     assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("workbenchlab-v1")).nagoldEntries.length), 1);
     await page.screenshot({ path: path.join(output, "lesson-desktop.png") });
 

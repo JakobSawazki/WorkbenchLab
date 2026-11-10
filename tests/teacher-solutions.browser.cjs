@@ -44,9 +44,12 @@ const file = (name, text) => ({ name, mimeType: "application/json", buffer: Buff
       // Gültige Datei: Lösung erscheint eingeklappt bei der Aufgabe; HTML in der Datei bleibt Text.
       const withMarkup = structuredClone(data);
       withMarkup.solutions["sql-projection"].lines.push('<img src=x onerror="window.__xss=1">');
+      const lessonKey = "lesson:relation-und-schluessel";
+      const lessonLine = "Synthetischer L1.2-Testeintrag <img src=x onerror=alert(1)>";
+      withMarkup.solutions[lessonKey] = { lines: [lessonLine] };
       await page.locator("#solutionFileInput").setInputFiles(file("workbenchlab-loesungen.json", JSON.stringify(withMarkup)));
       await page.locator(".teacher-solution").waitFor();
-      assert.match(await page.locator("#solutionFileLabel").innerText(), /Lösungsdatei geladen \(\d+ Aufgaben\)/);
+      assert.match(await page.locator("#solutionFileLabel").innerText(), /Lösungsdatei geladen \(\d+ Einträge\)/);
       await page.locator("#profileCancelButton").click();
       const solution = page.locator(".teacher-solution");
       assert.equal(await solution.evaluate((element) => element.open), false);
@@ -63,20 +66,32 @@ const file = (name, text) => ({ name, mimeType: "application/json", buffer: Buff
       assert.match(await page.locator(".teacher-solution").textContent(), /SELECT nachname, vorname\s+FROM fahrschueler\s+WHERE/);
       await page.goto(base + "#practice/erm-fahrschule-1n-diagram");
       assert.match(await page.locator(".teacher-solution").textContent(), /orte zu fahrschueler: 1:N/);
+      await page.goto(base + "#lesson/relation-und-schluessel");
+      const worksheetSolution = page.locator(".lesson-worksheet + .teacher-solution");
+      await worksheetSolution.waitFor();
+      assert.equal(await worksheetSolution.evaluate(element => element.open), false);
+      await worksheetSolution.getByText("Lösungen anzeigen", { exact: true }).click();
+      assert.ok(await worksheetSolution.getByText("Lösungen ausblenden", { exact: true }).isVisible());
+      assert.equal(await worksheetSolution.locator("pre").innerText(), lessonLine);
+      assert.equal(await worksheetSolution.locator("img").count(), 0);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `Überlauf bei ${width}px`);
 
-      // Nichts davon wird gespeichert; nach dem Neuladen sind die Lösungen weg.
+      // Importierte Antworten bleiben nicht gespeichert; das eingebaute Beispiel schon verfügbar.
       const stored = await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }));
       assert.equal(stored.includes("ORDER BY nachname"), false);
       assert.equal(stored.includes("Loesungen"), false);
+      assert.equal(stored.includes(lessonLine), false);
       await page.reload();
       await page.locator(".lesson-head").waitFor();
-      assert.equal(await page.locator(".teacher-solution").count(), 0);
+      assert.equal(await worksheetSolution.evaluate(element => element.open), false);
+      assert.match(await worksheetSolution.textContent(), /geburtsdatum DATE/);
+      assert.ok(!(await worksheetSolution.textContent()).includes(lessonLine));
 
       // Entwicklermodus ausschalten verwirft geladene Lösungen sofort.
       await page.locator("#editProfileButton").click();
       await page.keyboard.press("Control+Alt+s");
-      await page.locator("#solutionFileInput").setInputFiles(file("workbenchlab-loesungen.json", JSON.stringify(data)));
+      const lessonOnly = { app: data.app, solutions: { [lessonKey]: { lines: [lessonLine] } } };
+      await page.locator("#solutionFileInput").setInputFiles(file("test-lesson.json", JSON.stringify(lessonOnly)));
       await page.locator(".teacher-solution").waitFor();
       await page.locator("#developerModeButton").click();
       assert.equal(await page.locator(".teacher-solution").count(), 0);
@@ -84,7 +99,7 @@ const file = (name, text) => ({ name, mimeType: "application/json", buffer: Buff
       assert.deepEqual(errors, []);
       await context.close();
     }
-    console.log("PASS: teacher solutions only in developer mode from a local file, invalid files rejected, markup stays text, all exercise types, nothing stored, gone after reload or leaving developer mode, desktop/mobile.");
+    console.log("PASS: imported and built-in answers, developer mode, reload, safe text, desktop/mobile.");
   } finally {
     await browser.close();
   }

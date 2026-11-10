@@ -110,7 +110,7 @@ function sign(payload) {
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
     await page.reload();
     assert.equal(await page.locator("#topXp").innerText(), "65 XP");
-    assert.equal(await page.locator("#topNagold").innerText(), "17 NAG");
+    assert.equal(await page.locator("#topNagold").innerText(), "17 EP");
     assert.equal(await page.locator("#topProfileClass").innerText(), "WGJ11");
     await page.locator("#backupButton").click();
     const legacyDownload = page.waitForEvent("download");
@@ -137,6 +137,6 @@ function sign(payload) {
     assert.deepEqual(errors, []);
     await unavailable.close();
     await context.close();
-    console.log("PASS: twelve invalid imports, verified legacy class migration with 65 XP/17 NAGOLD and notes after reload/export, cancel preservation, oversized file, >2 MB roundtrip, checksum, mobile feedback, unsupported crypto.");
+    console.log("PASS: twelve invalid imports, verified legacy class migration with 65 XP/17 EP and notes after reload/export, cancel preservation, oversized file, >2 MB roundtrip, checksum, mobile feedback, unsupported crypto.");
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode = 1; });

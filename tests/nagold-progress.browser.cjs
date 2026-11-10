@@ -23,12 +23,12 @@ fs.mkdirSync(artifacts, { recursive: true });
       await page.locator("#editProfileButton").click();
       const percent = Math.max(0, Math.min(100, total));
       assert.equal(await page.locator("#nagoldProgress").evaluate(e => e.value), percent);
-      assert.equal(await page.locator("#nagoldProgressLabel").innerText(), `${total} / 100 NAGOLD`);
+      assert.equal(await page.locator("#nagoldProgressLabel").innerText(), `${total} / 100 EP`);
       assert.equal(await page.locator("#nagoldProgressPercent").innerText(), `${percent} %`);
-      assert.match(await page.locator("#nagoldProgress").getAttribute("aria-valuetext"), new RegExp(`${total} von 100 NAGOLD`));
+      assert.match(await page.locator("#nagoldProgress").getAttribute("aria-valuetext"), new RegExp(`${total} von 100 EP`));
       assert.equal(await page.locator("#nagoldRemaining").innerText(), total >= 100
         ? "Jahresziel erreicht! Sehr gut (Note 1)."
-        : `Noch ${100 - total} NAGOLD bis zum Jahresziel.`);
+        : `Noch ${100 - total} EP bis zum Jahresziel.`);
       await page.locator("#profileCancelButton").click();
     }
     let expectedTotal = 125;
@@ -51,13 +51,13 @@ fs.mkdirSync(artifacts, { recursive: true });
         assert.equal(await page.locator('#nagoldRows tr:last-child [data-nagold-field="points"]').inputValue(), "2");
         await page.locator("#nagoldCloseButton").click();
         expectedTotal += 2;
-        assert.equal(await page.locator("#nagoldProgressLabel").innerText(), `${expectedTotal} / 100 NAGOLD`);
+        assert.equal(await page.locator("#nagoldProgressLabel").innerText(), `${expectedTotal} / 100 EP`);
         await page.keyboard.press("Escape");
         await page.reload();
-        assert.equal(await page.locator("#topNagold").innerText(), `${expectedTotal} NAG`);
+        assert.equal(await page.locator("#topNagold").innerText(), `${expectedTotal} EP`);
       }
     }
     assert.deepEqual(errors, []);
-    console.log("PASS: NAGOLD annual goal, negative/zero/partial/full/above-target totals, live update, accessible labels, dark/light desktop/mobile large font");
+    console.log("PASS: EP annual goal, negative/zero/partial/full/above-target totals, live update, accessible labels, dark/light desktop/mobile large font");
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -164,11 +164,11 @@
   function toCsv(rows, content, reviews = { records: [] }) {
     const lessons = content.modules.flatMap((module) => module.lessonIds)
       .map((id) => content.lessons.find((lesson) => lesson.id === id)).filter(Boolean);
-    const head = ["Klasse", "Kürzel", "NAGOLD", "XP", "Einheiten", "von", "Übungen", "von", "Befehlsaufgaben",
+    const head = ["Klasse", "Kürzel", "EP", "XP", "Einheiten", "von", "Übungen", "von", "Befehlsaufgaben",
       "Modellaufgaben bestanden", "von", "Modell-Entwürfe",
       ...content.modules.map((module) => module.code), "Aktive Tage", "Letzte Aktivität", "Sicherung vom",
       "Prüfsumme", "Ältere Sicherung", "App-Version", "Gerät", "Datei", ...lessons.map((lesson) => lesson.courseCode),
-      "NAGOLD bestätigt", "Einheiten bestätigt", ...lessons.map((lesson) => `${lesson.courseCode} bestätigt`)];
+      "EP bestätigt", "Einheiten bestätigt", ...lessons.map((lesson) => `${lesson.courseCode} bestätigt`)];
     const lines = rows.map((row) => [row.className, row.studentCode, row.nagold, row.xp, row.lessonsDone, row.lessonsTotal,
       row.practicesDone, row.practicesTotal, row.commandsDone,
       row.models ? row.models.passed.length : "", row.models ? row.models.total : "", row.models ? row.models.drafts : "",
@@ -262,8 +262,8 @@
       <fieldset class="teacher-review-list"><legend>Gesehene Einheiten</legend>
         ${lessons.filter((lesson) => row.lessons.includes(lesson.id)).map((lesson) => `<label><input type="checkbox" data-review-lesson="${escapeHtml(lesson.id)}" ${reviewDraft.lessons.includes(lesson.id) ? "checked" : ""}><span>${escapeHtml(lesson.courseCode)} · ${escapeHtml(lesson.title)}</span></label>`).join("") || "<p>Keine Einheiten gemeldet.</p>"}
       </fieldset>
-      <fieldset class="teacher-review-list"><legend>NAGOLD bestätigen</legend>
-        ${entries.map((entry, index) => `<label><input type="checkbox" data-review-entry="${index}" ${reviewDraft.entries.includes(keys[index]) ? "checked" : ""}><span><strong>${entry.points} NAGOLD</strong> · ${escapeHtml(entry.purpose)}<small>${escapeHtml(entry.date || "Datum nicht erfasst")} · ${escapeHtml(entry.time || "Uhrzeit nicht erfasst")}</small></span></label>`).join("") || "<p>Keine NAGOLD gemeldet.</p>"}
+      <fieldset class="teacher-review-list"><legend>EP bestätigen</legend>
+        ${entries.map((entry, index) => `<label><input type="checkbox" data-review-entry="${index}" ${reviewDraft.entries.includes(keys[index]) ? "checked" : ""}><span><strong>${entry.points} EP</strong> · ${escapeHtml(entry.purpose)}<small>${escapeHtml(entry.date || "Datum nicht erfasst")} · ${escapeHtml(entry.time || "Uhrzeit nicht erfasst")}</small></span></label>`).join("") || "<p>Keine EP gemeldet.</p>"}
       </fieldset>`;
     reviewDialog.showModal();
     document.querySelector("#teacherReviewClose").focus();
@@ -360,16 +360,16 @@
         <div><strong>${shown.length}</strong><span>angezeigt</span></div>
         <div><strong>${average((row) => row.lessonsDone)} / ${lessons.length}</strong><span>Einheiten im Mittel</span></div>
         <div><strong>${average((row) => row.practicesDone)}</strong><span>Übungen im Mittel</span></div>
-        <div><strong>${average((row) => row.nagold)}</strong><span>NAGOLD im Mittel</span></div>
+        <div><strong>${average((row) => row.nagold)}</strong><span>EP im Mittel</span></div>
         <div><strong>${average((row) => row.xp)}</strong><span>XP im Mittel</span></div>
         <div class="${problems ? "is-warning" : ""}"><strong>${problems}</strong><span>mit ungültiger Prüfsumme</span></div>
       </div>
       <div class="teacher-table-wrap" tabindex="0" role="region" aria-label="Klassenübersicht">
         <table class="teacher-table">
           <thead><tr>
-            <th scope="col">Klasse</th><th scope="col">Kürzel</th><th scope="col">NAGOLD</th><th scope="col">XP</th><th scope="col">Einheiten</th><th scope="col">Übungen</th><th scope="col" title="Geprüfte Aufgaben im Modell-Editor, auf diesem Gerät neu geprüft">Modelle</th>
+            <th scope="col">Klasse</th><th scope="col">Kürzel</th><th scope="col">EP</th><th scope="col">XP</th><th scope="col">Einheiten</th><th scope="col">Übungen</th><th scope="col" title="Geprüfte Aufgaben im Modell-Editor, auf diesem Gerät neu geprüft">Modelle</th>
             ${content.modules.map((module) => `<th scope="col">${escapeHtml(module.code)}</th>`).join("")}
-            <th scope="col">Letzte Aktivität</th><th scope="col">Sicherung vom</th><th scope="col">Prüfsumme</th><th scope="col">NAGOLD bestätigt</th><th scope="col">Einheiten bestätigt</th><th scope="col">Prüfen</th>
+            <th scope="col">Letzte Aktivität</th><th scope="col">Sicherung vom</th><th scope="col">Prüfsumme</th><th scope="col">EP bestätigt</th><th scope="col">Einheiten bestätigt</th><th scope="col">Prüfen</th>
           </tr></thead>
           <tbody>${shown.map((row) => `
             <tr class="${row.superseded ? "is-old" : ""}">
@@ -386,7 +386,7 @@
               <td class="integrity-${row.integrity}">${escapeHtml(integrityLabels[row.integrity])}</td>
               <td data-approved-nagold><strong>${approvedSummary(row, reviews).nagold}</strong></td>
               <td>${approvedSummary(row, reviews).lessons.length} / ${row.lessonsTotal}</td>
-              <td><button type="button" class="button button-secondary" data-teacher-review="${escapeHtml(studentKey(row))}" aria-label="${escapeHtml(row.studentCode)}: Einheiten und NAGOLD prüfen" ${row.superseded ? "disabled" : ""}>Prüfen</button></td>
+              <td><button type="button" class="button button-secondary" data-teacher-review="${escapeHtml(studentKey(row))}" aria-label="${escapeHtml(row.studentCode)}: Einheiten und EP prüfen" ${row.superseded ? "disabled" : ""}>Prüfen</button></td>
             </tr>`).join("")}
           </tbody>
         </table>

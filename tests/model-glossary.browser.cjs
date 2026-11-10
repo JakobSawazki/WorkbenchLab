@@ -30,6 +30,13 @@ const path = require("node:path");
         await page.reload();
         await page.locator(".lesson-definition-grid").first().waitFor();
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
+        const pkGrid = page.locator(".lesson-definition-grid.is-wide");
+        assert.equal(await pkGrid.count(), 1);
+        assert.ok(await pkGrid.evaluate(grid => {
+          const section = grid.parentElement;
+          return section.matches(".content-section") && grid.offsetWidth >= section.clientWidth * .9
+            && grid.firstElementChild.offsetWidth === grid.clientWidth;
+        }), `PK spans the section at ${width}px in ${theme}`);
         for (const grid of await page.locator(".lesson-definition-grid").all()) {
           assert.equal(await grid.evaluate(el => el.scrollWidth <= el.clientWidth + 1), true);
           await grid.screenshot({ path: path.join(artifacts, `${theme}-${width}-${await grid.locator("dt").count()}.png`), animations: "disabled" });

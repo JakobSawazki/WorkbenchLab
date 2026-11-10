@@ -1,5 +1,126 @@
 # WorkbenchLab Projektdokumentation
 
+## Release 0.50.0 [Codex, 2026-11-10]
+
+Der [Releaseüberblick](releases/RELEASE_0_50_0.md) bündelt die folgenden
+lokalen Nachträge. Die Musterantworten zu L1.1 und L1.2 sind die einzigen
+eingebauten Aufgabenblattlösungen dieses Releases.
+
+## Lokaler Nachtrag: L1.1-Beispielantworten im Pages-Build [Codex, 2026-11-05]
+
+L1.1 nutzt dieselbe eingebaute Musterlösung wie L1.2: vier
+Begriffserklärungen, ein möglicher Entwurf für die neun Kontaktspalten und
+eine Auswertung der dreispaltigen Einstiegstabelle. Die zwei weiteren
+Attribute bleiben bei L1.2. Keine Originaldateien und keine Änderungen
+an den Aufgaben oder ihrer Prüfung.
+
+## Lokaler Nachtrag: L1.2-Beispielantworten im Pages-Build [Codex, 2026-11-05]
+
+L1.2 enthält selbst formulierte Musterantworten zum Aufgabenblatt in
+`webWorksheet.exampleAnswers`. Im Entwicklermodus erscheint darunter
+„Lösungen anzeigen“, ohne Dateiauswahl oder Vorschau-Endpunkt. Dieser
+Modus steuert nur die Anzeige: Das Beispiel ist im Pages-Quelltext lesbar.
+Originalunterlagen, private Lösungsdateien und Übungslösungen bleiben aus
+dem Build ausgeschlossen. Der manuelle Import bleibt verfügbar.
+Diese Änderung ersetzt die frühere automatische lokale Vorschau.
+
+## Ersetzt: Lokaler Nachtrag „Loesungen anzeigen“ [Codex, 2026-11-05]
+
+Aufgabenblattloesungen lassen sich mit Loesungen anzeigen/ausblenden
+umschalten. Die lokale Vorschau kann die L1.2-Datei auf Wunsch automatisch
+bereitstellen: WORKBENCH_PREVIEW_SOLUTIONS=1, Loopback-Server und
+?lehrkraft=1. Erst im Entwicklermodus wird die Datei angefragt. Der lokale
+Endpunkt ist standardmaessig aus, auf denselben Ursprung beschraenkt und
+kein Bestandteil des Pages-Builds. Der manuelle Import bleibt auch dort
+moeglich. Vorschau- und Loesungstests bestanden. Nicht veroeffentlicht.
+
+## Lokaler Nachtrag: Musterloesungen zu Aufgabenblaettern [Codex, 2026-11-05]
+
+Der bestehende lokale Loesungsimport akzeptiert zusaetzlich bekannte
+Einheiten unter solutions["lesson:<id>"]. Im Entwicklermodus erscheint
+die Musterloesung eingeklappt nach dem Aufgabenblatt. Alte Uebungsdateien
+bleiben ladbar; Loesungen liegen nur im Arbeitsspeicher, werden als Text
+gerendert und beim Ausschalten oder Neuladen verworfen. Die L1.2-Datei
+liegt im ignorierten resources-Ordner und ist im Build und Vorschau-HTTP
+nicht erreichbar. Synthetischer Browsertest sowie Import der lokalen
+Musterloesung in der gefilterten Vorschau bestanden. Noch lokal.
+
+## Lokaler Nachtrag: Direkt speichern und oeffnen [Codex, 2026-11-05]
+
+Disketten-Icon und Alt+S laden die JSON-Sicherung direkt herunter. Das
+Ordner-Icon und Alt+O starten direkt die Dateiauswahl; Pruefung und
+Bestaetigung vor dem Ersetzen des Lernstands bleiben unveraendert.
+Das Archiv-Icon oeffnet den bestehenden Sicherungsdialog, einschliesslich
+Speicherhinweisen und Profil-Reset im Entwicklermodus. AltGr+S bleibt
+getrennt. Direktwege, Sicherungsvalidierung und Profil-Reset im Browser
+bestanden; Toolbar bei 320 bis 1440px und grosser Schrift geprueft.
+Noch lokal, nicht veroeffentlicht.
+
+## Lokaler Nachtrag: Entitaet und Tabellenzeile [Codex, 2026-11-05]
+
+L1.2 ergaenzt in den Definitionen das konkrete Beispiel: Entitaet ist der
+Fahrschueler mit Schuelernummer 17 (eine Zeile), der Entitaetstyp wird als
+Tabelle fahrschueler umgesetzt. Vorhandene Texte und Markierungsanker
+bleiben am Anfang unveraendert. Sechs early-workbench-Tests bestanden.
+
+## Lokaler Nachtrag: Materialbezug ausgeblendet [Codex, 2026-11-05]
+
+Der aufklappbare Materialbezug entfaellt in allen Lerneinheiten.
+Quellenmetadaten bleiben in den Inhaltsdaten; Anker im Abschlussbereich
+behalten ihre bisherigen Nummern. Phasenfolge und Aufgaben unveraendert.
+Der Phasentest prueft die 21 Einheiten ohne Materialblock. Noch lokal.
+
+## Lokaler Nachtrag: Breitere PK-Erklaerung [Codex, 2026-11-05]
+
+Die PK-Definition in L1.2 nutzt unter Text und Schema-Grafik die volle
+Abschnittsbreite. Der Text und seine Markierungsanker bleiben unveraendert;
+andere Definitionen behalten ihr Raster. Der Glossar-Browsertest prueft die
+Breite bei 1440/360px mit grosser Schrift in beiden Designs. Noch lokal.
+
+## Lokaler Nachtrag: Sichtbarer Lernfortschritt [Codex, 2026-11-05]
+
+Der Schnellzugriff im Lernpfad zeigt ein gruenes Haekchen vor dem Kuerzel
+abgeschlossener Einheiten und meldet den Status auch fuer Screenreader.
+In Lerneinheiten zeigt die Kopfzeile neben dem Brotkrumenpfad den Anteil
+abgeschlossener Einheiten im jeweiligen Lernfortschritt als Balken und
+Prozentwert. Bei wenig Platz bricht der Balken in eine eigene Zeile um.
+Berechnung aus den bestehenden Abschluessen, ohne Aenderung an Punkten,
+Sicherungen oder Freischaltungen. Der Abschluss-Browsertest prueft
+0 bis 100 Prozent, Modulwechsel und Haekchen; Desktop und Mobil visuell
+geprueft. Noch lokal, nicht veroeffentlicht.
+
+## Lokaler Nachtrag: Suchauffindbarkeit [Codex, 2026-11-05]
+
+Startseitentitel und Meta-Beschreibung nennen WorkbenchLab, SQL, relationale
+Datenbanken und Sawazki Electronics. Die kanonische Adresse ist
+`https://jakobsawazki.github.io/WorkbenchLab/` ohne Versionsparameter oder
+Hashroute. Der Titel bleibt auch nach dem Rendern der Startseite erhalten;
+Unteransichten behalten ihre bisherigen Titel. Kein Layout- oder Datenwechsel.
+Der Browsertest des GitHub-Pages-Builds prueft HTML und gerenderte Startseite
+sowie Titelwechsel beim Navigieren. Bestanden, noch nicht veroeffentlicht.
+Indexierung erst nach Veroeffentlichung ueber Search Console beantragen.
+
+## Lokaler Nachtrag: EP statt NAGOLD [Codex, 2026-11-03]
+
+Die bisher als NAGOLD bezeichneten Punkte heissen auf Jakobs Wunsch nun
+EP (Erfahrungspunkte). Umbenennung in Kopfzeile, Profil, Punktetabelle,
+Jahresziel, Meldungen, vorlesbaren Namen und Tooltips sowie Lehrkraft-
+uebersicht, Bestaetigungen und CSV-Export. Die Bedeutung wird ausgeschrieben
+erklaert; XP und Level bleiben unveraendert und getrennt von EP.
+
+Alle Punktestaende werden 1:1 weiterverwendet. Speicherfelder und interne
+APIs behalten ihre bisherigen Namen, insbesondere nagoldEntries und
+summary.nagold, damit vorhandene JSON-Dateien und Bestaetigungen kompatibel
+bleiben. Sicherungsformat weiterhin 9; keine Aenderung der Rechenregeln,
+des Jahresziels 100 oder der automatischen Anwesenheit mit 2 Punkten.
+
+231 Node-Tests und acht gezielte Browsertestdateien bestanden: Profil/XP,
+EP-Tabelle/Jahresziel, Lehrkraftuebersicht/Bestaetigungen, Sicherungs-
+Sicherheit, oeffentlicher Build und Studienablauf. Beschriftungspruefungen und CSV-Erwartungen
+angepasst; zusaetzliche Browserchecks fuer "Erfahrungspunkte (EP)" und den
+Erhalt der internen Sicherungsfelder. Mobile Tabelle mit grosser Schrift
+visuell geprueft. Kein neuer Release: noch lokal, online weiterhin 0.49.0.
+
 ## Release 0.49.0: Freier Lernpfad und Sicherungen [Codex, 2026-11-03]
 
 Jakob hat alle Lerneinheiten zur freien Auswahl freigegeben und die
