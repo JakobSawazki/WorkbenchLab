@@ -638,9 +638,27 @@
   }
 
   function lessonBreadcrumb(module, lesson) {
-    const moduleLabel = `Lernfortschritt ${Number(module?.number || 1)}`;
+    const moduleLabel = module.code;
     const lessonLabel = lesson.courseCode || `Lektion ${lesson.index}`;
     return `<button type="button" class="breadcrumb-link" data-path-module="${escapeHtml(module.id)}" title="${escapeHtml(moduleLabel)} im Lernpfad öffnen">${escapeHtml(moduleLabel)}</button><span class="breadcrumb-separator" aria-hidden="true">›</span><span aria-current="page">${escapeHtml(lessonLabel)}</span>`;
+  }
+
+  function updateLessonNavigation(lesson) {
+    const lessons = orderedLessons();
+    const index = lessons.findIndex((item) => item.id === lesson.id);
+    for (const [id, label, target] of [
+      ["previousLessonButton", "Vorherige Lerneinheit", lessons[index - 1]],
+      ["nextLessonButton", "Nächste Lerneinheit", lessons[index + 1]]
+    ]) {
+      const button = document.getElementById(id);
+      const available = index >= 0 && isLessonUnlocked(target);
+      button.disabled = !available;
+      if (available) button.dataset.lesson = target.id;
+      else delete button.dataset.lesson;
+      const description = available ? `${label}: ${target.courseCode} · ${target.title}` : `Keine ${label.toLowerCase()}`;
+      button.title = description;
+      button.setAttribute("aria-label", description);
+    }
   }
 
   function activateNav(route) {
@@ -833,7 +851,7 @@
     document.querySelector("#nagoldProgressLabel").textContent = `${nagoldTotal} / 100 EP`;
     document.querySelector("#nagoldProgressPercent").textContent = `${nagoldPercent} %`;
     document.querySelector("#nagoldRemaining").textContent = nagoldTotal >= 100
-      ? "Jahresziel erreicht! Sehr gut (Note 1)."
+      ? "Jahresziel erreicht!"
       : `Noch ${100 - nagoldTotal} EP bis zum Jahresziel.`;
     renderIcons();
     const xp = stateXp();
@@ -1778,19 +1796,19 @@
       return;
     }
     const module = moduleById(lesson.module);
-    const breadcrumb = `Lernfortschritt ${Number(module?.number || 1)} > ${lesson.courseCode || `Lektion ${lesson.index}`}`;
     state.lastLessonId = lesson.id;
     saveState();
-    setHeading(breadcrumb, lesson.title);
+    setHeading("", lesson.title);
     document.querySelector("#viewEyebrow").innerHTML = lessonBreadcrumb(module, lesson);
     if (module) {
       const { done, total, percent } = moduleProgress(module);
       const indicator = document.querySelector("#lessonModuleProgress");
       const bar = indicator.querySelector("progress");
       bar.value = percent;
-      bar.setAttribute("aria-label", `Lernfortschritt ${module.number}`);
+      bar.setAttribute("aria-label", `Lernfortschritt ${module.code}`);
       bar.setAttribute("aria-valuetext", `${done} von ${total} Einheiten abgeschlossen (${percent} %)`);
       indicator.querySelector("span").textContent = `${percent} %`;
+      updateLessonNavigation(lesson);
       indicator.hidden = false;
     }
     activateNav("path");
@@ -4407,10 +4425,23 @@
     }
   });
 
+  function schoolEmailFor(code) {
+    const normalized = normalizeStudentCode(code);
+    return isValidStudentCode(normalized) ? `${normalized.toLowerCase()}@ks-nagold.de` : "";
+  }
+
+  function updateProfileSchoolEmail() {
+    const address = schoolEmailFor(profileName.value);
+    const output = document.querySelector("#profileSchoolEmail");
+    output.textContent = address ? `Schul-E-Mail: ${address}` : "";
+    output.hidden = !address;
+  }
+
   function openProfileDialog(message = "") {
     if (profileHelpDialog.open) profileHelpDialog.close();
     updateLevelDialog();
     profileName.value = state.name;
+    updateProfileSchoolEmail();
     profileClass.value = state.className;
     profileNameError.textContent = message;
     profileName.toggleAttribute("aria-invalid", Boolean(message));
@@ -4699,6 +4730,7 @@
   profileName.addEventListener("blur", () => {
     profileName.value = normalizeStudentCode(profileName.value);
   });
+  profileName.addEventListener("input", updateProfileSchoolEmail);
   function cleanProfileClass(event) {
     if (event?.isComposing) return;
     const value = profileClass.value;
@@ -4739,10 +4771,26 @@
     toast("Lernprofil gespeichert");
   });
 
-  document.querySelector("#backupButton").addEventListener("click", () => {
+  function openBackupDialog(forEmail = false) {
     updateBackupSummary();
     setBackupStatus("");
+    const address = schoolEmailFor(state.name);
+    const draft = document.querySelector("#backupEmailDraft");
+    draft.hidden = !address;
+    if (address) draft.href = `mailto:${address}?subject=${encodeURIComponent("WorkbenchLab: Lernstandsicherung")}`;
+    else draft.removeAttribute("href");
+    document.querySelector("#backupEmailRecipient").textContent = address ? `Empfänger: ${address}` : "Keine Schul-E-Mail hinterlegt.";
+    document.querySelector("#backupEmailHint").textContent = address
+      ? "Prüfe die Adresse. Lade die JSON-Datei über „Speichern“ herunter und hänge sie selbst an den Entwurf an."
+      : "Lege zuerst dein Schülerkürzel im Profil fest.";
     backupDialog.showModal();
+    if (forEmail) (address ? draft : document.querySelector("#backupCloseButton")).focus();
+  }
+
+  document.querySelector("#backupButton").addEventListener("click", () => openBackupDialog());
+  document.querySelector("#quickSaveButton").addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    openBackupDialog(true);
   });
   const profileResetDialog = document.querySelector("#profileResetDialog");
   function reloadAfterProfileReset() {

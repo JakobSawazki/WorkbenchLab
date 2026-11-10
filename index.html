@@ -17,12 +17,12 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.50.0">
-  <link rel="stylesheet" href="styles-lesson.css?v=0.50.0">
-  <link rel="stylesheet" href="styles-practice.css?v=0.50.0">
-  <link rel="stylesheet" href="styles-visuals.css?v=0.50.0">
-  <link rel="stylesheet" href="styles-shared.css?v=0.50.0">
-  <link rel="stylesheet" href="styles-extensions.css?v=0.50.0">
+  <link rel="stylesheet" href="styles.css?v=0.50.1">
+  <link rel="stylesheet" href="styles-lesson.css?v=0.50.1">
+  <link rel="stylesheet" href="styles-practice.css?v=0.50.1">
+  <link rel="stylesheet" href="styles-visuals.css?v=0.50.1">
+  <link rel="stylesheet" href="styles-shared.css?v=0.50.1">
+  <link rel="stylesheet" href="styles-extensions.css?v=0.50.1">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -33,7 +33,7 @@
         <img class="brand-mark" src="assets/workbenchlab-titanium.webp" alt="" width="56" height="56">
         <span>
           <strong>WorkbenchLab</strong>
-          <small>BPE6 · Relationale Datenbanken</small>
+          <small>Relationale Datenbanken</small>
         </span>
       </a>
 
@@ -87,6 +87,14 @@
             <div class="lesson-module-progress" id="lessonModuleProgress" hidden>
               <progress max="100" value="0" aria-label="Lernfortschritt"></progress>
               <span aria-hidden="true">0 %</span>
+              <div class="lesson-step-navigation" role="group" aria-label="Zwischen Lerneinheiten wechseln">
+                <button class="icon-button" id="previousLessonButton" type="button" aria-label="Vorherige Lerneinheit" disabled>
+                  <i data-lucide="chevron-left" aria-hidden="true"></i>
+                </button>
+                <button class="icon-button" id="nextLessonButton" type="button" aria-label="Nächste Lerneinheit" disabled>
+                  <i data-lucide="chevron-right" aria-hidden="true"></i>
+                </button>
+              </div>
             </div>
           </div>
           <h1 id="viewTitle">Übersicht</h1>
@@ -99,7 +107,7 @@
           <button class="icon-button" id="appearanceButton" type="button" title="Darstellung anpassen" aria-label="Darstellung anpassen" aria-haspopup="dialog" aria-controls="appearanceDialog">
             <i data-lucide="settings-2"></i>
           </button>
-          <button class="icon-button" id="quickSaveButton" type="button" title="Lernstand speichern (Alt+S)" aria-label="Lernstand speichern" aria-keyshortcuts="Alt+S">
+          <button class="icon-button" id="quickSaveButton" type="button" title="Lernstand speichern (Alt+S) · Rechtsklick: E-Mail vorbereiten" aria-label="Lernstand speichern" aria-keyshortcuts="Alt+S">
             <i data-lucide="save" aria-hidden="true"></i>
           </button>
           <button class="icon-button" id="quickOpenButton" type="button" title="Lernstand öffnen (Alt+O)" aria-label="Lernstand öffnen" aria-keyshortcuts="Alt+O">
@@ -146,7 +154,8 @@
       <div class="profile-fields">
         <div>
           <div class="profile-label-row"><label for="profileName">Schülerkürzel</label><button class="profile-info-trigger" id="profileInfoButton" type="button" title="Info zum Schülerkürzel" aria-label="Info zum Schülerkürzel" aria-haspopup="dialog" aria-controls="profileHelpDialog"><i data-lucide="info"></i></button></div>
-          <input id="profileName" name="profileName" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC.DEF" pattern="[A-Za-z]{3}\.[A-Za-z]{3}" aria-describedby="profileNameHint profileNameError" required>
+          <input id="profileName" name="profileName" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC.DEF" pattern="[A-Za-z]{3}\.[A-Za-z]{3}" aria-describedby="profileNameHint profileSchoolEmail profileNameError" required>
+          <p class="field-hint" id="profileSchoolEmail" hidden></p>
         </div>
         <div>
           <label for="profileClass">Klasse</label>
@@ -165,7 +174,7 @@
           <span id="nagoldProgressPercent"></span>
         </div>
         <progress id="nagoldProgress" max="100" value="0" aria-describedby="nagoldGoal nagoldRemaining"></progress>
-        <p id="nagoldGoal">Jahresziel: 100 EP · Sehr gut (Note 1)</p>
+        <p id="nagoldGoal">Jahresziel: 100 EP</p>
         <p id="nagoldRemaining"></p>
       </section>
       <button class="button button-secondary developer-mode-button" id="developerModeButton" type="button" hidden
@@ -196,12 +205,13 @@
       </div>
   </dialog>
 
-  <dialog class="profile-dialog nagold-dialog" id="nagoldDialog" aria-labelledby="nagoldTitle">
+  <dialog class="profile-dialog nagold-dialog" id="nagoldDialog" aria-labelledby="nagoldTitle" aria-describedby="nagoldAssessmentHint">
     <form id="nagoldForm">
       <div class="dialog-heading">
         <div><p class="eyebrow">Deine Erfahrungspunkte</p><h2 id="nagoldTitle">EP</h2></div>
         <button class="icon-button" id="nagoldCloseButton" type="button" title="Schließen" aria-label="EP-Tabelle schließen"><i data-lucide="x" aria-hidden="true"></i></button>
       </div>
+      <p class="field-hint" id="nagoldAssessmentHint">EP sind keine Note. Verbindlich ist die pädagogische Bewertung deiner Lehrkraft.</p>
       <table class="nagold-table">
         <caption class="sr-only">Deine Erfahrungspunkte (EP)</caption>
         <thead><tr><th scope="col">Datum</th><th scope="col">Uhrzeit</th><th scope="col">Wofür</th><th scope="col">EP</th><th scope="col"><span class="sr-only">Aktionen</span></th></tr></thead>
@@ -254,6 +264,11 @@
         </button>
         <input class="sr-only" id="progressFileInput" type="file" accept=".json,application/json" aria-label="JSON-Sicherung zum Laden auswählen">
       </div>
+      <section class="backup-email" aria-label="Sicherung per E-Mail">
+        <p id="backupEmailRecipient"></p>
+        <p class="field-hint" id="backupEmailHint"></p>
+        <a class="button button-secondary" id="backupEmailDraft" aria-describedby="backupEmailRecipient backupEmailHint" hidden><i data-lucide="mail" aria-hidden="true"></i>E-Mail-Entwurf öffnen</a>
+      </section>
       <section id="profileResetSection" class="profile-reset-section" aria-label="Entwicklermodus" hidden>
         <button class="button button-secondary" id="profileResetButton" type="button"><i data-lucide="trash-2" aria-hidden="true"></i>Lernprofil löschen</button>
       </section>
@@ -290,30 +305,30 @@
 
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
-  <script src="content.js?v=0.50.0"></script>
-  <script src="learning-path.js?v=0.50.0"></script>
-  <script src="lesson-openings.js?v=0.50.0"></script>
-  <script src="practical-exercises.js?v=0.50.0"></script>
-  <script src="debug-exercises.js?v=0.50.0"></script>
-  <script src="predict-exercises.js?v=0.50.0"></script>
-  <script src="order-exercises.js?v=0.50.0"></script>
-  <script src="study-tools.js?v=0.50.0"></script>
-  <script src="appearance.js?v=0.50.0"></script>
-  <script src="drawing.js?v=0.50.0"></script>
-  <script src="command-search.js?v=0.50.0"></script>
-  <script src="reference-search.js?v=0.50.0"></script>
-  <script src="expected-results.js?v=0.50.0"></script>
-  <script src="sql-check.js?v=0.50.0"></script>
-  <script src="backup.js?v=0.50.0"></script>
-  <script src="nagold.js?v=0.50.0"></script>
-  <script src="erm-editor.js?v=0.50.0"></script>
-  <script src="note-text.js?v=0.50.0"></script>
-  <script src="state.js?v=0.50.0"></script>
-  <script src="sql-feedback.js?v=0.50.0"></script>
-  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.50.0"></script>
-  <script src="sql-workspace.js?v=0.50.0"></script>
-  <script src="review.js?v=0.50.0"></script>
-  <script src="offline-client.js?v=0.50.0"></script>
-  <script src="app.js?v=0.50.0"></script>
+  <script src="content.js?v=0.50.1"></script>
+  <script src="learning-path.js?v=0.50.1"></script>
+  <script src="lesson-openings.js?v=0.50.1"></script>
+  <script src="practical-exercises.js?v=0.50.1"></script>
+  <script src="debug-exercises.js?v=0.50.1"></script>
+  <script src="predict-exercises.js?v=0.50.1"></script>
+  <script src="order-exercises.js?v=0.50.1"></script>
+  <script src="study-tools.js?v=0.50.1"></script>
+  <script src="appearance.js?v=0.50.1"></script>
+  <script src="drawing.js?v=0.50.1"></script>
+  <script src="command-search.js?v=0.50.1"></script>
+  <script src="reference-search.js?v=0.50.1"></script>
+  <script src="expected-results.js?v=0.50.1"></script>
+  <script src="sql-check.js?v=0.50.1"></script>
+  <script src="backup.js?v=0.50.1"></script>
+  <script src="nagold.js?v=0.50.1"></script>
+  <script src="erm-editor.js?v=0.50.1"></script>
+  <script src="note-text.js?v=0.50.1"></script>
+  <script src="state.js?v=0.50.1"></script>
+  <script src="sql-feedback.js?v=0.50.1"></script>
+  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.50.1"></script>
+  <script src="sql-workspace.js?v=0.50.1"></script>
+  <script src="review.js?v=0.50.1"></script>
+  <script src="offline-client.js?v=0.50.1"></script>
+  <script src="app.js?v=0.50.1"></script>
 </body>
 </html>

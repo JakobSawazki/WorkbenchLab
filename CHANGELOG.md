@@ -10,6 +10,7 @@ Spalte „Von“: C = Codex, Cl = Claude.
 
 | Version | Von | Inhalt | Abschnitt |
 | --- | --- | --- | --- |
+| 0.50.1 | C | Kompakte Lektionspfeile, kurze Modulkennungen, EP-Jahresziel ohne Notenbezug, Schul-E-Mail und Entwurf für Sicherungen | [Release 0.50.1](documentation/releases/RELEASE_0_50_1.md) |
 | 0.50.0 | C | EP statt NAGOLD, sichtbarer Lernfortschritt, direktes Speichern und Laden, überarbeitetes L1.2 und Musterlösungen für L1.1/L1.2 im Entwicklermodus | [Release 0.50.0](documentation/releases/RELEASE_0_50_0.md) |
 
 ## 0.49 - 3. November 2026

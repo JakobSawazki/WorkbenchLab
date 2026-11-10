@@ -1,5 +1,30 @@
 # Codex an Claude – WorkbenchLab
 
+## Release 0.50.1 [Codex, 2026-11-10]
+
+Die folgenden Nachträge zu E-Mail-Entwürfen, Jahresziel und
+Lektionsnavigation gehören zu 0.50.1. Die Diskette speichert weiterhin
+per Linksklick; ein Rechtsklick zeigt den Entwurf, ohne etwas zu senden.
+
+## Lokaler Nachtrag: Sicherung per E-Mail-Entwurf [Codex, 2026-11-10]
+
+Schuladresse aus validiertem Kürzel ableiten, nicht speichern.
+Rechtsklick auf die Diskette öffnet den vorhandenen Sicherungsdialog.
+Der Mail-Link enthält nur Empfänger und Betreff, keine Lerndaten.
+Dateianhang und Versand erfolgen manuell im Mailprogramm.
+
+## Lokaler Nachtrag: Jahresziel ohne Notenbezug [Codex, 2026-11-10]
+
+Die Profilanzeige und die Meldung beim Erreichen von 100 EP nennen keine
+Note mehr. Der EP-Dialog verweist auf die pädagogische Bewertung durch die
+Lehrkraft; Speicherformat und Punktelogik bleiben unverändert.
+
+## Lokaler Nachtrag: Lektionsnavigation [Codex, 2026-11-10]
+
+Vorherige und nächste Einheit in der Kopfzeile verwenden `orderedLessons()`
+und dieselbe Navigation wie der Lernpfad. Modulcodes ersetzen die langen
+Breadcrumb-Bezeichnungen; Fortschritts- und Abschlusslogik bleiben gleich.
+
 ## Release 0.50.0 [Codex, 2026-11-10]
 
 Die nachfolgenden lokalen Nachträge sind in 0.50.0 zusammengefasst.

@@ -1,5 +1,34 @@
 # WorkbenchLab Projektdokumentation
 
+## Release 0.50.1 [Codex, 2026-11-10]
+
+Der [Releaseüberblick](releases/RELEASE_0_50_1.md) bündelt die folgenden
+Nachträge zu Lektionsnavigation, Jahresziel und Sicherung per E-Mail-Entwurf.
+
+## Lokaler Nachtrag: Schul-E-Mail für Lernstandsicherungen [Codex, 2026-11-10]
+
+Das Lernprofil zeigt die aus dem gültigen Kürzel abgeleitete Adresse
+unter `ks-nagold.de` an. Ein Rechtsklick auf die Diskette oder ein Klick
+auf „Sicherungen verwalten“ öffnet den Dialog mit Empfänger und
+E-Mail-Entwurf. Die Adresse ist eine Vorschau, keine Kontoverifikation.
+Die JSON-Datei wird separat heruntergeladen und von Hand angehängt.
+WorkbenchLab lädt den Lernstand nicht hoch und sendet keine E-Mail.
+
+## Lokaler Nachtrag: EP sind keine Note [Codex, 2026-11-10]
+
+100 EP bleiben das Jahresziel, ohne Zuordnung zu einer Schulnote. Die
+EP-Übersicht erklärt, dass die pädagogische Bewertung der Lehrkraft
+verbindlich ist. Punktevergabe, Fortschrittsbalken und gespeicherte
+Lernstände bleiben unverändert.
+
+## Lokaler Nachtrag: Zwischen Lerneinheiten wechseln [Codex, 2026-11-10]
+
+Die Pfeile neben dem Fortschrittsbalken öffnen die benachbarten Einheiten
+in der Reihenfolge des Lernpfads, auch beim Modulwechsel. Am Anfang und
+Ende ist der nicht verfügbare Pfeil deaktiviert. Der Wechsel vergibt keine
+Punkte und schließt keine Einheit ab. Die Kopfzeile verwendet Modulcodes
+wie „L1 › L1.5“; der Prozentwert bezieht sich weiterhin auf das Modul.
+
 ## Release 0.50.0 [Codex, 2026-11-10]
 
 Der [Releaseüberblick](releases/RELEASE_0_50_0.md) bündelt die folgenden

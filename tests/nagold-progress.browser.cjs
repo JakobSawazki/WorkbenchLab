@@ -26,8 +26,9 @@ fs.mkdirSync(artifacts, { recursive: true });
       assert.equal(await page.locator("#nagoldProgressLabel").innerText(), `${total} / 100 EP`);
       assert.equal(await page.locator("#nagoldProgressPercent").innerText(), `${percent} %`);
       assert.match(await page.locator("#nagoldProgress").getAttribute("aria-valuetext"), new RegExp(`${total} von 100 EP`));
+      assert.equal(await page.locator("#nagoldGoal").innerText(), "Jahresziel: 100 EP");
       assert.equal(await page.locator("#nagoldRemaining").innerText(), total >= 100
-        ? "Jahresziel erreicht! Sehr gut (Note 1)."
+        ? "Jahresziel erreicht!"
         : `Noch ${100 - total} EP bis zum Jahresziel.`);
       await page.locator("#profileCancelButton").click();
     }
@@ -46,6 +47,9 @@ fs.mkdirSync(artifacts, { recursive: true });
         await page.locator("#nagoldProgress").scrollIntoViewIfNeeded();
         await page.screenshot({ path: path.join(artifacts, `${theme}-${width}.png`), animations: "disabled" });
         await page.locator("#nagoldTotal").click();
+        assert.match(await page.locator("#nagoldDialog").getAttribute("aria-describedby"), /\bnagoldAssessmentHint\b/);
+        assert.equal(await page.locator("#nagoldAssessmentHint").innerText(), "EP sind keine Note. Verbindlich ist die pädagogische Bewertung deiner Lehrkraft.");
+        assert.equal(await page.locator("#nagoldDialog").evaluate(e => e.scrollWidth <= e.clientWidth + 1), true);
         await page.locator("#nagoldAddButton").click();
         assert.equal(await page.locator('#nagoldRows tr:last-child [data-nagold-field="purpose"]').inputValue(), "Anwesenheit");
         assert.equal(await page.locator('#nagoldRows tr:last-child [data-nagold-field="points"]').inputValue(), "2");

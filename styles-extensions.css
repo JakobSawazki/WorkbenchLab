@@ -368,3 +368,23 @@ body:has(dialog[open]) { overflow: hidden; }
 
 .teacher-solution:not([open]) .solution-hide,
 .teacher-solution[open] .solution-show { display: none; }
+
+.lesson-module-progress:not([hidden]) { flex-basis: 12rem; max-width: 30rem; }
+.lesson-step-navigation { display: flex; flex: none; gap: .25rem; }
+.lesson-step-navigation .icon-button { width: 24px; height: 24px; padding: 0; font-size: inherit; }
+.lesson-step-navigation .icon-button svg { width: 1em; height: 1em; }
+.lesson-step-navigation .icon-button:disabled { opacity: .5; cursor: default; }
+.page-column:has(.lesson-module-progress:not([hidden])) { container: workbench-page / inline-size; }
+@container workbench-page (max-width: 760px) {
+  .topbar:has(.lesson-module-progress:not([hidden])) { grid-template-columns: auto minmax(0, 1fr); }
+  .topbar:has(.lesson-module-progress:not([hidden])) .topbar-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+@media print { .lesson-step-navigation { display: none; } }
+
+#profileSchoolEmail { margin: .45rem 0 0; overflow-wrap: anywhere; }
+.backup-email { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.backup-email p { margin: 0 0 .5rem; }
+.backup-email .button { max-width: 100%; white-space: normal; }
