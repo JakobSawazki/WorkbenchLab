@@ -83,7 +83,7 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
     assert.equal(await page.locator("#ermCheck").count(), 0);
     assert.equal(await page.locator("#ermProgress").count(), 0);
     const exportBackup = async () => {
-      await page.locator("#backupButton").click();
+      await page.locator("#quickSaveButton").click({ button: "right" });
       const downloaded = page.waitForEvent("download");
       await page.locator("#exportProgressButton").click();
       const payload = JSON.parse(fs.readFileSync(await (await downloaded).path(), "utf8"));
@@ -105,7 +105,7 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
       await other.locator("#profileName").fill("NEW.QAA");
       await other.locator("#profileClass").fill("TEST");
       await other.locator('#profileForm [type="submit"]').click();
-      await other.locator("#backupButton").click();
+      await other.locator("#quickSaveButton").click({ button: "right" });
       other.once("dialog", dialog => dialog.accept());
       await other.locator("#progressFileInput").setInputFiles(asFile(payload));
       await other.locator("#backupDialog").waitFor({ state: "hidden" });
@@ -137,7 +137,7 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
       }, models);
       await offline.locator("#ermCheck").click();
       assert.equal(await offline.locator("#topXp").innerText(), "30 XP");
-      await offline.locator("#backupButton").click();
+      await offline.locator("#quickSaveButton").click({ button: "right" });
       assert.match(await offline.locator("#backupStorageHint").innerText(), /Browserspeicher nicht verf/);
       const pending = offline.waitForEvent("download");
       await offline.locator("#exportProgressButton").click();
@@ -158,7 +158,7 @@ const asFile = payload => ({ name: "modelle.json", mimeType: "application/json",
     assert.equal(summary.models.passed.length, 3);
     await teacher.close();
     const importBackup = async (value, accept = true) => {
-      await page.locator("#backupButton").click();
+      await page.locator("#quickSaveButton").click({ button: "right" });
       const pending = page.waitForEvent("dialog");
       const upload = page.locator("#progressFileInput").setInputFiles(asFile(sign(value)));
       const dialog = await pending;

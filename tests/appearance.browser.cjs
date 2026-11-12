@@ -28,7 +28,7 @@ async function checkWidth(page, selector = "html") {
     assert.ok(await page.locator(".brand-mark").evaluate((img) => img.complete && img.naturalWidth === 192));
     await checkWidth(page);
     await page.screenshot({ path: path.join(output, "dark-desktop.png"), animations: "disabled" });
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     const backup = await page.locator("#backupDialog").innerText();
     assert.ok(!/Gerätecode|Profil-Herkunft|SHA-256|MAC-Adresse/.test(backup));
     assert.ok(backup.includes("TST.QAA") && backup.includes("TEST"));
@@ -43,7 +43,7 @@ async function checkWidth(page, selector = "html") {
     assert.ok(await page.locator("#backupDialog").evaluate((el) => el.scrollHeight <= el.clientHeight));
     await page.screenshot({ path: path.join(output, "backup-desktop.png"), animations: "disabled" });
     await page.locator("#backupCloseButton").click();
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     await page.keyboard.press("Escape");
     assert.ok(await page.locator("#backupDialog").isHidden());
     await page.locator("#appearanceButton").click();
@@ -87,7 +87,7 @@ async function checkWidth(page, selector = "html") {
       await page.screenshot({ path: path.join(output, `options-${theme}-mobile-large.png`), animations: "disabled" });
       await page.locator("#appearanceDoneButton").click();
       await checkWidth(page);
-      await page.locator("#backupButton").click();
+      await page.locator("#quickSaveButton").click({ button: "right" });
       await checkWidth(page, "#backupDialog");
       await page.screenshot({ path: path.join(output, `backup-${theme}-mobile-large.png`), animations: "disabled" });
       await page.locator("#backupCloseButton").click();

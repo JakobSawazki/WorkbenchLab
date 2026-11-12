@@ -81,7 +81,7 @@ const output = require("./artifacts.cjs")("practical-exercises");
       }
       await page.setViewportSize({ width: 1440, height: 1000 });
     }
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     const download = page.waitForEvent("download");
     await page.locator("#exportProgressButton").click();
     const file = path.join(output, "exercises.json");
@@ -100,7 +100,7 @@ const output = require("./artifacts.cjs")("practical-exercises");
       localStorage.setItem("workbenchlab-v1", JSON.stringify(state));
     });
     await page.reload();
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(file);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });

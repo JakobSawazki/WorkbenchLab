@@ -156,7 +156,7 @@
         location.replace(url.href);
       } catch (error) { controls(false); show("Offline-Kopie nicht entfernt", error.message); }
     });
-    document.querySelector("#backupButton").addEventListener("click", refresh);
+    document.querySelector("#backupDialog").addEventListener("workbenchlab-backup-open", refresh);
     window.addEventListener("online", refresh);
     window.addEventListener("offline", refresh);
     container.getRegistration(scope).then(async candidate => {

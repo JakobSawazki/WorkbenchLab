@@ -300,8 +300,10 @@
     hint.hidden = storageAvailable && !localFile;
     hint.textContent = !storageAvailable ? "Browserspeicher nicht verfügbar. Bitte über Speichern sichern."
       : localFile ? "Vor einem Ordner-, Versions- oder PC-Wechsel den Lernstand als Datei speichern und anschließend laden." : "";
-    document.querySelector("#backupButton").classList.toggle("has-storage-error", !storageAvailable);
-    document.querySelector("#backupButton").title = storageAvailable ? "Sicherungen verwalten" : "Speicherung nicht verfügbar · Sicherungen verwalten";
+    const saveButton = document.querySelector("#quickSaveButton");
+    saveButton.classList.toggle("has-storage-error", !storageAvailable);
+    saveButton.title = storageAvailable ? "Lernstand speichern (Alt+S) · Rechtsklick: Sicherungen verwalten"
+      : "Speicherung nicht verfügbar · Lernstand als Datei sichern";
   }
 
   function todayKey(date = new Date()) {
@@ -2018,6 +2020,74 @@
       <p class="field-hint">Die Auswertung ist eine Selbsteinschätzung zum Üben. Sie wird nicht gespeichert und nicht in die JSON-Sicherung übernommen.</p>`;
   }
 
+  function renderExamPreparation() {
+    setHeading("Klausurvorbereitung", "BK2-Lernzettel");
+    activateNav("klausurvorbereitung");
+    main.innerHTML = `
+      <article class="exam-preparation">
+        <header class="review-head">
+          <div><p class="eyebrow">BK2 · Klassenarbeit am 26.11.2026</p><h2>Lernzettel: Relationale Datenbanken</h2></div>
+          <div class="detail-actions"><button class="button button-secondary" type="button" data-route="sql/klausur"><i data-lucide="timer" aria-hidden="true"></i>Klausurtraining</button></div>
+        </header>
+        <section>
+          <h3>Tabellen und Schlüssel</h3>
+          <p>Eine Relation ist eine Tabelle. Eine Zeile ist ein Datensatz (Tupel), eine Spalte steht für ein Attribut und ein Zellinhalt ist ein Attributwert.</p>
+          <p>Der Primärschlüssel identifiziert jeden Datensatz eindeutig. In der Mediathek ist <code>mediennr</code> dafür geeignet; der Titel „Die Welle“ kommt zweimal vor. Im Relationenschema hältst du Spalten, Datentypen und Primärschlüssel fest.</p>
+          <p>Ein atomares Feld enthält genau einen fachlichen Einzelwert. Titel und Medienart gehören deshalb in getrennte Spalten. <code>INT</code> steht für ganze Zahlen, <code>VARCHAR</code> für Text, <code>DATE</code> für Kalenderdaten und <code>DECIMAL</code> eignet sich für Geldbeträge.</p>
+          <button class="button button-secondary" type="button" data-lesson="warum-datenbanken">L1.1</button>
+          <button class="button button-secondary" type="button" data-lesson="relation-und-schluessel">L1.2</button>
+        </section>
+        <section>
+          <h3>Spalten auswählen und sortieren</h3>
+          <p><code>SELECT</code> bestimmt die Ausgabespalten und ihre Reihenfolge (Projektion). <code>FROM</code> nennt die Tabelle. <code>SELECT *</code> gibt alle Spalten aus.</p>
+          <p><code>ORDER BY</code> sortiert das Ergebnis. <code>ASC</code> bedeutet aufsteigend und ist die Voreinstellung, <code>DESC</code> bedeutet absteigend. Bei gleichen Werten entscheidet das zweite Sortierkriterium.</p>
+          <button class="button button-secondary" type="button" data-lesson="select-projektion">L1.5</button>
+        </section>
+        <section>
+          <h3>Zeilen filtern</h3>
+          <p><code>WHERE</code> wählt die Zeilen aus, die eine Bedingung erfüllen (Selektion). Textwerte stehen in einfachen Anführungszeichen, Zahlen ohne. Bei <code>AND</code> müssen beide Bedingungen erfüllt sein. „Mindestens“ entspricht <code>&gt;=</code>, „höchstens“ entspricht <code>&lt;=</code>.</p>
+          <button class="button button-secondary" type="button" data-lesson="where-sortierung">L1.6</button>
+        </section>
+        <section>
+          <h3>Beispiel aus einer Mediathek</h3>
+          <div class="data-table-wrap" role="region" tabindex="0" aria-label="Bestand der Mediathek">
+            <table class="data-table">
+              <caption class="sr-only">Tabelle medien</caption>
+              <thead><tr><th scope="col">mediennr</th><th scope="col">titel</th><th scope="col">medienart</th><th scope="col">bestand</th></tr></thead>
+              <tbody>
+                <tr><td>101</td><td>Die Welle</td><td>Buch</td><td>4</td></tr>
+                <tr><td>102</td><td>Planet Erde</td><td>DVD</td><td>6</td></tr>
+                <tr><td>103</td><td>Erebos</td><td>Buch</td><td>2</td></tr>
+                <tr><td>104</td><td>Die Welle</td><td>DVD</td><td>3</td></tr>
+                <tr><td>105</td><td>Wunder</td><td>Buch</td><td>7</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Zeige Mediennummer und Titel aller DVDs mit mindestens drei Exemplaren. Sortiere absteigend nach Bestand.</p>
+          <pre class="code-block"><code>SELECT mediennr, titel\nFROM medien\nWHERE medienart = 'DVD' AND bestand &gt;= 3\nORDER BY bestand DESC;</code></pre>
+          <p>Ergebnis: zuerst 102 / Planet Erde, dann 104 / Die Welle. Der Bestand wird zum Filtern und Sortieren verwendet, aber nicht ausgegeben.</p>
+        </section>
+        <section>
+          <h3>Selbsttest zur Tabelle <code>medien</code></h3>
+          <ol type="A">
+            <li>Gib den Datensatz mit der Mediennummer 104 an. Welcher Datentyp passt zu <code>bestand</code> und warum?</li>
+            <li>Gib nur Titel und Medienart aus. Sortiere zuerst nach Titel und bei gleichem Titel nach Medienart, jeweils aufsteigend.</li>
+            <li>Gib nur Mediennummer und Titel der Medien mit weniger als vier Exemplaren aus.</li>
+            <li>Gib nur Titel und Bestand aller Bücher mit mindestens vier Exemplaren aus. Sortiere aufsteigend nach Bestand.</li>
+          </ol>
+          <details class="source-disclosure">
+            <summary>Lösungen zum Selbsttest</summary>
+            <ol type="A">
+              <li>104, Die Welle, DVD, 3. <code>INT</code>, weil Exemplare in ganzen Stückzahlen gezählt werden.</li>
+              <li><pre class="code-block"><code>SELECT titel, medienart\nFROM medien\nORDER BY titel ASC, medienart ASC;</code></pre></li>
+              <li><pre class="code-block"><code>SELECT mediennr, titel\nFROM medien\nWHERE bestand &lt; 4;</code></pre></li>
+              <li><pre class="code-block"><code>SELECT titel, bestand\nFROM medien\nWHERE medienart = 'Buch' AND bestand &gt;= 4\nORDER BY bestand ASC;</code></pre></li>
+            </ol>
+          </details>
+        </section>
+      </article>`;
+  }
+
   function renderExam() {
     setHeading("Unter Zeit üben", "Klausurtraining");
     activateNav("sql");
@@ -3540,6 +3610,12 @@
       <div><strong>${stateXp()} XP</strong><small>Lernstand</small></div>`;
   }
 
+  async function createBackupFile() {
+    activeDrawing?.finish();
+    const name = exportFileName();
+    return new File([JSON.stringify(await backupPayload())], name, { type: "application/json" });
+  }
+
   async function exportProgress() {
     if (backupBusy) return;
     if (!isValidStudentCode(state.name) || !isValidClassName(state.className)) {
@@ -3550,12 +3626,9 @@
     setBackupBusy(true);
     setBackupStatus("");
     try {
-      activeDrawing?.finish();
-      const suggestedName = exportFileName();
-      const json = JSON.stringify(await backupPayload());
-      const blob = new Blob([json], { type: "application/json" });
-      if (blob.size > maxBackupBytes) throw new Error("Der Lernstand ist zu groß für eine Sicherungsdatei (maximal 25 MB).");
-      downloadBlob(blob, suggestedName);
+      const file = await createBackupFile();
+      if (file.size > maxBackupBytes) throw new Error("Der Lernstand ist zu groß für eine Sicherungsdatei (maximal 25 MB).");
+      downloadBlob(file, file.name);
       setBackupStatus("Datei zum Download übergeben.");
       if (!backupDialog.open) toast("JSON-Sicherung zum Download übergeben");
     } catch (error) {
@@ -3569,7 +3642,7 @@
 
   function setBackupBusy(busy) {
     backupBusy = busy;
-    for (const id of ["exportProgressButton", "importProgressButton", "quickSaveButton", "quickOpenButton"]) document.querySelector(`#${id}`).disabled = busy;
+    for (const id of ["exportProgressButton", "importProgressButton", "quickSaveButton", "quickOpenButton", "backupOutlookDraft"]) document.querySelector(`#${id}`).disabled = busy;
     backupDialog.setAttribute("aria-busy", String(busy));
   }
 
@@ -3733,6 +3806,8 @@
       renderHome();
     } else if (route.name === "path") {
       renderPath();
+    } else if (route.name === "klausurvorbereitung") {
+      renderExamPreparation();
     } else if (route.name === "sql" && route.id === "frei") {
       renderSqlPlayground();
     } else if (route.name === "sql" && route.id === "wiederholen") {
@@ -4163,7 +4238,7 @@
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && sidebar.classList.contains("is-open")) {
+    if (event.key === "Escape" && sidebar.classList.contains("is-open") && !document.querySelector("dialog[open]")) {
       closeMobileNav();
       document.querySelector("#mobileMenuButton").focus();
     }
@@ -4771,11 +4846,19 @@
     toast("Lernprofil gespeichert");
   });
 
+  const outlookDraftButton = document.querySelector("#backupOutlookDraft");
+  const outlookOpenLink = document.querySelector("#backupOutlookOpen");
+  const outlookAuth = window.WORKBENCH_OUTLOOK_AUTH;
+  let pendingOutlookDraft;
+
   function openBackupDialog(forEmail = false) {
     updateBackupSummary();
     setBackupStatus("");
     const address = schoolEmailFor(state.name);
     const draft = document.querySelector("#backupEmailDraft");
+    outlookDraftButton.hidden = true;
+    outlookOpenLink.hidden = true;
+    outlookOpenLink.removeAttribute("href");
     draft.hidden = !address;
     if (address) draft.href = `mailto:${address}?subject=${encodeURIComponent("WorkbenchLab: Lernstandsicherung")}`;
     else draft.removeAttribute("href");
@@ -4784,13 +4867,78 @@
       ? "Prüfe die Adresse. Lade die JSON-Datei über „Speichern“ herunter und hänge sie selbst an den Entwurf an."
       : "Lege zuerst dein Schülerkürzel im Profil fest.";
     backupDialog.showModal();
+    backupDialog.dispatchEvent(new Event("workbenchlab-backup-open"));
     if (forEmail) (address ? draft : document.querySelector("#backupCloseButton")).focus();
+    if (address && outlookAuth.enabled) outlookAuth.prepare().then(ready => {
+      if (!ready || !backupDialog.open || address !== schoolEmailFor(state.name)) return;
+      outlookDraftButton.hidden = false;
+      document.querySelector("#backupEmailHint").textContent = "Die aktuelle JSON-Sicherung wird als Entwurf in deinem Microsoft-Schulpostfach abgelegt. Du sendest selbst.";
+      if (forEmail && document.activeElement === draft) outlookDraftButton.focus();
+    });
   }
 
-  document.querySelector("#backupButton").addEventListener("click", () => openBackupDialog());
-  document.querySelector("#quickSaveButton").addEventListener("contextmenu", (event) => {
+  backupDialog.addEventListener("close", () => pendingOutlookDraft?.abort());
+  outlookDraftButton.addEventListener("click", async () => {
+    const address = schoolEmailFor(state.name);
+    if (backupBusy || outlookDraftButton.hidden || !outlookAuth.enabled || !address) return;
+    if (!isValidClassName(state.className)) {
+      backupDialog.close();
+      openProfileDialog("Lege zuerst deine Klasse fest.");
+      return;
+    }
+    const operation = new AbortController();
+    pendingOutlookDraft = operation;
+    outlookOpenLink.hidden = true;
+    outlookOpenLink.removeAttribute("href");
+    setBackupBusy(true);
+    setBackupStatus("Sicherung wird vorbereitet …");
+    let stage = "backup";
+    try {
+      const file = await createBackupFile();
+      if (operation.signal.aborted || !backupDialog.open) return;
+      if (file.size > window.WORKBENCH_OUTLOOK_DRAFT.maxAttachmentBytes) {
+        setBackupStatus("Die Sicherung ist größer als 2 MiB. Bitte herunterladen und manuell anhängen.", true);
+        return;
+      }
+      stage = "login";
+      const accessToken = await outlookAuth.getToken(address);
+      if (operation.signal.aborted || !backupDialog.open || schoolEmailFor(state.name) !== address) return;
+      stage = "draft";
+      setBackupStatus("Outlook-Entwurf wird erstellt …");
+      const { outlookUrl } = await window.WORKBENCH_OUTLOOK_DRAFT.createDraft({ accessToken, expectedAddress: address, file, signal: operation.signal });
+      if (operation.signal.aborted || !backupDialog.open) return;
+      setBackupStatus("Entwurf mit Sicherung erstellt. Du findest ihn in Outlook unter „Entwürfe“. Es wurde nichts gesendet.");
+      if (outlookUrl) {
+        outlookOpenLink.href = outlookUrl;
+        outlookOpenLink.hidden = false;
+        outlookOpenLink.focus();
+      }
+    } catch (error) {
+      if (operation.signal.aborted || !backupDialog.open) return;
+      const message = stage === "login" ? "Microsoft-Anmeldung nicht abgeschlossen. Bitte verwende dein Schulkonto."
+        : stage === "draft" ? window.WORKBENCH_OUTLOOK_DRAFT.errorMessage(error)
+          : "Die Sicherungsdatei konnte nicht erstellt werden.";
+      setBackupStatus(message, true);
+    } finally {
+      pendingOutlookDraft = undefined;
+      setBackupBusy(false);
+    }
+  });
+
+  document.querySelector("#backupButton").addEventListener("click", () => {
+    profileDialog.close();
+    document.querySelector("#editProfileButton").focus();
+    openBackupDialog();
+  });
+  const quickSave = document.querySelector("#quickSaveButton");
+  function openBackupContext(event) {
     event.preventDefault();
+    quickSave.focus();
     openBackupDialog(true);
+  }
+  quickSave.addEventListener("contextmenu", openBackupContext);
+  quickSave.addEventListener("keydown", event => {
+    if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) openBackupContext(event);
   });
   const profileResetDialog = document.querySelector("#profileResetDialog");
   function reloadAfterProfileReset() {
@@ -4984,6 +5132,16 @@
     });
     window.addEventListener("resize", () => apply(Number(handle.getAttribute("aria-valuenow")), false));
   })();
+
+  const versionHistoryButton = document.querySelector("#versionHistoryButton");
+  const versionHistoryDialog = document.querySelector("#versionHistoryDialog");
+  versionHistoryButton.textContent = `V${content.version}`;
+  versionHistoryButton.setAttribute("aria-label", `Versionsverlauf öffnen (V${content.version})`);
+  versionHistoryButton.addEventListener("click", () => {
+    versionHistoryDialog.showModal();
+    document.querySelector("#versionHistoryList").scrollTop = 0;
+  });
+  versionHistoryDialog.addEventListener("close", () => versionHistoryButton.focus({ preventScroll: true }));
 
   applyTheme(readTheme(), false);
   initSqlRuntime().catch(() => {});

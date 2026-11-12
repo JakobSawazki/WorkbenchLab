@@ -152,8 +152,8 @@ const audit = () => {
       await page.waitForTimeout(200);
       await check("Notizen, Zeichenfläche");
       await go("home");
-      for (const [button, close, label] of [["#editProfileButton", "#profileCancelButton", "Profil"], ["#appearanceButton", "#appearanceCloseButton", "Darstellung"], ["#backupButton", "#backupCloseButton", "Sicherung"]]) {
-        await page.locator(button).click();
+      for (const [button, close, label] of [["#editProfileButton", "#profileCancelButton", "Profil"], ["#appearanceButton", "#appearanceCloseButton", "Darstellung"], ["#quickSaveButton", "#backupCloseButton", "Sicherung"]]) {
+        await page.locator(button).click({ button: button === "#quickSaveButton" ? "right" : "left" });
         await page.waitForTimeout(150);
         await check(`Dialog ${label}`);
         if (button === "#editProfileButton") {
@@ -165,7 +165,7 @@ const audit = () => {
           await page.keyboard.press("Control+Alt+s");
           if (await page.locator("#developerModeButton").getAttribute("aria-pressed") !== "true") await page.locator("#developerModeButton").click();
         }
-        if (button === "#backupButton") {
+        if (button === "#quickSaveButton") {
           await page.locator("#profileResetButton").click();
           await check("Lernprofil-Löschbestätigung");
           await page.keyboard.press("Escape");

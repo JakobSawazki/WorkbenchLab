@@ -156,7 +156,7 @@ async function verifyExport(download, name) {
     console.log("PASS: notebook synchronization and search.");
 
     const downloaded = page.waitForEvent("download");
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     await page.locator("#exportProgressButton").click();
     const exported = await verifyExport(await downloaded, "study-export.json");
     assert.equal(exported.payload.formatVersion, 9);
@@ -165,13 +165,13 @@ async function verifyExport(download, name) {
     assert.equal(exported.payload.data.lessonWorksheets["warum-datenbanken"].rows[0].length, "45");
     await page.locator("#backupCloseButton").click();
     await page.locator("#notebookEditor").fill("Temporärer Stand vor Import.");
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(exported.file);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
     assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "BPE6: Offene Fragen und meine Merksätze.");
 
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     assert.equal(await page.locator("#autoDownloadBackup").count(), 0);
     // An old opt-out must not disable the now mandatory automatic backup.
     await page.evaluate(() => localStorage.setItem("workbenchlab-auto-download-v1", "false"));
@@ -226,7 +226,7 @@ async function verifyExport(download, name) {
     const legacyFile = path.join(output, "legacy-v3.json");
     fs.writeFileSync(legacyFile, JSON.stringify(legacy));
     await page.goto(`${base}?screenshot=1#notes/general`);
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(legacyFile);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
@@ -247,8 +247,8 @@ async function verifyExport(download, name) {
     const fallback = await unavailable.newPage();
     await fallback.goto(`${base}?screenshot=1#notes/general`);
     await fallback.locator("#notebookEditor").fill("Bleibt bei Speicherfehler im aktuellen Tab bearbeitbar.");
-    assert.ok(await fallback.locator("#backupButton").evaluate((el) => el.classList.contains("has-storage-error")));
-    await fallback.locator("#backupButton").click();
+    assert.ok(await fallback.locator("#quickSaveButton").evaluate((el) => el.classList.contains("has-storage-error")));
+    await fallback.locator("#quickSaveButton").click({ button: "right" });
     assert.ok((await fallback.locator("#backupStorageHint").innerText()).includes("nicht verfügbar"));
     await unavailable.close();
     console.log("PASS: notes, highlights, worksheet text, sidebar, collapsed path, manual/automatic export, import, storage failure, desktop/mobile.");

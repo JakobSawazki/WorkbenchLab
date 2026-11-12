@@ -105,7 +105,7 @@ async function line(page, x1, y1, x2, y2) {
     const png = page.waitForEvent("download");
     await page.locator('[data-draw-action="download"]').click();
     assert.ok((await png).suggestedFilename().endsWith(".png"));
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     const json = page.waitForEvent("download");
     await page.locator("#exportProgressButton").click();
     const file = path.join(output, "drawing-export.json");
@@ -120,7 +120,7 @@ async function line(page, x1, y1, x2, y2) {
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator('[data-draw-action="clear"]').click();
     assert.equal(await alpha(page, 360, 360), 0);
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(file);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
@@ -134,14 +134,14 @@ async function line(page, x1, y1, x2, y2) {
     legacy.integrity.digest = crypto.createHash("sha256").update(stable(legacyBody)).digest("hex");
     const legacyFile = path.join(output, "legacy-v4.json");
     fs.writeFileSync(legacyFile, JSON.stringify(legacy));
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(legacyFile);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
     assert.equal(await page.locator("#notebookEditor").evaluate(node => node.value), "Meine Skizze einer Tabellenbeziehung.");
     await page.locator("#noteDrawingTab").click();
     assert.equal(await alpha(page, 360, 360), 0);
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(file);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });

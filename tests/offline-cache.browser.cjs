@@ -71,7 +71,7 @@ const artifacts = require("./artifacts.cjs")("offline-cache");
       if (!localStorage.getItem("workbenchlab-v1")) localStorage.setItem("workbenchlab-v1", JSON.stringify({ name: "TST.QAA", className: "TEST", completedCommands: ["cmd-select"] }));
     });
   };
-  const openBackup = async page => { await page.locator("#backupButton").click(); await page.locator("#offlineCachePanel").waitFor(); };
+  const openBackup = async page => { await page.locator("#quickSaveButton").click({ button: "right" }); await page.locator("#offlineCachePanel").waitFor(); };
   const ready = async page => { await page.waitForFunction(() => document.querySelector("#offlineCacheStatus").textContent.startsWith("Offline verfügbar")); };
   try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });

@@ -94,11 +94,11 @@ async function buttonContrast(page, selector) {
         const heights = await page.locator(".topbar-actions").evaluate((el) => [...el.querySelectorAll("button")]
           .filter((button) => button.checkVisibility()).map((button) => button.getBoundingClientRect().height));
         assert.ok(Math.max(...heights) - Math.min(...heights) < 1);
-        const before = await page.locator("#backupButton").boundingBox();
-        await page.locator("#backupButton").hover();
-        const after = await page.locator("#backupButton").boundingBox();
+        const before = await page.locator("#quickSaveButton").boundingBox();
+        await page.locator("#quickSaveButton").hover();
+        const after = await page.locator("#quickSaveButton").boundingBox();
         assert.deepEqual(after, before, "Metal hover must not shift the button");
-        for (const selector of ["#backupButton", "#editProfileButton"]) await buttonContrast(page, selector);
+        for (const selector of ["#quickSaveButton", "#editProfileButton"]) await buttonContrast(page, selector);
         await page.mouse.move(0, 0);
         await page.screenshot({ path: path.join(artifacts, `${theme}-${width}-home.png`), animations: "disabled" });
         await page.locator("#appearanceButton").click();

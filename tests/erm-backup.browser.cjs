@@ -31,12 +31,12 @@ async function open(browser, seedDrafts) {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(base + "#home");
-  await page.locator("#backupButton").waitFor();
+  await page.locator("#quickSaveButton").waitFor();
   return { context, page, errors };
 }
 
 async function exportBackup(page) {
-  if (!(await page.locator("#backupDialog").isVisible())) await page.locator("#backupButton").click();
+  if (!(await page.locator("#backupDialog").isVisible())) await page.locator("#quickSaveButton").click({ button: "right" });
   const download = page.waitForEvent("download");
   await page.locator("#exportProgressButton").click();
   const stream = await (await download).createReadStream();
@@ -46,7 +46,7 @@ async function exportBackup(page) {
 }
 
 async function importBackup(page, payload, accept = true) {
-  if (!(await page.locator("#backupDialog").isVisible())) await page.locator("#backupButton").click();
+  if (!(await page.locator("#backupDialog").isVisible())) await page.locator("#quickSaveButton").click({ button: "right" });
   let message = "";
   page.once("dialog", (dialog) => { message = dialog.message(); return accept ? dialog.accept() : dialog.dismiss(); });
   await page.locator("#progressFileInput").setInputFiles(asFile("sicherung.json", payload));
@@ -90,7 +90,7 @@ const storedDrafts = (page) => page.evaluate(() => JSON.parse(localStorage.getIt
     // Abbrechen ändert nichts; eine veränderte Sicherung wird wegen der Prüfsumme abgelehnt.
     const other = structuredClone(exported);
     other.extras.ermDrafts.models["fahrschule-ort"].entities[0].name = "Geändert";
-    await b.page.locator("#backupButton").click();
+    await b.page.locator("#quickSaveButton").click({ button: "right" });
     await b.page.locator("#progressFileInput").setInputFiles(asFile("veraendert.json", other));
     await b.page.locator("#backupStatus.is-error").waitFor();
     assert.match(await b.page.locator("#backupStatus").innerText(), /Prüfsumme stimmt nicht/);

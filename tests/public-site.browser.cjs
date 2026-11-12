@@ -60,7 +60,7 @@ const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
     assert.equal(await page.locator("main .practice-card.is-locked").count(), 0);
     assert.equal(await page.locator("main .practice-ahead").count(), 0);
     const xpStart = Number.parseInt(await page.locator("#topXp").innerText(), 10);
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     assert.equal(await page.locator("#offlinePackageLink, #offlineCachePanel, #autoDownloadBackup").count(), 0);
     assert.equal(await page.locator("#exportProgressButton").isVisible(), true);
     assert.equal(await page.locator("#importProgressButton").isVisible(), true);

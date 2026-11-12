@@ -70,8 +70,8 @@ const dialogProblem = () => {
           }
         }
         await page.evaluate(() => { window.location.hash = "home"; });
-        for (const [button, close, label] of [["#editProfileButton", "#profileCancelButton", "Profil"], ["#appearanceButton", "#appearanceCloseButton", "Darstellung"], ["#backupButton", "#backupCloseButton", "Sicherung"]]) {
-          await page.locator(button).click();
+        for (const [button, close, label] of [["#editProfileButton", "#profileCancelButton", "Profil"], ["#appearanceButton", "#appearanceCloseButton", "Darstellung"], ["#quickSaveButton", "#backupCloseButton", "Sicherung"]]) {
+          await page.locator(button).click({ button: button === "#quickSaveButton" ? "right" : "left" });
           await page.waitForTimeout(120);
           views += 1;
           const problem = await page.evaluate(dialogProblem);
@@ -86,7 +86,7 @@ const dialogProblem = () => {
             await page.keyboard.press("Control+Alt+s");
             if (await page.locator("#developerModeButton").getAttribute("aria-pressed") !== "true") await page.locator("#developerModeButton").click();
           }
-          if (button === "#backupButton") {
+          if (button === "#quickSaveButton") {
             await page.locator("#profileResetButton").click();
             views += 1;
             const resetProblem = await page.evaluate(dialogProblem);

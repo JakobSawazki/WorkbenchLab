@@ -60,7 +60,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       assert.equal(await page.locator("#sqlOutput tbody td").first().innerText(), "3");
       await editor.fill("SELECT nachname FROM fahrschueler WHERE ort = 'stuttgart';");
       await page.locator("#playgroundRunButton").click();
-      await page.getByText("0 Ergebniszeilen").waitFor();
+      await page.locator("#sqlOutput").getByText("0 Ergebniszeilen", { exact: true }).waitFor();
       assert.match(await page.locator("#sqlOutput .mysql-note").innerText(), /Groß- und Kleinschreibung bei Textvergleichen/);
       await editor.fill("SELECT nachname FROM fahrschueler WHERE ort = 'Stuttgart';");
       await page.locator("#playgroundRunButton").click();

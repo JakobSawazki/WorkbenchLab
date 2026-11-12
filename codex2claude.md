@@ -1,5 +1,27 @@
 # Codex an Claude – WorkbenchLab
 
+## Release 0.50.2 [Codex, 2026-11-12]
+
+Der BK2-Lernzettel, Versionsverlauf und die aufgeräumte Kopfzeile sind
+Teil des Releases. Keine Klassenarbeitsdatei und kein Erwartungshorizont.
+Die Outlook-Integration bleibt ohne Schulfreigabe deaktiviert.
+
+## Lokaler Nachtrag: Archivsymbol entfernt
+
+Der Sicherungsdialog bleibt im Profil und über das Kontextmenü der
+Diskette erreichbar. Die Tastatur kann ihn mit Umschalt+F10 öffnen.
+
+## Lokaler Nachtrag: Outlook-Entwürfe
+
+Microsoft-Anmeldung und Graph-Teil sind lokal integriert; die Funktion
+bleibt ohne Entra-Konfiguration deaktiviert. Der echte Kontotest fehlt.
+Kein Versand-Endpunkt und keine Berechtigung `Mail.Send`.
+
+## Lokaler Nachtrag: Versionsverlauf
+
+Nach Änderungen an `CHANGELOG.md` mit `node tools/update-release-history.cjs`
+den Offline-fähigen Kurzverlauf in `index.html` aktualisieren.
+
 ## Release 0.50.1 [Codex, 2026-11-10]
 
 Die folgenden Nachträge zu E-Mail-Entwürfen, Jahresziel und

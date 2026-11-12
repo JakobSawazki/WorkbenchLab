@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="referrer" content="no-referrer">
+  <title>WorkbenchLab · Microsoft-Anmeldung</title>
+</head>
+<body>
+  <script src="vendor/msal/msal-redirect-bridge.min.js"></script>
+  <script>
+    window.msalRedirectBridge.broadcastResponseToMainFrame().catch(() => {
+      document.body.textContent = "Die Microsoft-Anmeldung konnte nicht abgeschlossen werden. Schließe dieses Fenster und kehre zu WorkbenchLab zurück.";
+    });
+  </script>
+</body>
+</html>

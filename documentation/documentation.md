@@ -1,5 +1,33 @@
 # WorkbenchLab Projektdokumentation
 
+## Release 0.50.2 [Codex, 2026-11-12]
+
+Der [Releaseüberblick](releases/RELEASE_0_50_2.md) bündelt den BK2-Lernzettel
+unter „Klausurvorbereitung“, Versionsverlauf, Sicherungsdialog im Lernprofil
+und die deaktivierte Outlook-Anbindung. Nur der Lernzettel wurde als
+HTML aufbereitet; Klassenarbeit und Erwartungshorizont bleiben privat.
+
+## Lokaler Nachtrag: Aufgeräumte Kopfzeile
+
+Das Archivsymbol entfällt. „Sicherungen verwalten“ ist über das Lernprofil
+oder das Kontextmenü der Diskette erreichbar. Direktes Speichern und Laden
+bleiben in der Kopfzeile; bei gesperrtem Browserspeicher markiert die
+Warnung jetzt die Diskette.
+
+## Lokaler Nachtrag: Outlook-Entwurf mit Anhang
+
+`outlook-draft.js` und `outlook-auth.js` implementieren den optionalen
+Outlook-Entwurf. Ohne konfigurierte Entra-App bleibt er deaktiviert.
+Der bestehende Mail-Link und der JSON-Download bleiben verfügbar. Details:
+[Outlook-Entwürfe](OUTLOOK_DRAFTS.md).
+
+## Lokaler Nachtrag: Versionsverlauf in der Seitenleiste
+
+Die Schaltfläche zeigt die aktive App-Version und öffnet den öffentlichen
+Kurzverlauf. Nach einer neuen Zeile in `CHANGELOG.md` vor jedem Release
+`node tools/update-release-history.cjs` ausführen. Der Verlauf ist in
+`index.html` eingebettet und funktioniert auch beim Öffnen ohne Server.
+
 ## Release 0.50.1 [Codex, 2026-11-10]
 
 Der [Releaseüberblick](releases/RELEASE_0_50_1.md) bündelt die folgenden

@@ -17,12 +17,12 @@
       } catch {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=0.50.1">
-  <link rel="stylesheet" href="styles-lesson.css?v=0.50.1">
-  <link rel="stylesheet" href="styles-practice.css?v=0.50.1">
-  <link rel="stylesheet" href="styles-visuals.css?v=0.50.1">
-  <link rel="stylesheet" href="styles-shared.css?v=0.50.1">
-  <link rel="stylesheet" href="styles-extensions.css?v=0.50.1">
+  <link rel="stylesheet" href="styles.css?v=0.50.2">
+  <link rel="stylesheet" href="styles-lesson.css?v=0.50.2">
+  <link rel="stylesheet" href="styles-practice.css?v=0.50.2">
+  <link rel="stylesheet" href="styles-visuals.css?v=0.50.2">
+  <link rel="stylesheet" href="styles-shared.css?v=0.50.2">
+  <link rel="stylesheet" href="styles-extensions.css?v=0.50.2">
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Zum Inhalt springen</a>
@@ -50,6 +50,10 @@
           <i data-lucide="database"></i>
           <span>SQL-Labor</span>
         </button>
+        <button class="nav-item" type="button" data-route="klausurvorbereitung">
+          <i data-lucide="clipboard-list"></i>
+          <span>Klausur<wbr>vorbereitung</span>
+        </button>
         <button class="nav-item" type="button" data-route="modeling">
           <i data-lucide="network"></i>
           <span>Modellieren</span>
@@ -73,7 +77,7 @@
       </nav>
 
       <div class="sidebar-spacer"></div>
-
+      <button class="sidebar-version" id="versionHistoryButton" type="button" aria-haspopup="dialog" aria-controls="versionHistoryDialog" title="Versionsverlauf"></button>
     </aside>
 
     <div class="page-column">
@@ -107,15 +111,11 @@
           <button class="icon-button" id="appearanceButton" type="button" title="Darstellung anpassen" aria-label="Darstellung anpassen" aria-haspopup="dialog" aria-controls="appearanceDialog">
             <i data-lucide="settings-2"></i>
           </button>
-          <button class="icon-button" id="quickSaveButton" type="button" title="Lernstand speichern (Alt+S) · Rechtsklick: E-Mail vorbereiten" aria-label="Lernstand speichern" aria-keyshortcuts="Alt+S">
+          <button class="icon-button" id="quickSaveButton" type="button" title="Lernstand speichern (Alt+S) · Rechtsklick: Sicherungen verwalten" aria-label="Lernstand speichern" aria-keyshortcuts="Alt+S">
             <i data-lucide="save" aria-hidden="true"></i>
           </button>
           <button class="icon-button" id="quickOpenButton" type="button" title="Lernstand öffnen (Alt+O)" aria-label="Lernstand öffnen" aria-keyshortcuts="Alt+O">
             <i data-lucide="folder-open" aria-hidden="true"></i>
-          </button>
-          <button class="icon-button backup-button" id="backupButton" type="button"
-            title="Sicherungen verwalten" aria-label="Sicherungen verwalten" aria-haspopup="dialog" aria-controls="backupDialog">
-            <i data-lucide="archive" aria-hidden="true"></i>
           </button>
           <button class="icon-button runtime-button" id="runtimeChip" type="button" title="SQL wird vorbereitet" aria-label="SQL wird vorbereitet" aria-busy="true">
             <i data-lucide="database"></i><span class="status-dot" aria-hidden="true"></span>
@@ -187,12 +187,87 @@
       </button>
       <input class="sr-only" id="solutionFileInput" type="file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
       <div class="dialog-actions">
+        <button class="button button-secondary" id="backupButton" type="button" aria-haspopup="dialog" aria-controls="backupDialog">Sicherungen verwalten</button>
         <button class="button button-primary" value="save" type="submit">
           <i data-lucide="check"></i>
           Ok
         </button>
       </div>
     </form>
+  </dialog>
+
+  <dialog class="profile-dialog release-history-dialog" id="versionHistoryDialog" aria-labelledby="versionHistoryTitle">
+    <form method="dialog" class="dialog-heading">
+      <h2 id="versionHistoryTitle">Versionsverlauf</h2>
+      <button class="icon-button" type="submit" title="Schließen" aria-label="Versionsverlauf schließen" autofocus><i data-lucide="x" aria-hidden="true"></i></button>
+    </form>
+    <ol id="versionHistoryList" role="list" tabindex="0" aria-label="Versionen, neueste zuerst">
+      <!-- RELEASE_HISTORY_START -->
+      <li><strong>V0.50.2</strong><p>BK2-Lernzettel zur Klausurvorbereitung, Versionsverlauf unten links und Sicherungsdialog im Lernprofil; Outlook-Anhang vorbereitet, noch nicht aktiv</p></li>
+      <li><strong>V0.50.1</strong><p>Kompakte Lektionspfeile, kurze Modulkennungen, EP-Jahresziel ohne Notenbezug, Schul-E-Mail und Entwurf für Sicherungen</p></li>
+      <li><strong>V0.50.0</strong><p>EP statt NAGOLD, sichtbarer Lernfortschritt, direktes Speichern und Laden, überarbeitetes L1.2 und Musterlösungen für L1.1/L1.2 im Entwicklermodus</p></li>
+      <li><strong>V0.49.0</strong><p>Alle Einheiten frei waehlbar, vereinfachtes Speichern/Laden mit automatischer Sicherung, lesbare Dateinamen, Anwesenheit per Plus, Profil-Reset im Entwicklermodus, ER/PK-Definitionen und reparierter Altklassen-Import</p></li>
+      <li><strong>V0.48.0</strong><p>NAGOLD-Autosave, einmalig 5 Startkapital, Anwesenheit mit 2 Punkten, Jahresziel-Balken, nummerierte Notizen, strengere Klassenkurzform und vereinfachte Oberflaeche</p></li>
+      <li><strong>V0.47.0</strong><p>NAGOLD-Menue mit Mausrad, einzelne Notiztextstellen farbig, Textmarker bis unten, Kommentare an Textstellen und Zeichnen/Radieren nach automatischer Verdichtung</p></li>
+      <li><strong>V0.46.1</strong><p>NAGOLD: Abzüge bis −10 statt −5; Codex am 12. Oktober: vollständige Nachprüfung, Modell-Regressionen und passendes Offline-ZIP nachveröffentlicht</p></li>
+      <li><strong>V0.46.0</strong><p>NAGOLD-Tabelle: „Wofür“ als ein Feld mit weich aufklappender Vorschlagsliste, neue Zeilen mit 0, Abzüge von −5 bis 5, höheres Fenster; Trennlinie neben der Navigation verschiebbar; dazu Codex' Stand vom 10. Oktober (u. a. Modellabschlüsse)</p></li>
+      <li><strong>V0.45.0</strong><p>Freiwillige Offline-Kopie der HTTPS-Seite mit Dateiprüfsummen, Versionsprüfung, sicheren wartenden Updates, Video-Bytebereichen und gezieltem Entfernen; ZIP bleibt verfügbar</p></li>
+      <li><strong>V0.44.0</strong><p>Offline-ZIP für den Informatik-Stick, per Doppelklick ohne Server: eingebettete SQL-Laufzeit, zwölf Einheitenskripte, Video mit Untertiteln, Lernstandsicherung und Lehrkraftprüfung; gefilterte Dateiliste mit Prüfsummen</p></li>
+      <li><strong>V0.43.0</strong><p>Einheitenskripte und eigene SQL-Dateien im leeren Browser-Arbeitsbereich; Datenbanktrennung, USE, qualifizierte Tabellen, Live-Schemaübersicht, Fehler mit Teilfortschritt und gespeicherte Entwürfe; native Vergleichs- und Zugänglichkeitsprüfungen</p></li>
+      <li><strong>V0.42.0</strong><p>NAGOLD-Tabelle mit Datum/Uhrzeit, eigenen und automatischen Einträgen; getrennte Bestätigungsliste der Lehrkraft mit Sicherung und CSV; blaues Satin-Titan-/Glasdesign; sichere Rettung bei Speicherfehlern; Kontrast ohne Ausnahmen; Testartefakte in Temp und lokal vorspulbares Startvideo</p></li>
+      <li><strong>V0.41.5</strong><p>Kein seitliches Überlaufen mehr bei Laptop- und Tablet-Breiten und mit großer Schrift; SQL-Editor mit der Tastatur verlassbar (Esc + Tab); Tests für Breiten und Tastaturbedienung</p></li>
+      <li><strong>V0.41.4</strong><p>Aufgabenprüfung nimmt gleichwertige Schreibweisen an (ASC, Backticks, Tabellenvorsatz, Kommentare, Leerzeichen und Großschreibung bei CREATE TABLE); Test über alle 32 SQL-Aufgaben</p></li>
+      <li><strong>V0.41.3</strong><p>Lesbarkeit: Schrift auf der Akzentfarbe im dunklen Design (u. a. aktiver Reiter jeder SQL-Aufgabe); Start bei gesperrtem Browserspeicher; Tests für Kontrast und Speicher</p></li>
+      <li><strong>V0.41.2</strong><p>Modell-Editor: Kästen lassen sich per Finger ziehen; zwei Korrekturen für Bildschirmleser; neuer Test zur Bedienbarkeit über 242 Ansichten</p></li>
+      <li><strong>V0.41.1</strong><p>Ausdruck der Klassenübersicht passt aufs Papier (Querformat, Umbruch); vorher fehlten rechts Spalten</p></li>
+      <li><strong>V0.41.0</strong><p>Browser-Labor näher an MySQL: 22 Funktionen nachgebildet oder berichtigt, AUTO_INCREMENT und TIMESTAMPDIFF im freien Labor, deutsche Hinweise zu reinem MySQL, zwei weitere gemessene Unterschiede</p></li>
+      <li><strong>V0.40.1</strong><p>Klassenübersicht zeigt bestandene Modellaufgaben, auf dem Gerät der Lehrkraft neu geprüft</p></li>
+      <li><strong>V0.40.0</strong><p>Entwürfe des Modell-Editors sind Teil der JSON-Sicherung und werden beim Laden übernommen</p></li>
+      <li><strong>V0.39.3</strong><p>Ohne sichtbare Änderung: styles.css in sechs Dateien aufgeteilt, Reihenfolge der Regeln unverändert</p></li>
+      <li><strong>V0.39.2</strong><p>Ohne sichtbare Änderung: Aufbau und Bereinigung des Lernstands in state.js, erstmals direkt getestet</p></li>
+      <li><strong>V0.39.1</strong><p>Ohne sichtbare Änderung: Prüfsumme der Sicherung in backup.js, gemeinsam für Lernplattform und Klassenübersicht</p></li>
+      <li><strong>V0.39.0</strong><p>Lösungen für die Lehrkraft im Entwicklermodus über eine lokale Lösungsdatei</p></li>
+      <li><strong>V0.38.2</strong><p>Ohne sichtbare Änderung: SQL-Prüflogik aus app.js in sql-check.js ausgelagert (OPT-16, Schritt 1)</p></li>
+      <li><strong>V0.38.1</strong><p>Siebte Fehlersuche-Aufgabe nach Abiturmuster: AND/OR ohne Klammern bei Tabellenverbund über WHERE</p></li>
+      <li><strong>V0.38.0</strong><p>Jakobs Entscheidungen: Übungen frei zugänglich, Einheiten weiter in Reihenfolge; 5 NAGOLD je abgeschlossener Einheit; keine Lösungsanweisungen in der veröffentlichten Fassung; Schreibweise 1 : ∞ im Modell-Editor</p></li>
+      <li><strong>V0.37.0</strong><p>Modell-Editor: Optionalität (0..1, 1..N); Hinweise auf MySQL-Unterschiede auch in den Aufgaben</p></li>
+      <li><strong>V0.36.0</strong><p>Prüfung aller neuen Aufgaben an der MariaDB des Informatik-Sticks; Hinweise auf drei gemessene MySQL-Unterschiede; „0 Ergebniszeilen“ im freien Labor</p></li>
+      <li><strong>V0.35.0</strong><p>Modell-Editor: Kästen verschieben, dritte geprüfte Aufgabe „Schulbibliothek“</p></li>
+      <li><strong>V0.34.0</strong><p>Klausurtraining: fünf gemischte Aufgaben in 20 Minuten mit Auswertung je Einheit</p></li>
+      <li><strong>V0.33.0</strong><p>Modell-Editor: Diagramm als Bild (SVG)</p></li>
+      <li><strong>V0.32.1</strong><p>Modell-Editor: Datentyp-Auswahl nicht mehr abgeschnitten</p></li>
+      <li><strong>V0.32.0</strong><p>Modell-Editor: Entitätstypen, Attribute, Schlüssel, Beziehungen; zwei geprüfte Aufgaben; SQL-Export</p></li>
+      <li><strong>V0.31.0</strong><p>Wiederholungsrunde: täglich bis zu fünf bereits gelöste Aufgaben</p></li>
+      <li><strong>V0.30.0</strong><p>Aufgabentyp „Klauseln ordnen“ (4 Aufgaben)</p></li>
+      <li><strong>V0.29.0</strong><p>Aufgabentyp „Vorhersage“ (5 Aufgaben); Checkliste für den Schul-PC-Test</p></li>
+      <li><strong>V0.28.0</strong><p>Aufgabentyp „Fehlersuche“ (6 Aufgaben); Prüfergebnis bleibt über den Reitern sichtbar</p></li>
+      <li><strong>V0.27.0</strong><p>Klassenübersicht für Lehrkräfte (lehrkraft.html)</p></li>
+      <li><strong>V0.26.2</strong><p>Druckansicht für Einheiten</p></li>
+      <li><strong>V0.26.1</strong><p>Rettungskopie, falls der gespeicherte Lernstand unlesbar ist</p></li>
+      <li><strong>V0.26.0</strong><p>Freies SQL-Labor; deutsche SQL-Fehlermeldungen mit Vorschlag; einheitliche Versionsangaben</p></li>
+      <li><strong>V0.25.3</strong><p>Profilhinweis als eigener Dialog über dem Profilfenster</p></li>
+      <li><strong>V0.25.2</strong><p>Profil mit „Ok“ bestätigen</p></li>
+      <li><strong>V0.25.1</strong><p>Schmalere Profilanzeige im Kopfbereich</p></li>
+      <li><strong>V0.25.0</strong><p>Fotografische Bildeinstiege mit Denkfragen in L1.1, L2.1 und L5.1</p></li>
+      <li><strong>V0.24.1</strong><p>Dunkleres Navy im Dark Mode</p></li>
+      <li><strong>V0.24.0</strong><p>Gemeinsamer Profil- und XP-Button oben rechts</p></li>
+      <li><strong>V0.23.4</strong><p>Suche im Bereich „Nachschlagen“</p></li>
+      <li><strong>V0.23.3</strong><p>Suche in den SQL-Befehlen mit deutschen Fach- und Alltagsbegriffen</p></li>
+      <li><strong>V0.23.2</strong><p>Menüpunkt „Übersicht“ entfernt; Lernpfad ist der erste Menüpunkt</p></li>
+      <li><strong>V0.23.1</strong><p>Dunkelblaue Standardpalette</p></li>
+      <li><strong>V0.23.0</strong><p>Drei SQL-Aufgaben und zwei Diagrammaufgaben; SQL-Entwurf als Datei herunterladen</p></li>
+      <li><strong>V0.22.3</strong><p>Praxisaufträge L1.1 bis L1.4 verlinken die Startanleitung</p></li>
+      <li><strong>V0.22.2</strong><p>Aufgabenblätter in Abschnitten mit höchstens fünf Fragen</p></li>
+      <li><strong>V0.22.1</strong><p>Praxisaufträge mit kurzen Überschriften und aufklappbaren Schritten</p></li>
+      <li><strong>V0.22.0</strong><p>Praxisauftrag in MySQL Workbench in allen 21 Einheiten</p></li>
+      <li><strong>V0.21.0</strong><p>Landkarte der Lernfortschritte, Lernaufgaben, verfeinerte Lernwerkzeuge</p></li>
+      <li><strong>V0.20.0</strong><p>Überarbeiteter Arbeitsbereich und XP-Dialog</p></li>
+      <li><strong>V0.14 bis V0.19</strong><p>Lernpfad bis L2.2 veröffentlicht, YouTube-Tutorials, Textmarker, Notizen und Zeichnungen (teils nur lokal)</p></li>
+      <li><strong>V0.6 bis V0.13</strong><p>Fünf Lernfortschritte mit 21 Einheiten, sequenzielle Freischaltung, Lernprofil, JSON-Sicherung mit Prüfsumme (lokal)</p></li>
+      <li><strong>V0.5.0</strong><p>Erste veröffentlichte Fassung: 19 Lektionen, SQL-Labor mit SQL-Coach, eERM-Werkstatt, XP und Erfolge</p></li>
+      <li><strong>V0.1 bis V0.4</strong><p>Aufbau des Portals</p></li>
+      <!-- RELEASE_HISTORY_END -->
+    </ol>
   </dialog>
 
   <dialog class="profile-dialog profile-help-dialog" id="profileHelpDialog" aria-labelledby="profileHelpTitle">
@@ -267,6 +342,8 @@
       <section class="backup-email" aria-label="Sicherung per E-Mail">
         <p id="backupEmailRecipient"></p>
         <p class="field-hint" id="backupEmailHint"></p>
+        <button class="button button-secondary" id="backupOutlookDraft" type="button" aria-describedby="backupEmailRecipient backupEmailHint" hidden><i data-lucide="mail" aria-hidden="true"></i>E-Mail-Entwurf mit Sicherung erstellen</button>
+        <a class="button button-secondary" id="backupOutlookOpen" target="_blank" rel="noopener noreferrer" hidden>In Outlook öffnen</a>
         <a class="button button-secondary" id="backupEmailDraft" aria-describedby="backupEmailRecipient backupEmailHint" hidden><i data-lucide="mail" aria-hidden="true"></i>E-Mail-Entwurf öffnen</a>
       </section>
       <section id="profileResetSection" class="profile-reset-section" aria-label="Entwicklermodus" hidden>
@@ -305,30 +382,32 @@
 
   <script src="vendor/lucide/lucide.min.js"></script>
   <script src="vendor/sql.js/sql-wasm.js"></script>
-  <script src="content.js?v=0.50.1"></script>
-  <script src="learning-path.js?v=0.50.1"></script>
-  <script src="lesson-openings.js?v=0.50.1"></script>
-  <script src="practical-exercises.js?v=0.50.1"></script>
-  <script src="debug-exercises.js?v=0.50.1"></script>
-  <script src="predict-exercises.js?v=0.50.1"></script>
-  <script src="order-exercises.js?v=0.50.1"></script>
-  <script src="study-tools.js?v=0.50.1"></script>
-  <script src="appearance.js?v=0.50.1"></script>
-  <script src="drawing.js?v=0.50.1"></script>
-  <script src="command-search.js?v=0.50.1"></script>
-  <script src="reference-search.js?v=0.50.1"></script>
-  <script src="expected-results.js?v=0.50.1"></script>
-  <script src="sql-check.js?v=0.50.1"></script>
-  <script src="backup.js?v=0.50.1"></script>
-  <script src="nagold.js?v=0.50.1"></script>
-  <script src="erm-editor.js?v=0.50.1"></script>
-  <script src="note-text.js?v=0.50.1"></script>
-  <script src="state.js?v=0.50.1"></script>
-  <script src="sql-feedback.js?v=0.50.1"></script>
-  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.50.1"></script>
-  <script src="sql-workspace.js?v=0.50.1"></script>
-  <script src="review.js?v=0.50.1"></script>
-  <script src="offline-client.js?v=0.50.1"></script>
-  <script src="app.js?v=0.50.1"></script>
+  <script src="content.js?v=0.50.2"></script>
+  <script src="learning-path.js?v=0.50.2"></script>
+  <script src="lesson-openings.js?v=0.50.2"></script>
+  <script src="practical-exercises.js?v=0.50.2"></script>
+  <script src="debug-exercises.js?v=0.50.2"></script>
+  <script src="predict-exercises.js?v=0.50.2"></script>
+  <script src="order-exercises.js?v=0.50.2"></script>
+  <script src="study-tools.js?v=0.50.2"></script>
+  <script src="appearance.js?v=0.50.2"></script>
+  <script src="drawing.js?v=0.50.2"></script>
+  <script src="command-search.js?v=0.50.2"></script>
+  <script src="reference-search.js?v=0.50.2"></script>
+  <script src="expected-results.js?v=0.50.2"></script>
+  <script src="sql-check.js?v=0.50.2"></script>
+  <script src="backup.js?v=0.50.2"></script>
+  <script src="nagold.js?v=0.50.2"></script>
+  <script src="erm-editor.js?v=0.50.2"></script>
+  <script src="note-text.js?v=0.50.2"></script>
+  <script src="state.js?v=0.50.2"></script>
+  <script src="sql-feedback.js?v=0.50.2"></script>
+  <script src="vendor/node-sql-parser/mysql.umd.js?v=0.50.2"></script>
+  <script src="sql-workspace.js?v=0.50.2"></script>
+  <script src="review.js?v=0.50.2"></script>
+  <script src="offline-client.js?v=0.50.2"></script>
+  <script src="outlook-auth.js?v=0.50.2"></script>
+  <script src="outlook-draft.js?v=0.50.2"></script>
+  <script src="app.js?v=0.50.2"></script>
 </body>
 </html>

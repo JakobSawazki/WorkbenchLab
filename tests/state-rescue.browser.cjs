@@ -95,7 +95,7 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await page.locator("#stateRescueNotice").waitFor();
       assert.equal(await page.evaluate(() => localStorage.getItem("workbenchlab-v1")), broken);
       await page.locator("[data-rescue-close]").click();
-      await page.locator("#backupButton").click();
+      await page.locator("#quickSaveButton").click({ button: "right" });
       assert.ok(await page.locator("#backupStorageHint").isVisible());
       // Only a valid, explicitly confirmed import may replace the protected original.
       const backupFile = {

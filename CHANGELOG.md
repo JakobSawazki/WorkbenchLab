@@ -10,6 +10,7 @@ Spalte „Von“: C = Codex, Cl = Claude.
 
 | Version | Von | Inhalt | Abschnitt |
 | --- | --- | --- | --- |
+| 0.50.2 | C | BK2-Lernzettel zur Klausurvorbereitung, Versionsverlauf unten links und Sicherungsdialog im Lernprofil; Outlook-Anhang vorbereitet, noch nicht aktiv | [Release 0.50.2](documentation/releases/RELEASE_0_50_2.md) |
 | 0.50.1 | C | Kompakte Lektionspfeile, kurze Modulkennungen, EP-Jahresziel ohne Notenbezug, Schul-E-Mail und Entwurf für Sicherungen | [Release 0.50.1](documentation/releases/RELEASE_0_50_1.md) |
 | 0.50.0 | C | EP statt NAGOLD, sichtbarer Lernfortschritt, direktes Speichern und Laden, überarbeitetes L1.2 und Musterlösungen für L1.1/L1.2 im Entwicklermodus | [Release 0.50.0](documentation/releases/RELEASE_0_50_0.md) |
 

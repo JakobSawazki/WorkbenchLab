@@ -24,7 +24,7 @@ function sign(payload) {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(`${base}?screenshot=1#home`);
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     const initialDownload = page.waitForEvent("download");
     await page.locator("#exportProgressButton").click();
     const originalPath = path.join(output, "original.json");
@@ -69,7 +69,7 @@ function sign(payload) {
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(largePath);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     const largeDownload = page.waitForEvent("download");
     await page.locator("#exportProgressButton").click();
     const roundtripPath = path.join(output, "large-roundtrip.json");
@@ -81,7 +81,7 @@ function sign(payload) {
     assert.equal(roundtrip.integrity.digest, sign(structuredClone(roundtrip)).integrity.digest);
     await page.locator("#backupCloseButton").click();
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     await page.locator("#progressFileInput").setInputFiles({ name: "bad.json", mimeType: "application/json", buffer: Buffer.from("{") });
     await page.locator("#backupStatus.is-error").waitFor();
     assert.ok(await page.locator("#backupDialog").evaluate((el) => el.scrollWidth <= el.clientWidth + 1));
@@ -112,7 +112,7 @@ function sign(payload) {
     assert.equal(await page.locator("#topXp").innerText(), "65 XP");
     assert.equal(await page.locator("#topNagold").innerText(), "17 EP");
     assert.equal(await page.locator("#topProfileClass").innerText(), "WGJ11");
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     const legacyDownload = page.waitForEvent("download");
     await page.locator("#exportProgressButton").click();
     const repaired = JSON.parse(fs.readFileSync(await (await legacyDownload).path(), "utf8"));
@@ -128,7 +128,7 @@ function sign(payload) {
     const unsupported = await unavailable.newPage();
     unsupported.on("pageerror", (error) => errors.push(error.message));
     await unsupported.goto(`${base}?screenshot=1#home`);
-    await unsupported.locator("#backupButton").click();
+    await unsupported.locator("#quickSaveButton").click({ button: "right" });
     await unsupported.locator("#exportProgressButton").click();
     await unsupported.locator("#backupStatus.is-error").waitFor();
     assert.ok((await unsupported.locator("#backupStatus").innerText()).includes("Speichern nicht möglich"));

@@ -21,7 +21,7 @@ const asFile = (file) => ({ name: path.basename(file), mimeType: "application/js
     const student = await studentContext.newPage();
     await student.goto(base + "#home");
     await student.locator("#runtimeChip.is-ready").waitFor();
-    await student.locator("#backupButton").click();
+    await student.locator("#quickSaveButton").click({ button: "right" });
     const [download] = await Promise.all([student.waitForEvent("download"), student.locator("#exportProgressButton").click()]);
     const validFile = path.join(dir, "mia.json");
     await download.saveAs(validFile);

@@ -40,7 +40,8 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await page.keyboard.press("Escape");
       assert.equal(await save.getAttribute("aria-keyshortcuts"), "Alt+S");
       assert.equal(await open.getAttribute("aria-keyshortcuts"), "Alt+O");
-      for (const button of [save, open, manager]) {
+      assert.equal(await page.locator(".topbar #backupButton").count(), 0);
+      for (const button of [save, open]) {
         const bounds = await button.boundingBox();
         assert.ok(bounds.width >= 40 && bounds.height >= 40 && bounds.x >= 0 && bounds.x + bounds.width <= width + 1);
       }
@@ -84,7 +85,9 @@ const base = process.env.WORKBENCH_TEST_URL || "http://127.0.0.1:4174/";
       await choose(() => open.click(), Buffer.from("{"));
       await page.locator("#toastRegion .is-error").filter({ hasText: "keine lesbare JSON-Sicherung" }).waitFor();
       assert.equal(await notes(), "Gesicherter Teststand");
+      await page.locator("#editProfileButton").click();
       await manager.click();
+      assert.ok(await page.locator("#profileDialog").isHidden());
       assert.ok(await dialog.isVisible());
       assert.ok(await draft.isVisible());
       assert.deepEqual(errors, []);

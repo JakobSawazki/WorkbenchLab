@@ -54,7 +54,7 @@ const output = require("./artifacts.cjs")("worksheet-groups");
       }
     }
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     const ready = page.waitForEvent("download");
     await page.locator("#exportProgressButton").click();
     const file = path.join(output, "answers.json");
@@ -67,7 +67,7 @@ const output = require("./artifacts.cjs")("worksheet-groups");
       localStorage.setItem("workbenchlab-v1", JSON.stringify(state));
     });
     await page.reload();
-    await page.locator("#backupButton").click();
+    await page.locator("#quickSaveButton").click({ button: "right" });
     page.once("dialog", (dialog) => dialog.accept());
     await page.locator("#progressFileInput").setInputFiles(file);
     await page.locator("#backupDialog").waitFor({ state: "hidden" });

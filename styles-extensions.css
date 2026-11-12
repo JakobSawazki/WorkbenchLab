@@ -388,3 +388,39 @@ body:has(dialog[open]) { overflow: hidden; }
 .backup-email { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
 .backup-email p { margin: 0 0 .5rem; }
 .backup-email .button { max-width: 100%; white-space: normal; }
+.backup-email [hidden] { display: none; }
+.backup-email .button:not([hidden]) { margin: .15rem .25rem .15rem 0; }
+
+.sidebar-version {
+  align-self: flex-start;
+  min-height: 32px;
+  padding: .25rem .45rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: .8rem;
+  cursor: pointer;
+}
+.sidebar-version:is(:hover, :focus-visible) { color: var(--brand-2); text-decoration: underline; }
+@media (max-width: 1080px) { .sidebar { overflow-y: auto; } }
+.release-history-dialog[open] { display: flex; flex-direction: column; overflow: hidden; }
+.release-history-dialog .dialog-heading { flex: none; border-bottom: 1px solid var(--line); }
+.release-history-dialog h2 { margin: 0; font-size: 1.3rem; }
+.release-history-dialog .icon-button { flex-shrink: 0; }
+#versionHistoryList { min-height: 0; overflow: auto; margin: 0; padding: 0 1.25rem; list-style: none; }
+#versionHistoryList:focus-visible { outline-offset: -3px; }
+#versionHistoryList li { padding-block: .8rem; overflow-wrap: anywhere; }
+#versionHistoryList li + li { border-top: 1px solid var(--line); }
+#versionHistoryList strong { color: var(--brand-2); }
+#versionHistoryList p { margin: .2rem 0 0; }
+
+.nav-item[data-route="klausurvorbereitung"] span { overflow-wrap: anywhere; }
+.exam-preparation .review-head { margin: 0; padding: 0 0 1rem; }
+.exam-preparation .review-head h2 { font-size: 1.3rem; line-height: 1.25; }
+.exam-preparation > section { padding-block: 1rem; border-top: 1px solid var(--line); }
+.exam-preparation .data-table-wrap { margin-block: 1rem; }
+.exam-preparation .code-block { white-space: pre-wrap; overflow-wrap: anywhere; }
+.exam-preparation li + li { margin-top: .45rem; }
+.exam-preparation details summary { cursor: pointer; font-weight: 700; }

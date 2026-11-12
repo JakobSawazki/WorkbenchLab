@@ -36,7 +36,7 @@ const modes = [
       assert.equal(await page.locator("#topProfileName").innerText(), "TST.QAA", label);
 
       // Der Hinweis nennt die Sicherungsdatei als Ausweg.
-      await page.locator("#backupButton").click();
+      await page.locator("#quickSaveButton").click({ button: "right" });
       assert.equal(await page.locator("#backupStorageHint").isVisible(), expectHint, `Hinweis im Dialog (${label})`);
       if (expectHint) assert.match(await page.locator("#backupStorageHint").innerText(), /Browserspeicher nicht verfügbar/);
       await page.locator("#backupCloseButton").click();
@@ -61,7 +61,7 @@ const modes = [
       await page.locator(".lesson-head").waitFor();
 
       // Die Sicherung enthält den Stand dieser Sitzung.
-      await page.locator("#backupButton").click();
+      await page.locator("#quickSaveButton").click({ button: "right" });
       const download = page.waitForEvent("download");
       await page.locator("#exportProgressButton").click();
       const chunks = [];

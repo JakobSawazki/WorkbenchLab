@@ -135,10 +135,10 @@ const describeFocus = () => {
 
       // Dialoge.
       await page.goto(base + "#home", { waitUntil: "networkidle" });
-      for (const [button, dialog] of [["#editProfileButton", "#profileDialog"], ["#appearanceButton", "#appearanceDialog"], ["#backupButton", "#backupDialog"]]) {
+      for (const [button, dialog] of [["#editProfileButton", "#profileDialog"], ["#appearanceButton", "#appearanceDialog"], ["#quickSaveButton", "#backupDialog"]]) {
         const where = `${width}px ${dialog}`;
         await page.locator(button).focus();
-        await page.keyboard.press("Enter");
+        await page.keyboard.press(button === "#quickSaveButton" ? "Shift+F10" : "Enter");
         await page.locator(dialog).waitFor({ state: "visible" });
         await page.waitForTimeout(150);
         if (!(await focus()).inDialog) problems.push(`${where}: Fokus geht beim Öffnen nicht in den Dialog`);
